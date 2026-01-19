@@ -1,5 +1,8 @@
 app.get("/", (req, res) => {
   res.send("✅ Findly API is running");
+
+  app.get("/search", async (req, res) => {
+  const query = req.query.q;
 });
 
 {

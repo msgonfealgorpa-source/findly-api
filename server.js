@@ -1,13 +1,14 @@
 const express = require("express");
 const app = express();
+
 const PORT = process.env.PORT || 10000;
 
-// مسار رئيسي للتأكد أن السيرفر يعمل
+/* الصفحة الرئيسية */
 app.get("/", (req, res) => {
   res.send("✅ Findly API is running");
 });
 
-// 🔍 مسار البحث
+/* البحث */
 app.get("/search", (req, res) => {
   const query = req.query.q;
 
@@ -15,41 +16,42 @@ app.get("/search", (req, res) => {
     return res.json({ top: [] });
   }
 
-  res.json({
-    top: [
-      {
-        name: "Samsung Galaxy S23 Ultra",
-        price: "$899",
-        rating: "4.7",
-        image: "https://via.placeholder.com/150",
-        link: "#"
-      },
-      {
-        name: "Samsung Galaxy S23",
-        price: "$799",
-        rating: "4.6",
-        image: "https://via.placeholder.com/150",
-        link: "#"
-      },
-      {
-        name: "Samsung Galaxy S22",
-        price: "$699",
-        rating: "4.5",
-        image: "https://via.placeholder.com/150",
-        link: "#"
-      },
-      {
-        name: "Samsung Galaxy A54",
-        price: "$399",
-        rating: "4.4",
-        image: "https://via.placeholder.com/150",
-        link: "#"
-      }
-    ]
-  });
+  // بيانات تجريبية ذكية (نفس الفكرة لكل بحث)
+  const products = [
+    {
+      name: `${query} - Premium Model`,
+      price: "$799",
+      rating: "4.7",
+      image: "https://via.placeholder.com/150",
+      link: "#"
+    },
+    {
+      name: `${query} - Pro Edition`,
+      price: "$899",
+      rating: "4.8",
+      image: "https://via.placeholder.com/150",
+      link: "#"
+    },
+    {
+      name: `${query} - Standard`,
+      price: "$599",
+      rating: "4.5",
+      image: "https://via.placeholder.com/150",
+      link: "#"
+    },
+    {
+      name: `${query} - Lite`,
+      price: "$399",
+      rating: "4.3",
+      image: "https://via.placeholder.com/150",
+      link: "#"
+    }
+  ];
+
+  res.json({ top: products });
 });
 
-// تشغيل السيرفر
+/* تشغيل السيرفر */
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });

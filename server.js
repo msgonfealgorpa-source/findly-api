@@ -1,3 +1,7 @@
+app.get("/", (req, res) => {
+  res.send("✅ Findly API is running");
+});
+
 {
   "top": [
     {

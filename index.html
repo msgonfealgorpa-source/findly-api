@@ -184,16 +184,16 @@ data.top.forEach(item => {
         <h3 class="font-bold mb-1">${item.name}</h3>
 
         <div class="text-yellow-500 text-sm mb-2">
-          ★ ${item.rating}
+          ★ ${item.rating || 0}
         </div>
 
         <div class="flex justify-between items-center">
           <span class="font-bold text-purple-700">${item.price}</span>
 
-          <button
-            class="bg-gray-800 text-white px-3 py-2 rounded-xl text-sm">
+          <a href="${item.link}" target="_blank"
+             class="bg-gray-800 text-white px-3 py-2 rounded-xl text-sm">
             دع Findly يتولى
-          </button>
+          </a>
         </div>
       </div>
     </div>

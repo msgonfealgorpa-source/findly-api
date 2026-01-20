@@ -70,7 +70,151 @@
         console.error(e);
       }
     }
-  </script>
+  </script><!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Findly AI</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+body { font-family: 'Cairo', sans-serif; }
+.glass { background: rgba(255,255,255,.9); backdrop-filter: blur(10px); }
+.gradient { background: linear-gradient(135deg,#667eea,#764ba2); }
+</style>
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+
+<!-- HEADER -->
+<header class="gradient text-white p-6 rounded-b-3xl shadow-lg">
+  <div class="max-w-5xl mx-auto">
+
+    <div class="flex justify-between items-center mb-4">
+      <h1 class="text-3xl font-bold">Findly</h1>
+      <span class="bg-white/20 px-4 py-1 rounded-full text-sm">
+        🤖 AI Smart Assistant
+      </span>
+    </div>
+
+    <p class="text-center text-lg opacity-90 leading-relaxed">
+      ابحث بطريقتك، واترك على Findly مهمة المقارنة والاختيار الذكي.
+    </p>
+
+    <!-- SEARCH -->
+    <div class="mt-6 relative max-w-md mx-auto">
+      <input id="search-input" type="text"
+        placeholder="ماذا تبحث عنه اليوم؟"
+        class="w-full py-4 px-6 rounded-2xl text-gray-800 shadow-xl outline-none">
+
+      <button id="search-btn"
+        class="absolute left-3 top-2 bg-purple-600 text-white px-4 py-2 rounded-xl">
+        بحث ذكي
+      </button>
+    </div>
+
+    <p class="text-center text-sm mt-3 opacity-80">
+      دع Findly يقارن، يبحث، ويقترح الأفضل لك تلقائياً
+    </p>
+
+    <!-- QUICK CATEGORIES (التصميم السابق) -->
+    <div class="mt-6 grid grid-cols-2 gap-4 max-w-md mx-auto text-white text-sm">
+
+      <button class="bg-white/20 py-3 rounded-2xl flex items-center justify-center gap-2">
+        📱 هواتف
+      </button>
+
+      <button class="bg-white/20 py-3 rounded-2xl flex items-center justify-center gap-2">
+        🛠️ خدمات
+      </button>
+
+      <button class="bg-white/20 py-3 rounded-2xl flex items-center justify-center gap-2">
+        🚗 سيارات
+      </button>
+
+      <button class="bg-white/20 py-3 rounded-2xl flex items-center justify-center gap-2">
+        🏠 عقارات
+      </button>
+
+    </div>
+
+  </div>
+</header>
+
+<!-- RESULTS -->
+<main class="max-w-6xl mx-auto px-4 mt-10 pb-24">
+
+<h2 class="text-xl font-bold mb-2">نتائج ذكية لك</h2>
+<p class="text-sm text-gray-600 mb-6" id="status">
+  اكتب كلمة بحث واضغط "بحث ذكي"
+</p>
+
+<div id="results" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+
+</main>
+
+<script>
+const API_URL = "https://findly-api.onrender.com/search";
+const btn = document.getElementById("search-btn");
+const input = document.getElementById("search-input");
+const resultsDiv = document.getElementById("results");
+const statusText = document.getElementById("status");
+
+btn.addEventListener("click", search);
+input.addEventListener("keypress", e => {
+  if (e.key === "Enter") search();
+});
+
+async function search() {
+  const q = input.value.trim();
+  if (!q) return;
+
+  statusText.textContent = "⏳ جاري البحث...";
+  resultsDiv.innerHTML = "";
+
+  try {
+    const res = await fetch(`${API_URL}?q=${encodeURIComponent(q)}`);
+    const data = await res.json();
+
+    if (!data.top || data.top.length === 0) {
+      statusText.textContent = "❌ لا توجد نتائج";
+      return;
+    }
+
+    statusText.textContent = `🔍 تم العثور على ${data.top.length} نتائج`;
+
+    data.top.forEach(item => {
+      resultsDiv.innerHTML += `
+        <div class="glass rounded-3xl shadow hover:shadow-xl transition">
+          <img src="${item.image}" class="h-40 w-full object-cover rounded-t-3xl">
+          <div class="p-4">
+            <h3 class="font-bold mb-1">${item.name}</h3>
+            <div class="text-yellow-500 text-sm mb-2">
+              ⭐ ${item.rating}
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="font-bold text-purple-700">${item.price}</span>
+              <button class="bg-gray-800 text-white px-3 py-2 rounded-xl text-sm">
+                دع Findly يتولى
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+
+  } catch (e) {
+    statusText.textContent = "⚠️ حدث خطأ في الاتصال";
+  }
+}
+</script>
+
+</body>
+</html>
 
 </body>
 </html>

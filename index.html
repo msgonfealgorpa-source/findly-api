@@ -172,39 +172,33 @@ async function search() {
     if (!data.top || data.top.length === 0) {
       statusText.textContent = "❌ لا توجد نتائج";
       return;
-    }
+      
+statusText.textContent = `🔍 تم العثور على ${data.top.length} نتائج`;
 
-    statusText.textContent = `🔍 تم العثور على ${data.top.length} نتائج`;
+data.top.forEach(item => {
+  resultsDiv.innerHTML += `
+    <div class="glass rounded-3xl shadow hover:shadow-xl transition">
+      <img src="${item.image}" class="h-40 w-full object-cover rounded-t-3xl">
 
-    data.top.forEach(item => {
-      resultsDiv.innerHTML += `
-        <div class="glass rounded-3xl shadow hover:shadow-xl transition">
-          <img src="${item.image}" class="h-40 w-full object-cover rounded-t-3xl">
-          <div class="p-4">
-            <h3 class="font-bold mb-1">${item.name}</h3>
-            <div class="text-yellow-500 text-sm mb-2">
-              ⭐ ${item.rating}
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="font-bold text-purple-700">${item.price}</span>
-              <button class="bg-gray-800 text-white px-3 py-2 rounded-xl text-sm">
-         <div class="flex justify-between items-center">
-  <span class="font-bold text-purple-700">${item.price}</span>
+      <div class="p-4">
+        <h3 class="font-bold mb-1">${item.name}</h3>
 
-  ${item.link
-    ? '<a href="' + item.link + '" target="_blank" class="bg-gray-800 text-white px-3 py-2 rounded-xl text-sm">دع Findly يتولى</a>'
-    : '<span class="text-gray-400 text-sm">الرابط غير متوفر</span>'
-  }
-</div>   
+        <div class="text-yellow-500 text-sm mb-2">
+          ★ ${item.rating}
+        </div>
 
-  دع Findly يتولى
-</button>
-  } catch (e) {
-    statusText.textContent = "⚠️ حدث خطأ في الاتصال";
-  }
-}
-</script>
+        <div class="flex justify-between items-center">
+          <span class="font-bold text-purple-700">${item.price}</span>
 
+          <button
+            class="bg-gray-800 text-white px-3 py-2 rounded-xl text-sm">
+            دع Findly يتولى
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+});
 </body>
 </html>
 

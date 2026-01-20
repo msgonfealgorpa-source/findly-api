@@ -188,14 +188,13 @@ async function search() {
             <div class="flex justify-between items-center">
               <span class="font-bold text-purple-700">${item.price}</span>
               <button class="bg-gray-800 text-white px-3 py-2 rounded-xl text-sm">
-                دع Findly يتولى
-              </button>
-            </div>
-          </div>
-        </div>
-      `;
-    });
-
+            
+<button
+  class="bg-gray-800 text-white px-3 py-2 rounded-xl text-sm"
+  onclick="window.open('${item.link}', '_blank')"
+>
+  دع Findly يتولى
+</button>
   } catch (e) {
     statusText.textContent = "⚠️ حدث خطأ في الاتصال";
   }

@@ -189,10 +189,10 @@ async function search() {
               <span class="font-bold text-purple-700">${item.price}</span>
               <button class="bg-gray-800 text-white px-3 py-2 rounded-xl text-sm">
             
-<button
-  class="bg-gray-800 text-white px-3 py-2 rounded-xl text-sm"
-  onclick="window.open('${item.link}', '_blank')"
->
+${item.link
+  ? `<a href="${item.link}" target="_blank" class="bg-gray-800 text-white px-3 py-2 rounded-xl text-sm">دع Findly يتولى</a>`
+  : `<span class="text-gray-400 text-sm">الرابط غير متوفر</span>`
+}
   دع Findly يتولى
 </button>
   } catch (e) {
@@ -204,5 +204,3 @@ async function search() {
 </body>
 </html>
 
-</body>
-</html>

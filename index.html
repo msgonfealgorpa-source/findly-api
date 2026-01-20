@@ -11,15 +11,23 @@
     <style>
         :root { --primary: #7c3aed; }
         body.dark-mode { background-color: #0f172a; color: #f8fafc; }
-        body.light-mode { background-color: #f8fafc; color: #1e293b; }
-        body { font-family: 'Cairo', sans-serif; transition: background 0.4s, color 0.4s; min-height: 100vh; }
+        body.light-mode { background-color: #f1f5f9; color: #1e293b; }
+        body { font-family: 'Cairo', sans-serif; transition: all 0.4s ease; min-height: 100vh; }
         
         .hero-gradient { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); }
         .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .light-mode .glass { background: rgba(255, 255, 255, 0.8); border: 1px solid rgba(0,0,0,0.05); }
+        .light-mode .glass { background: rgba(255, 255, 255, 0.8); border: 1px solid rgba(0,0,0,0.1); }
         
-        .badge-best { background: linear-gradient(90deg, #f59e0b, #d97706); }
-        .badge-cheap { background: linear-gradient(90deg, #10b981, #059669); }
+        /* تأثيرات النبض للميكروفون */
+        .recording { animation: pulse 1.5s infinite; color: #ef4444 !important; }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .product-card { transition: transform 0.3s; }
+        .product-card:hover { transform: translateY(-5px); }
     </style>
 </head>
 
@@ -30,7 +38,7 @@
         <nav class="flex justify-between items-center mb-12">
             <div class="text-3xl font-extrabold tracking-tighter">Findly<span class="text-yellow-400">.</span></div>
             <div class="flex gap-4">
-                <button id="theme-toggle" class="bg-white/10 p-2 rounded-xl hover:bg-white/20 transition">🌙</button>
+                <button id="theme-toggle" class="bg-white/10 p-2 rounded-xl hover:bg-white/20 transition text-xl">🌙</button>
                 <select id="lang-select" class="bg-white/10 border-none rounded-xl text-sm p-2 outline-none cursor-pointer">
                     <option value="ar">العربية</option>
                     <option value="en">English</option>
@@ -39,12 +47,19 @@
         </nav>
 
         <div class="text-center max-w-3xl mx-auto">
-            <h1 class="text-4xl md:text-5xl font-extrabold mb-6 leading-tight" id="hero-title"></h1>
+            <h1 class="text-4xl md:text-5xl font-extrabold mb-6" id="hero-title"></h1>
             <p class="text-lg opacity-90 mb-10 font-light" id="hero-desc"></p>
 
-            <div class="relative max-w-2xl mx-auto shadow-2xl rounded-[2rem] bg-white p-2">
-                <input id="search-input" type="text" class="w-full py-4 px-6 pr-12 rounded-[1.8rem] text-gray-900 outline-none text-lg">
-                <button id="search-btn" class="absolute left-2 top-2 bottom-2 bg-purple-600 hover:bg-purple-700 text-white px-8 rounded-[1.5rem] font-bold transition-all active:scale-95">
+            <div class="relative max-w-2xl mx-auto shadow-2xl rounded-[2rem] bg-white p-2 flex items-center">
+                <button id="voice-btn" class="p-3 text-gray-400 hover:text-purple-600 transition ml-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                    </svg>
+                </button>
+                
+                <input id="search-input" type="text" class="w-full py-4 px-2 rounded-[1.8rem] text-gray-900 outline-none text-lg">
+                
+                <button id="search-btn" class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-[1.5rem] font-bold transition-all active:scale-95 whitespace-nowrap">
                 </button>
             </div>
         </div>
@@ -64,49 +79,37 @@
 const translations = {
     ar: {
         heroTitle: "اعثر على أفضل خيار شراء خلال ثوانٍ",
-        heroDesc: "Findly هو مساعدك الذكي الذي يغنيك عن البحث اليدوي في عالم الإلكترونيات.",
+        heroDesc: "مساعدك الذكي الذي يغنيك عن البحث اليدوي في عالم الإلكترونيات.",
         placeholder: "ابحث عن جوال، سماعة، ساعة...",
         searchBtn: "بحث ذكي",
         buying: "شراء الآن",
         sorting: "⏳ جاري تحليل التقييمات...",
         noResults: "❌ لم نجد نتائج تناسب معاييرنا.",
         bestVal: "أفضل قيمة مقابل السعر",
-        topRated: "الأعلى تقييماً عالمياً",
-        cheapOption: "الخيار الاقتصادي الأمثل",
-        resultsTitle: "نتائج المساعد الذكي",
+        resultsTitle: "توصيات Findly الذكية",
         cats: ["📱 هواتف ذكية", "🎧 سماعات", "⌚ ساعات ذكية", "🔌 إكسسوارات"]
     },
     en: {
         heroTitle: "Find the Best Choice in Seconds",
-        heroDesc: "Findly is your smart assistant that replaces manual searching in electronics.",
+        heroDesc: "Your smart assistant that replaces manual searching in electronics.",
         placeholder: "Search for phone, headphones, watch...",
         searchBtn: "Smart Search",
         buying: "Buy Now",
         sorting: "⏳ Analyzing reviews...",
         noResults: "❌ No results match our standards.",
         bestVal: "Best Value for Money",
-        topRated: "Top Rated Globally",
-        cheapOption: "Best Budget Option",
-        resultsTitle: "Smart Assistant Results",
+        resultsTitle: "Findly Smart Recommendations",
         cats: ["📱 Smartphones", "🎧 Audio", "⌚ Smartwatches", "🔌 Accessories"]
     }
 };
 
-// 1. منطق كشف اللغة وحفظها
-let currentLang = localStorage.getItem('findly_lang');
-
-if (!currentLang) {
-    // كشف لغة الجهاز تلقائياً عند أول زيارة
-    const deviceLang = navigator.language.split('-')[0];
-    currentLang = translations[deviceLang] ? deviceLang : 'ar'; 
-}
-
-// 2. منطق كشف الثيم وحفظه
+// 1. إدارة اللغة والوضع (الثيم) مع الحفظ
+let currentLang = localStorage.getItem('findly_lang') || (translations[navigator.language.split('-')[0]] ? navigator.language.split('-')[0] : 'ar');
 let currentTheme = localStorage.getItem('findly_theme') || 'dark';
 
 function applyTheme(theme) {
     document.body.className = theme + '-mode';
-    document.getElementById('theme-toggle').innerText = theme === 'dark' ? '🌙' : '☀️';
+    document.getElementById('theme-icon').innerText = theme === 'dark' ? '🌙' : '☀️';
     localStorage.setItem('findly_theme', theme);
 }
 
@@ -114,7 +117,6 @@ function updateUI(lang) {
     currentLang = lang;
     localStorage.setItem('findly_lang', lang);
     const t = translations[lang];
-    
     document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = lang;
     
@@ -125,23 +127,40 @@ function updateUI(lang) {
     document.getElementById('results-title').innerText = t.resultsTitle;
     
     document.getElementById('cats-container').innerHTML = t.cats.map(c => 
-        `<div class="glass p-4 rounded-2xl text-center cursor-pointer font-bold hover:bg-purple-600 hover:text-white transition">${c}</div>`
+        `<div onclick="quickSearch('${c}')" class="glass p-4 rounded-2xl text-center cursor-pointer font-bold hover:bg-purple-600 hover:text-white transition shadow-sm">${c}</div>`
     ).join('');
 }
 
-// تبديل الثيم عند الضغط
-document.getElementById('theme-toggle').onclick = () => {
-    currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    applyTheme(currentTheme);
-};
+// 2. البحث الصوتي
+const voiceBtn = document.getElementById('voice-btn');
+if ('webkitSpeechRecognition' in window) {
+    const recognition = new webkitSpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
 
-// تبديل اللغة عند الاختيار
-document.getElementById('lang-select').onchange = (e) => updateUI(e.target.value);
+    voiceBtn.onclick = () => {
+        recognition.lang = currentLang === 'ar' ? 'ar-SA' : 'en-US';
+        recognition.start();
+        voiceBtn.classList.add('recording');
+    };
 
-// تنفيذ البحث (نفس المنطق الذكي السابق)
-document.getElementById('search-btn').onclick = async () => {
+    recognition.onresult = (e) => {
+        document.getElementById('search-input').value = e.results[0][0].transcript;
+        voiceBtn.classList.remove('recording');
+        executeSearch();
+    };
+
+    recognition.onerror = () => voiceBtn.classList.remove('recording');
+    recognition.onend = () => voiceBtn.classList.remove('recording');
+} else {
+    voiceBtn.style.display = 'none';
+}
+
+// 3. منطق البحث والترتيب
+async function executeSearch() {
     const query = document.getElementById('search-input').value.trim();
     if (query.length < 2) return;
+    
     const t = translations[currentLang];
     const resultsDiv = document.getElementById('results');
     const statusText = document.getElementById('status');
@@ -158,26 +177,52 @@ document.getElementById('search-btn').onclick = async () => {
             return;
         }
 
+        // الترتيب حسب التقييم (الهدف 3.1)
         const sorted = data.top.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-        statusText.innerText = `تم اختيار أفضل ${sorted.length} خيارات.`;
+        statusText.innerText = `تم تحليل ${sorted.length} خيارات واختيار الأفضل لك.`;
 
         sorted.forEach((item, index) => {
-            let badge = index === 0 ? `<span class="badge-best text-[10px] text-white px-3 py-1 rounded-full font-bold mb-2 inline-block">🔥 الأفضل</span>` : '';
+            // شارة "الأفضل" (الهدف 3.2)
+            const badge = index === 0 ? `<span class="bg-amber-500 text-[10px] text-white px-3 py-1 rounded-full font-bold mb-2 inline-block shadow-sm">⭐ الأفضل تقييماً</span>` : '';
+            
             resultsDiv.innerHTML += `
                 <div class="glass rounded-[2.5rem] overflow-hidden flex flex-col p-4 product-card">
-                    <img src="${item.image}" class="w-full h-48 object-cover rounded-2xl mb-4">
+                    <div class="relative mb-4">
+                        <img src="${item.image}" class="w-full h-48 object-cover rounded-2xl">
+                        <div class="absolute top-2 right-2 bg-black/50 backdrop-blur-md text-white px-2 py-1 rounded-lg text-xs font-bold">
+                            ★ ${item.rating || '4.0'}
+                        </div>
+                    </div>
                     ${badge}
-                    <h3 class="font-bold text-lg mb-2 line-clamp-1">${item.name}</h3>
-                    <div class="mt-auto flex justify-between items-center pt-4 border-t border-white/10">
+                    <h3 class="font-bold text-lg mb-2 line-clamp-2">${item.name}</h3>
+                    <p class="text-[11px] opacity-60 mb-4">${t.bestVal}</p>
+                    <div class="mt-auto flex justify-between items-center pt-4 border-t border-white/5">
                         <span class="text-xl font-black text-purple-500">${item.price || '—'}</span>
-                        <a href="${item.link}" target="_blank" class="bg-purple-600 text-white px-4 py-2 rounded-xl text-sm font-bold">${t.buying}</a>
+                        <a href="${item.link}" target="_blank" class="bg-purple-600 text-white px-5 py-2 rounded-xl text-sm font-bold shadow-lg shadow-purple-500/20 active:scale-95 transition">
+                            ${t.buying}
+                        </a>
                     </div>
                 </div>`;
         });
-    } catch (e) { statusText.innerText = "Error"; }
-};
+    } catch (e) {
+        statusText.innerText = "Error in connection";
+    }
+}
 
-// تشغيل الإعدادات المحفوظة عند تحميل الصفحة
+function quickSearch(cat) {
+    document.getElementById('search-input').value = cat.split(' ')[1] || cat;
+    executeSearch();
+}
+
+// 4. التشغيل والتهيئة
+document.getElementById('search-btn').onclick = executeSearch;
+document.getElementById('theme-toggle').onclick = () => {
+    currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    applyTheme(currentTheme);
+};
+document.getElementById('lang-select').onchange = (e) => updateUI(e.target.value);
+
+// البداية
 applyTheme(currentTheme);
 updateUI(currentLang);
 document.getElementById('lang-select').value = currentLang;

@@ -122,31 +122,40 @@ async function search() {
     statusText.textContent = `🔍 تم العثور على ${data.top.length} نتائج`;
 
     data.top.forEach(item => {
-      resultsDiv.innerHTML += `
-        <div class="glass rounded-3xl shadow-lg hover:scale-[1.02] transition">
-          <img src="${item.image}" class="h-40 w-full object-cover rounded-t-3xl">
+  resultsDiv.innerHTML += `
+    <div class="glass rounded-3xl shadow-lg hover:scale-[1.02] transition overflow-hidden">
 
-          <div class="flex justify-between items-center mt-3">
-  <span class="font-bold text-purple-300">
-    ${item.price || "—"}
-  </span>
+      <img src="${item.image}"
+           class="h-40 w-full object-cover rounded-t-3xl">
 
-  <a href="${item.link || '#'}"
-     target="_blank"
-     rel="noopener"
-     class="bg-purple-600 hover:bg-purple-700
-            transition text-white px-4 py-2
-            rounded-xl text-sm 
-    شراء
-  </a>
-</div>
-            </div>
+      <div class="p-4">
+        <h3 class="font-bold mb-1 text-white">
+          ${item.name}
+        </h3>
 
-            <span class="font-bold text-purple-300">${item.price}</span>
-          </div>
+        <div class="text-yellow-400 text-sm mb-3">
+          ★ ${item.rating || 0}
         </div>
-      `;
-    });
+
+        <div class="flex justify-between items-center">
+          <span class="font-bold text-purple-300">
+            ${item.price || "—"}
+          </span>
+
+          <a href="${item.link || '#'}"
+             target="_blank"
+             rel="noopener"
+             class="bg-purple-600 hover:bg-purple-700
+                    transition text-white px-4 py-2
+                    rounded-xl text-sm
+                    ${!item.link ? 'pointer-events-none opacity-50' : ''}">
+            شراء
+          </a>
+        </div>
+      </div>
+    </div>
+  `;
+});
 
   } catch (e) {
     statusText.textContent = "⚠️ خطأ في الاتصال بالسيرفر";

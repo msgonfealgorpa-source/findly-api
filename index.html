@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Findly AI</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+body { font-family: 'Cairo', sans-serif; }
+.glass { background: rgba(255,255,255,.9); backdrop-filter: blur(10px); }
+.gradient { background: linear-gradient(135deg,#667eea,#764ba2); }
+</style>
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+
+<!-- HEADER -->
+<header class="gradient text-white p-6 rounded-b-3xl shadow-lg">
+  <div class="max-w-5xl mx-auto">
+
+    <div class="flex justify-between items-center mb-4">
+      <h1 class="text-3xl font-bold">Findly</h1>
+      <span class="bg-white/20 px-4 py-1 rounded-full text-sm">
+        🤖 AI Smart Assistant
+      </span>
+    </div>
+
+    <p id="hero-msg" class="text-center text-lg opacity-90 leading-relaxed">
+      ابحث بطريقتك، واترك على Findly مهمة المقارنة والاختيار الذكي.
+    </p>
+
+    <!-- SEARCH -->
+    <div class="mt-6 relative max-w-md mx-auto">
+      <input id="search-input" type="text"
+        placeholder="ماذا تبحث عنه اليوم؟"
+        class="w-full py-4 px-6 rounded-2xl text-gray-800 shadow-xl focus:ring-2 focus:ring-purple-300 outline-none">
+
+      <button class="absolute left-3 top-2 bg-purple-600 text-white px-4 py-2 rounded-xl hover:bg-purple-700 transition">
+        بحث ذكي
+      </button>
+    </div>
+
+    <p class="text-center text-sm mt-3 opacity-80">
+      دع Findly يقارن، يبحث، ويقترح الأفضل لك تلقائياً
+    </p>
+
+    <!-- SUGGESTIONS -->
+    <div class="flex justify-center flex-wrap gap-3 mt-6">
+      <button class="bg-white/20 px-4 py-2 rounded-full">📱 هواتف</button>
+      <button class="bg-white/20 px-4 py-2 rounded-full">🛠 خدمات</button>
+      <button class="bg-white/20 px-4 py-2 rounded-full">🚗 سيارات</button>
+      <button class="bg-white/20 px-4 py-2 rounded-full">🏠 عقارات</button>
+    </div>
+
+  </div>
+</header>
+
+<!-- RESULTS -->
+<main class="max-w-6xl mx-auto px-4 mt-10 pb-24">
+
+<h2 class="text-xl font-bold mb-2">نتائج ذكية لك</h2>
+<p class="text-sm text-gray-600 mb-6">
+  تم اختيار هذه النتائج بناءً على اهتماماتك وسلوكك
+</p>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+<script>
+const items=[
+{n:"هاتف ذكي متطور",p:"350$",r:4.9,i:1},
+{n:"خدمة تقنية",p:"120$",r:4.6,i:2},
+{n:"منتج مميز",p:"480$",r:4.8,i:3},
+{n:"خدمة صيانة",p:"90$",r:4.3,i:4}
+];
+
+document.write(items.map(x=>`
+<div class="glass rounded-3xl shadow hover:shadow-xl transition transform hover:-translate-y-2">
+<img src="https://picsum.photos/300?random=${x.i}" class="h-40 w-full object-cover">
+<div class="p-4">
+<h3 class="font-bold">${x.n}</h3>
+<div class="text-yellow-500 text-sm my-1">
+<i class="fas fa-star"></i> ${x.r}
+</div>
+<div class="flex justify-between items-center mt-4">
+<span class="font-bold text-purple-700">${x.p}</span>
+<button class="bg-gray-800 text-white px-3 py-2 rounded-xl text-sm">
+دع Findly يتولى
+</button>
+</div>
+</div>
+</div>
+`).join(""));
+</script>
+
+</div>
+</main>
+
+</body>
+</html>

@@ -38,11 +38,12 @@ app.get("/search", async (req, res) => {
     const products = response.data?.data?.products || [];
 
     const results = products.slice(0, 6).map(p => ({
-      name: p.product_title,
-      price: p.product_price || "—",
-      rating: p.product_star_rating || 0,
-      image: p.product_photo || ""
-    }));
+  name: p.product_title,
+  price: p.product_price || "—",
+  rating: p.product_star_rating || 0,
+  image: p.product_photo || "",
+  link: p.product_url   // ⭐ هذا أهم سطر
+}));
 
     res.json({ top: results });
 

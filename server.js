@@ -1,4 +1,9 @@
 const express = require("express");
+import cors from "cors";
+
+app.use(cors({
+  origin: "*"
+}));
 const cors = require("cors");
 const axios = require("axios");
 

@@ -37,10 +37,10 @@ body { font-family: 'Cairo', sans-serif; }
     <div class="mt-6 relative max-w-md mx-auto">
       <input id="search-input" type="text"
         placeholder="ماذا تبحث عنه اليوم؟"
-        class="w-full py-4 px-6 rounded-2xl text-gray-800 shadow-xl focus:ring-2 focus:ring-purple-300 outline-none">
+        class="w-full py-4 px-6 rounded-2xl text-gray-800 shadow-xl outline-none">
 
       <button id="search-btn"
-        class="absolute left-3 top-2 bg-purple-600 text-white px-4 py-2 rounded-xl hover:bg-purple-700 transition">
+        class="absolute left-3 top-2 bg-purple-600 text-white px-4 py-2 rounded-xl">
         بحث ذكي
       </button>
     </div>
@@ -49,14 +49,6 @@ body { font-family: 'Cairo', sans-serif; }
       دع Findly يقارن، يبحث، ويقترح الأفضل لك تلقائياً
     </p>
 
-    <!-- SUGGESTIONS -->
-    <div class="flex justify-center flex-wrap gap-3 mt-6">
-      <button onclick="quickSearch('هواتف')" class="bg-white/20 px-4 py-2 rounded-full">📱 هواتف</button>
-      <button onclick="quickSearch('خدمات')" class="bg-white/20 px-4 py-2 rounded-full">🛠 خدمات</button>
-      <button onclick="quickSearch('سيارات')" class="bg-white/20 px-4 py-2 rounded-full">🚗 سيارات</button>
-      <button onclick="quickSearch('عقارات')" class="bg-white/20 px-4 py-2 rounded-full">🏠 عقارات</button>
-    </div>
-
   </div>
 </header>
 
@@ -64,8 +56,8 @@ body { font-family: 'Cairo', sans-serif; }
 <main class="max-w-6xl mx-auto px-4 mt-10 pb-24">
 
 <h2 class="text-xl font-bold mb-2">نتائج ذكية لك</h2>
-<p id="status" class="text-sm text-gray-600 mb-6">
-  اكتب كلمة البحث واضغط «بحث ذكي»
+<p class="text-sm text-gray-600 mb-6" id="status">
+  اكتب كلمة بحث واضغط "بحث ذكي"
 </p>
 
 <div id="results" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
@@ -73,69 +65,58 @@ body { font-family: 'Cairo', sans-serif; }
 </main>
 
 <script>
-const API_URL = "https://api.onrender.com"; // عدل إذا لزم
-const resultsEl = document.getElementById("results");
-const statusEl = document.getElementById("status");
-const inputEl = document.getElementById("search-input");
-const btnEl = document.getElementById("search-btn");
+const API_URL = "https://findly-api.onrender.com/search";
+const btn = document.getElementById("search-btn");
+const input = document.getElementById("search-input");
+const resultsDiv = document.getElementById("results");
+const statusText = document.getElementById("status");
 
-btnEl.addEventListener("click", search);
-inputEl.addEventListener("keypress", e => {
+btn.addEventListener("click", search);
+input.addEventListener("keypress", e => {
   if (e.key === "Enter") search();
 });
 
-function quickSearch(word) {
-  inputEl.value = word;
-  search();
-}
-
-function search() {
-  const q = inputEl.value.trim();
+async function search() {
+  const q = input.value.trim();
   if (!q) return;
 
-  statusEl.textContent = "🔍 جاري البحث...";
-  resultsEl.innerHTML = "";
+  statusText.textContent = "⏳ جاري البحث...";
+  resultsDiv.innerHTML = "";
 
-  fetch(`${API_URL}?q=${encodeURIComponent(q)}`)
-    .then(res => res.json())
-    .then(data => {
-      if (!data.top || data.top.length === 0) {
-        statusEl.textContent = "❌ لا توجد نتائج";
-        return;
-      }
+  try {
+    const res = await fetch(`${API_URL}?q=${encodeURIComponent(q)}`);
+    const data = await res.json();
 
-      statusEl.textContent = `تم العثور على ${data.top.length} نتيجة`;
+    if (!data.top || data.top.length === 0) {
+      statusText.textContent = "❌ لا توجد نتائج";
+      return;
+    }
 
-      data.top.forEach(x => {
-        resultsEl.innerHTML += `
-        <div class="glass rounded-3xl shadow hover:shadow-xl transition transform hover:-translate-y-2">
-          <img src="${x.image}" class="h-40 w-full object-cover">
+    statusText.textContent = `🔍 تم العثور على ${data.top.length} نتائج`;
+
+    data.top.forEach(item => {
+      resultsDiv.innerHTML += `
+        <div class="glass rounded-3xl shadow hover:shadow-xl transition">
+          <img src="${item.image}" class="h-40 w-full object-cover rounded-t-3xl">
           <div class="p-4">
-            <h3 class="font-bold">${x.name}</h3>
-
-            <div class="text-yellow-500 text-sm my-1">
-              <i class="fas fa-star"></i> ${x.rating}
+            <h3 class="font-bold mb-1">${item.name}</h3>
+            <div class="text-yellow-500 text-sm mb-2">
+              ⭐ ${item.rating}
             </div>
-
-            <div class="flex justify-between items-center mt-4">
-              <span class="font-bold text-purple-700">${x.price}</span>
-              <button onclick="takeOver('${x.name}')"
-                class="bg-gray-800 text-white px-3 py-2 rounded-xl text-sm">
+            <div class="flex justify-between items-center">
+              <span class="font-bold text-purple-700">${item.price}</span>
+              <button class="bg-gray-800 text-white px-3 py-2 rounded-xl text-sm">
                 دع Findly يتولى
               </button>
             </div>
           </div>
         </div>
-        `;
-      });
-    })
-    .catch(() => {
-      statusEl.textContent = "⚠️ حدث خطأ في الاتصال";
+      `;
     });
-}
 
-function takeOver(name) {
-  alert("🤖 Findly سيهتم بـ: " + name);
+  } catch (e) {
+    statusText.textContent = "⚠️ حدث خطأ في الاتصال";
+  }
 }
 </script>
 

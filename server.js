@@ -3,50 +3,14 @@ const cors = require("cors");
 const axios = require("axios");
 
 const app = express();
+const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
 
-/* بيانات منتجات تجريبية */
-const PRODUCTS = [
-  {
-    name: "Samsung Galaxy S23",
-    brand: "samsung",
-    price: "$799",
-    rating: 4.7,
-    image: "https://via.placeholder.com/150"
-  },
-  {
-    name: "Samsung Galaxy A54",
-    brand: "samsung",
-    price: "$399",
-    rating: 4.5,
-    image: "https://via.placeholder.com/150"
-  },
-  {
-    name: "Xiaomi 13 Pro",
-    brand: "xiaomi",
-    price: "$699",
-    rating: 4.6,
-    image: "https://via.placeholder.com/150"
-  },
-  {
-    name: "Honor Magic 5",
-    brand: "honor",
-    price: "$649",
-    rating: 4.4,
-    image: "https://via.placeholder.com/150"
-  },
-  {
-    name: "Wireless Headphones",
-    brand: "سماعات",
-    price: "$129",
-    rating: 4.3,
-    image: "https://via.placeholder.com/150"
-  }
-];
-
-const axios = require("axios");
+app.get("/", (req, res) => {
+  res.send("Findly API is running");
+});
 
 app.get("/search", async (req, res) => {
   const q = req.query.q;
@@ -71,13 +35,13 @@ app.get("/search", async (req, res) => {
       }
     );
 
-    const products = response.data.data.products || [];
+    const products = response.data?.data?.products || [];
 
     const results = products.slice(0, 6).map(p => ({
       name: p.product_title,
       price: p.product_price || "—",
       rating: p.product_star_rating || 0,
-      image: p.product_photo
+      image: p.product_photo || ""
     }));
 
     res.json({ top: results });
@@ -87,6 +51,7 @@ app.get("/search", async (req, res) => {
     res.json({ top: [] });
   }
 });
+
 app.listen(PORT, () => {
   console.log("Server running on port", PORT);
 });

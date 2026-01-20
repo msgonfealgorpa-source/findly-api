@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,20 +11,17 @@
 <style>
 body { font-family: 'Cairo', sans-serif; }
 
-/* خلفية عامة بنفسجية */
 .app-bg {
   background: linear-gradient(180deg, #5b4b8a, #3b2d5a);
   min-height: 100vh;
 }
 
-/* كرت زجاجي بنفسجي */
 .glass {
   background: rgba(255,255,255,0.12);
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255,255,255,0.15);
 }
 
-/* عنوان */
 .gradient {
   background: linear-gradient(135deg,#667eea,#764ba2);
 }
@@ -33,38 +30,20 @@ body { font-family: 'Cairo', sans-serif; }
 
 <body class="app-bg text-white">
 
-<!-- HEADER -->
 <header class="gradient p-6 rounded-b-3xl shadow-lg">
   <div class="max-w-5xl mx-auto">
 
     <div class="flex justify-between items-center mb-4">
       <h1 class="text-3xl font-bold">Findly</h1>
-      <span class="bg-white/20 px-4 py-1 rounded-full text-sm">
+      <span class="bg-white/20 px-4 py-1 rounded-full text-sm" id="ai-label">
         🤖 AI Smart Assistant
       </span>
     </div>
 
-    <p class="text-center text-lg opacity-90">
-      ابحث بطريقتك، واترك على Findly مهمة المقارنة والاختيار الذكي.
-    </p>
+    <p class="text-center text-lg opacity-90" id="subtitle"></p>
 
-    <!-- SEARCH --><script>
-  // 1️⃣ كشف لغة الجهاز
-  const userLang = navigator.language || navigator.userLanguage;
-  const lang = userLang.startsWith("ar") ? "ar" : "en";
-   <script>
-  const searchBtn = document.getElementById("search-btn");
-
-  if (lang === "ar") {
-    searchBtn.textContent = "بحث ذكي";
-  } else {
-    searchBtn.textContent = "Smart Search";
-  }
-</script>
-    </script>
     <div class="mt-6 relative max-w-md mx-auto">
       <input id="search-input" type="text"
-        placeholder="ماذا تبحث عنه اليوم؟"
         class="w-full py-4 px-6 rounded-2xl text-gray-900 shadow-xl outline-none">
 
       <button id="search-btn"
@@ -72,106 +51,107 @@ body { font-family: 'Cairo', sans-serif; }
       </button>
     </div>
 
-    <p class="text-center text-sm mt-3 opacity-80">
-      دع Findly يقارن ويقترح الأفضل لك
-    </p>
+    <p class="text-center text-sm mt-3 opacity-80" id="hint"></p>
 
-    <!-- CATEGORIES -->
-    <div class="mt-6 grid grid-cols-3 gap-3 max-w-md mx-auto text-sm">
-      <div class="glass py-3 rounded-2xl text-center">📱 هواتف</div>
-      <div class="glass py-3 rounded-2xl text-center">🎧 سماعات</div>
-      <div class="glass py-3 rounded-2xl text-center">⌚ ساعات</div>
-      <div class="glass py-3 rounded-2xl text-center">🧢 ملابس</div>
-      <div class="glass py-3 rounded-2xl text-center col-span-2">🔌 إكسسوارات</div>
-    </div>
+    <div class="mt-6 grid grid-cols-3 gap-3 max-w-md mx-auto text-sm" id="categories"></div>
 
   </div>
 </header>
 
-<!-- RESULTS -->
 <main class="max-w-6xl mx-auto px-4 mt-10 pb-24">
-
-<h2 class="text-xl font-bold mb-2">نتائج ذكية لك</h2>
-<p class="text-sm opacity-80 mb-6" id="status">
-  اكتب كلمة بحث واضغط "بحث ذكي"
-</p>
-
-<div id="results" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
-
+  <h2 class="text-xl font-bold mb-2" id="results-title"></h2>
+  <p class="text-sm opacity-80 mb-6" id="status"></p>
+  <div id="results" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
 </main>
 
 <script>
+/* 🌍 كشف لغة الجهاز */
+const isArabic = navigator.language.startsWith("ar");
+document.documentElement.lang = isArabic ? "ar" : "en";
+document.documentElement.dir = isArabic ? "rtl" : "ltr";
+
+/* 📝 نصوص الواجهة */
+const T = isArabic ? {
+  subtitle: "ابحث بطريقتك، واترك على Findly مهمة المقارنة والاختيار الذكي.",
+  placeholder: "ماذا تبحث عنه اليوم؟",
+  search: "بحث ذكي",
+  hint: "دع Findly يقارن ويقترح الأفضل لك",
+  results: "نتائج ذكية لك",
+  status: "اكتب كلمة بحث واضغط \"بحث ذكي\"",
+  buy: "شراء",
+  cats: ["📱 هواتف","🎧 سماعات","⌚ ساعات","🧢 ملابس","🔌 إكسسوارات"]
+} : {
+  subtitle: "Search your way and let Findly handle smart comparison.",
+  placeholder: "What are you looking for?",
+  search: "Smart Search",
+  hint: "Let Findly compare and suggest the best",
+  results: "Smart Results for You",
+  status: "Type a keyword and click Smart Search",
+  buy: "Buy",
+  cats: ["📱 Phones","🎧 Headphones","⌚ Watches","🧢 Clothing","🔌 Accessories"]
+};
+
+/* تطبيق النصوص */
+document.getElementById("subtitle").textContent = T.subtitle;
+document.getElementById("search-input").placeholder = T.placeholder;
+document.getElementById("search-btn").textContent = T.search;
+document.getElementById("hint").textContent = T.hint;
+document.getElementById("results-title").textContent = T.results;
+document.getElementById("status").textContent = T.status;
+
+document.getElementById("categories").innerHTML =
+  T.cats.map(c => `<div class="glass py-3 rounded-2xl text-center">${c}</div>`).join("");
+
+/* 🔎 البحث */
 const API_URL = "https://findly-api.onrender.com/search";
 const btn = document.getElementById("search-btn");
 const input = document.getElementById("search-input");
 const resultsDiv = document.getElementById("results");
 const statusText = document.getElementById("status");
 
-/* تصنيفات مسموحة فقط */
-const allowedCategories = ["phone","iphone","samsung","watch","headphone","earbud","clothing","shirt","accessory","case"];
-
-btn.addEventListener("click", search);
-input.addEventListener("keypress", e => {
-  if (e.key === "Enter") search();
-});
+btn.onclick = search;
+input.onkeypress = e => e.key === "Enter" && search();
 
 async function search() {
   const q = input.value.trim();
   if (!q) return;
 
-  statusText.textContent = "⏳ جاري البحث...";
+  statusText.textContent = isArabic ? "⏳ جاري البحث..." : "⏳ Searching...";
   resultsDiv.innerHTML = "";
 
   try {
     const res = await fetch(`${API_URL}?q=${encodeURIComponent(q)}`);
     const data = await res.json();
 
-    if (!data.top || data.top.length === 0) {
-      statusText.textContent = "❌ لا توجد نتائج";
+    if (!data.top || !data.top.length) {
+      statusText.textContent = isArabic ? "❌ لا توجد نتائج" : "❌ No results";
       return;
     }
 
-    statusText.textContent = `🔍 تم العثور على ${data.top.length} نتائج`;
+    statusText.textContent = isArabic
+      ? `🔍 تم العثور على ${data.top.length} نتائج`
+      : `🔍 ${data.top.length} results found`;
 
     data.top.forEach(item => {
-  resultsDiv.innerHTML += `
-    <div class="glass rounded-3xl shadow-lg hover:scale-[1.02] transition overflow-hidden">
+      resultsDiv.innerHTML += `
+        <div class="glass rounded-3xl overflow-hidden">
+          <img src="${item.image}" class="h-40 w-full object-cover">
+          <div class="p-4">
+            <h3 class="font-bold mb-1">${item.name}</h3>
+            <div class="text-yellow-400 text-sm mb-2">★ ${item.rating || 0}</div>
+            <div class="flex justify-between items-center">
+              <span class="font-bold">${item.price || "—"}</span>
+              <a href="${item.link || '#'}" target="_blank"
+                 class="bg-purple-600 px-4 py-2 rounded-xl text-sm ${!item.link ? 'opacity-50 pointer-events-none':''}">
+                 ${T.buy}
+              </a>
+            </div>
+          </div>
+        </div>`;
+    });
 
-      <img src="${item.image}"
-           class="h-40 w-full object-cover rounded-t-3xl">
-
-      <div class="p-4">
-        <h3 class="font-bold mb-1 text-white">
-          ${item.name}
-        </h3>
-
-        <div class="text-yellow-400 text-sm mb-3">
-          ★ ${item.rating || 0}
-        </div>
-
-        <div class="flex justify-between items-center">
-          <span class="font-bold text-purple-300">
-            ${item.price || "—"}
-          </span>
-
-          <a href="${item.link || '#'}"
-             target="_blank"
-             rel="noopener"
-             class="bg-purple-600 hover:bg-purple-700
-                    transition text-white px-4 py-2
-                    rounded-xl text-sm
-                    ${!item.link ? 'pointer-events-none opacity-50' : ''}">
-            شراء
-          </a>
-        </div>
-      </div>
-    </div>
-  `;
-});
-
-  } catch (e) {
-    statusText.textContent = "⚠️ خطأ في الاتصال بالسيرفر";
-    console.error(e);
+  } catch {
+    statusText.textContent = isArabic ? "⚠️ خطأ في الاتصال" : "⚠️ Connection error";
   }
 }
 </script>

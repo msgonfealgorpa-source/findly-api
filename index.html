@@ -170,4 +170,7 @@
         });
 
         const validPrices = analyzedItems.map(i => i.numericPrice).filter(p => p > 0);
-        const avgPrice = validPrices.reduce((a, b) => a + b,
+        
+const avgPrice = validPrices.length
+  ? validPrices.reduce((a, b) => a + b, 0) / validPrices.length
+  : 0;

@@ -3,41 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Findly AI | مساعد الشراء الذكي للإلكترونيات</title>
+    <title>Findly AI | مساعد الشراء الذكي</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
 
     <style>
-        :root { --primary: #7c3aed; --bg-dark: #0f172a; }
-        body.dark-mode { background-color: var(--bg-dark); color: #f8fafc; }
-        body.light-mode { background-color: #f8fafc; color: #1e293b; }
-        
-        body { font-family: 'Cairo', sans-serif; transition: all 0.3s ease; }
-        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .light-mode .glass { background: rgba(255, 255, 255, 0.8); border: 1px solid rgba(0,0,0,0.05); }
+        :root { --primary: #7c3aed; }
+        body.dark-mode { background-color: #0f172a; color: #f8fafc; }
+        body.light-mode { background-color: #f1f5f9; color: #1e293b; }
+        body { font-family: 'Cairo', sans-serif; transition: all 0.4s ease; min-height: 100vh; }
         
         .hero-gradient { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); }
-        .badge-best { background: linear-gradient(90deg, #f59e0b, #d97706); }
-        .badge-cheap { background: linear-gradient(90deg, #10b981, #059669); }
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .light-mode .glass { background: rgba(255, 255, 255, 0.8); border: 1px solid rgba(0,0,0,0.1); }
         
-        .product-card:hover { transform: translateY(-8px); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        /* تأثيرات النبض للميكروفون */
+        .recording { animation: pulse 1.5s infinite; color: #ef4444 !important; }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .product-card { transition: transform 0.3s; }
+        .product-card:hover { transform: translateY(-5px); }
     </style>
 </head>
 
 <body class="dark-mode">
 
-<header class="hero-gradient text-white pb-20 pt-10 rounded-b-[4rem] shadow-2xl relative overflow-hidden">
-    <div class="absolute inset-0 opacity-10 pointer-events-none">
-        <svg width="100%" height="100%"><rect width="100%" height="100%" fill="url(#grid)"/><defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" stroke-width="1"/></pattern></defs></svg>
-    </div>
-
+<header class="hero-gradient text-white pb-20 pt-10 rounded-b-[4rem] shadow-2xl relative">
     <div class="max-w-6xl mx-auto px-6 relative z-10">
         <nav class="flex justify-between items-center mb-12">
             <div class="text-3xl font-extrabold tracking-tighter">Findly<span class="text-yellow-400">.</span></div>
             <div class="flex gap-4">
-                <button id="theme-toggle" class="bg-white/10 p-2 rounded-xl hover:bg-white/20">🌙</button>
-                <select id="lang-select" class="bg-white/10 border-none rounded-xl text-sm p-2 outline-none">
+                <button id="theme-toggle" class="bg-white/10 p-2 rounded-xl hover:bg-white/20 transition text-xl">🌙</button>
+                <select id="lang-select" class="bg-white/10 border-none rounded-xl text-sm p-2 outline-none cursor-pointer">
                     <option value="ar">العربية</option>
                     <option value="en">English</option>
                 </select>
@@ -45,105 +47,124 @@
         </nav>
 
         <div class="text-center max-w-3xl mx-auto">
-            <h1 class="text-4xl md:text-5xl font-extrabold mb-6 leading-tight" id="hero-title">
-                اعثر على أفضل خيار شراء خلال ثوانٍ
-            </h1>
-            <p class="text-lg opacity-90 mb-10 font-light" id="hero-desc">
-                مساعدك الذكي المتخصص في مقارنة الإلكترونيات؛ لنوفر عليك عناء البحث ونمنحك التوصية الأفضل.
-            </p>
+            <h1 class="text-4xl md:text-5xl font-extrabold mb-6" id="hero-title"></h1>
+            <p class="text-lg opacity-90 mb-10 font-light" id="hero-desc"></p>
 
-            <div class="relative max-w-2xl mx-auto shadow-2xl rounded-[2rem] bg-white p-2">
-                <input id="search-input" type="text" 
-                    class="w-full py-4 px-6 pr-12 rounded-[1.8rem] text-gray-900 outline-none text-lg"
-                    placeholder="ابحث عن: هاتف، سماعة، أو ساعة ذكية...">
+            <div class="relative max-w-2xl mx-auto shadow-2xl rounded-[2rem] bg-white p-2 flex items-center">
+                <button id="voice-btn" class="p-3 text-gray-400 hover:text-purple-600 transition ml-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                    </svg>
+                </button>
                 
-                <button id="search-btn" class="absolute left-2 top-2 bottom-2 bg-purple-600 hover:bg-purple-700 text-white px-8 rounded-[1.5rem] font-bold transition-all active:scale-95">
-                    بحث ذكي
+                <input id="search-input" type="text" class="w-full py-4 px-2 rounded-[1.8rem] text-gray-900 outline-none text-lg">
+                
+                <button id="search-btn" class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-[1.5rem] font-bold transition-all active:scale-95 whitespace-nowrap">
                 </button>
             </div>
-            <p id="hint" class="mt-4 text-sm opacity-70">نحن نقارن بين آلاف التقييمات لنختار لك الأفضل.</p>
         </div>
     </div>
 </header>
 
 <main class="max-w-7xl mx-auto px-6 -mt-10 relative z-20 pb-20">
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16" id="cats-container">
-        </div>
-
-    <div class="mb-8 flex justify-between items-end">
-        <div>
-            <h2 class="text-2xl font-bold" id="results-title">نتائج المساعد الذكي</h2>
-            <p class="text-sm opacity-60" id="status">جاهز لمساعدتك في اختيارك القادم</p>
-        </div>
+    <div id="cats-container" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16"></div>
+    <div class="mb-8">
+        <h2 class="text-2xl font-bold" id="results-title"></h2>
+        <p class="text-sm opacity-60" id="status"></p>
     </div>
-
-    <div id="results" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-        </div>
+    <div id="results" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"></div>
 </main>
 
 <script>
 const translations = {
     ar: {
         heroTitle: "اعثر على أفضل خيار شراء خلال ثوانٍ",
-        heroDesc: "Findly هو مساعدك الذكي الذي يغنيك عن البحث اليدوي، نختار لك الأفضل في عالم الإلكترونيات.",
+        heroDesc: "مساعدك الذكي الذي يغنيك عن البحث اليدوي في عالم الإلكترونيات.",
         placeholder: "ابحث عن جوال، سماعة، ساعة...",
         searchBtn: "بحث ذكي",
         buying: "شراء الآن",
-        sorting: "⏳ جاري تحليل التقييمات والأسعار...",
-        noResults: "❌ لم نجد نتائج تناسب معاييرنا للجودة.",
+        sorting: "⏳ جاري تحليل التقييمات...",
+        noResults: "❌ لم نجد نتائج تناسب معاييرنا.",
         bestVal: "أفضل قيمة مقابل السعر",
-        topRated: "الأعلى تقييماً عالمياً",
-        cheapOption: "الخيار الاقتصادي الأمثل",
+        resultsTitle: "توصيات Findly الذكية",
         cats: ["📱 هواتف ذكية", "🎧 سماعات", "⌚ ساعات ذكية", "🔌 إكسسوارات"]
     },
     en: {
         heroTitle: "Find the Best Choice in Seconds",
-        heroDesc: "Findly is your smart assistant that replaces manual searching. We pick the best in electronics.",
+        heroDesc: "Your smart assistant that replaces manual searching in electronics.",
         placeholder: "Search for phone, headphones, watch...",
         searchBtn: "Smart Search",
         buying: "Buy Now",
-        sorting: "⏳ Analyzing ratings and prices...",
-        noResults: "❌ No results match our quality standards.",
+        sorting: "⏳ Analyzing reviews...",
+        noResults: "❌ No results match our standards.",
         bestVal: "Best Value for Money",
-        topRated: "Top Rated Globally",
-        cheapOption: "Best Budget Option",
+        resultsTitle: "Findly Smart Recommendations",
         cats: ["📱 Smartphones", "🎧 Audio", "⌚ Smartwatches", "🔌 Accessories"]
     }
 };
 
-let currentLang = 'ar';
+// 1. إدارة اللغة والوضع (الثيم) مع الحفظ
+let currentLang = localStorage.getItem('findly_lang') || (translations[navigator.language.split('-')[0]] ? navigator.language.split('-')[0] : 'ar');
+let currentTheme = localStorage.getItem('findly_theme') || 'dark';
 
-function initUI() {
-    const t = translations[currentLang];
+function applyTheme(theme) {
+    document.body.className = theme + '-mode';
+    document.getElementById('theme-icon').innerText = theme === 'dark' ? '🌙' : '☀️';
+    localStorage.setItem('findly_theme', theme);
+}
+
+function updateUI(lang) {
+    currentLang = lang;
+    localStorage.setItem('findly_lang', lang);
+    const t = translations[lang];
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.lang = lang;
+    
     document.getElementById('hero-title').innerText = t.heroTitle;
     document.getElementById('hero-desc').innerText = t.heroDesc;
     document.getElementById('search-input').placeholder = t.placeholder;
     document.getElementById('search-btn').innerText = t.searchBtn;
+    document.getElementById('results-title').innerText = t.resultsTitle;
     
     document.getElementById('cats-container').innerHTML = t.cats.map(c => 
-        `<div class="glass p-4 rounded-2xl text-center cursor-pointer font-bold hover:bg-purple-600 hover:text-white transition">
-            ${c}
-        </div>`
+        `<div onclick="quickSearch('${c}')" class="glass p-4 rounded-2xl text-center cursor-pointer font-bold hover:bg-purple-600 hover:text-white transition shadow-sm">${c}</div>`
     ).join('');
 }
 
-// تبديل الثيم
-document.getElementById('theme-toggle').onclick = () => {
-    document.body.classList.toggle('dark-mode');
-    document.body.classList.toggle('light-mode');
-    document.getElementById('theme-toggle').innerText = document.body.classList.contains('dark-mode') ? '🌙' : '☀️';
-};
+// 2. البحث الصوتي
+const voiceBtn = document.getElementById('voice-btn');
+if ('webkitSpeechRecognition' in window) {
+    const recognition = new webkitSpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
 
-// منطق البحث الذكي
-const searchBtn = document.getElementById('search-btn');
-const resultsDiv = document.getElementById('results');
-const statusText = document.getElementById('status');
+    voiceBtn.onclick = () => {
+        recognition.lang = currentLang === 'ar' ? 'ar-SA' : 'en-US';
+        recognition.start();
+        voiceBtn.classList.add('recording');
+    };
 
-searchBtn.onclick = async () => {
+    recognition.onresult = (e) => {
+        document.getElementById('search-input').value = e.results[0][0].transcript;
+        voiceBtn.classList.remove('recording');
+        executeSearch();
+    };
+
+    recognition.onerror = () => voiceBtn.classList.remove('recording');
+    recognition.onend = () => voiceBtn.classList.remove('recording');
+} else {
+    voiceBtn.style.display = 'none';
+}
+
+// 3. منطق البحث والترتيب
+async function executeSearch() {
     const query = document.getElementById('search-input').value.trim();
     if (query.length < 2) return;
-
+    
     const t = translations[currentLang];
+    const resultsDiv = document.getElementById('results');
+    const statusText = document.getElementById('status');
+    
     statusText.innerText = t.sorting;
     resultsDiv.innerHTML = '';
 
@@ -156,68 +177,56 @@ searchBtn.onclick = async () => {
             return;
         }
 
-        // 1. الترتيب الذكي (الأعلى تقييماً أولاً)
-        const sortedResults = data.top
-            .filter(item => item.link) // استبعاد النتائج بدون روابط
-            .sort((a, b) => (b.rating || 0) - (a.rating || 0));
+        // الترتيب حسب التقييم (الهدف 3.1)
+        const sorted = data.top.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+        statusText.innerText = `تم تحليل ${sorted.length} خيارات واختيار الأفضل لك.`;
 
-        statusText.innerText = `تم اختيار أفضل ${sortedResults.length} خيارات لك`;
-
-        // 2. معالجة الشارات والتفسير
-        const prices = sortedResults.map(i => parseFloat(i.price?.replace(/[^0-9.]/g, '')) || Infinity);
-        const minPrice = Math.min(...prices);
-
-        sortedResults.forEach((item, index) => {
-            const itemPrice = parseFloat(item.price?.replace(/[^0-9.]/g, '')) || 0;
-            let badge = '';
-            let reason = t.bestVal;
-
-            if (index === 0) {
-                badge = `<span class="badge-best text-[10px] text-white px-3 py-1 rounded-full font-bold uppercase tracking-wider mb-2 inline-block">🔥 الأفضل</span>`;
-                reason = t.topRated;
-            } else if (itemPrice === minPrice && minPrice !== Infinity) {
-                badge = `<span class="badge-cheap text-[10px] text-white px-3 py-1 rounded-full font-bold uppercase tracking-wider mb-2 inline-block">💰 الأرخص</span>`;
-                reason = t.cheapOption;
-            }
-
+        sorted.forEach((item, index) => {
+            // شارة "الأفضل" (الهدف 3.2)
+            const badge = index === 0 ? `<span class="bg-amber-500 text-[10px] text-white px-3 py-1 rounded-full font-bold mb-2 inline-block shadow-sm">⭐ الأفضل تقييماً</span>` : '';
+            
             resultsDiv.innerHTML += `
-                <div class="glass product-card rounded-[2.5rem] overflow-hidden flex flex-col h-full">
-                    <div class="relative h-56 overflow-hidden">
-                        <img src="${item.image}" class="w-full h-full object-cover">
-                        <div class="absolute bottom-4 right-4 bg-white/90 text-gray-900 px-3 py-1 rounded-lg font-bold text-sm">
-                            ⭐ ${item.rating || '4.0'}
+                <div class="glass rounded-[2.5rem] overflow-hidden flex flex-col p-4 product-card">
+                    <div class="relative mb-4">
+                        <img src="${item.image}" class="w-full h-48 object-cover rounded-2xl">
+                        <div class="absolute top-2 right-2 bg-black/50 backdrop-blur-md text-white px-2 py-1 rounded-lg text-xs font-bold">
+                            ★ ${item.rating || '4.0'}
                         </div>
                     </div>
-                    <div class="p-6 flex flex-col flex-grow">
-                        ${badge}
-                        <h3 class="font-bold text-lg mb-2 line-clamp-2">${item.name}</h3>
-                        <p class="text-xs opacity-60 mb-4">${reason}</p>
-                        
-                        <div class="mt-auto pt-4 flex justify-between items-center border-t border-white/10">
-                            <span class="text-xl font-black text-purple-500">${item.price || '—'}</span>
-                            <a href="${item.link}" target="_blank" 
-                               class="bg-purple-600 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-purple-700 transition shadow-lg shadow-purple-500/30">
-                                ${t.buying}
-                            </a>
-                        </div>
+                    ${badge}
+                    <h3 class="font-bold text-lg mb-2 line-clamp-2">${item.name}</h3>
+                    <p class="text-[11px] opacity-60 mb-4">${t.bestVal}</p>
+                    <div class="mt-auto flex justify-between items-center pt-4 border-t border-white/5">
+                        <span class="text-xl font-black text-purple-500">${item.price || '—'}</span>
+                        <a href="${item.link}" target="_blank" class="bg-purple-600 text-white px-5 py-2 rounded-xl text-sm font-bold shadow-lg shadow-purple-500/20 active:scale-95 transition">
+                            ${t.buying}
+                        </a>
                     </div>
                 </div>`;
         });
-
     } catch (e) {
-        statusText.innerText = t.error;
+        statusText.innerText = "Error in connection";
     }
-};
+}
 
-// تهيئة اللغات
-document.getElementById('lang-select').onchange = (e) => {
-    currentLang = e.target.value;
-    document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-    initUI();
-};
+function quickSearch(cat) {
+    document.getElementById('search-input').value = cat.split(' ')[1] || cat;
+    executeSearch();
+}
 
-initUI();
+// 4. التشغيل والتهيئة
+document.getElementById('search-btn').onclick = executeSearch;
+document.getElementById('theme-toggle').onclick = () => {
+    currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    applyTheme(currentTheme);
+};
+document.getElementById('lang-select').onchange = (e) => updateUI(e.target.value);
+
+// البداية
+applyTheme(currentTheme);
+updateUI(currentLang);
+document.getElementById('lang-select').value = currentLang;
+
 </script>
-
 </body>
 </html>

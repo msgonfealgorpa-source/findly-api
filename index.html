@@ -3,172 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Findly AI | النسخة النهائية المتكاملة</title>
-
+    <title>Findly AI | النسخة المتكاملة 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #7c3aed; }
-        body.dark-mode { background-color: #0f172a; color: #f8fafc; --card-bg: rgba(255,255,255,0.05); --modal-bg: #1e293b; }
-        body.light-mode { background-color: #f1f5f9; color: #1e293b; --card-bg: white; --modal-bg: white; }
-        body { font-family: 'Cairo', sans-serif; transition: all 0.4s ease; min-height: 100vh; }
-        
+        body.dark-mode { background: #0f172a; color: #f8fafc; --card-bg: rgba(255,255,255,0.05); --modal-bg: #1e293b; }
+        body.light-mode { background: #f1f5f9; color: #1e293b; --card-bg: white; --modal-bg: white; }
+        body { font-family: 'Cairo', sans-serif; transition: 0.3s; min-height: 100vh; }
         .hero-gradient { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); }
-        .glass { background: var(--card-bg); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        
-        /* Modal System */
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); z-index: 100; align-items: center; justify-content: center; }
+        .glass { background: var(--card-bg); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 100; align-items: center; justify-content: center; }
         body.modal-active .modal-overlay { display: flex; }
-        .modal-content { background: var(--modal-bg); width: 90%; max-width: 400px; padding: 2.5rem; border-radius: 2rem; border: 1px solid rgba(124, 58, 237, 0.3); transform: scale(0.95); transition: 0.3s; }
-        
-        .recording { animation: pulse 1.5s infinite; color: #ef4444 !important; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
-        
-        .product-card { transition: 0.3s ease; }
-        .product-card:hover { transform: translateY(-8px); }
-        .recent-tag { cursor: pointer; background: rgba(124, 58, 237, 0.1); border: 1px solid rgba(124, 58, 237, 0.3); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; }
+        .product-card:hover { transform: translateY(-8px); transition: 0.3s; }
     </style>
 </head>
-
 <body class="dark-mode">
 
 <div class="modal-overlay" id="auth-modal" onclick="if(event.target === this) toggleModal()">
-    <div class="modal-content shadow-2xl" onclick="event.stopPropagation()">
-        <div class="flex justify-between items-center mb-6">
-            <h3 class="text-2xl font-bold text-purple-500" id="modal-title">تسجيل الدخول</h3>
-            <button onclick="toggleModal()" class="text-gray-400 hover:text-red-500 text-3xl leading-none">&times;</button>
-        </div>
+    <div class="bg-[var(--modal-bg)] p-8 rounded-3xl w-full max-w-md shadow-2xl relative border border-purple-500/30" onclick="event.stopPropagation()">
+        <button onclick="toggleModal()" class="absolute top-4 left-4 text-2xl">&times;</button>
+        <h3 id="modal-title" class="text-2xl font-bold mb-6 text-purple-500 text-center">دخول</h3>
         <div id="auth-msg" class="hidden mb-4 p-3 rounded-xl text-xs text-center"></div>
         <form id="auth-form" class="space-y-4">
-            <input type="email" id="auth-email" required placeholder="البريد الإلكتروني" class="w-full p-4 rounded-xl bg-gray-500/10 border border-gray-500/20 outline-none focus:border-purple-500 transition">
-            <input type="password" id="auth-password" required placeholder="كلمة المرور" class="w-full p-4 rounded-xl bg-gray-500/10 border border-gray-500/20 outline-none focus:border-purple-500 transition">
-            <button type="submit" id="auth-submit-btn" class="w-full py-4 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold shadow-lg transition active:scale-95">دخول</button>
+            <input type="email" id="auth-email" placeholder="البريد الإلكتروني" required class="w-full p-4 rounded-2xl bg-gray-500/10 border border-gray-500/20 text-inherit outline-none focus:border-purple-500">
+            <input type="password" id="auth-password" placeholder="كلمة المرور" required class="w-full p-4 rounded-2xl bg-gray-500/10 border border-gray-500/20 text-inherit outline-none focus:border-purple-500">
+            <button type="submit" id="auth-submit-btn" class="w-full py-4 bg-purple-600 hover:bg-purple-700 text-white rounded-2xl font-bold transition active:scale-95">دخول</button>
         </form>
-        <button onclick="switchAuthMode()" class="w-full mt-6 text-sm text-purple-500 font-bold hover:underline" id="auth-switch-btn">إنشاء حساب جديد</button>
+        <button onclick="switchAuthMode()" id="auth-switch-btn" class="w-full mt-4 text-sm text-purple-400 hover:underline text-center block">إنشاء حساب جديد</button>
     </div>
 </div>
 
-<header class="hero-gradient text-white pb-24 pt-10 rounded-b-[4rem] shadow-2xl relative overflow-hidden">
-    <div class="max-w-6xl mx-auto px-6 relative z-10">
-        <nav class="flex justify-between items-center mb-8">
-            <div class="text-3xl font-extrabold tracking-tighter cursor-pointer" onclick="location.reload()">Findly<span class="text-yellow-400">.</span></div>
+<header class="hero-gradient text-white pb-24 pt-8 rounded-b-[4rem] shadow-xl">
+    <div class="max-w-6xl mx-auto px-6">
+        <nav class="flex justify-between items-center mb-10">
+            <div class="text-3xl font-black cursor-pointer" onclick="location.reload()">Findly<span class="text-yellow-400">.</span></div>
             <div class="flex items-center gap-3">
-                <div id="guest-zone" class="flex items-center">
-                    <button onclick="toggleModal()" class="bg-white/10 px-4 py-2 rounded-xl hover:bg-white/20 transition font-bold text-sm">👤 <span id="nav-login-txt">دخول</span></button>
+                <div id="guest-zone" class="flex gap-2">
+                    <button onclick="toggleModal()" class="bg-white/10 px-5 py-2 rounded-xl hover:bg-white/20 transition font-bold text-sm">👤 <span id="nav-login-txt">دخول</span></button>
                 </div>
                 <div id="user-zone" class="hidden flex items-center gap-3">
-                    <span id="user-display-email" class="text-xs font-bold opacity-80 border-r border-white/20 pr-3"></span>
+                    <span id="user-display-email" class="text-sm font-bold opacity-80"></span>
                     <button onclick="logout()" class="text-red-300 hover:text-red-500 text-xs font-bold transition">خروج</button>
                 </div>
-                
                 <button id="theme-toggle" class="bg-white/10 p-2 rounded-xl">🌙</button>
-                <select id="lang-select" class="bg-white/10 border-none rounded-xl text-sm p-2 outline-none cursor-pointer">
+                <select id="lang-select" class="bg-white/10 rounded-xl text-sm p-2 outline-none cursor-pointer text-white">
                     <option value="ar" class="text-black">العربية</option>
                     <option value="en" class="text-black">English</option>
                 </select>
             </div>
         </nav>
 
-        <div class="text-center max-w-3xl mx-auto">
+        <div class="text-center max-w-2xl mx-auto">
             <div id="welcome-msg" class="mb-4 text-yellow-300 font-bold opacity-90"></div>
-            <h1 class="text-4xl md:text-5xl font-extrabold mb-6" id="hero-title"></h1>
-            
-            <div class="relative max-w-2xl mx-auto shadow-2xl rounded-[2.5rem] bg-white p-2 flex items-center group">
-                <button id="voice-btn" class="p-3 text-gray-400 hover:text-purple-600 transition">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
-                </button>
-                <input id="search-input" type="text" class="w-full py-4 px-2 text-gray-900 outline-none text-lg">
-                <button id="search-btn" class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-[1.8rem] font-bold transition shadow-lg"></button>
+            <h1 id="hero-title" class="text-4xl font-extrabold mb-6 leading-tight"></h1>
+            <div class="relative bg-white p-2 rounded-[2.5rem] flex items-center shadow-2xl group">
+                <input id="search-input" type="text" class="w-full py-4 px-6 text-gray-900 outline-none text-lg rounded-[2rem]">
+                <button id="search-btn" class="bg-purple-600 text-white px-8 py-4 rounded-[2rem] font-bold shadow-lg transition active:scale-95"></button>
             </div>
-            <div id="recent-searches" class="mt-6 flex flex-wrap justify-center gap-2 opacity-80"></div>
         </div>
     </div>
 </header>
 
-<main class="max-w-7xl mx-auto px-6 -mt-12 relative z-20 pb-32">
+<main class="max-w-7xl mx-auto px-6 -mt-10 relative z-10 pb-20">
     <div id="cats-container" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16"></div>
-    <div class="mb-8">
-        <h2 class="text-3xl font-extrabold" id="results-title"></h2>
-        <p class="text-sm opacity-60 mt-2" id="status"></p>
-    </div>
+    <h2 id="results-title" class="text-3xl font-bold mb-6"></h2>
+    <div id="status" class="text-sm opacity-60 mb-6 text-center"></div>
     <div id="results" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"></div>
 </main>
 
 <script>
-// --- إعدادات النظام ---
-const API_BASE_URL = "https://findly-api.onrender.com"; // استبدل برابط Render الفعلي لاحقاً
+const API_URL = "https://findly-api.onrender.com"; // الرابط الموحد
 
 const translations = {
     ar: {
         heroTitle: "اعثر على أفضل خيار شراء خلال ثوانٍ",
-        placeholder: "ابحث عن جوال، سماعة...",
-        searchBtn: "بحث ذكي",
-        buying: "شراء",
-        searching: "⏳ جاري التحليل...",
-        noResults: "❌ لم نجد نتائج.",
+        placeholder: "ابحث عن جوال، سماعة (مثلاً: iphone)...",
+        searchBtn: "بحث ذكي", buying: "شراء", searching: "⏳ جاري التحليل...",
+        noResults: "❌ لا توجد نتائج.", login: "دخول", logout: "خروج",
         resultsTitle: "توصيات Findly الذكية",
-        login: "دخول",
         cats: ["📱 هواتف", "🎧 سماعات", "⌚ ساعات", "🔌 إكسسوارات"],
         greet: { morning: "صباح الخير ☀️", afternoon: "طاب يومك ✨", evening: "مساء الخير 🌙", night: "ليلة سعيدة 💤" }
     },
     en: {
         heroTitle: "Find the Best Purchase in Seconds",
-        placeholder: "Search for phone, gadgets...",
-        searchBtn: "Smart Search",
-        buying: "Buy",
-        searching: "⏳ Analyzing...",
-        noResults: "❌ No results found.",
+        placeholder: "Search for phone, gadgets (e.g., iphone)...",
+        searchBtn: "Smart Search", buying: "Buy", searching: "⏳ Analyzing...",
+        noResults: "❌ No results found.", login: "Login", logout: "Logout",
         resultsTitle: "Findly Smart Picks",
-        login: "Login",
         cats: ["📱 Phones", "🎧 Audio", "⌚ Watches", "🔌 Gadgets"],
         greet: { morning: "Good Morning ☀️", afternoon: "Good Afternoon ✨", evening: "Good Evening 🌙", night: "Good Night 💤" }
     }
 };
 
 let currentLang = localStorage.getItem('f_lang') || 'ar';
-let searchHistory = JSON.parse(localStorage.getItem('f_history')) || [];
 let authMode = 'login';
 
-// --- وظائف الـ Auth ---
-async function checkUserStatus() {
-    const token = localStorage.getItem('f_token');
-    if (!token) return showGuestMode();
+// --- إدارة الـ Auth ---
+function toggleModal() { document.body.classList.toggle('modal-active'); }
 
-    try {
-        const res = await fetch(`${API_BASE_URL}/me`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (res.ok) {
-            const data = await res.json();
-            showUserMode(data.email);
-        } else { logout(); }
-    } catch { showGuestMode(); }
+function switchAuthMode() {
+    authMode = authMode === 'login' ? 'register' : 'login';
+    document.getElementById('modal-title').innerText = authMode === 'login' ? 'دخول' : 'تسجيل جديد';
+    document.getElementById('auth-submit-btn').innerText = authMode === 'login' ? 'دخول' : 'إنشاء حساب';
 }
 
-function showUserMode(email) {
+function showAuthMsg(txt, isError = true) {
+    const el = document.getElementById('auth-msg');
+    el.innerText = txt;
+    el.className = `mb-4 p-3 rounded-xl text-xs text-center ${isError ? 'bg-red-500/20 text-red-400' : 'bg-green-500/20 text-green-400'}`;
+    el.classList.remove('hidden');
+}
+
+async function checkUserStatus() {
+    const token = localStorage.getItem('f_token');
+    if (!token) { showGuestUI(); return; }
+    try {
+        const res = await fetch(`${API_URL}/me`, { headers: { 'Authorization': `Bearer ${token}` } });
+        if (res.ok) {
+            const user = await res.json();
+            showUserUI(user.email);
+        } else { logout(); }
+    } catch { showGuestUI(); }
+}
+
+function showUserUI(email) {
     document.getElementById('guest-zone').classList.add('hidden');
     document.getElementById('user-zone').classList.remove('hidden');
     document.getElementById('user-display-email').innerText = email;
 }
 
-function showGuestMode() {
+function showGuestUI() {
     document.getElementById('guest-zone').classList.remove('hidden');
     document.getElementById('user-zone').classList.add('hidden');
 }
 
 function logout() {
     localStorage.removeItem('f_token');
-    showGuestMode();
-}
-
-function toggleModal() { document.body.classList.toggle('modal-active'); }
-
-function switchAuthMode() {
-    authMode = authMode === 'login' ? 'register' : 'login';
-    const t = translations[currentLang];
-    document.getElementById('modal-title').innerText = authMode === 'login' ? t.login : (currentLang === 'ar' ? 'تسجيل جديد' : 'Sign Up');
-    document.getElementById('auth-submit-btn').innerText = authMode === 'login' ? t.login : (currentLang === 'ar' ? 'إنشاء حساب' : 'Register');
+    showGuestUI();
 }
 
 document.getElementById('auth-form').onsubmit = async (e) => {
@@ -176,68 +147,50 @@ document.getElementById('auth-form').onsubmit = async (e) => {
     const email = document.getElementById('auth-email').value;
     const password = document.getElementById('auth-password').value;
     const path = authMode === 'login' ? '/login' : '/register';
-    const msgBox = document.getElementById('auth-msg');
 
     try {
-        const res = await fetch(`${API_BASE_URL}${path}`, {
+        const res = await fetch(`${API_URL}${path}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password })
         });
         const data = await res.json();
-
         if (res.ok) {
             if (authMode === 'login') {
                 localStorage.setItem('f_token', data.token);
-                showUserMode(data.email);
+                showUserUI(data.email);
                 toggleModal();
             } else {
-                msgBox.innerText = "تم التسجيل! يمكنك الدخول الآن";
-                msgBox.className = "mb-4 p-3 rounded-xl text-xs bg-green-500/20 text-green-400 block text-center";
+                showAuthMsg("تم التسجيل! يمكنك الدخول الآن", false);
                 switchAuthMode();
             }
-        } else {
-            msgBox.innerText = data.message;
-            msgBox.className = "mb-4 p-3 rounded-xl text-xs bg-red-500/20 text-red-400 block text-center";
-        }
-    } catch { alert("تعذر الاتصال بالسيرفر"); }
+        } else { showAuthMsg(data.message); }
+    } catch { showAuthMsg("خطأ في السيرفر"); }
 };
 
-// --- وظائف الواجهة ---
+// --- وظائف البحث والواجهة ---
 function updateUI(lang) {
-    currentLang = lang;
-    localStorage.setItem('f_lang', lang);
+    currentLang = lang; localStorage.setItem('f_lang', lang);
     const t = translations[lang];
     document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-    
     document.getElementById('hero-title').innerText = t.heroTitle;
     document.getElementById('search-input').placeholder = t.placeholder;
     document.getElementById('search-btn').innerText = t.searchBtn;
     document.getElementById('results-title').innerText = t.resultsTitle;
     document.getElementById('nav-login-txt').innerText = t.login;
 
-    // ترحيب ذكي
-    const hour = new Date().getHours();
-    const greet = hour < 12 ? t.greet.morning : hour < 17 ? t.greet.afternoon : hour < 21 ? t.greet.evening : t.greet.night;
-    document.getElementById('welcome-msg').innerText = greet;
-
-    // الفئات
     document.getElementById('cats-container').innerHTML = t.cats.map(c => 
         `<div onclick="quickSearch('${c.split(' ')[1] || c}')" class="glass p-5 rounded-2xl text-center font-bold cursor-pointer hover:bg-purple-600 hover:text-white transition shadow-sm">${c}</div>`
     ).join('');
 
-    // السجل
-    document.getElementById('recent-searches').innerHTML = searchHistory.slice(-5).map(s => 
-        `<span class="recent-tag" onclick="quickSearch('${s}')">${s}</span>`
-    ).join('');
+    const hour = new Date().getHours();
+    const greet = hour < 12 ? t.greet.morning : hour < 17 ? t.greet.afternoon : hour < 21 ? t.greet.evening : t.greet.night;
+    document.getElementById('welcome-msg').innerText = greet;
 }
 
 async function executeSearch() {
     const q = document.getElementById('search-input').value.trim();
-    if (q.length < 3) return;
-
-    if (!searchHistory.includes(q)) searchHistory.push(q);
-    localStorage.setItem('f_history', JSON.stringify(searchHistory));
+    if (!q) return;
 
     const status = document.getElementById('status');
     const resultsDiv = document.getElementById('results');
@@ -247,46 +200,42 @@ async function executeSearch() {
     resultsDiv.innerHTML = '';
 
     try {
-        const response = await fetch(`${API_BASE_URL}/search?q=${encodeURIComponent(q)}`);
+        const response = await fetch(`${API_URL}/search?q=${encodeURIComponent(q)}`); //
         const data = await response.json();
-        
-        if (!data.top || data.top.length === 0) {
+
+        if (!data.top || data.top.length === 0) { //
             status.innerText = t.noResults;
             return;
         }
 
-        data.top.forEach((item, index) => {
-            const badge = index === 0 ? `<span class="bg-amber-500 text-[10px] text-white px-3 py-1 rounded-full font-bold mb-2 inline-block">⭐ الأفضل</span>` : '';
+        data.top.forEach(item => { //
             resultsDiv.innerHTML += `
-                <div class="glass rounded-[2rem] overflow-hidden flex flex-col p-5 product-card h-full">
-                    <img src="${item.image}" class="w-full h-40 object-cover rounded-2xl mb-4" onerror="this.src='https://via.placeholder.com/150'">
-                    ${badge}
-                    <h3 class="font-bold text-sm mb-2 line-clamp-2">${item.name}</h3>
-                    <div class="mt-auto flex justify-between items-center pt-4 border-t border-white/5">
-                        <span class="text-xl font-black text-purple-500">${item.price || '—'}</span>
-                        <a href="${item.link}" target="_blank" class="bg-purple-600 text-white px-5 py-2 rounded-xl text-xs font-bold shadow-lg active:scale-95 transition">${t.buying}</a>
+                <div class="glass p-5 rounded-[2rem] flex flex-col h-full product-card">
+                    <img src="${item.image}" class="w-full h-48 object-contain rounded-2xl mb-4 bg-white/5" onerror="this.src='https://via.placeholder.com/150'">
+                    <h3 class="font-bold text-sm mb-4 flex-grow">${item.name}</h3>
+                    <div class="flex justify-between items-center mt-auto border-t border-white/10 pt-4">
+                        <span class="text-xl font-black text-purple-400">${item.price || '—'}</span>
+                        <a href="${item.link}" target="_blank" class="bg-purple-600 text-white px-5 py-2 rounded-xl text-xs font-bold hover:bg-purple-700 transition">${t.buying}</a>
                     </div>
                 </div>`;
         });
-        status.innerText = "تم تحديث النتائج.";
-        updateUI(currentLang);
-    } catch { status.innerText = "خطأ في الاتصال."; }
+        status.innerText = `✔️ تم العثور على ${data.top.length} نتائج.`;
+    } catch { status.innerText = "⚠️ فشل الاتصال بالسيرفر."; }
 }
 
 function quickSearch(v) { document.getElementById('search-input').value = v; executeSearch(); }
 
-// --- التشغيل ---
 document.getElementById('search-btn').onclick = executeSearch;
+document.getElementById('search-input').onkeypress = (e) => { if(e.key === 'Enter') executeSearch(); };
 document.getElementById('theme-toggle').onclick = () => {
     document.body.classList.toggle('dark-mode');
     document.body.classList.toggle('light-mode');
 };
 document.getElementById('lang-select').onchange = (e) => updateUI(e.target.value);
 
+// البدء
 checkUserStatus();
 updateUI(currentLang);
-document.getElementById('lang-select').value = currentLang;
-
 </script>
 </body>
 </html>

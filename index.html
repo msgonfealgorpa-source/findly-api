@@ -3,172 +3,289 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Findly AI | النسخة النهائية الكاملة</title>
+    <title>Findly AI | النظام الشامل والمصحح</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+
     <style>
-        :root { --p: #7c3aed; }
-        body { font-family: 'Cairo', sans-serif; transition: 0.3s; }
-        body.dark-mode { background: #0f172a; color: #f1f5f9; }
-        .hero-gradient { background: linear-gradient(135deg, #4f46e5 0%, var(--p) 100%); }
-        .glass { background: rgba(30,41,59,0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
+        :root { --primary: #7c3aed; }
+        body.dark-mode { background-color: #0f172a; color: #f8fafc; --card-bg: rgba(255,255,255,0.05); }
+        body.light-mode { background-color: #f1f5f9; color: #1e293b; --card-bg: white; }
+        body { font-family: 'Cairo', sans-serif; transition: 0.3s; min-height: 100vh; overflow-x: hidden; }
+        
+        .hero-gradient { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); }
+        .glass { background: var(--card-bg); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .interest-chip { cursor: pointer; transition: 0.2s; border: 1px solid rgba(124, 58, 237, 0.3); }
+        .interest-chip.selected { background: #7c3aed; color: white; border-color: #7c3aed; }
         .hidden { display: none !important; }
-        .interest-chip.selected { background: var(--p); color: white; border-color: var(--p); }
-        .ai-badge { background: linear-gradient(90deg, #f59e0b, #fbbf24); color: #000; font-weight: 800; font-size: 10px; padding: 2px 8px; border-radius: 6px; }
+        .product-card { transition: 0.3s ease; }
+        .product-card:hover { transform: translateY(-8px); }
     </style>
 </head>
 <body class="dark-mode">
 
-<section id="view-auth" class="min-h-screen flex items-center justify-center p-6">
+<section id="auth-screen" class="min-h-screen flex items-center justify-center p-6 bg-[#0f172a]">
     <div class="glass p-8 rounded-[2.5rem] w-full max-w-md shadow-2xl border border-purple-500/20">
         <div class="text-center mb-8">
             <h1 class="text-4xl font-black text-white">Findly<span class="text-yellow-400">.</span></h1>
-            <p id="auth-subtitle" class="text-gray-400 text-sm mt-2">سجل دخولك لاستكشاف أفضل العروض</p>
+            <p class="text-gray-400 text-sm mt-2" id="auth-subtitle">سجل دخولك لاستكشاف أفضل العروض</p>
         </div>
+        
         <div id="auth-error" class="hidden mb-4 p-3 rounded-xl bg-red-500/20 text-red-400 text-xs text-center"></div>
+
         <form id="auth-form" class="space-y-4">
-            <input type="email" id="email" placeholder="البريد الإلكتروني" required class="w-full p-4 rounded-2xl bg-white/5 border border-white/10 text-white outline-none focus:border-purple-500">
-            <input type="password" id="password" placeholder="كلمة المرور" required class="w-full p-4 rounded-2xl bg-white/5 border border-white/10 text-white outline-none focus:border-purple-500">
-            <div id="interests-box" class="hidden space-y-3 pt-2">
-                <p class="text-xs font-bold text-purple-400">اختر اهتماماتك:</p>
-                <div class="flex flex-wrap gap-2">
-                    <button type="button" class="interest-chip px-3 py-1 rounded-full text-xs border border-white/10" onclick="this.classList.toggle('selected')">📱 هواتف</button>
-                    <button type="button" class="interest-chip px-3 py-1 rounded-full text-xs border border-white/10" onclick="this.classList.toggle('selected')">🎧 سماعات</button>
+            <input type="email" id="email" placeholder="البريد الإلكتروني" required class="w-full p-4 rounded-2xl bg-white/5 border border-white/10 text-white outline-none focus:border-purple-500 transition">
+            <input type="password" id="password" placeholder="كلمة المرور" required class="w-full p-4 rounded-2xl bg-white/5 border border-white/10 text-white outline-none focus:border-purple-500 transition">
+            
+            <div id="interests-section" class="hidden space-y-3">
+                <p class="text-xs font-bold text-purple-400">اختر اهتماماتك المفضلة:</p>
+                <div class="flex flex-wrap gap-2" id="interests-grid">
+                    <span class="interest-chip px-3 py-1 rounded-full text-xs text-gray-300" data-val="هواتف">📱 هواتف</span>
+                    <span class="interest-chip px-3 py-1 rounded-full text-xs text-gray-300" data-val="سماعات">🎧 سماعات</span>
+                    <span class="interest-chip px-3 py-1 rounded-full text-xs text-gray-300" data-val="ساعات">⌚ ساعات</span>
+                    <span class="interest-chip px-3 py-1 rounded-full text-xs text-gray-300" data-val="حواسيب">💻 حواسيب</span>
                 </div>
             </div>
-            <button type="submit" id="submit-btn" class="w-full py-4 bg-purple-600 text-white rounded-2xl font-bold shadow-lg hover:bg-purple-700 transition">دخول</button>
+
+            <button type="submit" id="submit-btn" class="w-full py-4 bg-purple-600 text-white rounded-2xl font-bold shadow-lg hover:bg-purple-700 transition active:scale-95">دخول</button>
         </form>
-        <button onclick="toggleAuthMode()" id="switch-mode-btn" class="w-full mt-6 text-sm text-gray-400 text-center">ليس لديك حساب؟ إنشاء حساب جديد</button>
+        
+        <button onclick="toggleAuthMode()" id="switch-mode-btn" class="w-full mt-6 text-sm text-gray-400 hover:text-purple-400 transition text-center">ليس لديك حساب؟ إنشاء حساب جديد</button>
     </div>
 </section>
 
-<section id="view-app" class="hidden min-h-screen">
-    <header class="hero-gradient text-white pb-24 pt-8 rounded-b-[3.5rem] shadow-2xl">
-        <div class="max-w-6xl mx-auto px-6">
+<section id="app-screen" class="hidden">
+    <header class="hero-gradient text-white pb-24 pt-10 rounded-b-[4rem] shadow-2xl relative">
+        <div class="max-w-6xl mx-auto px-6 relative z-10">
             <nav class="flex justify-between items-center mb-10">
-                <div class="text-3xl font-black">Findly<span class="text-yellow-400">.</span></div>
-                <button onclick="showProfile()" class="bg-white/10 px-4 py-2 rounded-xl text-sm font-bold">👤 حسابي</button>
+                <div class="text-3xl font-extrabold cursor-pointer" onclick="location.reload()">Findly<span class="text-yellow-400">.</span></div>
+                <div class="flex items-center gap-3">
+                    <button onclick="showProfile()" class="bg-white/10 px-4 py-2 rounded-xl hover:bg-white/20 transition font-bold text-sm">👤 الملف الشخصي</button>
+                    <button id="theme-toggle" class="bg-white/10 p-2 rounded-xl hover:bg-white/20 transition">🌙</button>
+                    <select id="lang-select" class="bg-white/10 border-none rounded-xl text-sm p-2 outline-none text-white cursor-pointer">
+                        <option value="ar" class="text-black">العربية</option>
+                        <option value="en" class="text-black">English</option>
+                    </select>
+                </div>
             </nav>
-            <div class="text-center max-w-2xl mx-auto">
-                <h1 class="text-4xl font-extrabold mb-8">ابحث بذكاء عن منتجك القادم</h1>
-                <div class="relative bg-white p-2 rounded-[2.5rem] flex items-center shadow-2xl">
-                    <input id="search-input" type="text" placeholder="ماذا تريد أن تشتري؟" class="w-full py-3 px-6 text-gray-900 outline-none text-lg">
-                    <button onclick="executeAISearch()" class="bg-purple-600 text-white px-8 py-3 rounded-[2rem] font-bold">بحث ذكي</button>
+
+            <div class="text-center max-w-3xl mx-auto">
+                <div id="welcome-msg" class="mb-4 text-yellow-300 font-bold opacity-90"></div>
+                <h1 id="hero-title" class="text-4xl md:text-5xl font-extrabold mb-8 leading-tight"></h1>
+                <div class="relative max-w-2xl mx-auto shadow-2xl rounded-[2.5rem] bg-white p-2 flex items-center group">
+                    <input id="search-input" type="text" class="w-full py-4 px-6 text-gray-900 outline-none text-lg rounded-[2rem]">
+                    <button onclick="executeSearch()" id="search-btn" class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-[2rem] font-bold transition shadow-lg"></button>
                 </div>
             </div>
         </div>
     </header>
 
-    <main class="max-w-6xl mx-auto px-6 -mt-10">
-        <div id="status" class="text-center mb-6 text-sm opacity-60"></div>
-        <div id="results" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+    <main class="max-w-7xl mx-auto px-6 -mt-10 relative z-20 pb-32">
+        <div id="cats-container" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16"></div>
+        <div class="mb-8">
+            <h2 class="text-3xl font-extrabold" id="results-title"></h2>
+            <p class="text-sm opacity-60 mt-2 text-center" id="status"></p>
+        </div>
+        <div id="results" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"></div>
     </main>
 </section>
 
-<section id="view-profile" class="hidden min-h-screen p-6">
-    <div class="max-w-xl mx-auto glass p-10 rounded-[3rem] shadow-2xl text-center">
-        <button onclick="switchView('view-app')" class="mb-6 text-purple-400 font-bold">← عودة</button>
-        <h2 class="text-3xl font-black mb-1" id="profile-email"></h2>
-        <p class="text-xs text-gray-500 mb-8">عضو نشط</p>
-        <button onclick="logout()" class="w-full py-4 bg-red-500/20 text-red-400 rounded-2xl font-bold border border-red-500/10">تسجيل الخروج</button>
+<section id="profile-screen" class="hidden min-h-screen bg-[#0f172a] p-6 flex items-center justify-center">
+    <div class="max-w-lg w-full glass p-10 rounded-[3rem] border border-purple-500/20 text-center">
+        <div class="w-24 h-24 bg-purple-600 rounded-full mx-auto mb-6 flex items-center justify-center text-4xl shadow-lg">👤</div>
+        <h2 class="text-3xl font-black mb-2">حسابي</h2>
+        <p class="text-gray-400 mb-8 font-bold" id="profile-email"></p>
+        
+        <div class="text-right mb-10">
+            <h3 class="font-bold text-sm mb-4 text-purple-400">اهتماماتك المسجلة:</h3>
+            <div id="profile-interests" class="flex flex-wrap gap-2 justify-center"></div>
+        </div>
+        
+        <div class="flex flex-col gap-3">
+            <button onclick="backToApp()" class="w-full py-4 bg-white/5 rounded-2xl font-bold hover:bg-white/10 transition">العودة للبحث</button>
+            <button onclick="logout()" class="w-full py-4 bg-red-500/20 text-red-400 rounded-2xl font-bold border border-red-500/20 hover:bg-red-500 hover:text-white transition">تسجيل الخروج</button>
+        </div>
     </div>
 </section>
 
 <script>
+// --- الإعدادات الأساسية ---
 const API_URL = "https://findly-api.onrender.com";
 let isLoginMode = true;
+let selectedInterests = [];
+let currentLang = localStorage.getItem('f_lang') || 'ar';
 
-function switchView(id) {
-    document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
-    document.getElementById(id).classList.remove('hidden');
-}
+const translations = {
+    ar: {
+        heroTitle: "اعثر على أفضل خيار شراء خلال ثوانٍ",
+        placeholder: "عن ماذا تبحث اليوم؟",
+        searchBtn: "بحث ذكي", buying: "شراء", searching: "⏳ جاري التحليل...",
+        noResults: "❌ لا توجد نتائج.", resultsTitle: "توصيات Findly الذكية",
+        cats: ["📱 هواتف", "🎧 سماعات", "⌚ ساعات", "💻 حواسيب"],
+        greet: { morning: "صباح الخير ☀️", afternoon: "طاب يومك ✨", evening: "مساء الخير 🌙", night: "ليلة سعيدة 💤" }
+    },
+    en: {
+        heroTitle: "Find the Best Purchase in Seconds",
+        placeholder: "What are you looking for today?",
+        searchBtn: "Smart Search", buying: "Buy", searching: "⏳ Analyzing...",
+        noResults: "❌ No results found.", resultsTitle: "Smart Recommendations",
+        cats: ["📱 Phones", "🎧 Audio", "⌚ Watches", "💻 Laptops"],
+        greet: { morning: "Good Morning ☀️", afternoon: "Good Afternoon ✨", evening: "Good Evening 🌙", night: "Good Night 💤" }
+    }
+};
 
+// --- نظام المصادقة (Auth Logic) ---
 function toggleAuthMode() {
     isLoginMode = !isLoginMode;
-    document.getElementById('interests-box').classList.toggle('hidden', isLoginMode);
+    document.getElementById('auth-subtitle').innerText = isLoginMode ? "سجل دخولك لاستكشاف أفضل العروض" : "أنشئ حساباً واختر اهتماماتك";
+    document.getElementById('interests-section').classList.toggle('hidden', isLoginMode);
     document.getElementById('submit-btn').innerText = isLoginMode ? "دخول" : "إنشاء حساب";
-    document.getElementById('switch-mode-btn').innerText = isLoginMode ? "إنشاء حساب جديد" : "لديك حساب؟ سجل دخولك";
+    document.getElementById('switch-mode-btn').innerText = isLoginMode ? "ليس لديك حساب؟ إنشاء حساب جديد" : "لديك حساب بالفعل؟ سجل دخولك";
 }
+
+document.querySelectorAll('.interest-chip').forEach(chip => {
+    chip.onclick = () => {
+        chip.classList.toggle('selected');
+        const val = chip.getAttribute('data-val');
+        if(selectedInterests.includes(val)) selectedInterests = selectedInterests.filter(i => i !== val);
+        else selectedInterests.push(val);
+    };
+});
 
 document.getElementById('auth-form').onsubmit = async (e) => {
     e.preventDefault();
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
     const path = isLoginMode ? '/login' : '/register';
-    
+    const body = isLoginMode ? { email, password } : { email, password, interests: selectedInterests };
+
     try {
         const res = await fetch(`${API_URL}${path}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
+            body: JSON.stringify(body)
         });
         const data = await res.json();
-        if (res.ok) {
-            if (isLoginMode) {
+        if(res.ok) {
+            if(isLoginMode) {
                 localStorage.setItem('f_token', data.token);
-                checkSession();
+                initApp();
             } else {
-                alert("تم! سجل دخولك الآن.");
+                alert("تم إنشاء الحساب! سجل دخولك الآن");
                 toggleAuthMode();
             }
-        } else {
-            alert(data.message);
-        }
-    } catch { alert("خطأ في الاتصال بالسيرفر"); }
+        } else { showError(data.message); }
+    } catch { showError("فشل الاتصال بالسيرفر"); }
 };
 
-async function checkSession() {
-    const token = localStorage.getItem('f_token');
-    if (!token) return switchView('view-auth');
+function showError(msg) {
+    const err = document.getElementById('auth-error');
+    err.innerText = msg;
+    err.classList.remove('hidden');
+}
+
+// --- نظام الواجهة الرئيسية ---
+async function initApp() {
+    document.getElementById('auth-screen').classList.add('hidden');
+    document.getElementById('profile-screen').classList.add('hidden');
+    document.getElementById('app-screen').classList.remove('hidden');
+    updateUI(currentLang);
+}
+
+function updateUI(lang) {
+    currentLang = lang;
+    localStorage.setItem('f_lang', lang);
+    const t = translations[lang];
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    document.getElementById('hero-title').innerText = t.heroTitle;
+    document.getElementById('search-input').placeholder = t.placeholder;
+    document.getElementById('search-btn').innerText = t.searchBtn;
+    document.getElementById('results-title').innerText = t.resultsTitle;
     
+    document.getElementById('cats-container').innerHTML = t.cats.map(c => 
+        `<div onclick="quickSearch('${c.split(' ')[1] || c}')" class="glass p-5 rounded-2xl text-center font-bold cursor-pointer hover:bg-purple-600 hover:text-white transition shadow-sm">${c}</div>`
+    ).join('');
+
+    const hour = new Date().getHours();
+    const greet = hour < 12 ? t.greet.morning : hour < 17 ? t.greet.afternoon : hour < 21 ? t.greet.evening : t.greet.night;
+    document.getElementById('welcome-msg').innerText = greet;
+}
+
+// جلب بيانات الملف الشخصي من المسار المحمي /me
+async function showProfile() {
+    const token = localStorage.getItem('f_token');
     try {
         const res = await fetch(`${API_URL}/me`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
-        if (res.ok) {
-            const user = await res.json();
-            document.getElementById('profile-email').innerText = user.email;
-            switchView('view-app');
+        const data = await res.json();
+        if(res.ok) {
+            document.getElementById('app-screen').classList.add('hidden');
+            document.getElementById('profile-screen').classList.remove('hidden');
+            document.getElementById('profile-email').innerText = data.email;
+            document.getElementById('profile-interests').innerHTML = data.interests.map(i => 
+                `<span class="bg-purple-500/20 text-purple-300 px-4 py-2 rounded-xl text-xs border border-purple-500/20 font-bold">${i}</span>`
+            ).join('') || '<p class="text-xs opacity-50">لا يوجد اهتمامات</p>';
         } else { logout(); }
-    } catch { switchView('view-app'); }
+    } catch { logout(); }
 }
 
-async function executeAISearch() {
-    const q = document.getElementById('search-input').value;
+function backToApp() {
+    document.getElementById('profile-screen').classList.add('hidden');
+    document.getElementById('app-screen').classList.remove('hidden');
+}
+
+function logout() {
+    localStorage.removeItem('f_token');
+    location.reload();
+}
+
+async function executeSearch() {
+    const q = document.getElementById('search-input').value.trim();
+    if (!q) return;
+
     const status = document.getElementById('status');
     const resultsDiv = document.getElementById('results');
-    
-    status.innerText = "⏳ جاري تحليل العروض بذكاء...";
-    resultsDiv.innerHTML = "";
+    const t = translations[currentLang];
+
+    status.innerText = t.searching;
+    resultsDiv.innerHTML = '';
 
     try {
-        const res = await fetch(`${API_URL}/search?q=${q}`);
-        const data = await res.json();
-        status.innerText = "";
-        
-        data.top.forEach((p, idx) => {
+        const response = await fetch(`${API_URL}/search?q=${encodeURIComponent(q)}`);
+        const data = await response.json();
+
+        if (!data.top || data.top.length === 0) {
+            status.innerText = t.noResults;
+            return;
+        }
+
+        data.top.forEach(item => {
             resultsDiv.innerHTML += `
-            <div class="glass p-5 rounded-[2.5rem] flex flex-col h-full border border-white/5 relative">
-                ${idx === 0 ? '<div class="absolute top-4 left-4 z-10 ai-badge">🥇 اختيار ذكي</div>' : ''}
-                <img src="${p.image}" class="w-full h-40 object-contain mb-4">
-                <h3 class="font-bold text-sm mb-4">${p.name}</h3>
-                <div class="bg-purple-500/10 p-3 rounded-2xl mb-4 text-[11px] text-purple-300 italic">
-                    💡 تحليل Findly: تم اختياره بناءً على أعلى تقييم وسعر منافس.
-                </div>
-                <div class="mt-auto flex justify-between items-center pt-4 border-t border-white/10">
-                    <span class="text-xl font-black text-purple-400">${p.price}</span>
-                    <a href="${p.link}" target="_blank" class="bg-purple-600 px-6 py-2 rounded-xl text-xs font-bold text-white">شراء</a>
-                </div>
-            </div>`;
+                <div class="glass p-5 rounded-[2rem] flex flex-col h-full product-card">
+                    <img src="${item.image}" class="w-full h-40 object-contain rounded-2xl mb-4 bg-white/5" onerror="this.src='https://via.placeholder.com/150'">
+                    <h3 class="font-bold text-sm mb-4 flex-grow">${item.name}</h3>
+                    <div class="mt-auto flex justify-between items-center border-t border-white/10 pt-4">
+                        <span class="text-xl font-black text-purple-400">${item.price || '—'}</span>
+                        <a href="${item.link}" target="_blank" class="bg-purple-600 text-white px-5 py-2 rounded-xl text-xs font-bold hover:bg-purple-700 transition">${t.buying}</a>
+                    </div>
+                </div>`;
         });
-    } catch { status.innerText = "خطأ في البحث"; }
+        status.innerText = `✔️ تم العثور على ${data.top.length} نتائج.`;
+    } catch { status.innerText = "⚠️ خطأ في الاتصال."; }
 }
 
-function showProfile() { switchView('view-profile'); }
-function logout() { localStorage.removeItem('f_token'); location.reload(); }
+function quickSearch(v) { document.getElementById('search-input').value = v; executeSearch(); }
 
-// التحقق عند البدء
-checkSession();
+// --- التشغيل النهائي ---
+document.getElementById('lang-select').onchange = (e) => updateUI(e.target.value);
+document.getElementById('theme-toggle').onclick = () => {
+    document.body.classList.toggle('dark-mode');
+    document.body.classList.toggle('light-mode');
+};
+
+if(localStorage.getItem('f_token')) initApp();
 </script>
 </body>
 </html>

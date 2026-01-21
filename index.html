@@ -3,29 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Findly AI | المساعد الذكي المصحح</title>
+    <title>Findly AI | النسخة النهائية المتكاملة</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
 
     <style>
         :root { --primary: #7c3aed; }
-        body.dark-mode { background-color: #0f172a; color: #f8fafc; --card-bg: rgba(255,255,255,0.05); --modal-bg: rgba(15, 23, 42, 0.95); }
-        body.light-mode { background-color: #f1f5f9; color: #1e293b; --card-bg: rgba(255,255,255,0.8); --modal-bg: rgba(255, 255, 255, 0.95); }
+        body.dark-mode { background-color: #0f172a; color: #f8fafc; --card-bg: rgba(255,255,255,0.05); --modal-bg: #1e293b; }
+        body.light-mode { background-color: #f1f5f9; color: #1e293b; --card-bg: white; --modal-bg: white; }
         body { font-family: 'Cairo', sans-serif; transition: all 0.4s ease; min-height: 100vh; }
         
         .hero-gradient { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); }
         .glass { background: var(--card-bg); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
         
-        /* Modal Style */
-        .modal-overlay { background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); display: none; position: fixed; inset: 0; z-index: 100; align-items: center; justify-content: center; }
-        .modal-content { background: var(--modal-bg); width: 90%; max-width: 400px; padding: 2rem; border-radius: 2rem; border: 1px solid rgba(124, 58, 237, 0.3); transform: scale(0.9); transition: 0.3s; }
+        /* Modal System */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); z-index: 100; align-items: center; justify-content: center; }
         body.modal-active .modal-overlay { display: flex; }
-        body.modal-active .modal-content { transform: scale(1); }
-
+        .modal-content { background: var(--modal-bg); width: 90%; max-width: 400px; padding: 2.5rem; border-radius: 2rem; border: 1px solid rgba(124, 58, 237, 0.3); transform: scale(0.95); transition: 0.3s; }
+        
         .recording { animation: pulse 1.5s infinite; color: #ef4444 !important; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
-        .product-card { transition: 0.3s; }
+        
+        .product-card { transition: 0.3s ease; }
         .product-card:hover { transform: translateY(-8px); }
         .recent-tag { cursor: pointer; background: rgba(124, 58, 237, 0.1); border: 1px solid rgba(124, 58, 237, 0.3); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; }
     </style>
@@ -37,23 +37,15 @@
     <div class="modal-content shadow-2xl" onclick="event.stopPropagation()">
         <div class="flex justify-between items-center mb-6">
             <h3 class="text-2xl font-bold text-purple-500" id="modal-title">تسجيل الدخول</h3>
-            <button onclick="toggleModal()" class="text-gray-400 hover:text-red-500 text-2xl">&times;</button>
+            <button onclick="toggleModal()" class="text-gray-400 hover:text-red-500 text-3xl leading-none">&times;</button>
         </div>
+        <div id="auth-msg" class="hidden mb-4 p-3 rounded-xl text-xs text-center"></div>
         <form id="auth-form" class="space-y-4">
-            <div>
-                <label class="block text-sm mb-1 opacity-70" id="label-email">البريد الإلكتروني</label>
-                <input type="email" id="auth-email" required class="w-full p-3 rounded-xl bg-gray-500/10 border border-gray-500/20 text-inherit outline-none focus:border-purple-500 transition">
-            </div>
-            <div>
-                <label class="block text-sm mb-1 opacity-70" id="label-pass">كلمة المرور</label>
-                <input type="password" id="auth-password" required class="w-full p-3 rounded-xl bg-gray-500/10 border border-gray-500/20 text-inherit outline-none focus:border-purple-500 transition">
-            </div>
-            <button type="submit" id="auth-submit-btn" class="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold shadow-lg transition active:scale-95">دخول</button>
+            <input type="email" id="auth-email" required placeholder="البريد الإلكتروني" class="w-full p-4 rounded-xl bg-gray-500/10 border border-gray-500/20 outline-none focus:border-purple-500 transition">
+            <input type="password" id="auth-password" required placeholder="كلمة المرور" class="w-full p-4 rounded-xl bg-gray-500/10 border border-gray-500/20 outline-none focus:border-purple-500 transition">
+            <button type="submit" id="auth-submit-btn" class="w-full py-4 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold shadow-lg transition active:scale-95">دخول</button>
         </form>
-        <p class="mt-6 text-center text-sm opacity-70">
-            <span id="auth-switch-text">ليس لديك حساب؟</span>
-            <button onclick="switchAuthMode()" class="text-purple-500 font-bold hover:underline" id="auth-switch-btn">إنشاء حساب جديد</button>
-        </p>
+        <button onclick="switchAuthMode()" class="w-full mt-6 text-sm text-purple-500 font-bold hover:underline" id="auth-switch-btn">إنشاء حساب جديد</button>
     </div>
 </div>
 
@@ -62,11 +54,16 @@
         <nav class="flex justify-between items-center mb-8">
             <div class="text-3xl font-extrabold tracking-tighter cursor-pointer" onclick="location.reload()">Findly<span class="text-yellow-400">.</span></div>
             <div class="flex items-center gap-3">
-                <button onclick="toggleModal()" class="bg-white/10 px-4 py-2 rounded-xl hover:bg-white/20 transition font-bold text-sm flex items-center gap-2" id="nav-login-btn">
-                    👤 <span id="btn-login-text">دخول</span>
-                </button>
-                <button id="theme-toggle" class="bg-white/10 p-2 rounded-xl hover:bg-white/20 transition">🌙</button>
-                <select id="lang-select" class="bg-white/10 border-none rounded-xl text-sm p-2 outline-none cursor-pointer text-white">
+                <div id="guest-zone" class="flex items-center">
+                    <button onclick="toggleModal()" class="bg-white/10 px-4 py-2 rounded-xl hover:bg-white/20 transition font-bold text-sm">👤 <span id="nav-login-txt">دخول</span></button>
+                </div>
+                <div id="user-zone" class="hidden flex items-center gap-3">
+                    <span id="user-display-email" class="text-xs font-bold opacity-80 border-r border-white/20 pr-3"></span>
+                    <button onclick="logout()" class="text-red-300 hover:text-red-500 text-xs font-bold transition">خروج</button>
+                </div>
+                
+                <button id="theme-toggle" class="bg-white/10 p-2 rounded-xl">🌙</button>
+                <select id="lang-select" class="bg-white/10 border-none rounded-xl text-sm p-2 outline-none cursor-pointer">
                     <option value="ar" class="text-black">العربية</option>
                     <option value="en" class="text-black">English</option>
                 </select>
@@ -75,9 +72,8 @@
 
         <div class="text-center max-w-3xl mx-auto">
             <div id="welcome-msg" class="mb-4 text-yellow-300 font-bold opacity-90"></div>
-            <h1 class="text-4xl md:text-5xl font-extrabold mb-6 leading-tight" id="hero-title"></h1>
-            <p class="text-lg opacity-90 mb-10 font-light" id="hero-desc"></p>
-
+            <h1 class="text-4xl md:text-5xl font-extrabold mb-6" id="hero-title"></h1>
+            
             <div class="relative max-w-2xl mx-auto shadow-2xl rounded-[2.5rem] bg-white p-2 flex items-center group">
                 <button id="voice-btn" class="p-3 text-gray-400 hover:text-purple-600 transition">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
@@ -91,15 +87,6 @@
 </header>
 
 <main class="max-w-7xl mx-auto px-6 -mt-12 relative z-20 pb-32">
-    <div id="personalized-recommendation" class="mb-10 hidden">
-        <div class="glass p-6 rounded-3xl border-l-4 border-yellow-400 flex items-center gap-4">
-            <span class="text-3xl">🎯</span>
-            <div>
-                <h4 class="font-bold text-lg" id="personal-title">الأنسب لك</h4>
-                <p class="text-sm opacity-70" id="personal-desc"></p>
-            </div>
-        </div>
-    </div>
     <div id="cats-container" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16"></div>
     <div class="mb-8">
         <h2 class="text-3xl font-extrabold" id="results-title"></h2>
@@ -109,146 +96,158 @@
 </main>
 
 <script>
-// --- إعدادات ثابتة ---
-const API_BASE_URL = "https://findly-api.onrender.com"; // غير هذا لعنوان سيرفرك الفعلي
+// --- إعدادات النظام ---
+const API_BASE_URL = "http://localhost:3000"; // استبدل برابط Render الفعلي لاحقاً
 
 const translations = {
     ar: {
         heroTitle: "اعثر على أفضل خيار شراء خلال ثوانٍ",
-        heroDesc: "مساعدك الذكي الذي يتذكر تفضيلاتك ويختار لك الأفضل.",
         placeholder: "ابحث عن جوال، سماعة...",
-        searchBtn: "بحث ذكي", buying: "شراء", searching: "⏳ جاري التحليل...",
-        noResults: "❌ لم نجد نتائج.", minChar: "⚠️ اكتب 3 أحرف", resultsTitle: "توصيات Findly الذكية",
-        login: "دخول", register: "إنشاء حساب", email: "البريد الإلكتروني", pass: "كلمة المرور",
-        modalLoginTitle: "تسجيل الدخول", modalRegTitle: "إنشاء حساب جديد",
-        switchReg: "ليس لديك حساب؟", switchLog: "لديك حساب بالفعل؟",
-        regBtn: "إنشاء حساب", logBtn: "دخول",
+        searchBtn: "بحث ذكي",
+        buying: "شراء",
+        searching: "⏳ جاري التحليل...",
+        noResults: "❌ لم نجد نتائج.",
+        resultsTitle: "توصيات Findly الذكية",
+        login: "دخول",
+        cats: ["📱 هواتف", "🎧 سماعات", "⌚ ساعات", "🔌 إكسسوارات"],
         greet: { morning: "صباح الخير ☀️", afternoon: "طاب يومك ✨", evening: "مساء الخير 🌙", night: "ليلة سعيدة 💤" }
     },
     en: {
         heroTitle: "Find the Best Purchase in Seconds",
-        heroDesc: "Your smart assistant that remembers your preferences.",
-        placeholder: "Search for phone, headphones...",
-        searchBtn: "Smart Search", buying: "Buy", searching: "⏳ Analyzing...",
-        noResults: "❌ No results found.", minChar: "⚠️ Type 3 chars", resultsTitle: "Smart Recommendations",
-        login: "Login", register: "Register", email: "Email", pass: "Password",
-        modalLoginTitle: "Login", modalRegTitle: "Create Account",
-        switchReg: "No account?", switchLog: "Have an account?",
-        regBtn: "Sign Up", logBtn: "Login",
+        placeholder: "Search for phone, gadgets...",
+        searchBtn: "Smart Search",
+        buying: "Buy",
+        searching: "⏳ Analyzing...",
+        noResults: "❌ No results found.",
+        resultsTitle: "Findly Smart Picks",
+        login: "Login",
+        cats: ["📱 Phones", "🎧 Audio", "⌚ Watches", "🔌 Gadgets"],
         greet: { morning: "Good Morning ☀️", afternoon: "Good Afternoon ✨", evening: "Good Evening 🌙", night: "Good Night 💤" }
     }
 };
 
 let currentLang = localStorage.getItem('f_lang') || 'ar';
-let currentTheme = localStorage.getItem('f_theme') || 'dark';
 let searchHistory = JSON.parse(localStorage.getItem('f_history')) || [];
-let authMode = 'login'; 
+let authMode = 'login';
 
-// --- دوال الـ Modal ---
-function toggleModal() {
-    document.body.classList.toggle('modal-active');
+// --- وظائف الـ Auth ---
+async function checkUserStatus() {
+    const token = localStorage.getItem('f_token');
+    if (!token) return showGuestMode();
+
+    try {
+        const res = await fetch(`${API_BASE_URL}/me`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+            const data = await res.json();
+            showUserMode(data.email);
+        } else { logout(); }
+    } catch { showGuestMode(); }
 }
+
+function showUserMode(email) {
+    document.getElementById('guest-zone').classList.add('hidden');
+    document.getElementById('user-zone').classList.remove('hidden');
+    document.getElementById('user-display-email').innerText = email;
+}
+
+function showGuestMode() {
+    document.getElementById('guest-zone').classList.remove('hidden');
+    document.getElementById('user-zone').classList.add('hidden');
+}
+
+function logout() {
+    localStorage.removeItem('f_token');
+    showGuestMode();
+}
+
+function toggleModal() { document.body.classList.toggle('modal-active'); }
 
 function switchAuthMode() {
     authMode = authMode === 'login' ? 'register' : 'login';
-    updateModalUI();
-}
-
-function updateModalUI() {
     const t = translations[currentLang];
-    if(!t) return;
-    document.getElementById('modal-title').innerText = authMode === 'login' ? t.modalLoginTitle : t.modalRegTitle;
-    document.getElementById('auth-submit-btn').innerText = authMode === 'login' ? t.logBtn : t.regBtn;
-    document.getElementById('auth-switch-text').innerText = authMode === 'login' ? t.switchReg : t.switchLog;
-    document.getElementById('auth-switch-btn').innerText = authMode === 'login' ? t.regBtn : t.logBtn;
-    document.getElementById('label-email').innerText = t.email;
-    document.getElementById('label-pass').innerText = t.pass;
+    document.getElementById('modal-title').innerText = authMode === 'login' ? t.login : (currentLang === 'ar' ? 'تسجيل جديد' : 'Sign Up');
+    document.getElementById('auth-submit-btn').innerText = authMode === 'login' ? t.login : (currentLang === 'ar' ? 'إنشاء حساب' : 'Register');
 }
 
-// --- وظائف الواجهة واللغات ---
-function setWelcomeMsg() {
-    const hour = new Date().getHours();
-    const t = translations[currentLang];
-    let msg = hour < 12 ? t.greet.morning : hour < 17 ? t.greet.afternoon : hour < 21 ? t.greet.evening : t.greet.night;
-    document.getElementById('welcome-msg').innerText = msg;
-}
-
-function updateUI(lang) {
-    currentLang = lang; localStorage.setItem('f_lang', lang);
-    const t = translations[lang];
-    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-    document.getElementById('hero-title').innerText = t.heroTitle;
-    document.getElementById('hero-desc').innerText = t.heroDesc;
-    document.getElementById('search-input').placeholder = t.placeholder;
-    document.getElementById('search-btn').innerText = t.searchBtn;
-    document.getElementById('results-title').innerText = t.resultsTitle;
-    document.getElementById('btn-login-text').innerText = t.login;
-    
-    updateModalUI();
-    setWelcomeMsg();
-    
-    const searchesDiv = document.getElementById('recent-searches');
-    searchesDiv.innerHTML = searchHistory.slice(-5).map(s => `<span class="recent-tag" onclick="quickSearch('${s}')">${s}</span>`).join('');
-    
-    if(searchHistory.length > 0) document.getElementById('personalized-recommendation').classList.remove('hidden');
-
-    document.getElementById('cats-container').innerHTML = t.cats.map(c => 
-        `<div onclick="quickSearch('${c.split(' ')[1] || c}')" class="glass p-5 rounded-2xl text-center cursor-pointer font-bold hover:bg-purple-600 hover:text-white transition shadow-sm">${c}</div>`
-    ).join('');
-}
-
-// --- المصادقة مع السيرفر ---
 document.getElementById('auth-form').onsubmit = async (e) => {
     e.preventDefault();
     const email = document.getElementById('auth-email').value;
     const password = document.getElementById('auth-password').value;
     const path = authMode === 'login' ? '/login' : '/register';
-    const btn = document.getElementById('auth-submit-btn');
+    const msgBox = document.getElementById('auth-msg');
 
     try {
-        btn.disabled = true;
-        btn.innerText = "...";
-        const response = await fetch(`${API_BASE_URL}${path}`, {
+        const res = await fetch(`${API_BASE_URL}${path}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password })
         });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-            if (data.token) localStorage.setItem('f_token', data.token);
-            alert(data.message || "ناجح!");
-            toggleModal();
+        const data = await res.json();
+
+        if (res.ok) {
+            if (authMode === 'login') {
+                localStorage.setItem('f_token', data.token);
+                showUserMode(data.email);
+                toggleModal();
+            } else {
+                msgBox.innerText = "تم التسجيل! يمكنك الدخول الآن";
+                msgBox.className = "mb-4 p-3 rounded-xl text-xs bg-green-500/20 text-green-400 block text-center";
+                switchAuthMode();
+            }
         } else {
-            alert(data.message || "فشل الطلب");
+            msgBox.innerText = data.message;
+            msgBox.className = "mb-4 p-3 rounded-xl text-xs bg-red-500/20 text-red-400 block text-center";
         }
-    } catch (err) {
-        alert("خطأ: تعذر الاتصال بالسيرفر");
-    } finally {
-        btn.disabled = false;
-        updateModalUI();
-    }
+    } catch { alert("تعذر الاتصال بالسيرفر"); }
 };
 
-// --- البحث والترتيب ---
-async function executeSearch() {
-    const input = document.getElementById('search-input');
-    const query = input.value.trim();
-    if (query.length < 3) return;
+// --- وظائف الواجهة ---
+function updateUI(lang) {
+    currentLang = lang;
+    localStorage.setItem('f_lang', lang);
+    const t = translations[lang];
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    
+    document.getElementById('hero-title').innerText = t.heroTitle;
+    document.getElementById('search-input').placeholder = t.placeholder;
+    document.getElementById('search-btn').innerText = t.searchBtn;
+    document.getElementById('results-title').innerText = t.resultsTitle;
+    document.getElementById('nav-login-txt').innerText = t.login;
 
-    if(!searchHistory.includes(query)) searchHistory.push(query);
+    // ترحيب ذكي
+    const hour = new Date().getHours();
+    const greet = hour < 12 ? t.greet.morning : hour < 17 ? t.greet.afternoon : hour < 21 ? t.greet.evening : t.greet.night;
+    document.getElementById('welcome-msg').innerText = greet;
+
+    // الفئات
+    document.getElementById('cats-container').innerHTML = t.cats.map(c => 
+        `<div onclick="quickSearch('${c.split(' ')[1] || c}')" class="glass p-5 rounded-2xl text-center font-bold cursor-pointer hover:bg-purple-600 hover:text-white transition shadow-sm">${c}</div>`
+    ).join('');
+
+    // السجل
+    document.getElementById('recent-searches').innerHTML = searchHistory.slice(-5).map(s => 
+        `<span class="recent-tag" onclick="quickSearch('${s}')">${s}</span>`
+    ).join('');
+}
+
+async function executeSearch() {
+    const q = document.getElementById('search-input').value.trim();
+    if (q.length < 3) return;
+
+    if (!searchHistory.includes(q)) searchHistory.push(q);
     localStorage.setItem('f_history', JSON.stringify(searchHistory));
 
-    const resultsDiv = document.getElementById('results');
     const status = document.getElementById('status');
+    const resultsDiv = document.getElementById('results');
     const t = translations[currentLang];
-    
+
     status.innerText = t.searching;
     resultsDiv.innerHTML = '';
 
     try {
-        const response = await fetch(`${API_BASE_URL}/search?q=${encodeURIComponent(query)}`);
+        const response = await fetch(`${API_BASE_URL}/search?q=${encodeURIComponent(q)}`);
         const data = await response.json();
         
         if (!data.top || data.top.length === 0) {
@@ -256,57 +255,38 @@ async function executeSearch() {
             return;
         }
 
-        const sorted = data.top.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-        sorted.forEach((item, index) => {
-            let badge = index === 0 ? `<span class="bg-amber-500 text-[10px] text-white px-3 py-1 rounded-full font-bold mb-2 inline-block">⭐ الأفضل</span>` : '';
+        data.top.forEach((item, index) => {
+            const badge = index === 0 ? `<span class="bg-amber-500 text-[10px] text-white px-3 py-1 rounded-full font-bold mb-2 inline-block">⭐ الأفضل</span>` : '';
             resultsDiv.innerHTML += `
                 <div class="glass rounded-[2rem] overflow-hidden flex flex-col p-5 product-card h-full">
                     <img src="${item.image}" class="w-full h-40 object-cover rounded-2xl mb-4" onerror="this.src='https://via.placeholder.com/150'">
                     ${badge}
                     <h3 class="font-bold text-sm mb-2 line-clamp-2">${item.name}</h3>
                     <div class="mt-auto flex justify-between items-center pt-4 border-t border-white/5">
-                        <span class="text-xl font-black text-purple-500">${item.price}</span>
-                        <a href="${item.link}" target="_blank" class="bg-purple-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg active:scale-95 transition">${t.buying}</a>
+                        <span class="text-xl font-black text-purple-500">${item.price || '—'}</span>
+                        <a href="${item.link}" target="_blank" class="bg-purple-600 text-white px-5 py-2 rounded-xl text-xs font-bold shadow-lg active:scale-95 transition">${t.buying}</a>
                     </div>
                 </div>`;
         });
-        status.innerText = "جاهز.";
+        status.innerText = "تم تحديث النتائج.";
         updateUI(currentLang);
-    } catch (err) {
-        status.innerText = "خطأ في جلب البيانات";
-    }
+    } catch { status.innerText = "خطأ في الاتصال."; }
 }
 
-function quickSearch(val) { document.getElementById('search-input').value = val; executeSearch(); }
+function quickSearch(v) { document.getElementById('search-input').value = v; executeSearch(); }
 
-// --- إعدادات بدء التشغيل ---
+// --- التشغيل ---
 document.getElementById('search-btn').onclick = executeSearch;
-document.getElementById('search-input').onkeypress = (e) => { if(e.key === 'Enter') executeSearch(); };
 document.getElementById('theme-toggle').onclick = () => {
-    currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    document.body.className = currentTheme + '-mode';
-    localStorage.setItem('f_theme', currentTheme);
+    document.body.classList.toggle('dark-mode');
+    document.body.classList.toggle('light-mode');
 };
 document.getElementById('lang-select').onchange = (e) => updateUI(e.target.value);
 
-// البحث الصوتي
-const voiceBtn = document.getElementById('voice-btn');
-if ('webkitSpeechRecognition' in window) {
-    const recognition = new webkitSpeechRecognition();
-    voiceBtn.onclick = () => { recognition.start(); voiceBtn.classList.add('recording'); };
-    recognition.onresult = (e) => { 
-        document.getElementById('search-input').value = e.results[0][0].transcript;
-        voiceBtn.classList.remove('recording'); executeSearch();
-    };
-    recognition.onend = () => voiceBtn.classList.remove('recording');
-}
-
-// التنفيذ النهائي عند التحميل
-document.body.className = currentTheme + '-mode';
+checkUserStatus();
 updateUI(currentLang);
 document.getElementById('lang-select').value = currentLang;
 
 </script>
-
 </body>
 </html>

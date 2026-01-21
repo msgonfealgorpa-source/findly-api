@@ -3,41 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Findly AI | المساعد الذكي ذو الذاكرة</title>
+    <title>Findly AI | المساعد الذكي المصحح</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
 
     <style>
         :root { --primary: #7c3aed; }
-        body.dark-mode { background-color: #0f172a; color: #f8fafc; --card-bg: rgba(255,255,255,0.05); }
-        body.light-mode { background-color: #f1f5f9; color: #1e293b; --card-bg: rgba(255,255,255,0.8); }
+        body.dark-mode { background-color: #0f172a; color: #f8fafc; --card-bg: rgba(255,255,255,0.05); --modal-bg: rgba(15, 23, 42, 0.95); }
+        body.light-mode { background-color: #f1f5f9; color: #1e293b; --card-bg: rgba(255,255,255,0.8); --modal-bg: rgba(255, 255, 255, 0.95); }
         body { font-family: 'Cairo', sans-serif; transition: all 0.4s ease; min-height: 100vh; }
         
         .hero-gradient { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); }
         .glass { background: var(--card-bg); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
         
+        /* Modal Style */
+        .modal-overlay { background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); display: none; position: fixed; inset: 0; z-index: 100; align-items: center; justify-content: center; }
+        .modal-content { background: var(--modal-bg); width: 90%; max-width: 400px; padding: 2rem; border-radius: 2rem; border: 1px solid rgba(124, 58, 237, 0.3); transform: scale(0.9); transition: 0.3s; }
+        body.modal-active .modal-overlay { display: flex; }
+        body.modal-active .modal-content { transform: scale(1); }
+
         .recording { animation: pulse 1.5s infinite; color: #ef4444 !important; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
-        
-        .product-card { transition: all 0.3s ease; }
+        .product-card { transition: 0.3s; }
         .product-card:hover { transform: translateY(-8px); }
-        
         .recent-tag { cursor: pointer; background: rgba(124, 58, 237, 0.1); border: 1px solid rgba(124, 58, 237, 0.3); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; }
     </style>
 </head>
 
 <body class="dark-mode">
 
+<div class="modal-overlay" id="auth-modal" onclick="if(event.target === this) toggleModal()">
+    <div class="modal-content shadow-2xl" onclick="event.stopPropagation()">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold text-purple-500" id="modal-title">تسجيل الدخول</h3>
+            <button onclick="toggleModal()" class="text-gray-400 hover:text-red-500 text-2xl">&times;</button>
+        </div>
+        <form id="auth-form" class="space-y-4">
+            <div>
+                <label class="block text-sm mb-1 opacity-70" id="label-email">البريد الإلكتروني</label>
+                <input type="email" id="auth-email" required class="w-full p-3 rounded-xl bg-gray-500/10 border border-gray-500/20 text-inherit outline-none focus:border-purple-500 transition">
+            </div>
+            <div>
+                <label class="block text-sm mb-1 opacity-70" id="label-pass">كلمة المرور</label>
+                <input type="password" id="auth-password" required class="w-full p-3 rounded-xl bg-gray-500/10 border border-gray-500/20 text-inherit outline-none focus:border-purple-500 transition">
+            </div>
+            <button type="submit" id="auth-submit-btn" class="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold shadow-lg transition active:scale-95">دخول</button>
+        </form>
+        <p class="mt-6 text-center text-sm opacity-70">
+            <span id="auth-switch-text">ليس لديك حساب؟</span>
+            <button onclick="switchAuthMode()" class="text-purple-500 font-bold hover:underline" id="auth-switch-btn">إنشاء حساب جديد</button>
+        </p>
+    </div>
+</div>
+
 <header class="hero-gradient text-white pb-24 pt-10 rounded-b-[4rem] shadow-2xl relative overflow-hidden">
     <div class="max-w-6xl mx-auto px-6 relative z-10">
         <nav class="flex justify-between items-center mb-8">
-            <div class="text-3xl font-extrabold tracking-tighter">Findly<span class="text-yellow-400">.</span></div>
-            <div class="flex items-center gap-4">
-                <button id="theme-toggle" class="bg-white/10 p-2.5 rounded-2xl hover:bg-white/20 transition text-xl">🌙</button>
-                <select id="lang-select" class="bg-white/10 border-none rounded-xl text-sm p-2.5 outline-none cursor-pointer">
-                    <option value="ar">العربية</option>
-                    <option value="en">English</option>
+            <div class="text-3xl font-extrabold tracking-tighter cursor-pointer" onclick="location.reload()">Findly<span class="text-yellow-400">.</span></div>
+            <div class="flex items-center gap-3">
+                <button onclick="toggleModal()" class="bg-white/10 px-4 py-2 rounded-xl hover:bg-white/20 transition font-bold text-sm flex items-center gap-2" id="nav-login-btn">
+                    👤 <span id="btn-login-text">دخول</span>
+                </button>
+                <button id="theme-toggle" class="bg-white/10 p-2 rounded-xl hover:bg-white/20 transition">🌙</button>
+                <select id="lang-select" class="bg-white/10 border-none rounded-xl text-sm p-2 outline-none cursor-pointer text-white">
+                    <option value="ar" class="text-black">العربية</option>
+                    <option value="en" class="text-black">English</option>
                 </select>
             </div>
         </nav>
@@ -52,9 +83,8 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
                 </button>
                 <input id="search-input" type="text" class="w-full py-4 px-2 text-gray-900 outline-none text-lg">
-                <button id="search-btn" class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-[1.8rem] font-bold transition-all active:scale-95 shadow-lg"></button>
+                <button id="search-btn" class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-[1.8rem] font-bold transition shadow-lg"></button>
             </div>
-
             <div id="recent-searches" class="mt-6 flex flex-wrap justify-center gap-2 opacity-80"></div>
         </div>
     </div>
@@ -65,44 +95,46 @@
         <div class="glass p-6 rounded-3xl border-l-4 border-yellow-400 flex items-center gap-4">
             <span class="text-3xl">🎯</span>
             <div>
-                <h4 class="font-bold text-lg" id="personal-title">الأنسب لك حسب اهتمامك السابق</h4>
+                <h4 class="font-bold text-lg" id="personal-title">الأنسب لك</h4>
                 <p class="text-sm opacity-70" id="personal-desc"></p>
             </div>
         </div>
     </div>
-
     <div id="cats-container" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16"></div>
-
     <div class="mb-8">
         <h2 class="text-3xl font-extrabold" id="results-title"></h2>
         <p class="text-sm opacity-60 mt-2" id="status"></p>
     </div>
-
     <div id="results" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"></div>
 </main>
 
 <script>
+// --- إعدادات ثابتة ---
+const API_BASE_URL = "https://findly-api.onrender.com"; // غير هذا لعنوان سيرفرك الفعلي
+
 const translations = {
     ar: {
         heroTitle: "اعثر على أفضل خيار شراء خلال ثوانٍ",
         heroDesc: "مساعدك الذكي الذي يتذكر تفضيلاتك ويختار لك الأفضل.",
         placeholder: "ابحث عن جوال، سماعة...",
-        searchBtn: "بحث ذكي", buying: "شراء الآن", searching: "⏳ جاري التحليل والفرز...",
+        searchBtn: "بحث ذكي", buying: "شراء", searching: "⏳ جاري التحليل...",
         noResults: "❌ لم نجد نتائج.", minChar: "⚠️ اكتب 3 أحرف", resultsTitle: "توصيات Findly الذكية",
-        whyChosen: "لماذا اخترنا هذا؟", priceReason: "سعر منافس جداً", alternative: "البديل الأرخص 💰",
-        personalTitle: "بناءً على بحثك عن ", personalDesc: "وجدنا أن هذا المنتج قد يثير اهتمامك كأفضل خيار تقني.",
-        cats: ["📱 هواتف", "🎧 سماعات", "⌚ ساعات", "🔌 إكسسوارات"],
+        login: "دخول", register: "إنشاء حساب", email: "البريد الإلكتروني", pass: "كلمة المرور",
+        modalLoginTitle: "تسجيل الدخول", modalRegTitle: "إنشاء حساب جديد",
+        switchReg: "ليس لديك حساب؟", switchLog: "لديك حساب بالفعل؟",
+        regBtn: "إنشاء حساب", logBtn: "دخول",
         greet: { morning: "صباح الخير ☀️", afternoon: "طاب يومك ✨", evening: "مساء الخير 🌙", night: "ليلة سعيدة 💤" }
     },
     en: {
         heroTitle: "Find the Best Purchase in Seconds",
         heroDesc: "Your smart assistant that remembers your preferences.",
         placeholder: "Search for phone, headphones...",
-        searchBtn: "Smart Search", buying: "Buy Now", searching: "⏳ Analyzing...",
-        noResults: "❌ No results.", minChar: "⚠️ Type 3 chars", resultsTitle: "Smart Recommendations",
-        whyChosen: "Why this product?", priceReason: "Best competitive price", alternative: "Cheapest Alternative 💰",
-        personalTitle: "Based on your search for ", personalDesc: "We found this might be your best tech match.",
-        cats: ["📱 Phones", "🎧 Audio", "⌚ Watches", "🔌 Accessories"],
+        searchBtn: "Smart Search", buying: "Buy", searching: "⏳ Analyzing...",
+        noResults: "❌ No results found.", minChar: "⚠️ Type 3 chars", resultsTitle: "Smart Recommendations",
+        login: "Login", register: "Register", email: "Email", pass: "Password",
+        modalLoginTitle: "Login", modalRegTitle: "Create Account",
+        switchReg: "No account?", switchLog: "Have an account?",
+        regBtn: "Sign Up", logBtn: "Login",
         greet: { morning: "Good Morning ☀️", afternoon: "Good Afternoon ✨", evening: "Good Evening 🌙", night: "Good Night 💤" }
     }
 };
@@ -110,8 +142,30 @@ const translations = {
 let currentLang = localStorage.getItem('f_lang') || 'ar';
 let currentTheme = localStorage.getItem('f_theme') || 'dark';
 let searchHistory = JSON.parse(localStorage.getItem('f_history')) || [];
-let favoriteCat = localStorage.getItem('f_fav_cat') || "";
+let authMode = 'login'; 
 
+// --- دوال الـ Modal ---
+function toggleModal() {
+    document.body.classList.toggle('modal-active');
+}
+
+function switchAuthMode() {
+    authMode = authMode === 'login' ? 'register' : 'login';
+    updateModalUI();
+}
+
+function updateModalUI() {
+    const t = translations[currentLang];
+    if(!t) return;
+    document.getElementById('modal-title').innerText = authMode === 'login' ? t.modalLoginTitle : t.modalRegTitle;
+    document.getElementById('auth-submit-btn').innerText = authMode === 'login' ? t.logBtn : t.regBtn;
+    document.getElementById('auth-switch-text').innerText = authMode === 'login' ? t.switchReg : t.switchLog;
+    document.getElementById('auth-switch-btn').innerText = authMode === 'login' ? t.regBtn : t.logBtn;
+    document.getElementById('label-email').innerText = t.email;
+    document.getElementById('label-pass').innerText = t.pass;
+}
+
+// --- وظائف الواجهة واللغات ---
 function setWelcomeMsg() {
     const hour = new Date().getHours();
     const t = translations[currentLang];
@@ -128,23 +182,112 @@ function updateUI(lang) {
     document.getElementById('search-input').placeholder = t.placeholder;
     document.getElementById('search-btn').innerText = t.searchBtn;
     document.getElementById('results-title').innerText = t.resultsTitle;
+    document.getElementById('btn-login-text').innerText = t.login;
     
-    // عرض سجل البحث
-    const historyDiv = document.getElementById('recent-searches');
-    historyDiv.innerHTML = searchHistory.slice(-5).map(s => `<span class="recent-tag" onclick="quickSearch('${s}')">${s}</span>`).join('');
+    updateModalUI();
+    setWelcomeMsg();
     
-    // عرض التوصية المخصصة
-    if(searchHistory.length > 0) {
-        document.getElementById('personalized-recommendation').classList.remove('hidden');
-        document.getElementById('personal-title').innerText = t.personalTitle + " (" + searchHistory[searchHistory.length-1] + ")";
-        document.getElementById('personal-desc').innerText = t.personalDesc;
-    }
+    const searchesDiv = document.getElementById('recent-searches');
+    searchesDiv.innerHTML = searchHistory.slice(-5).map(s => `<span class="recent-tag" onclick="quickSearch('${s}')">${s}</span>`).join('');
+    
+    if(searchHistory.length > 0) document.getElementById('personalized-recommendation').classList.remove('hidden');
 
     document.getElementById('cats-container').innerHTML = t.cats.map(c => 
-        `<div onclick="quickSearch('${c}')" class="glass p-5 rounded-2xl text-center cursor-pointer font-bold hover:bg-purple-600 transition shadow-sm">${c}</div>`
+        `<div onclick="quickSearch('${c.split(' ')[1] || c}')" class="glass p-5 rounded-2xl text-center cursor-pointer font-bold hover:bg-purple-600 hover:text-white transition shadow-sm">${c}</div>`
     ).join('');
-    setWelcomeMsg();
 }
+
+// --- المصادقة مع السيرفر ---
+document.getElementById('auth-form').onsubmit = async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('auth-email').value;
+    const password = document.getElementById('auth-password').value;
+    const path = authMode === 'login' ? '/login' : '/register';
+    const btn = document.getElementById('auth-submit-btn');
+
+    try {
+        btn.disabled = true;
+        btn.innerText = "...";
+        const response = await fetch(`${API_BASE_URL}${path}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            if (data.token) localStorage.setItem('f_token', data.token);
+            alert(data.message || "ناجح!");
+            toggleModal();
+        } else {
+            alert(data.message || "فشل الطلب");
+        }
+    } catch (err) {
+        alert("خطأ: تعذر الاتصال بالسيرفر");
+    } finally {
+        btn.disabled = false;
+        updateModalUI();
+    }
+};
+
+// --- البحث والترتيب ---
+async function executeSearch() {
+    const input = document.getElementById('search-input');
+    const query = input.value.trim();
+    if (query.length < 3) return;
+
+    if(!searchHistory.includes(query)) searchHistory.push(query);
+    localStorage.setItem('f_history', JSON.stringify(searchHistory));
+
+    const resultsDiv = document.getElementById('results');
+    const status = document.getElementById('status');
+    const t = translations[currentLang];
+    
+    status.innerText = t.searching;
+    resultsDiv.innerHTML = '';
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/search?q=${encodeURIComponent(query)}`);
+        const data = await response.json();
+        
+        if (!data.top || data.top.length === 0) {
+            status.innerText = t.noResults;
+            return;
+        }
+
+        const sorted = data.top.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+        sorted.forEach((item, index) => {
+            let badge = index === 0 ? `<span class="bg-amber-500 text-[10px] text-white px-3 py-1 rounded-full font-bold mb-2 inline-block">⭐ الأفضل</span>` : '';
+            resultsDiv.innerHTML += `
+                <div class="glass rounded-[2rem] overflow-hidden flex flex-col p-5 product-card h-full">
+                    <img src="${item.image}" class="w-full h-40 object-cover rounded-2xl mb-4" onerror="this.src='https://via.placeholder.com/150'">
+                    ${badge}
+                    <h3 class="font-bold text-sm mb-2 line-clamp-2">${item.name}</h3>
+                    <div class="mt-auto flex justify-between items-center pt-4 border-t border-white/5">
+                        <span class="text-xl font-black text-purple-500">${item.price}</span>
+                        <a href="${item.link}" target="_blank" class="bg-purple-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg active:scale-95 transition">${t.buying}</a>
+                    </div>
+                </div>`;
+        });
+        status.innerText = "جاهز.";
+        updateUI(currentLang);
+    } catch (err) {
+        status.innerText = "خطأ في جلب البيانات";
+    }
+}
+
+function quickSearch(val) { document.getElementById('search-input').value = val; executeSearch(); }
+
+// --- إعدادات بدء التشغيل ---
+document.getElementById('search-btn').onclick = executeSearch;
+document.getElementById('search-input').onkeypress = (e) => { if(e.key === 'Enter') executeSearch(); };
+document.getElementById('theme-toggle').onclick = () => {
+    currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    document.body.className = currentTheme + '-mode';
+    localStorage.setItem('f_theme', currentTheme);
+};
+document.getElementById('lang-select').onchange = (e) => updateUI(e.target.value);
 
 // البحث الصوتي
 const voiceBtn = document.getElementById('voice-btn');
@@ -158,76 +301,12 @@ if ('webkitSpeechRecognition' in window) {
     recognition.onend = () => voiceBtn.classList.remove('recording');
 }
 
-async function executeSearch() {
-    const query = document.getElementById('search-input').value.trim();
-    if (query.length < 3) return;
-
-    // حفظ في الذاكرة
-    if(!searchHistory.includes(query)) searchHistory.push(query);
-    localStorage.setItem('f_history', JSON.stringify(searchHistory));
-
-    const t = translations[currentLang];
-    const resultsDiv = document.getElementById('results');
-    const status = document.getElementById('status');
-    
-    status.innerText = t.searching;
-    resultsDiv.innerHTML = '';
-
-    try {
-        const response = await fetch(`https://findly-api.onrender.com/search?q=${encodeURIComponent(query)}`);
-        const data = await response.json();
-
-        if (!data.top || data.top.length === 0) { status.innerText = t.noResults; return; }
-
-        // ترتيب النتائج
-        const sorted = data.top.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-        
-        // رصد البديل الأرخص
-        const prices = sorted.map(i => parseFloat(i.price?.replace(/[^0-9.]/g, '')) || Infinity);
-        const minPrice = Math.min(...prices);
-
-        sorted.forEach((item, index) => {
-            const itemPrice = parseFloat(item.price?.replace(/[^0-9.]/g, '')) || 0;
-            
-            // شارات ومنطق الاختيار
-            let badge = index === 0 ? `<span class="bg-amber-500 text-[10px] text-white px-3 py-1 rounded-full font-bold mb-2 inline-block">⭐ الأفضل تقييماً</span>` : '';
-            if (itemPrice === minPrice && minPrice !== Infinity && index !== 0) {
-                badge = `<span class="bg-green-500 text-[10px] text-white px-3 py-1 rounded-full font-bold mb-2 inline-block">💰 ${t.alternative}</span>`;
-            }
-
-            resultsDiv.innerHTML += `
-                <div class="glass rounded-[2.5rem] overflow-hidden flex flex-col p-5 product-card h-full">
-                    <img src="${item.image}" class="w-full h-48 object-cover rounded-3xl mb-4">
-                    ${badge}
-                    <h3 class="font-bold text-lg mb-1 line-clamp-1">${item.name}</h3>
-                    <p class="text-[10px] text-purple-400 font-bold mb-3">${t.whyChosen}: ${index === 0 ? "أعلى جودة مرصودة" : t.priceReason}</p>
-                    <div class="mt-auto flex justify-between items-center pt-4 border-t border-white/5">
-                        <span class="text-xl font-black text-purple-500">${item.price || '—'}</span>
-                        <a href="${item.link}" target="_blank" class="bg-purple-600 text-white px-5 py-2 rounded-xl text-sm font-bold shadow-lg transition active:scale-95">${t.buying}</a>
-                    </div>
-                </div>`;
-        });
-        status.innerText = `تم تحديث النتائج بناءً على معاييرك الذكية.`;
-        updateUI(currentLang); // لتحديث سجل البحث في الواجهة
-    } catch { status.innerText = "Error"; }
-}
-
-function quickSearch(val) {
-    document.getElementById('search-input').value = val.includes(' ') ? val.split(' ')[1] : val;
-    executeSearch();
-}
-
-document.getElementById('search-btn').onclick = executeSearch;
-document.getElementById('theme-toggle').onclick = () => {
-    currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    document.body.className = currentTheme + '-mode';
-    localStorage.setItem('f_theme', currentTheme);
-};
-document.getElementById('lang-select').onchange = (e) => updateUI(e.target.value);
-
-// البدء
+// التنفيذ النهائي عند التحميل
 document.body.className = currentTheme + '-mode';
 updateUI(currentLang);
+document.getElementById('lang-select').value = currentLang;
+
 </script>
+
 </body>
 </html>

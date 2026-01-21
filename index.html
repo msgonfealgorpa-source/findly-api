@@ -192,7 +192,7 @@
 
         try {
             // 2. طلب البيانات من السيرفر (لا اتصال مباشر بأمازون)
-            const response = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`);
+            const response = await fetch("https://findly.onrender.com/search?q=" + encodeURIComponent(query))
             
             if (!response.ok) {
                 if(response.status === 429) throw new Error("تحميل زائد");

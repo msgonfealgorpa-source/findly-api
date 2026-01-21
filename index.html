@@ -30,9 +30,8 @@
         .cat-card { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1); border-radius: 30px; padding: 25px; text-align: center; font-weight: bold; cursor: pointer; transition: 0.3s; }
         .cat-card:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-5px); }
 
-        /* ستايل المزايا المقفلة */
         .pro-feature { position: relative; opacity: 0.7; overflow: hidden; }
-        .pro-badge { position: absolute; top: 10px; left: 10px; font-size: 10px; background: #fbbf24; color: #000; padding: 2px 8px; rounded: 10px; font-weight: bold; border-radius: 10px; }
+        .pro-badge { position: absolute; top: 10px; left: 10px; font-size: 10px; background: #fbbf24; color: #000; padding: 2px 8px; border-radius: 10px; font-weight: bold; }
 
         .hidden { display: none !important; }
         .mic-active { animation: pulse 1.5s infinite; color: #ef4444 !important; }
@@ -132,13 +131,12 @@
 <script>
     const API_BASE = "https://findly-api.onrender.com";
 
-    // --- نظام تحديد البحث (3 يومياً) ---
+    // 1. نظام الحماية وتحديد البحث (3 يومياً)
     function checkSearchLimit() {
         const today = new Date().toDateString();
         const lastDate = localStorage.getItem('f_search_date');
         let count = parseInt(localStorage.getItem('f_search_count') || '0');
 
-        // إعادة تعيين العداد إذا مر 24 ساعة (تغير التاريخ)
         if (lastDate !== today) {
             count = 0;
             localStorage.setItem('f_search_date', today);
@@ -159,132 +157,17 @@
         checkSearchLimit();
     }
 
-    // --- عرض تنبيهات الواجهة ---
-    function showLockedMsg() {
-        const toast = document.getElementById('toast-msg');
-        toast.innerText = "هذه الميزة ستُفتح قريبًا";
-        toast.classList.remove('hidden');
-        setTimeout(() => toast.classList.add('hidden'), 3000);
-    }
+    // 2. المحرك التحليلي الذكي (تحت الغطاء)
+    function analyzeAndRankResults(items, userBudget) {
+        if (!items || items.length === 0) return [];
 
-    // --- تحديث الترحيب ---
-    function updateGreeting() {
-        const hour = new Date().getHours();
-        const name = localStorage.getItem('f_user') || 'مستكشف';
-        let greet = hour < 12 ? "صباح الخير" : (hour < 18 ? "طاب يومك" : "مساء الخير");
-        document.getElementById('greeting-box').innerText = `${greet}، ${name}`;
-    }
+        const analyzedItems = items.map(item => {
+            const price = parseFloat(item.price.replace(/[^0-9.]/g, '')) || 0;
+            const rating = parseFloat(item.rating) || 0;
+            // محاكاة الشعبية بناءً على الترتيب الأصلي والتقييم
+            const popularityScore = rating * (1 / (items.indexOf(item) + 1)); 
+            return { ...item, numericPrice: price, numericRating: rating, popularityScore };
+        });
 
-    // --- إدارة الجلسة ---
-    function handleAuth() {
-        const name = document.getElementById('reg-name').value;
-        const email = document.getElementById('reg-email').value;
-        const pass = document.getElementById('reg-pass').value;
-
-        if(name && email && pass) {
-            localStorage.setItem('f_logged', 'true');
-            localStorage.setItem('f_user', name);
-            checkSession();
-        } else {
-            alert("يرجى ملء جميع الحقول");
-        }
-    }
-
-    function checkSession() {
-        if(localStorage.getItem('f_logged')) {
-            document.getElementById('auth-view').classList.add('hidden');
-            document.getElementById('app-view').classList.remove('hidden');
-            updateGreeting();
-            checkSearchLimit();
-            document.getElementById('pref-budget').value = localStorage.getItem('f_budget') || '';
-        }
-    }
-
-    function logout() { localStorage.clear(); location.reload(); }
-
-    function openProfile() { document.getElementById('profile-modal').classList.remove('hidden'); }
-    function closeProfile() { document.getElementById('profile-modal').classList.add('hidden'); }
-    function saveSettings() {
-        localStorage.setItem('f_budget', document.getElementById('pref-budget').value);
-        alert("تم حفظ تفضيلاتك بنجاح!");
-        closeProfile();
-    }
-
-    // --- دالة البحث الأساسية ---
-    async function runSmartSearch() {
-        if (!checkSearchLimit()) return;
-
-        const query = document.getElementById('search-q').value.trim();
-        const resultsDiv = document.getElementById('results');
-        const status = document.getElementById('status-msg');
-        
-        if(!query) {
-            status.innerText = "⚠️ يرجى كتابة شيء للبحث عنه";
-            return;
-        }
-
-        status.innerText = "⏳ ذكاء Findly يحلل أفضل الخيارات لك...";
-        resultsDiv.innerHTML = '';
-
-        try {
-            const response = await fetch("https://findly-api.onrender.com/search?q=" + encodeURIComponent(query));
-            
-            if (!response.ok) throw new Error("فشل الاتصال");
-
-            const data = await response.json();
-            status.innerText = "";
-            
-            // زيادة العداد عند نجاح العملية
-            incrementSearchCount();
-
-            if (!data.top || data.top.length === 0) {
-                status.innerText = "❌ لم أجد منتجات تطابق بحثك حالياً.";
-                return;
-            }
-
-            const userBudget = parseFloat(localStorage.getItem('f_budget')) || Infinity;
-
-            data.top.forEach((item, index) => {
-                let aiAdvice = "خيار ممتاز بناءً على مراجعات المستخدمين.";
-                const numericPrice = parseFloat(item.price.replace(/[^0-9.]/g, '')) || 0;
-                
-                if(numericPrice > userBudget) {
-                    aiAdvice = "⚠️ تنبيه: هذا المنتج يتخطى ميزانيتك المحددة.";
-                } else if (index === 0) {
-                    aiAdvice = "✨ ترشيح Findly: هذا هو الخيار الأفضل تقييماً وسعراً.";
-                }
-
-                const card = `
-                    <div class="bg-white/5 p-5 rounded-[35px] border border-white/5 flex gap-4 items-center animate-fade-in">
-                        <img src="${item.image}" class="w-20 h-20 object-contain bg-white rounded-3xl p-2 shadow-lg" onerror="this.src='https://via.placeholder.com/80?text=Product'">
-                        <div class="flex-grow">
-                            <h3 class="font-bold text-sm leading-tight line-clamp-2">${item.name}</h3>
-                            <div class="text-yellow-400 text-xs font-bold mt-1">⭐ ${item.rating || '4.5'}</div>
-                            <div class="bg-indigo-500/10 p-3 rounded-2xl mt-3 border-r-4 border-indigo-500 text-[10px] italic">
-                                💡 نصيحة Findly: ${aiAdvice}
-                            </div>
-                        </div>
-                        <div class="text-center min-w-[80px]">
-                            <div class="text-indigo-400 font-black mb-2 text-sm">${item.price}</div>
-                            <a href="${item.link}" target="_blank" class="bg-indigo-500 px-4 py-2 rounded-xl text-[10px] font-black block shadow-lg hover:bg-indigo-400 transition">شراء</a>
-                        </div>
-                    </div>`;
-                resultsDiv.insertAdjacentHTML('beforeend', card);
-            });
-
-        } catch (error) {
-            status.innerText = "❌ عذراً، فشل الاتصال بالسيرفر.";
-        }
-    }
-
-    function quickSearch(v) { 
-        document.getElementById('search-q').value = v; 
-        runSmartSearch(); 
-    }
-
-    function toggleTheme() { document.body.classList.toggle('light'); }
-
-    checkSession();
-</script>
-</body>
-</html>
+        const validPrices = analyzedItems.map(i => i.numericPrice).filter(p => p > 0);
+        const avgPrice = validPrices.reduce((a, b) => a + b,

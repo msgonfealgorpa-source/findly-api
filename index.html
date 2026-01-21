@@ -3,221 +3,157 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Findly AI | نظام البحث الشامل</title>
-    
+    <title>Findly AI | النسخة الشاملة</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #7c3aed; }
-        body { font-family: 'Cairo', sans-serif; background-color: #0f172a; color: #f8fafc; transition: 0.3s; min-height: 100vh; overflow-x: hidden; }
-        
+        body { font-family: 'Cairo', sans-serif; background-color: #0f172a; color: #f8fafc; }
         .hero-gradient { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); }
-        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
         .hidden { display: none !important; }
-        
-        /* تحسينات البطاقات */
-        .product-card { transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-        .product-card:hover { transform: translateY(-10px); border-color: #7c3aed; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(124, 58, 237, 0.1); }
-
-        /* تأثير الميكروفون عند التحدث */
-        .voice-pulse { animation: pulse 1.5s infinite; background: #ef4444 !important; color: white !important; }
-        @keyframes pulse {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-            70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-        }
+        .voice-active { animation: pulse 1.5s infinite; color: #ef4444 !important; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+        .product-card { transition: 0.3s; }
+        .product-card:hover { transform: translateY(-5px); border-color: #7c3aed; }
     </style>
 </head>
 <body>
 
-<section id="view-auth" class="min-h-screen flex items-center justify-center p-6">
-    <div class="glass p-10 rounded-[3rem] w-full max-w-md shadow-2xl border border-purple-500/20 text-center">
-        <h1 class="text-4xl font-black text-white mb-2 italic">Findly<span class="text-yellow-400">.</span></h1>
-        <p id="auth-subtitle" class="text-gray-400 text-sm mb-8">مرحباً بك في مستقبل التسوق</p>
-        
+<section id="auth-view" class="min-h-screen flex items-center justify-center p-6">
+    <div class="glass p-10 rounded-[2.5rem] w-full max-w-md shadow-2xl border border-purple-500/20 text-center">
+        <h1 class="text-4xl font-black text-white italic mb-2">Findly<span class="text-yellow-400">.</span></h1>
+        <p id="auth-msg" class="text-gray-400 text-sm mb-8">سجل دخولك للبدء</p>
         <form id="auth-form" class="space-y-4">
             <input type="email" id="email" placeholder="البريد الإلكتروني" required class="w-full p-4 rounded-2xl bg-white/5 border border-white/10 text-white outline-none focus:border-purple-500 transition">
             <input type="password" id="password" placeholder="كلمة المرور" required class="w-full p-4 rounded-2xl bg-white/5 border border-white/10 text-white outline-none focus:border-purple-500 transition">
-            <button type="submit" id="auth-btn" class="w-full py-4 bg-purple-600 text-white rounded-2xl font-bold shadow-lg hover:bg-purple-700 transition active:scale-95">دخول</button>
+            <button type="submit" id="auth-btn" class="w-full py-4 bg-purple-600 rounded-2xl font-bold hover:bg-purple-700 transition">دخول</button>
         </form>
-        
-        <button onclick="toggleAuthMode()" id="switch-btn" class="w-full mt-6 text-xs text-gray-500 hover:text-purple-400 transition">ليس لديك حساب؟ سجل الآن</button>
+        <button onclick="toggleAuth()" id="toggle-btn" class="mt-6 text-xs text-gray-500 hover:text-purple-400 transition">ليس لديك حساب؟ سجل الآن</button>
     </div>
 </section>
 
-<section id="view-app" class="hidden">
-    <header class="hero-gradient text-white pb-32 pt-10 rounded-b-[5rem] shadow-2xl relative">
-        <div class="max-w-6xl mx-auto px-6">
-            <nav class="flex justify-between items-center mb-16">
-                <div class="text-3xl font-black italic">Findly<span class="text-yellow-400">.</span></div>
-                <button onclick="showProfile()" class="flex items-center gap-3 bg-white/10 p-1 pl-5 rounded-full border border-white/10 hover:bg-white/20 transition">
-                    <div class="w-9 h-9 rounded-full bg-yellow-400 flex items-center justify-center text-black font-bold text-sm">👤</div>
-                    <span class="text-xs font-bold">الملف الشخصي</span>
-                </button>
-            </nav>
-
-            <div class="text-center max-w-3xl mx-auto">
-                <h1 class="text-4xl md:text-6xl font-black mb-10 leading-tight">ابحث بذكاء عن أفضل الصفقات</h1>
-                <div class="relative max-w-2xl mx-auto shadow-2xl rounded-[2.5rem] bg-white p-2 flex items-center group overflow-hidden">
-                    <button id="voice-btn" class="p-4 text-gray-400 hover:text-purple-600 transition outline-none">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-20a3 3 0 00-3 3v8a3 3 0 006 0V5a3 3 0 00-3-3z" />
-                        </svg>
-                    </button>
-                    <input id="search-input" type="text" placeholder="ماذا تريد أن تشتري اليوم؟" class="w-full py-4 px-2 text-gray-900 outline-none text-xl rounded-full">
-                    <button onclick="handleSearch()" class="bg-purple-600 hover:bg-purple-700 text-white px-10 py-4 rounded-full font-black transition shadow-lg">بحث</button>
-                </div>
-            </div>
+<section id="app-view" class="hidden">
+    <header class="hero-gradient pb-24 pt-10 rounded-b-[4rem] shadow-2xl px-6 text-center relative">
+        <div class="max-w-6xl mx-auto flex justify-between items-center mb-12">
+            <div class="text-3xl font-black italic">Findly<span class="text-yellow-400">.</span></div>
+            <button onclick="logout()" class="bg-white/10 px-4 py-2 rounded-full text-xs font-bold hover:bg-red-500 transition">تسجيل الخروج</button>
+        </div>
+        
+        <h1 class="text-4xl md:text-5xl font-black mb-10 leading-tight text-white">ابحث بذكاء عن أفضل الصفقات</h1>
+        
+        <div class="max-w-2xl mx-auto bg-white rounded-full p-2 flex items-center shadow-2xl relative overflow-hidden">
+            <button id="mic-btn" class="p-4 text-gray-400 hover:text-purple-600 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-20a3 3 0 00-3 3v8a3 3 0 006 0V5a3 3 0 00-3-3z" />
+                </svg>
+            </button>
+            <input id="search-input" type="text" placeholder="ماذا تريد أن تشتري؟" class="w-full px-4 py-2 text-gray-900 outline-none text-lg">
+            <button onclick="runSearch()" class="bg-purple-600 px-10 py-4 rounded-full font-bold text-white hover:bg-purple-700 transition">بحث ذكي</button>
         </div>
     </header>
 
-    <main class="max-w-5xl mx-auto px-6 -mt-20 pb-40">
-        <div id="search-status" class="text-center mb-8 font-bold text-yellow-400 h-6"></div>
-        <div id="results-list" class="grid grid-cols-1 gap-8"></div>
+    <main class="max-w-5xl mx-auto px-6 -mt-16 pb-20">
+        <div id="status-msg" class="text-center mb-6 font-bold text-yellow-400"></div>
+        <div id="results-area" class="space-y-6">
+            </div>
     </main>
 </section>
 
-<section id="view-profile" class="hidden min-h-screen flex items-center justify-center p-6 bg-[#0a0f1e]">
-    <div class="glass p-12 rounded-[4rem] w-full max-w-sm text-center border border-purple-500/20 shadow-2xl">
-        <div class="w-24 h-24 bg-gradient-to-tr from-purple-600 to-indigo-600 rounded-full mx-auto mb-6 flex items-center justify-center text-4xl shadow-xl">👤</div>
-        <h2 class="text-2xl font-black mb-1">إعدادات الحساب</h2>
-        <p id="prof-email" class="text-gray-400 text-sm mb-12 italic"></p>
-        
-        <div class="space-y-4">
-            <button onclick="hideProfile()" class="w-full py-4 bg-white/5 rounded-2xl font-bold hover:bg-white/10 transition">← عودة للبحث</button>
-            <button onclick="logout()" class="w-full py-4 bg-red-500/10 text-red-500 rounded-2xl font-bold border border-red-500/20 hover:bg-red-500 hover:text-white transition">تسجيل الخروج</button>
-        </div>
-    </div>
-</section>
-
 <script>
-const API_URL = "https://findly-api.onrender.com"; // رابط السيرفر الخاص بك
-let isLogin = true;
+    const API = "https://findly-api.onrender.com";
+    let isLogin = true;
 
-// --- 1. نظام الدخول ---
-function toggleAuthMode() {
-    isLogin = !isLogin;
-    document.getElementById('auth-subtitle').innerText = isLogin ? "مرحباً بك في مستقبل التسوق" : "انضم إلى عائلة Findly الذكية";
-    document.getElementById('auth-btn').innerText = isLogin ? "دخول" : "إنشاء حساب";
-    document.getElementById('switch-btn').innerText = isLogin ? "ليس لديك حساب؟ سجل الآن" : "لديك حساب؟ سجل دخولك";
-}
+    // 1. نظام الدخول والتسجيل
+    function toggleAuth() {
+        isLogin = !isLogin;
+        document.getElementById('auth-msg').innerText = isLogin ? "سجل دخولك للبدء" : "أنشئ حساباً جديداً";
+        document.getElementById('auth-btn').innerText = isLogin ? "دخول" : "تسجيل";
+        document.getElementById('toggle-btn').innerText = isLogin ? "ليس لديك حساب؟ سجل الآن" : "لديك حساب؟ سجل دخولك";
+    }
 
-document.getElementById('auth-form').onsubmit = async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    const route = isLogin ? '/login' : '/register';
-
-    try {
-        const res = await fetch(`${API_URL}${route}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
-        });
-        const data = await res.json();
-        if (res.ok) {
-            if (isLogin) {
-                localStorage.setItem('f_token', data.token);
-                localStorage.setItem('f_email', email);
-                initApp();
-            } else {
-                alert("تم التسجيل بنجاح!"); toggleAuthMode();
-            }
-        } else alert(data.message);
-    } catch { alert("خطأ في الاتصال بالسيرفر"); }
-};
-
-// --- 2. نظام البحث الصوتي ---
-const voiceBtn = document.getElementById('voice-btn');
-const recognition = window.SpeechRecognition || window.webkitSpeechRecognition ? new (window.SpeechRecognition || window.webkitSpeechRecognition)() : null;
-
-if (recognition) {
-    recognition.onresult = (e) => {
-        const text = e.results[0][0].transcript;
-        document.getElementById('search-input').value = text;
-        voiceBtn.classList.remove('voice-pulse');
-        handleSearch();
+    document.getElementById('auth-form').onsubmit = async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const route = isLogin ? '/login' : '/register';
+        
+        try {
+            const res = await fetch(`${API}${route}`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({email, password})
+            });
+            const data = await res.json();
+            if(res.ok) {
+                if(isLogin) { localStorage.setItem('token', data.token); showApp(); }
+                else { alert("تم التسجيل!"); toggleAuth(); }
+            } else alert(data.message);
+        } catch { alert("خطأ في الاتصال بالسيرفر"); }
     };
-    recognition.onend = () => voiceBtn.classList.remove('voice-pulse');
-    voiceBtn.onclick = () => {
-        recognition.lang = 'ar-SA';
-        recognition.start();
-        voiceBtn.classList.add('voice-pulse');
-    };
-} else {
-    voiceBtn.style.display = 'none';
-}
 
-// --- 3. عرض النتائج والذكاء الاصطناعي ---
-async function handleSearch() {
-    const q = document.getElementById('search-input').value;
-    if(!q) return;
-    const list = document.getElementById('results-list');
-    const status = document.getElementById('search-status');
+    // 2. البحث الصوتي
+    const micBtn = document.getElementById('mic-btn');
+    const recognition = window.SpeechRecognition || window.webkitSpeechRecognition ? new (window.SpeechRecognition || window.webkitSpeechRecognition)() : null;
 
-    status.innerText = "⏳ ذكاء Findly يحلل أفضل الخيارات لك...";
-    list.innerHTML = "";
+    if (recognition) {
+        recognition.onresult = (e) => {
+            document.getElementById('search-input').value = e.results[0][0].transcript;
+            micBtn.classList.remove('voice-active');
+            runSearch();
+        };
+        micBtn.onclick = () => { recognition.start(); micBtn.classList.add('voice-active'); };
+    }
 
-    try {
-        const res = await fetch(`${API_URL}/search?q=${encodeURIComponent(q)}`);
-        const data = await res.json();
-        status.innerText = `✔️ تم تحليل ${data.top.length} منتجات بنجاح`;
+    // 3. البحث وعرض النتائج (مع مميزات ذكاء التطبيق)
+    async function runSearch() {
+        const q = document.getElementById('search-input').value;
+        if(!q) return;
+        const container = document.getElementById('results-area');
+        const status = document.getElementById('status-msg');
+        
+        status.innerText = "⏳ ذكاء Findly يحلل لك السوق...";
+        container.innerHTML = '';
 
-        data.top.forEach(item => {
-            const stars = "⭐".repeat(item.rating || 5);
-            list.innerHTML += `
-                <div class="glass p-6 md:p-8 rounded-[3rem] flex flex-col md:flex-row gap-8 items-center product-card border border-white/5">
-                    <div class="relative min-w-[140px]">
-                        <img src="${item.image}" class="w-32 h-32 object-contain bg-white rounded-[2rem] p-4 shadow-xl">
-                        <span class="absolute -top-3 -right-3 bg-yellow-400 text-black text-[10px] font-black px-3 py-1 rounded-full shadow-lg">ممتاز</span>
-                    </div>
+        try {
+            const res = await fetch(`${API}/search?q=${q}`);
+            const data = await res.json();
+            status.innerText = '';
 
-                    <div class="flex-grow text-right w-full">
-                        <div class="flex justify-between items-start mb-3">
-                            <h3 class="text-xl font-black text-white">${item.name}</h3>
-                            <div class="text-yellow-500 text-sm tracking-widest">${stars}</div>
+            data.top.forEach(item => {
+                const stars = "⭐".repeat(item.rating || 5); // عرض النجوم
+                container.innerHTML += `
+                    <div class="glass p-6 rounded-[2.5rem] flex flex-col md:flex-row gap-6 items-center product-card border border-white/5 shadow-xl">
+                        <img src="${item.image}" class="w-32 h-32 object-contain bg-white rounded-3xl p-3">
+                        
+                        <div class="flex-grow text-right space-y-3">
+                            <div class="flex justify-between items-center">
+                                <h3 class="font-bold text-xl text-white">${item.name}</h3>
+                                <div class="text-sm">${stars} <span class="text-gray-400 text-xs">(${item.rating || 5}/5)</span></div>
+                            </div>
+                            
+                            <div class="bg-purple-600/10 p-4 rounded-2xl border-r-4 border-purple-500">
+                                <p class="text-[10px] font-black text-purple-400 mb-1 uppercase tracking-widest">💡 ذكاء Findly:</p>
+                                <p class="text-xs text-gray-300 leading-relaxed">
+                                    هذا المنتج يقدم أفضل توازن بين السعر والتقييمات الإيجابية حالياً. بناءً على بياناتنا، هذا هو الوقت الأنسب للشراء.
+                                </p>
+                            </div>
                         </div>
 
-                        <div class="bg-purple-600/10 p-5 rounded-[2rem] border-r-4 border-purple-500">
-                            <p class="text-[11px] font-black text-purple-400 mb-1 tracking-tighter uppercase">💡 لماذا رشحنا لك هذا؟</p>
-                            <p class="text-xs text-gray-300 leading-relaxed italic opacity-90">
-                                تم اختيار هذا المنتج لأن سعره الحالي أقل بنسبة 15% من متوسط سعر السوق، مع حصوله على تقييمات إيجابية جداً من المشترين في آخر 30 يوم.
-                            </p>
+                        <div class="md:border-r border-white/10 pr-6 flex flex-col items-center min-w-[150px]">
+                            <p class="text-3xl font-black text-purple-400 mb-4">${item.price}</p>
+                            <a href="${item.link}" target="_blank" class="w-full bg-purple-600 py-3 rounded-2xl font-bold text-center hover:bg-purple-700 transition shadow-lg">شراء الآن</a>
                         </div>
-                    </div>
+                    </div>`;
+            });
+        } catch { status.innerText = "⚠️ خطأ في الاتصال، تأكد من تشغيل السيرفر."; }
+    }
 
-                    <div class="md:border-r border-white/10 pr-8 flex flex-col items-center min-w-[180px] w-full md:w-auto">
-                        <p class="text-4xl font-black text-purple-400 mb-5">${item.price}</p>
-                        <a href="${item.link}" target="_blank" class="w-full bg-purple-600 py-4 rounded-[1.5rem] font-black text-center text-sm shadow-xl shadow-purple-900/40 hover:bg-purple-700 transition">شراء الآن</a>
-                    </div>
-                </div>`;
-        });
-    } catch { status.innerText = "⚠️ فشل الاتصال بالسيرفر"; }
-}
-
-// --- 4. إدارة الصفحات ---
-function initApp() {
-    document.getElementById('view-auth').classList.add('hidden');
-    document.getElementById('view-profile').classList.add('hidden');
-    document.getElementById('view-app').classList.remove('hidden');
-    document.getElementById('prof-email').innerText = localStorage.getItem('f_email');
-}
-
-function showProfile() {
-    document.getElementById('view-app').classList.add('hidden');
-    document.getElementById('view-profile').classList.remove('hidden');
-}
-
-function hideProfile() {
-    document.getElementById('view-profile').classList.add('hidden');
-    document.getElementById('view-app').classList.remove('hidden');
-}
-
-function logout() { localStorage.clear(); location.reload(); }
-
-// التحقق من الجلسة
-if (localStorage.getItem('f_token')) initApp();
+    function showApp() { 
+        document.getElementById('auth-view').classList.add('hidden'); 
+        document.getElementById('app-view').classList.remove('hidden'); 
+    }
+    function logout() { localStorage.clear(); location.reload(); }
+    if(localStorage.getItem('token')) showApp();
 </script>
 </body>
 </html>

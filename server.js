@@ -26,14 +26,7 @@ app.get("/search", async (req, res) => {
   try {
     // التأكد من جلب البيانات من Apify بشكل صحيح
     
-const url = `https://api.apify.com/v2/actor-runs/${process.env.APIFY_RUN_ID}/dataset/items?token=${process.env.APIFY_API_TOKEN}&clean=true`;
-    const json = await response.json();
-const data = json.items || [];
-
-if (!Array.isArray(data)) {
-  return res.status(500).json({ error: "No products found" });
-}
-
+const url = `https://api.apify.com/v2/datasets/${process.env.APIFY_DATASET_ID}/items?token=${process.env.APIFY_API_TOKEN}`;
     // فلترة المنتجات بناءً على كلمة البحث
     const results = data
       .filter(item =>

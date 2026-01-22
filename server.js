@@ -6,13 +6,17 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+// Render يفرض استخدام Port 10000 غالباً، لذا نتركها ديناميكية
+const PORT = process.env.PORT || 10000; 
 
 app.use(cors());
 app.use(express.json());
 
-// Endpoint للبحث
-app.get("/api/search", async (req, res) => {
+// مسار تجريبي للتأكد أن السيرفر يعمل عند فتحه في المتصفح
+app.get("/", (req, res) => res.send("Findly API is Live!"));
+
+// Endpoint للبحث - تم تعديله ليتوافق مع نداء المتصفح
+app.get("/search", async (req, res) => {
   const query = req.query.q;
 
   if (!query) {
@@ -20,7 +24,7 @@ app.get("/api/search", async (req, res) => {
   }
 
   try {
-    // ⚠️ مهم: /items
+    // التأكد من جلب البيانات من Apify بشكل صحيح
     const url = `${process.env.APIFY_DATASET_URL}/items?token=${process.env.APIFY_API_TOKEN}&clean=true`;
 
     const response = await fetch(url);
@@ -30,26 +34,25 @@ app.get("/api/search", async (req, res) => {
       return res.status(500).json({ error: "Invalid dataset response" });
     }
 
+    // فلترة المنتجات بناءً على كلمة البحث
     const results = data
       .filter(item =>
         item.title?.toLowerCase().includes(query.toLowerCase())
       )
       .slice(0, 20)
       .map(item => ({
-        title: item.title,
+        name: item.title,
         price: item.price?.value || item.price || "—",
         currency: item.price?.currency || "USD",
         image: item.imageUrl || item.thumbnail || "",
         link: item.productUrl || item.url || "#",
-        rating: item.rating || null,
-        orders: item.orders || 0,
+        rating: item.rating || "4.5",
         source: "AliExpress"
       }));
 
     res.json({
       success: true,
-      count: results.length,
-      products: results
+      top: results // نرسل النتائج تحت اسم top لتتوافق مع الفرونت-إند
     });
 
   } catch (error) {
@@ -59,5 +62,5 @@ app.get("/api/search", async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 Findly API running on http://localhost:${PORT}`);
+  console.log(`🚀 Findly API running on port ${PORT}`);
 });

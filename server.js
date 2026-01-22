@@ -6,16 +6,13 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const app = express();
-// Render يفرض استخدام Port 10000 غالباً، لذا نتركها ديناميكية
-const PORT = process.env.PORT || 10000; 
+const PORT = process.env.PORT || 10000;
 
 app.use(cors());
 app.use(express.json());
 
-// مسار تجريبي للتأكد أن السيرفر يعمل عند فتحه في المتصفح
-app.get("/", (req, res) => res.send("Findly API is Live!"));
+app.get("/", (req, res) => res.send("Findly API is Live 🚀"));
 
-// Endpoint للبحث - تم تعديله ليتوافق مع نداء المتصفح
 app.get("/search", async (req, res) => {
   const query = req.query.q;
 
@@ -24,33 +21,58 @@ app.get("/search", async (req, res) => {
   }
 
   try {
-    // التأكد من جلب البيانات من Apify بشكل صحيح
-    
-const url = `https://api.apify.com/v2/datasets/${process.env.APIFY_DATASET_ID}/items?token=${process.env.APIFY_API_TOKEN}`;
-    // فلترة المنتجات بناءً على كلمة البحث
-    const results = data
-      .filter(item =>
-        item.title?.toLowerCase().includes(query.toLowerCase())
-      )
-      .slice(0, 20)
-      .map(item => ({
-        name: item.title,
-        price: item.price?.value || item.price || "—",
-        currency: item.price?.currency || "USD",
-        image: item.imageUrl || item.thumbnail || "",
-        link: item.productUrl || item.url || "#",
-        rating: item.rating || "4.5",
-        source: "AliExpress"
-      }));
+    // 1️⃣ تشغيل Actor مع كلمة البحث
+    const runRes = await fetch(
+      `https://api.apify.com/v2/acts/${process.env.APIFY_ACTOR_ID}/runs?token=${process.env.APIFY_API_TOKEN}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          search: query,
+          maxItems: 20
+        })
+      }
+    );
+
+    const runData = await runRes.json();
+
+    if (!runData?.data?.id) {
+      return res.status(500).json({ error: "Failed to start search actor" });
+    }
+
+    const runId = runData.data.id;
+
+    // 2️⃣ انتظار اكتمال التشغيل
+    await new Promise(resolve => setTimeout(resolve, 8000));
+
+    // 3️⃣ جلب النتائج
+    const datasetUrl = `https://api.apify.com/v2/actor-runs/${runId}/dataset/items?token=${process.env.APIFY_API_TOKEN}`;
+
+    const dataRes = await fetch(datasetUrl);
+    const data = await dataRes.json();
+
+    if (!Array.isArray(data)) {
+      return res.status(500).json({ error: "Invalid search result" });
+    }
+
+    const results = data.map(item => ({
+      name: item.title,
+      price: item.price?.value || item.price || "—",
+      currency: item.price?.currency || "USD",
+      image: item.imageUrl || item.thumbnail || "",
+      link: item.productUrl || item.url || "#",
+      rating: item.rating || "4.5",
+      source: "AliExpress"
+    }));
 
     res.json({
       success: true,
-      top: results // نرسل النتائج تحت اسم top لتتوافق مع الفرونت-إند
+      top: results
     });
 
   } catch (error) {
-    console.error("Search error:", error);
-    res.status(500).json({ error: "Failed to fetch products" });
+    console.error("Live search error:", error);
+    res.status(500).json({ error: "Live search failed" });
   }
 });
 

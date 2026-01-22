@@ -25,8 +25,8 @@ app.get("/search", async (req, res) => {
 
   try {
     // التأكد من جلب البيانات من Apify بشكل صحيح
-    const url = `${process.env.APIFY_DATASET_URL}/items?token=${process.env.APIFY_API_TOKEN}&clean=true`;
-
+    
+const url = `https://api.apify.com/v2/actor-runs/${process.env.APIFY_RUN_ID}/dataset/items?token=${process.env.APIFY_API_TOKEN}&clean=true`;
     const response = await fetch(url);
     const data = await response.json();
 

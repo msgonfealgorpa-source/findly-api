@@ -1,4 +1,98 @@
-const API_BASE = "https://findly-api.onrender.com";
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Findly AI | البحث الذكي</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root { --main-purple: #6366f1; --dark-bg: #0f172a; }
+        body { font-family: 'Cairo', sans-serif; transition: 0.4s; margin: 0; background-color: var(--dark-bg); color: white; overflow-x: hidden; }
+        body.light { background-color: #f1f5f9; color: #1e293b; }
+        
+        .hero-section {
+            background: linear-gradient(180deg, var(--main-purple) 0%, #4f46e5 100%);
+            border-bottom-left-radius: 80px; border-bottom-right-radius: 80px;
+            padding: 30px 20px 80px 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            position: relative; z-index: 10;
+        }
+
+        .search-container {
+            background: white; border-radius: 100px; display: flex; align-items: center;
+            padding: 5px; max-width: 500px; margin: 30px auto 0; box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+        .search-input { flex: 1; border: none; outline: none; padding: 12px 20px; color: #333; font-weight: bold; background: transparent; font-size: 16px; }
+        .search-btn { background: var(--main-purple); color: white; border-radius: 100px; padding: 12px 30px; font-weight: 900; cursor: pointer; border: none; }
+        
+        .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: -40px; padding: 0 25px; position: relative; z-index: 20; }
+        .cat-card { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1); border-radius: 30px; padding: 25px; text-align: center; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .cat-card:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-5px); }
+
+        .mic-active { animation: pulse 1.5s infinite; color: #ef4444 !important; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        
+        .hidden { display: none !important; }
+        .animate-fade-in { animation: fadeIn 0.5s ease forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .product-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 35px; padding: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+            display: flex; align-items: center; gap: 15px; margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body class="dark">
+
+<section id="auth-view" class="min-h-screen flex items-center justify-center p-6">
+    <div class="w-full max-w-sm text-center">
+        <h1 class="text-5xl font-black italic mb-8">Findly<span class="text-yellow-400">.</span></h1>
+        <div class="bg-white/5 border border-white/10 p-8 rounded-[40px] space-y-4 backdrop-blur-md">
+            <h2 class="text-xl font-bold mb-4">إنشاء حساب</h2>
+            <input type="text" id="reg-name" placeholder="الاسم الكامل" class="w-full p-4 rounded-2xl bg-white/10 outline-none border border-white/10 text-center text-white">
+            <button onclick="handleAuth()" class="w-full bg-indigo-500 p-4 rounded-2xl font-black shadow-xl hover:bg-indigo-600 transition mt-2">ابدأ الآن</button>
+        </div>
+    </div>
+</section>
+
+<section id="app-view" class="hidden">
+    <div class="hero-section">
+        <header class="flex justify-between items-center max-w-5xl mx-auto mb-10">
+            <div class="flex items-center gap-3">
+                <button onclick="toggleTheme()" class="w-10 h-10 flex items-center justify-center bg-white/20 rounded-full">🌓</button>
+                <div id="greeting-box" class="bg-white/10 px-4 py-2 rounded-full text-[11px] font-bold border border-white/10"></div>
+            </div>
+            <div class="text-2xl font-black italic">Findly<span class="text-yellow-400">.</span></div>
+        </header>
+        <div class="text-center px-4">
+            <h1 class="text-4xl font-black leading-tight mb-4">اعثر على خيارك<br>المثالي بذكاء</h1>
+            <div class="search-container">
+                <button id="mic-btn" onclick="startVoiceRecognition()" class="p-3 text-gray-400">
+                    🎤
+                </button>
+                <input type="text" id="search-q" placeholder="ماذا تريد أن تشتري؟" class="search-input">
+                <button id="main-search-btn" onclick="runSmartSearch()" class="search-btn">بحث ذكي</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="cat-grid">
+        <div onclick="quickSearch('سماعات لاسلكية')" class="cat-card">🎧 سماعات</div>
+        <div onclick="quickSearch('هواتف ذكية')" class="cat-card">📱 هواتف</div>
+        <div onclick="quickSearch('لابتوب عمل')" class="cat-card">💻 لابتوب</div>
+        <div onclick="alert('قريباً!')" class="cat-card">🔒 المزيد</div>
+    </div>
+
+    <main class="max-w-4xl mx-auto mt-10 px-6 pb-20">
+        <div id="status-msg" class="text-center font-bold text-indigo-400 mb-6 min-h-[24px]"></div>
+        <div id="results" class="space-y-4"></div>
+    </main>
+</section>
+
+<script>
+    const API_BASE = "https://findly-api.onrender.com";
 
     async function runSmartSearch() {
         const queryField = document.getElementById('search-q');
@@ -12,40 +106,61 @@ const API_BASE = "https://findly-api.onrender.com";
         status.innerText = "⏳ جاري البحث في AliExpress... انتظر 20 ثانية";
         resultsDiv.innerHTML = '';
         searchBtn.disabled = true;
-        searchBtn.innerText = "جاري البحث...";
 
         try {
-            // طلب البيانات
             const response = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`);
             const data = await response.json();
             
             searchBtn.disabled = false;
-            searchBtn.innerText = "بحث ذكي";
+            status.innerText = "";
 
             if (!data.success || !data.top || data.top.length === 0) {
-                status.innerHTML = "<span class='text-red-400'>❌ لم نجد نتائج حالياً، جرب كلمة أخرى.</span>";
+                status.innerHTML = "<span class='text-red-400'>❌ لم نجد نتائج حالياً.</span>";
                 return;
             }
 
-            status.innerText = "";
             data.top.forEach(item => {
                 const card = `
                     <div class="product-card animate-fade-in shadow-xl">
-                        <img src="${item.image}" class="w-20 h-20 object-contain bg-white rounded-3xl p-2 shadow-md">
+                        <img src="${item.image}" class="w-20 h-20 object-contain bg-white rounded-3xl p-2">
                         <div class="flex-grow">
                             <h3 class="font-bold text-sm line-clamp-2">${item.name}</h3>
                             <div class="text-yellow-400 text-xs font-bold mt-1">⭐ ${item.rating}</div>
                         </div>
                         <div class="text-center min-w-[80px]">
-                            <div class="text-indigo-400 font-black mb-2 text-sm">${item.price} ${item.currency}</div>
-                            <a href="${item.link}" target="_blank" class="bg-indigo-500 px-4 py-2 rounded-xl text-[10px] font-black block shadow-lg hover:bg-indigo-400 transition">شراء</a>
+                            <div class="text-indigo-400 font-black mb-2 text-sm">${item.price}</div>
+                            <a href="${item.link}" target="_blank" class="bg-indigo-500 px-4 py-2 rounded-xl text-[10px] font-black block text-white">شراء</a>
                         </div>
                     </div>`;
                 resultsDiv.insertAdjacentHTML('beforeend', card);
             });
         } catch (error) {
-            status.innerText = "❌ السيرفر لا يستجيب، تأكد من تشغيل Render.";
+            status.innerText = "❌ السيرفر لا يستجيب.";
             searchBtn.disabled = false;
-            searchBtn.innerText = "بحث ذكي";
         }
     }
+
+    function handleAuth() {
+        const name = document.getElementById('reg-name').value;
+        if(name) {
+            localStorage.setItem('f_logged', 'true');
+            localStorage.setItem('f_user', name);
+            checkSession();
+        }
+    }
+
+    function checkSession() {
+        if(localStorage.getItem('f_logged')) {
+            document.getElementById('auth-view').classList.add('hidden');
+            document.getElementById('app-view').classList.remove('hidden');
+            document.getElementById('greeting-box').innerText = `أهلاً، ${localStorage.getItem('f_user')}`;
+        }
+    }
+
+    function toggleTheme() { document.body.classList.toggle('light'); }
+    function quickSearch(v) { document.getElementById('search-q').value = v; runSmartSearch(); }
+    
+    window.onload = checkSession;
+</script>
+</body>
+</html>

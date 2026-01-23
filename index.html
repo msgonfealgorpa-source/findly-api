@@ -154,21 +154,37 @@
     }  
   
     // --- تحديث الترحيب ---  
-    function updateGreeting() {  
-        const hour = new Date().getHours();  
-        const name = localStorage.getItem('f_user') || 'مستكشف';  
-        let greet = hour < 12 ? "صباح الخير" : (hour < 18 ? "طاب يومك" : "مساء الخير");  
-        document.getElementById('greeting-box').innerText = `${greet}، ${name}`;  
-    }  
-  
-    // --- إدارة الجلسة ودخول المستخدم ---  
+    // --- الحل الجذري لدالة تسجيل الدخول ---
+function handleAuth() {
+    console.log("محاولة دخول..."); // للتأكد في Console أن الزر يعمل
     
-            console.log("تم تحديث الحالة والدخول بنجاح ✅");
-        } else {  
-            // 5. تنبيه المستخدم في حال وجود نقص
-            alert("يرجى ملء جميع الحقول: الاسم، البريد، وكلمة المرور");  
-        }  
+    const nameInput = document.getElementById('reg-name');
+    const emailInput = document.getElementById('reg-email');
+    const passInput = document.getElementById('reg-pass');
+
+    if (nameInput.value && emailInput.value && passInput.value) {
+        // 1. حفظ البيانات في الذاكرة
+        localStorage.setItem('f_logged', 'true');
+        localStorage.setItem('f_user', nameInput.value);
+        
+        // 2. إخفاء شاشة التسجيل وإظهار التطبيق (بأمر مباشر)
+        const authView = document.getElementById('auth-view');
+        const appView = document.getElementById('app-view');
+
+        if (authView) authView.style.setProperty('display', 'none', 'important');
+        if (appView) {
+            appView.classList.remove('hidden');
+            appView.style.setProperty('display', 'block', 'important');
+        }
+
+        // 3. تحديث الترحيب
+        if (typeof updateGreeting === 'function') updateGreeting();
+
+        alert("أهلاً بك في Findly! تم تسجيل الدخول.");
+    } else {
+        alert("يرجى ملء كافة البيانات المطلوبة");
     }
+}
   
     function checkSession() {  
         if(localStorage.getItem('f_logged')) {  

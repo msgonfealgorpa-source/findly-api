@@ -178,30 +178,25 @@
             checkSearchLimit();  
             document.getElementById('pref-budget').value = 
 function handleAuth() {
-    const name = document.getElementById('reg-name').value;
-    const email = document.getElementById('reg-email').value;
-    const pass = document.getElementById('reg-pass').value;
+    const name = document.getElementById('reg-name').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    const pass = document.getElementById('reg-pass').value.trim();
 
-    if(name && email && pass) {
-        // 1. حفظ البيانات
+    if (name && email && pass) {
+        // 1. حفظ البيانات في الذاكرة
         localStorage.setItem('f_logged', 'true');
         localStorage.setItem('f_user', name);
         
-        // 2. إخفاء شاشة التسجيل وإظهار واجهة البحث فوراً
-        const authView = document.getElementById('auth-view');
-        const appView = document.getElementById('app-view');
+        // 2. إخفاء شاشة التسجيل (auth-view) وإظهار شاشة التطبيق (app-view)
+        document.getElementById('auth-view').style.display = 'none'; // إخفاء إجباري
+        document.getElementById('app-view').classList.remove('hidden'); // إظهار التطبيق
         
-        if(authView) authView.classList.add('hidden');
-        if(appView) appView.classList.remove('hidden');
+        // 3. تحديث واجهة المستخدم
+        if (typeof updateGreeting === 'function') updateGreeting();
         
-        // 3. تحديث رسالة الترحيب إذا كانت الدالة موجودة
-        if(typeof updateGreeting === 'function') {
-            updateGreeting();
-        }
-
-        console.log("تم الدخول بنجاح والواجهة جاهزة للبحث ✅");
+        console.log("تم تسجيل الدخول بنجاح! أهلاً بك.");
     } else {
-        alert("يرجى ملء جميع الحقول");
+        alert("يرجى ملء جميع الحقول (الاسم، الإيميل، الباسورد)");
     }
 }
   

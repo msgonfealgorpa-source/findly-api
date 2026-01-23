@@ -116,8 +116,11 @@
 </div>
 
 </div>  <script>  
-    const API_BASE = "https://findly-api.onrender.com";  
-  
+    
+  // هذا هو الرابط الصحيح الذي سيربط موقعك بالسيرفر في Render
+const API_URL = "https://findly-api.onrender.com/search?q=";
+
+const response = await fetch(API_URL + query);
     // --- نظام تحديد البحث (3 يومياً) ---  
     function checkSearchLimit() {  
         const today = new Date().toDateString();  

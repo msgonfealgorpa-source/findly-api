@@ -37,8 +37,7 @@ app.get("/search", async (req, res) => {
         const runRes = await fetch(`https://api.apify.com/v2/acts/${ACTOR_ID}/runs?token=${API_TOKEN}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ "query": searchQuery, "maxItems": 10, "page": 1 })
-        });
+            body: JSON.stringify({ "query": searchQuery, "maxItems": "10", "page": "1" })
 
         const runData = await runRes.json();
         if (!runRes.ok) throw new Error(runData.error?.message || "فشل تشغيل البوت");

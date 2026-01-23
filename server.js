@@ -66,13 +66,15 @@ app.get("/search", async (req, res) => {
         ]);
 
         // دمج النتائج
-        const finalResults = [...aliResults, ...amzResults];
+        // --- استبدل الكود القديم بهذا الجزء لدمج الموقعين ---
+const [aliResults, amzResults] = await Promise.all([
+    getResultsFromActor(process.env.APIFY_ACTOR_ID, "AliExpress"),
+    getResultsFromActor(process.env.APIFY_AMAZON_ACTOR_ID, "Amazon")
+]);
 
-        res.json({ 
-            success: true, 
-            total: finalResults.length,
-            top: finalResults 
-        });
+const finalResults = [...aliResults, ...amzResults];
+
+res.json({ success: true, top: finalResults });
 
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });

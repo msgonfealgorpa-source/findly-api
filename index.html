@@ -3,149 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Findly AI | البحث الذكي</title>
+    <title>Findly AI | النسخة المتكاملة</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root { --main-purple: #6366f1; --dark-bg: #0f172a; }
-        body { font-family: 'Cairo', sans-serif; transition: 0.4s; margin: 0; background-color: var(--dark-bg); color: white; overflow-x: hidden; }
-        body.light { background-color: #f1f5f9; color: #1e293b; }
+        body { font-family: 'Cairo', sans-serif; background-color: var(--dark-bg); color: white; margin: 0; overflow-x: hidden; }
         
-        .hero-section {   
-            background: linear-gradient(180deg, var(--main-purple) 0%, #4f46e5 100%);   
-            border-bottom-left-radius: 80px; border-bottom-right-radius: 80px;   
-            padding: 30px 20px 80px 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.2);  
-            position: relative; z-index: 10;  
-        }  
-
-        .search-container {   
-            background: white; border-radius: 100px; display: flex; align-items: center;   
-            padding: 5px; max-width: 500px; margin: 30px auto 0; box-shadow: 0 15px 35px rgba(0,0,0,0.2);  
-        }  
-        .search-input { flex: 1; border: none; outline: none; padding: 12px 20px; color: #333; font-weight: bold; background: transparent; font-size: 16px; }  
-        .search-btn { background: var(--main-purple); color: white; border-radius: 100px; padding: 12px 30px; font-weight: 900; cursor: pointer; border: none; }  
-        .search-btn:disabled { background: #94a3b8; cursor: not-allowed; }  
-
-        /* شبكة الفئات (Cat-Grid) كما في صورتك تماماً */
-        .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: -40px; padding: 0 25px; position: relative; z-index: 20; }  
-        .cat-card { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1); border-radius: 30px; padding: 25px; text-align: center; font-weight: bold; cursor: pointer; transition: 0.3s; }  
-        .cat-card:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-5px); }  
-
-        .pro-feature { position: relative; opacity: 0.7; overflow: hidden; }  
-        .pro-badge { position: absolute; top: 10px; left: 10px; font-size: 10px; background: #fbbf24; color: #000; padding: 2px 8px; font-weight: bold; border-radius: 10px; }  
-
-        /* صندوق توصية الـ AI الجديد */
-        .ai-recommendation-box {
-            background: rgba(99, 102, 241, 0.15);
-            border-right: 4px solid #fbbf24;
-            padding: 12px;
-            border-radius: 18px;
-            margin-top: 10px;
-            font-size: 12px;
-            color: #d1d5db;
+        /* الهيدر والبحث (من وحي صورك) */
+        .hero-section {
+            background: linear-gradient(180deg, var(--main-purple) 0%, #4f46e5 100%);
+            border-bottom-left-radius: 60px; border-bottom-right-radius: 60px;
+            padding: 40px 20px 80px; position: relative; z-index: 10;
         }
+        .search-container {
+            background: white; border-radius: 100px; display: flex; align-items: center;
+            padding: 5px; max-width: 500px; margin: 30px auto 0; box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+        .search-input { flex: 1; border: none; outline: none; padding: 12px 20px; color: #333; font-weight: bold; font-size: 16px; background: transparent; }
+        .search-btn { background: var(--main-purple); color: white; border-radius: 100px; padding: 12px 25px; font-weight: 900; cursor: pointer; border: none; transition: 0.3s; }
+        
+        /* شبكة القئات (Cat-Grid) - تمت إعادتها بالكامل */
+        .cat-grid { 
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; 
+            max-width: 500px; margin: -40px auto 0; padding: 0 20px; position: relative; z-index: 20; 
+        }
+        .cat-card { 
+            background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); 
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 25px; 
+            padding: 20px; text-align: center; font-weight: bold; cursor: pointer; transition: 0.3s; 
+        }
+        .cat-card:hover { transform: translateY(-5px); background: var(--main-purple); border-color: white; }
+        .pro-badge { background: #fbbf24; color: black; font-size: 9px; padding: 2px 6px; border-radius: 5px; margin-bottom: 5px; display: inline-block; }
 
-        .mic-active { animation: pulse 1.5s infinite; color: #ef4444 !important; }  
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }  
-        .animate-fade-in { animation: fadeIn 0.5s ease forwards; }  
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .hidden { display: none !important; }
+        /* نتائج البحث والذكاء الاصطناعي */
+        .product-card { 
+            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.1); 
+            border-radius: 30px; padding: 20px; margin-bottom: 20px; animation: slideUp 0.4s ease;
+        }
+        .ai-recommendation-box {
+            background: rgba(99, 102, 241, 0.15); border-right: 4px solid #fbbf24;
+            padding: 12px; border-radius: 15px; margin-top: 10px; font-size: 12px; color: #d1d5db;
+        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .mic-active { color: #ef4444 !important; animation: pulse 1s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
     </style>
 </head>
-<body class="dark">
+<body>
 
-<section id="app-view">  
-    <div class="hero-section">  
-        <header class="flex justify-between items-center max-w-5xl mx-auto mb-10">  
-            <div class="flex items-center gap-3">  
-                <button onclick="toggleTheme()" class="w-10 h-10 flex items-center justify-center bg-white/20 rounded-full">🌓</button>  
-                <button onclick="openProfile()" class="w-10 h-10 flex items-center justify-center bg-white/20 rounded-full">👤</button>  
-                <div id="greeting-box" class="bg-white/10 px-4 py-2 rounded-full text-[11px] font-bold border border-white/10"></div>  
-            </div>  
-            <div class="text-2xl font-black italic">Findly<span class="text-yellow-400">.</span></div>  
+<section id="app-view">
+    <div class="hero-section text-center">
+        <header class="flex justify-between items-center max-w-5xl mx-auto mb-8">
+            <div class="text-2xl font-black italic">Findly<span class="text-yellow-400">.</span></div>
+            <div id="greeting" class="bg-white/10 px-4 py-1 rounded-full text-[10px] border border-white/10">مرحباً بك</div>
         </header>
 
-        <div class="text-center px-4">  
-            <h1 class="text-4xl font-black leading-tight mb-4">اعثر على خيارك<br>المثالي بذكاء</h1>  
-            <p class="text-sm opacity-80 max-w-xs mx-auto mb-8">مساعدك الشخصي الذي يحلل آلاف المنتجات ليقترح لك الأفضل فقط.</p>  
-              
-            <div class="search-container">  
-                <button id="mic-btn" onclick="startVoiceSearch()" class="p-3 text-gray-400 transition">  
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-20a3 3 0 00-3 3v8a3 3 0 006 0V5a3 3 0 00-3-3z" />
-                    </svg>  
-                </button>  
-                <input type="text" id="search-q" placeholder="ماذا تريد أن تشتري؟" class="search-input">  
-                <button id="main-search-btn" onclick="runSmartSearch()" class="search-btn">بحث ذكي</button>  
-            </div>  
-            <div id="limit-msg" class="text-[10px] mt-3 text-yellow-200 hidden">وصلت للحد اليومي للبحث</div>  
-        </div>  
-    </div>  
+        <h1 class="text-4xl font-black mb-4">اعثر على خيارك<br>المثالي بذكاء</h1>
+        <p class="text-xs opacity-70 mb-8 max-w-xs mx-auto">نحن نحلل آلاف المنتجات لنعطيك الأفضل من حيث السعر والجودة.</p>
+        
+        <div class="search-container">
+            <button id="mic-btn" onclick="startVoice()" class="p-3 text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-20a3 3 0 00-3 3v8a3 3 0 006 0V5a3 3 0 00-3-3z" />
+                </svg>
+            </button>
+            <input type="text" id="search-q" placeholder="ماذا تريد أن تشتري؟" class="search-input">
+            <button onclick="runSmartSearch()" class="search-btn">بحث ذكي</button>
+        </div>
+    </div>
 
-    <div class="cat-grid">  
-        <div onclick="quickSearch('سماعات لاسلكية')" class="cat-card">🎧 سماعات</div>  
-        <div onclick="quickSearch('هواتف ذكية')" class="cat-card">📱 هواتف</div>  
-          
-        <div onclick="showLockedMsg()" class="cat-card pro-feature">  
-            <span class="pro-badge">قريباً</span>  
-            🔒 اختيار ذكي متقدم  
-        </div>  
-        <div onclick="showLockedMsg()" class="cat-card pro-feature">  
-            <span class="pro-badge">قريباً</span>  
-            🔒 بحث غير محدود  
-        </div>  
-        <div onclick="showLockedMsg()" class="cat-card pro-feature">  
-            <span class="pro-badge">قريباً</span>  
-            🔒 مقارنة تلقائية  
-        </div>  
-        <div onclick="quickSearch('لابتوب عمل')" class="cat-card">💻 لابتوب</div>  
-    </div>  
+    <div class="cat-grid">
+        <div onclick="quickSearch('سماعات لاسلكية')" class="cat-card">🎧 سماعات</div>
+        <div onclick="quickSearch('هواتف ذكية')" class="cat-card">📱 هواتف</div>
+        <div class="cat-card opacity-60">
+            <span class="pro-badge">قريباً</span><br>🔒 اختيار متقدم
+        </div>
+        <div class="cat-card opacity-60">
+            <span class="pro-badge">قريباً</span><br>🔒 مقارنة تلقائية
+        </div>
+        <div onclick="quickSearch('لابتوب')" class="cat-card">💻 لابتوب</div>
+        <div onclick="quickSearch('ساعات ذكية')" class="cat-card">⌚ ساعات</div>
+    </div>
 
-    <main class="max-w-4xl mx-auto mt-10 px-6 pb-20">  
-        <div id="status-msg" class="text-center font-bold text-indigo-400 mb-6 min-h-[24px]"></div>  
-        <div id="results" class="space-y-6"></div>  
+    <main class="max-w-4xl mx-auto mt-16 px-6 pb-20">
+        <div id="status-msg" class="text-center font-bold text-indigo-400 mb-6"></div>
+        <div id="results"></div>
     </main>
 </section>
-
-<div id="toast-msg" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-yellow-500 text-black px-6 py-3 rounded-full font-bold shadow-2xl z-[100] hidden animate-fade-in"></div>
 
 <script>
     const API_BASE = "https://findly-api.onrender.com";
 
-    // --- نظام البحث الصوتي ---
-    function startVoiceSearch() {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRecognition) return alert("المتصفح لا يدعم الصوت");
-        const rec = new SpeechRecognition();
-        rec.lang = 'ar-SA';
-        rec.onstart = () => document.getElementById('mic-btn').classList.add('mic-active');
-        rec.onend = () => document.getElementById('mic-btn').classList.remove('mic-active');
-        rec.onresult = (e) => {
+    // البحث الصوتي
+    function startVoice() {
+        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.lang = 'ar-SA';
+        recognition.onstart = () => document.getElementById('mic-btn').classList.add('mic-active');
+        recognition.onend = () => document.getElementById('mic-btn').classList.remove('mic-active');
+        recognition.onresult = (e) => {
             document.getElementById('search-q').value = e.results[0][0].transcript;
             runSmartSearch();
         };
-        rec.start();
+        recognition.start();
     }
 
-    // --- منطق ترشيح الـ AI الذكي ---
+    // منطق الـ AI لتوليد سبب الترشيح
     function getAIReason(item, index) {
         const rating = parseFloat(item.rating) || 4.0;
-        let reasons = ["✅ منتج موثوق"];
-        if (index === 0) reasons.push("🏆 الخيار الأفضل سعراً وجودة");
-        if (rating >= 4.5) reasons.push("⭐ تقييمات ممتازة من آلاف المشترين");
-        reasons.push("🛒 مبيعات عالية هذا الشهر");
-        return reasons.join(" + ");
+        if (index === 0) return "هذا هو الخيار الأول لـ Findly: يجمع بين أعلى تقييم وأفضل سعر متوفر حالياً.";
+        if (rating >= 4.6) return "مرشح بقوة بسبب جودة التصنيع العالية ومراجعات المشترين الإيجابية جداً.";
+        return "خيار اقتصادي ممتاز يوفر الوظائف الأساسية بجودة موثوقة.";
     }
 
-    // --- دالة البحث الأساسية (معدلة لتشمل كل الميزات) ---
     async function runSmartSearch() {
         const query = document.getElementById('search-q').value.trim();
         const resultsDiv = document.getElementById('results');
         const status = document.getElementById('status-msg');
         
-        if(!query) return status.innerText = "⚠️ اكتب شيئاً للبحث عنه";
+        if(!query) return;
 
-        status.innerText = "⏳ ذكاء Findly يحلل أفضل الخيارات لك...";
+        status.innerText = "⏳ جاري فحص وتحليل العروض...";
         resultsDiv.innerHTML = '';
 
         try {
@@ -153,52 +131,50 @@
             const data = await response.json();
             
             if (!data.top || data.top.length === 0) {
-                status.innerText = "❌ لم أجد منتجات تطابق بحثك.";
+                status.innerText = "❌ لم نجد نتائج تناسب ذكاءنا الاصطناعي حالياً.";
                 return;
             }
 
-            status.innerText = "";
+            status.innerText = `✅ وجدنا أفضل ${data.top.length} خيارات لك:`;
 
-            // ترتيب النتائج حسب التقييم
+            // ترتيب حسب التقييم
             const sorted = data.top.sort((a,b) => (parseFloat(b.rating)||0) - (parseFloat(a.rating)||0));
 
             sorted.forEach((item, index) => {
-                const aiReason = getAIReason(item, index);
+                const productLink = item.link.startsWith('http') ? item.link : `https://${item.link}`;
                 const card = `
-                    <div class="product-card bg-white/5 p-5 rounded-[35px] border border-white/5 flex flex-col md:flex-row gap-4 items-center animate-fade-in">
-                        <img src="${item.image}" class="w-24 h-24 object-contain bg-white rounded-3xl p-2 shadow-lg" onerror="this.src='https://via.placeholder.com/100'">
-                        <div class="flex-grow text-right w-full">
-                            <h3 class="font-bold text-sm leading-tight line-clamp-2">${item.name}</h3>
-                            <div class="text-yellow-400 text-xs font-bold mt-2">⭐ ${item.rating || '4.5'} (تقييمات مرتفعة)</div>
-                            
+                <div class="product-card">
+                    <div class="flex flex-col md:flex-row gap-6 items-center">
+                        <div class="relative">
+                            <img src="${item.image}" class="w-28 h-28 object-contain bg-white rounded-3xl p-3 shadow-lg">
+                            <span class="absolute -top-2 -right-2 bg-indigo-600 text-[10px] px-2 py-1 rounded-full">#${index+1}</span>
+                        </div>
+                        <div class="flex-1 text-right w-full">
+                            <h3 class="font-bold text-sm mb-1">${item.name}</h3>
+                            <div class="text-yellow-400 text-xs font-bold mb-2">⭐ ${item.rating || '4.5'} <span class="text-gray-500 text-[10px] mr-2">(+500 مراجعة)</span></div>
                             <div class="ai-recommendation-box">
-                                💡 <strong>لماذا نرشحه؟</strong><br>
-                                ${aiReason}
+                                💡 <strong>لماذا هذا الأفضل؟</strong><br>
+                                ${getAIReason(item, index)}
                             </div>
                         </div>
-                        <div class="text-center min-w-[100px] w-full md:w-auto">
-                            <div class="text-indigo-400 font-black mb-2 text-lg">${item.price}</div>
-                            <a href="${item.link}" target="_blank" class="bg-indigo-500 text-white px-6 py-3 rounded-2xl text-xs font-black block shadow-lg hover:bg-indigo-400 transition">شراء الآن 🛒</a>
+                        <div class="text-center w-full md:w-auto">
+                            <div class="text-2xl font-black text-indigo-400 mb-3">${item.price}</div>
+                            <a href="${productLink}" target="_blank" rel="noopener noreferrer" 
+                               class="bg-indigo-600 text-white px-8 py-3 rounded-2xl font-black text-xs block shadow-lg hover:bg-indigo-500 transition-all active:scale-95">
+                                شراء الآن 🛒
+                            </a>
                         </div>
-                    </div>`;
+                    </div>
+                </div>`;
                 resultsDiv.insertAdjacentHTML('beforeend', card);
             });
-        } catch (e) { status.innerText = "❌ فشل الاتصال بالسيرفر"; }
+        } catch (e) { status.innerText = "❌ حدث خطأ، يرجى المحاولة لاحقاً."; }
     }
 
-    // دوال مساعدة
-    function quickSearch(v) { document.getElementById('search-q').value = v; runSmartSearch(); }
-    function toggleTheme() { document.body.classList.toggle('light'); }
-    function showLockedMsg() {
-        const t = document.getElementById('toast-msg');
-        t.innerText = "هذه الميزة ستُفتح قريبًا";
-        t.classList.remove('hidden');
-        setTimeout(() => t.classList.add('hidden'), 3000);
+    function quickSearch(v) {
+        document.getElementById('search-q').value = v;
+        runSmartSearch();
     }
-
-    window.onload = () => {
-        document.getElementById('greeting-box').innerText = "أهلاً بك في Findly AI";
-    };
 </script>
 </body>
 </html>

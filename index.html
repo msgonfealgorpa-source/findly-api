@@ -57,7 +57,28 @@
 <section id="app-view">  
     <div class="hero-section">  
         <header class="flex justify-between items-center max-w-5xl mx-auto mb-10">  
-            <div class="flex items-center gap-3">  
+            <div class="flex items-center gap-3 relative">
+
+  <button onclick="toggleTheme()" class="w-10 h-10 ..."></button>
+  <button onclick="openProfile()" class="w-10 h-10 ..."></button>
+
+  <!-- زر اللغات -->
+  <button id="lang-btn" class="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20">
+    🌍
+  </button>
+
+  <!-- قائمة اللغات -->
+  <div id="lang-menu" class="hidden absolute top-12 right-0 bg-white text-black rounded-lg shadow-lg w-40 overflow-hidden z-50">
+    <button onclick="setLang('ar')" class="block w-full px-4 py-2 text-right hover:bg-gray-100">🇸🇦 العربية</button>
+    <button onclick="setLang('en')" class="block w-full px-4 py-2 hover:bg-gray-100">🇺🇸 English</button>
+    <button onclick="setLang('fr')" class="block w-full px-4 py-2 hover:bg-gray-100">🇫🇷 Français</button>
+    <button onclick="setLang('it')" class="block w-full px-4 py-2 hover:bg-gray-100">🇮🇹 Italiano</button>
+    <button onclick="setLang('ru')" class="block w-full px-4 py-2 hover:bg-gray-100">🇷🇺 Русский</button>
+    <button onclick="setLang('zh')" class="block w-full px-4 py-2 hover:bg-gray-100">🇨🇳 中文</button>
+  </div>
+
+  <div id="greeting-box" class="bg-white/10 px-4 py-2 rounded-full ..."></div>
+            </div>
                 <button onclick="toggleTheme()" class="w-10 h-10 flex items-center justify-center bg-white/20 rounded-full">🌓</button>  
                 <button onclick="openProfile()" class="w-10 h-10 flex items-center justify-center bg-white/20 rounded-full">👤</button>  
                 <div id="greeting-box" class="bg-white/10 px-4 py-2 rounded-full text-[11px] font-bold border border-white/10"></div>  

@@ -204,8 +204,7 @@
         closeProfile();  
     }  
   
-    // --- دالة البحث الأساسية ---  
-    async function runSmartSearch() {  
+    // --- دالة البحث الأساسية ---  async function runSmartSearch() {  
         if (!checkSearchLimit()) return;  
   
         const query = document.getElementById('search-q').value.trim();  
@@ -219,25 +218,28 @@
   
         status.innerText = "⏳ ذكاء Findly يحلل أفضل الخيارات لك...";  
         resultsDiv.innerHTML = '';  
-  
-        try {  
-            // هذا هو الرابط الصحيح الذي سيربط موقعك بالسيرفر في Render
 
-        const response = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`);      
-            if (!response.ok) throw new Error("فشل الاتصال");  
-  
+        // --- هنا يبدأ التعديل الذي سأضعه لك ---
+        try {
+            // هذا السطر يرسل الطلب للسيرفر بشكل صحيح
+            const response = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`);
+              
+            if (!response.ok) throw new Error("فشل الاتصال بالسيرفر");  
+
             const data = await response.json();  
             status.innerText = "";  
-              
-            // زيادة العداد عند نجاح العملية  
+            
+            // زيادة عداد البحث عند النجاح
             incrementSearchCount();  
-  
+
             if (!data.top || data.top.length === 0) {  
                 status.innerText = "❌ لم أجد منتجات تطابق بحثك حالياً.";  
                 return;  
-            }  
-  
+            }
+            
+            // هنا يكمل الكود القديم الخاص بك (data.top.forEach...) لعرض النتائج
             const userBudget = parseFloat(localStorage.getItem('f_budget')) || Infinity;  
+            // ... باقي الكود الموجود عندك لعرض الكروت
   
             data.top.forEach((item, index) => {  
                 let aiAdvice = "خيار ممتاز بناءً على مراجعات المستخدمين.";  

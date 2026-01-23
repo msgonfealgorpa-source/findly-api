@@ -8,51 +8,71 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 10000;
 
-// حل مشكلة الاتصال (CORS) بشكل نهائي
 app.use(cors());
 app.use(express.json());
 
-app.get("/", (req, res) => res.send("Findly API is Running 🚀"));
+app.get("/", (req, res) => res.send("Findly API is Running with Amazon & AliExpress 🚀"));
 
 app.get("/search", async (req, res) => {
     const searchQuery = req.query.q;
     const API_TOKEN = process.env.APIFY_API_TOKEN;
-    const ACTOR_ID = process.env.APIFY_ACTOR_ID;
+    const ALI_ACTOR_ID = process.env.APIFY_ACTOR_ID; // علي إكسبريس
+    const AMZ_ACTOR_ID = process.env.APIFY_AMAZON_ACTOR_ID; // أمازون
 
     if (!searchQuery) return res.status(400).json({ error: "اكتب كلمة بحث" });
 
     try {
-        const runRes = await fetch(`https://api.apify.com/v2/acts/${ACTOR_ID}/runs?token=${API_TOKEN}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ 
-                "query": searchQuery, 
-                "maxItems": "10", 
-                "page": "1" 
-            })
+        // دالة لتشغيل أي Actor وجلب بياناته
+        async function getResultsFromActor(actorId, sourceName) {
+            try {
+                const runRes = await fetch(`https://api.apify.com/v2/acts/${actorId}/runs?token=${API_TOKEN}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ 
+                        "query": searchQuery, 
+                        "maxItems": 5 // نجلب 5 من كل موقع لسرعة الاستجابة
+                    })
+                });
+
+                const runData = await runRes.json();
+                if (!runRes.ok) return [];
+
+                const runId = runData.data.id;
+                
+                // انتظار المعالجة (تقليل الوقت قليلاً لتحسين التجربة)
+                await new Promise(resolve => setTimeout(resolve, 12000)); 
+
+                const dataRes = await fetch(`https://api.apify.com/v2/actor-runs/${runId}/dataset/items?token=${API_TOKEN}`);
+                const items = await dataRes.json();
+
+                return Array.isArray(items) ? items.map(item => ({
+                    name: item.title || item.name || `منتج من ${sourceName}`,
+                    price: item.price || item.currentPrice || "غير محدد",
+                    image: item.imageUrl || item.image || item.thumbnail || "https://via.placeholder.com/150",
+                    link: item.url || item.productUrl || "#",
+                    rating: item.rating || "4.5",
+                    source: sourceName // لنعرف مصدر المنتج
+                })) : [];
+            } catch (err) {
+                console.error(`Error fetching from ${sourceName}:`, err);
+                return [];
+            }
+        }
+
+        // تشغيل البحث في الموقعين معاً في نفس الوقت
+        const [aliResults, amzResults] = await Promise.all([
+            getResultsFromActor(ALI_ACTOR_ID, "AliExpress"),
+            getResultsFromActor(AMZ_ACTOR_ID, "Amazon")
+        ]);
+
+        // دمج النتائج
+        const finalResults = [...aliResults, ...amzResults];
+
+        res.json({ 
+            success: true, 
+            total: finalResults.length,
+            top: finalResults 
         });
-
-        const runData = await runRes.json();
-        if (!runRes.ok) throw new Error(runData.error?.message || "فشل تشغيل البوت");
-
-        const runId = runData.data.id;
-        
-        // الانتظار 15 ثانية لجلب البيانات
-        await new Promise(resolve => setTimeout(resolve, 15000)); 
-
-        const dataRes = await fetch(`https://api.apify.com/v2/actor-runs/${runId}/dataset/items?token=${API_TOKEN}`);
-        const resultsData = await dataRes.json();
-
-        const finalResults = Array.isArray(resultsData) ? resultsData.map(item => ({
-            name: item.title || "منتج علي إكسبريس",
-            price: item.price || "غير محدد",
-            currency: "USD",
-            image: item.imageUrl || item.image || "https://via.placeholder.com/150",
-            link: item.url || item.productUrl || "#",
-            rating: item.rating || "4.8"
-        })) : [];
-
-        res.json({ success: true, top: finalResults });
 
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });

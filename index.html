@@ -167,11 +167,11 @@
         const email = document.getElementById('reg-email').value;  
         const pass = document.getElementById('reg-pass').value;  
   
-        if(name && email && pass) {  
-            localStorage.setItem('f_logged', 'true');  
-            localStorage.setItem('f_user', name);  
-            checkSession();  
-        } else {  
+          if(name && email && pass) {
+    localStorage.setItem('f_logged', 'true');
+    localStorage.setItem('f_user', name);
+    checkSession(); // هذا السطر هو الذي سيفتح لك التطبيق فوراً
+}
             alert("يرجى ملء جميع الحقول");  
         }  
     }  
@@ -240,7 +240,7 @@ const response = await fetch("https://findly-api.onrender.com/login", {
   
             data.top.forEach((item, index) => {  
                 let aiAdvice = "خيار ممتاز بناءً على مراجعات المستخدمين.";  
-                const numericPrice = parseFloat(item.price.replace(/[^0-9.]/g, '')) || 0;  
+                const numericPrice = parseFloat(String(item.price).replace(/[^0-9.]/g, '')) || 0;
                   
                 if(numericPrice > userBudget) {  
                     aiAdvice = "⚠️ تنبيه: هذا المنتج يتخطى ميزانيتك المحددة.";  

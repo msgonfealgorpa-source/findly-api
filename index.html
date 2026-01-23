@@ -219,68 +219,30 @@
     window.onload = () => {
         document.getElementById('greeting-box').innerText = "أهلاً بك في Findly AI";
     };
-</script>const translations = {
-  ar: {
-    placeholder: "ابحث عن أي منتج...",
-    search: "بحث",
-    best: "الأفضل في السوق",
-    buy: "شراء",
-    loading: "🔍 جاري البحث الذكي..."
-  },
-  en: {
-    placeholder: "Search for any product...",
-    search: "Search",
-    best: "Best in market",
-    buy: "Buy",
-    loading: "🔍 Smart searching..."
-  },
-  fr: {
-    placeholder: "Rechercher un produit...",
-    search: "Rechercher",
-    best: "Meilleur du marché",
-    buy: "Acheter",
-    loading: "🔍 Recherche intelligente..."
-  },
-  it: {
-    placeholder: "Cerca un prodotto...",
-    search: "Cerca",
-    best: "Migliore sul mercato",
-    buy: "Acquista",
-    loading: "🔍 Ricerca intelligente..."
-  },
-  ru: {
-    placeholder: "Поиск товара...",
-    search: "Поиск",
-    best: "Лучший на рынке",
-    buy: "Купить",
-    loading: "🔍 Умный поиск..."
-  },
-  zh: {
-    placeholder: "搜索产品...",
-    search: "搜索",
-    best: "市场最佳",
-    buy: "购买",
-    loading: "🔍 智能搜索..."
-  }
+const translations = {
+  ar:{ placeholder:"ماذا تريد أن تشتري؟", search:"بحث"},
+  en:{ placeholder:"What do you want to buy?", search:"Search"},
+  fr:{ placeholder:"Que voulez-vous acheter ?", search:"Rechercher"},
+  it:{ placeholder:"Cosa vuoi comprare?", search:"Cerca"},
+  ru:{ placeholder:"Что вы хотите купить?", search:"Поиск"},
+  zh:{ placeholder:"你想买什么？", search:"搜索"}
 };
 
-function setLang(lang) {
+function setLang(lang){
   localStorage.setItem('lang', lang);
   applyLang(lang);
-  document.getElementById('lang-menu').classList.add('hidden');
 }
 
-function applyLang(lang) {
+function applyLang(lang){
   const t = translations[lang];
-
   document.getElementById('search-q').placeholder = t.placeholder;
-  document.getElementById('search-btn').innerText = t.search;
+  document.getElementById('main-search-btn').innerText = t.search;
 }
 
 document.getElementById('lang-btn').onclick = () => {
   document.getElementById('lang-menu').classList.toggle('hidden');
 };
 
-applyLang(localStorage.getItem('lang') || 'ar');
+applyLang(localStorage.getItem('lang') || 'ar'); </script>
 </body>
 </html>

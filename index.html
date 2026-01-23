@@ -162,21 +162,7 @@
     }  
   
     // --- إدارة الجلسة ودخول المستخدم ---  
-    function handleAuth() {  
-        // 1. جلب القيم من الخانات الثلاثة
-        const name = document.getElementById('reg-name').value;  
-        const email = document.getElementById('reg-email').value;  
-        const pass = document.getElementById('reg-pass').value;  
-  
-        // 2. التحقق من أن المستخدم لم يترك أي خانة فارغة
-        if(name && email && pass) {  
-            // 3. تخزين حالة الدخول واسم المستخدم في ذاكرة المتصفح
-            localStorage.setItem('f_logged', 'true');  
-            localStorage.setItem('f_user', name);  
-            
-            // 4. الخطوة الحاسمة: تشغيل دالة التحقق لتغيير الواجهة فوراً
-          (checkSession)  (); 
-            
+    
             console.log("تم تحديث الحالة والدخول بنجاح ✅");
         } else {  
             // 5. تنبيه المستخدم في حال وجود نقص
@@ -190,9 +176,22 @@
             document.getElementById('app-view').classList.remove('hidden');  
             updateGreeting();  
             checkSearchLimit();  
-            document.getElementById('pref-budget').value = localStorage.getItem('f_budget') || '';  
-        }  
+            document.getElementById('pref-budget').value = 
+function handleAuth() {  
+    const name = document.getElementById('reg-name').value;  
+    const email = document.getElementById('reg-email').value;  
+    const pass = document.getElementById('reg-pass').value;  
+
+    if(name && email && pass) {  
+        localStorage.setItem('f_logged', 'true');  
+        localStorage.setItem('f_user', name);  
+        
+        // هذا السطر هو المسؤول عن إخفاء الشاشة الزرقاء وفتح الموقع
+        checkSession(); 
+    } else {  
+        alert("يرجى ملء جميع الحقول");  
     }  
+}
   
     function logout() { localStorage.clear(); location.reload(); }  
   

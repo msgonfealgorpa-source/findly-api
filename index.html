@@ -212,29 +212,39 @@
             const sorted = data.top.sort((a,b) => (parseFloat(b.rating)||0) - (parseFloat(a.rating)||0));
 
             sorted.forEach((item, index) => {
-                const aiReason = getAIReason(item, index);
-                // ميزة ذكاء التطبيق التي تم دمجها مع السيرفر الجديد لإظهار المصدر
+                // توليد سبب الترشيح بناءً على كلمة البحث (Query)
+                const aiReason = `بناءً على بحثك عن (${query})، هذا هو الخيار الأفضل من ${item.source} لامتيازه بسعر ${item.price} وتقييم ${item.rating} نجوم.`;
+
                 const card = `
-                    <div class="product-card bg-white/5 p-5 rounded-[35px] border border-white/5 flex flex-col md:flex-row gap-4 items-center animate-fade-in">
-                        <div class="relative">
-                            <img src="${item.image}" class="w-24 h-24 object-contain bg-white rounded-3xl p-2 shadow-lg" onerror="this.src='https://via.placeholder.com/150'">
-                            <span class="absolute -top-2 -right-2 bg-indigo-600 text-[8px] px-2 py-1 rounded-full text-white font-bold">${item.source}</span>
+                    <div class="product-card bg-white/5 p-5 rounded-[35px] border border-white/5 flex flex-col md:flex-row gap-4 items-center animate-fade-in shadow-xl mb-6">
+                        <div class="relative w-32 h-32 flex-shrink-0">
+                            <img src="${item.image}" class="w-full h-full object-contain bg-white rounded-3xl p-2" 
+                                 onerror="this.src='https://via.placeholder.com/150?text=Product'">
+                            <span class="absolute -top-2 -right-2 bg-indigo-600 text-[10px] px-2 py-1 rounded-full text-white font-bold">${item.source}</span>
                         </div>
+
                         <div class="flex-grow text-right w-full">
-                            <h3 class="font-bold text-sm leading-tight">${item.name}</h3>
-                            <div class="text-yellow-400 text-xs font-bold mt-2">⭐ ${item.rating || '4.5'}</div>
-                            <div class="ai-recommendation-box">💡 ${aiReason}</div>
+                            <h3 class="font-bold text-sm leading-tight text-white mb-2">${item.name}</h3>
+                            <div class="text-yellow-400 text-xs font-bold mb-2">⭐ ${item.rating}</div>
+                            
+                            <div class="ai-recommendation-box bg-indigo-500/10 border-r-4 border-yellow-500 p-3 rounded-lg">
+                                <p class="text-[11px] text-gray-200">
+                                    💡 <strong>لماذا نرشحه؟</strong><br>
+                                    ${aiReason}
+                                </p>
+                            </div>
                         </div>
-                        <div class="text-center min-w-[100px] w-full md:w-auto">
-                            <div class="text-indigo-400 font-black mb-2 text-lg">${item.price}</div>
-                            <a href="${item.link}" target="_blank" rel="noopener noreferrer" class="bg-indigo-500 text-white px-6 py-3 rounded-2xl text-xs font-black block shadow-lg hover:bg-indigo-400 transition">
-                                ${translations[currentLang].buy}
+
+                        <div class="text-center min-w-[120px] w-full md:w-auto">
+                            <div class="text-indigo-400 font-black mb-3 text-xl">${item.price}</div>
+                            <a href="${item.link}" target="_blank" rel="noopener noreferrer" 
+                               class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-2xl text-xs font-black block transition transform hover:scale-105 shadow-lg">
+                                شراء من ${item.source} 🛒
                             </a>
                         </div>
                     </div>`;
                 resultsDiv.insertAdjacentHTML('beforeend', card);
-            });
-        } catch (e) { status.innerText = "❌ خطأ في الاتصال بالسيرفر"; }
+                    } catch (e) { status.innerText = "❌ خطأ في الاتصال بالسيرفر"; }
     }
 
     function quickSearch(v) { document.getElementById('search-q').value = v; runSmartSearch(); }

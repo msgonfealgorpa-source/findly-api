@@ -4,18 +4,15 @@ import fetch from "node-fetch";
 import dotenv from "dotenv";
 
 dotenv.config();
+
 const app = express();
 const PORT = process.env.PORT || 10000;
 
-app.use(cors()); // سطر واحد فقط
+// حل مشكلة الاتصال (CORS) بشكل نهائي
+app.use(cors());
 app.use(express.json());
 
 app.get("/", (req, res) => res.send("Findly API is Running 🚀"));
-
-// إضافة مسار تسجيل الدخول لضمان عدم تعليق الموقع عند الدخول
-app.post("/login", (req, res) => {
-    res.json({ success: true, message: "Login Successful" });
-});
 
 app.get("/search", async (req, res) => {
     const searchQuery = req.query.q;
@@ -25,12 +22,15 @@ app.get("/search", async (req, res) => {
     if (!searchQuery) return res.status(400).json({ error: "اكتب كلمة بحث" });
 
     try {
-        console.log(`🔎 البحث عن: ${searchQuery}`);
-        
         const runRes = await fetch(`https://api.apify.com/v2/acts/${ACTOR_ID}/runs?token=${API_TOKEN}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ "query": searchQuery, "maxItems": "10", "page": "1" })
+            body: JSON.stringify({ 
+                "query": searchQuery, 
+                "maxItems": "10", 
+                "page": "1" 
+            })
+        });
 
         const runData = await runRes.json();
         if (!runRes.ok) throw new Error(runData.error?.message || "فشل تشغيل البوت");
@@ -55,9 +55,8 @@ app.get("/search", async (req, res) => {
         res.json({ success: true, top: finalResults });
 
     } catch (error) {
-        console.error("🚨 Error:", error.message);
         res.status(500).json({ success: false, error: error.message });
     }
 });
 
-app.listen(PORT, () => console.log(`Server on ${PORT}`));
+app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));

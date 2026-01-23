@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Findly AI | النسخة الشاملة</title>
+    <title>Findly AI | البحث الذكي</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
@@ -11,7 +11,6 @@
         body { font-family: 'Cairo', sans-serif; transition: 0.4s; margin: 0; background-color: var(--dark-bg); color: white; overflow-x: hidden; }
         body.light { background-color: #f1f5f9; color: #1e293b; }
         
-        /* الهيرو سكشن وتصميمك الأصلي */
         .hero-section {   
             background: linear-gradient(180deg, var(--main-purple) 0%, #4f46e5 100%);   
             border-bottom-left-radius: 80px; border-bottom-right-radius: 80px;   
@@ -25,8 +24,8 @@
         }  
         .search-input { flex: 1; border: none; outline: none; padding: 12px 20px; color: #333; font-weight: bold; background: transparent; font-size: 16px; }  
         .search-btn { background: var(--main-purple); color: white; border-radius: 100px; padding: 12px 30px; font-weight: 900; cursor: pointer; border: none; }  
+        .search-btn:disabled { background: #94a3b8; cursor: not-allowed; }  
 
-        /* شبكة القئات (Cat-Grid) */
         .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: -40px; padding: 0 25px; position: relative; z-index: 20; }  
         .cat-card { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1); border-radius: 30px; padding: 25px; text-align: center; font-weight: bold; cursor: pointer; transition: 0.3s; }  
         .cat-card:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-5px); }  
@@ -34,25 +33,32 @@
         .pro-feature { position: relative; opacity: 0.7; overflow: hidden; }  
         .pro-badge { position: absolute; top: 10px; left: 10px; font-size: 10px; background: #fbbf24; color: #000; padding: 2px 8px; font-weight: bold; border-radius: 10px; }  
 
-        /* صندوق ذكاء الـ AI (الميزة المحفوظة) */
         .ai-recommendation-box {
-            background: rgba(99, 102, 241, 0.15); border-right: 4px solid #fbbf24;
-            padding: 12px; border-radius: 18px; margin-top: 10px; font-size: 12px; color: #d1d5db;
+            background: rgba(99, 102, 241, 0.15);
+            border-right: 4px solid #fbbf24;
+            padding: 12px;
+            border-radius: 18px;
+            margin-top: 10px;
+            font-size: 12px;
+            color: #d1d5db;
         }
 
-        /* قائمة اللغات المنسدلة (الميزة الجديدة) */
+        /* تنسيق قائمة اللغات */
         .lang-dropdown {
-            position: absolute; top: 60px; right: 20px; background: white; color: black; 
-            border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            display: none; flex-direction: column; z-index: 100; overflow: hidden; min-width: 160px;
+            position: absolute; top: 60px; right: 20px;
+            background: white; color: black; border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            display: none; flex-direction: column; z-index: 100; overflow: hidden;
         }
-        .lang-dropdown button { padding: 12px 20px; text-align: right; width: 100%; border-bottom: 1px solid #eee; transition: 0.2s; font-size: 14px; font-weight: bold; }
+        .lang-dropdown button { padding: 10px 20px; text-align: right; width: 100%; border-bottom: 1px solid #eee; transition: 0.2s; font-size: 14px; font-weight: bold; }
         .lang-dropdown button:hover { background: #f0f0ff; color: var(--main-purple); }
         .lang-dropdown.active { display: flex; }
 
         .mic-active { animation: pulse 1.5s infinite; color: #ef4444 !important; }  
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }  
+        .animate-fade-in { animation: fadeIn 0.5s ease forwards; }  
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade-in { animation: fadeIn 0.5s ease forwards; }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body class="dark">
@@ -63,7 +69,8 @@
             <div class="flex items-center gap-3">  
                 <button onclick="toggleTheme()" class="w-10 h-10 flex items-center justify-center bg-white/20 rounded-full">🌓</button>  
                 <button onclick="toggleLangMenu()" class="w-10 h-10 flex items-center justify-center bg-white/20 rounded-full">🌐</button>
-                <div id="greeting-box" class="bg-white/10 px-4 py-2 rounded-full text-[11px] font-bold border border-white/10">Findly AI</div>  
+                <button onclick="openProfile()" class="w-10 h-10 flex items-center justify-center bg-white/20 rounded-full">👤</button>  
+                <div id="greeting-box" class="bg-white/10 px-4 py-2 rounded-full text-[11px] font-bold border border-white/10">أهلاً بك</div>  
             </div>  
             <div class="text-2xl font-black italic">Findly<span class="text-yellow-400">.</span></div>  
 
@@ -78,59 +85,109 @@
         </header>
 
         <div class="text-center px-4">  
-            <h1 id="main-title" class="text-4xl font-black mb-4 leading-tight">اعثر على خيارك<br>المثالي بذكاء</h1>  
+            <h1 id="main-title" class="text-4xl font-black leading-tight mb-4">اعثر على خيارك<br>المثالي بذكاء</h1>  
             <p id="main-desc" class="text-sm opacity-80 max-w-xs mx-auto mb-8">مساعدك الشخصي الذي يحلل آلاف المنتجات ليقترح لك الأفضل فقط.</p>  
               
             <div class="search-container">  
-                <button id="mic-btn" onclick="startVoiceSearch()" class="p-3 text-gray-400">🎤</button>  
+                <button id="mic-btn" onclick="startVoiceSearch()" class="p-3 text-gray-400 transition">  
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-20a3 3 0 00-3 3v8a3 3 0 006 0V5a3 3 0 00-3-3z" />
+                    </svg>  
+                </button>  
                 <input type="text" id="search-q" placeholder="ماذا تريد أن تشتري؟" class="search-input">  
-                <button onclick="runSmartSearch()" id="main-search-btn" class="search-btn">بحث ذكي</button>  
+                <button id="main-search-btn" onclick="runSmartSearch()" class="search-btn">بحث ذكي</button>  
             </div>  
+            <div id="limit-msg" class="text-[10px] mt-3 text-yellow-200 hidden">وصلت للحد اليومي للبحث</div>  
         </div>  
     </div>  
 
     <div class="cat-grid">  
         <div onclick="quickSearch('سماعات لاسلكية')" id="cat-1" class="cat-card">🎧 سماعات</div>  
         <div onclick="quickSearch('هواتف ذكية')" id="cat-2" class="cat-card">📱 هواتف</div>  
-        <div class="cat-card pro-feature">  
+          
+        <div onclick="showLockedMsg()" class="cat-card pro-feature">  
             <span class="pro-badge">قريباً</span>  
             🔒 <span id="cat-3">اختيار ذكي متقدم</span>
         </div>  
-        <div class="cat-card pro-feature">  
+        <div onclick="showLockedMsg()" class="cat-card pro-feature">  
             <span class="pro-badge">قريباً</span>  
-            🔒 <span id="cat-4">مقارنة تلقائية</span>
+            🔒 <span id="cat-4">بحث غير محدود</span>
         </div>  
-        <div onclick="quickSearch('لابتوب')" id="cat-6" class="cat-card">💻 لابتوب</div>  
+        <div onclick="showLockedMsg()" class="cat-card pro-feature">  
+            <span class="pro-badge">قريباً</span>  
+            🔒 <span id="cat-5">مقارنة تلقائية</span>
+        </div>  
+        <div onclick="quickSearch('لابتوب عمل')" id="cat-6" class="cat-card">💻 لابتوب</div>  
     </div>  
 
-    <main class="max-w-4xl mx-auto mt-16 px-6 pb-20">  
-        <div id="status-msg" class="text-center font-bold text-indigo-400 mb-8"></div>  
+    <main class="max-w-4xl mx-auto mt-10 px-6 pb-20">  
+        <div id="status-msg" class="text-center font-bold text-indigo-400 mb-6 min-h-[24px]"></div>  
         <div id="results" class="space-y-6"></div>  
     </main>
 </section>
 
+<div id="toast-msg" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-yellow-500 text-black px-6 py-3 rounded-full font-bold shadow-2xl z-[100] hidden animate-fade-in"></div>
+
 <script>
     const API_BASE = "https://findly-api.onrender.com";
-    let currentLang = 'ar';
 
-    // نصوص الترجمة المتكاملة
+    // --- نظام اللغات ---
     const translations = {
-        ar: { buy: "شراء الآن 🛒", reasonTitle: "🤖 لماذا هذا المنتج هو الأفضل؟", reasonTxt: "تحليل AI: أفضل سعر مقابل أعلى تقييم موثق.", status: "⏳ جاري تحليل الخيارات..." },
-        en: { buy: "Buy Now 🛒", reasonTitle: "🤖 Why this product?", reasonTxt: "AI Analysis: Best price vs highest verified rating.", status: "⏳ Analyzing options..." },
-        fr: { buy: "Acheter 🛒", reasonTitle: "🤖 Pourquoi celui-ci ?", reasonTxt: "Analyse IA : Meilleur prix vs note la plus élevée.", status: "⏳ Analyse en cours..." },
-        it: { buy: "Acquista 🛒", reasonTitle: "🤖 Perché questo?", reasonTxt: "Analisi AI: Miglior prezzo rispetto al voto più alto.", status: "⏳ Analisi in corso..." },
-        zh: { buy: "立即购买 🛒", reasonTitle: "🤖 为什么选择它？", reasonTxt: "人工智能分析：最优价格与最高评分。", status: "⏳ 正在分析..." },
-        ru: { buy: "Купить 🛒", reasonTitle: "🤖 Почему это?", reasonTxt: "ИИ-анализ: лучшая цена при самом высоком рейтинге.", status: "⏳ Анализ..." }
+        ar: { title: "اعثر على خيارك<br>المثالي بذكاء", desc: "مساعدك الشخصي الذي يحلل آلاف المنتجات ليقترح لك الأفضل فقط.", placeholder: "ماذا تريد أن تشتري؟", btn: "بحث ذكي", cats: ["🎧 سماعات", "📱 هواتف", "اختيار ذكي متقدم", "بحث غير محدود", "مقارنة تلقائية", "💻 لابتوب"], buy: "شراء الآن 🛒" },
+        en: { title: "Find Your Perfect<br>Choice Smartly", desc: "Your AI assistant that analyzes thousands of products for you.", placeholder: "What do you want to buy?", btn: "Smart Search", cats: ["🎧 Headphones", "📱 Phones", "AI Smart Choice", "Unlimited Search", "Auto Compare", "💻 Laptops"], buy: "Buy Now 🛒" },
+        fr: { title: "Trouvez Votre Choix<br>Parfaitement", desc: "Votre assistant IA qui analyse des milliers de produits.", placeholder: "Que voulez-vous acheter ?", btn: "Recherche", cats: ["🎧 Casques", "📱 Téléphones", "Choix Intelligent", "Recherche Illimitée", "Comparaison Auto", "💻 Laptops"], buy: "Acheter 🛒" },
+        it: { title: "Trova la Tua Scelta<br>Perfetta", desc: "Il tuo assistente IA che analizza migliaia di prodotti.", placeholder: "Cosa vuoi comprare?", btn: "Cerca", cats: ["🎧 Cuffie", "📱 Telefoni", "Scelta Intelligente", "Ricerca Illimitata", "Confronto Auto", "💻 Laptop"], buy: "Acquista 🛒" },
+        zh: { title: "智能寻找<br>您的完美选择", desc: "您的 AI 助手，为您分析数千种产品。", placeholder: "你想买什么？", btn: "智能搜索", cats: ["🎧 耳机", "📱 手机", "智能选择", "无限搜索", "自动比较", "💻 笔记本"], buy: "立即购买 🛒" },
+        ru: { title: "Найдите Свой<br>Идеальный Выбор", desc: "Ваш ИИ-помощник, анализирующий тысячи товаров.", placeholder: "Что вы хотите купить?", btn: "Поиск", cats: ["🎧 Наушники", "📱 Телефоны", "Умный выбор", "Безлимитный поиск", "Авто-сравнение", "💻 Ноутбуки"], buy: "Купить 🛒" }
     };
 
-    function toggleLangMenu() { document.getElementById('lang-menu').classList.toggle('active'); }
+    let currentLang = 'ar';
+
+    function toggleLangMenu() {
+        document.getElementById('lang-menu').classList.toggle('active');
+    }
 
     function changeLanguage(lang) {
         currentLang = lang;
+        const t = translations[lang];
         document.documentElement.lang = lang;
         document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+        
+        document.getElementById('main-title').innerHTML = t.title;
+        document.getElementById('main-desc').innerText = t.desc;
+        document.getElementById('search-q').placeholder = t.placeholder;
+        document.getElementById('main-search-btn').innerText = t.btn;
+        
+        // تحديث الفئات
+        for(let i=1; i<=6; i++) {
+            const el = document.getElementById(`cat-${i}`);
+            if(el) el.innerText = t.cats[i-1];
+        }
+        
         toggleLangMenu();
-        // تحديث النصوص الأساسية بناءً على اللغة المختار
+    }
+
+    // --- نظام البحث الصوتي ---
+    function startVoiceSearch() {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) return alert("المتصفح لا يدعم الصوت");
+        const rec = new SpeechRecognition();
+        rec.lang = currentLang === 'ar' ? 'ar-SA' : 'en-US';
+        rec.onstart = () => document.getElementById('mic-btn').classList.add('mic-active');
+        rec.onend = () => document.getElementById('mic-btn').classList.remove('mic-active');
+        rec.onresult = (e) => {
+            document.getElementById('search-q').value = e.results[0][0].transcript;
+            runSmartSearch();
+        };
+        rec.start();
+    }
+
+    function getAIReason(item, index) {
+        const rating = parseFloat(item.rating) || 4.0;
+        let reasons = ["✅ منتج موثوق"];
+        if (index === 0) reasons.push("🏆 الخيار الأفضل سعراً وجودة");
+        if (rating >= 4.5) reasons.push("⭐ تقييمات ممتازة");
+        return reasons.join(" + ");
     }
 
     async function runSmartSearch() {
@@ -139,7 +196,8 @@
         const status = document.getElementById('status-msg');
         
         if(!query) return;
-        status.innerText = translations[currentLang].status;
+
+        status.innerText = "⏳...";
         resultsDiv.innerHTML = '';
 
         try {
@@ -147,61 +205,49 @@
             const data = await response.json();
             
             if (!data.top || data.top.length === 0) {
-                status.innerText = "❌ No results";
+                status.innerText = "❌";
                 return;
             }
 
             status.innerText = "";
 
-            // ترتيب النتائج ذكياً (الأعلى تقييماً أولاً)
             const sorted = data.top.sort((a,b) => (parseFloat(b.rating)||0) - (parseFloat(a.rating)||0));
 
             sorted.forEach((item, index) => {
-                // إصلاح الروابط والصور لضمان التحويل المباشر
-                const pLink = item.link.startsWith('http') ? item.link : `https://${item.link}`;
-                const pImg = item.image || 'https://via.placeholder.com/150';
-
+                const aiReason = getAIReason(item, index);
+                // تأكيد فتح الرابط في نافذة جديدة مباشرة
                 const card = `
-                <div class="product-card animate-fade-in flex flex-col md:flex-row gap-6 items-center">
-                    <div class="w-32 h-32 flex-shrink-0 bg-white rounded-3xl p-3 shadow-md flex items-center justify-center">
-                        <img src="${pImg}" class="max-w-full max-h-full object-contain">
-                    </div>
-                    <div class="flex-1 text-right w-full">
-                        <h3 class="font-bold text-sm mb-1">${item.name}</h3>
-                        <div class="text-yellow-400 font-bold text-xs">⭐ ${item.rating || '4.5'}</div>
-                        
-                        <div class="ai-recommendation-box">
-                            <strong>${translations[currentLang].reasonTitle}</strong><br>
-                            ${translations[currentLang].reasonTxt}
+                    <div class="product-card bg-white/5 p-5 rounded-[35px] border border-white/5 flex flex-col md:flex-row gap-4 items-center animate-fade-in">
+                        <img src="${item.image}" class="w-24 h-24 object-contain bg-white rounded-3xl p-2 shadow-lg">
+                        <div class="flex-grow text-right w-full">
+                            <h3 class="font-bold text-sm leading-tight">${item.name}</h3>
+                            <div class="text-yellow-400 text-xs font-bold mt-2">⭐ ${item.rating || '4.5'}</div>
+                            <div class="ai-recommendation-box">💡 ${aiReason}</div>
                         </div>
-                    </div>
-                    <div class="text-center w-full md:w-auto">
-                        <div class="text-2xl font-black text-indigo-400 mb-3">${item.price}</div>
-                        <a href="${pLink}" target="_blank" rel="noopener noreferrer" 
-                           class="bg-indigo-600 text-white px-8 py-4 rounded-2xl font-black block hover:scale-105 transition-all shadow-xl">
-                            ${translations[currentLang].buy}
-                        </a>
-                    </div>
-                </div>`;
+                        <div class="text-center min-w-[100px] w-full md:w-auto">
+                            <div class="text-indigo-400 font-black mb-2 text-lg">${item.price}</div>
+                            <a href="${item.link}" target="_blank" rel="noopener noreferrer" class="bg-indigo-500 text-white px-6 py-3 rounded-2xl text-xs font-black block shadow-lg hover:bg-indigo-400 transition">
+                                ${translations[currentLang].buy}
+                            </a>
+                        </div>
+                    </div>`;
                 resultsDiv.insertAdjacentHTML('beforeend', card);
             });
-        } catch (e) { status.innerText = "❌ Error Connecting..."; }
+        } catch (e) { status.innerText = "❌"; }
     }
 
     function quickSearch(v) { document.getElementById('search-q').value = v; runSmartSearch(); }
     function toggleTheme() { document.body.classList.toggle('light'); }
-    
-    function startVoiceSearch() {
-        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-        recognition.lang = currentLang === 'ar' ? 'ar-SA' : 'en-US';
-        recognition.onstart = () => document.getElementById('mic-btn').classList.add('mic-active');
-        recognition.onend = () => document.getElementById('mic-btn').classList.remove('mic-active');
-        recognition.onresult = (e) => {
-            document.getElementById('search-q').value = e.results[0][0].transcript;
-            runSmartSearch();
-        };
-        recognition.start();
+    function showLockedMsg() {
+        const t = document.getElementById('toast-msg');
+        t.innerText = currentLang === 'ar' ? "قريباً" : "Coming Soon";
+        t.classList.remove('hidden');
+        setTimeout(() => t.classList.add('hidden'), 3000);
     }
+
+    window.onload = () => {
+        document.getElementById('greeting-box').innerText = "Findly AI";
+    };
 </script>
 </body>
 </html>

@@ -155,35 +155,47 @@
   
 }
   
-    function checkSession() {  
-        if(localStorage.getItem('f_logged')) {  
-            document.getElementById('auth-view').classList.add('hidden');  
-            document.getElementById('app-view').classList.remove('hidden');  
-            updateGreeting();  
-            checkSearchLimit();  
-            document.getElementById('pref-budget').value = 
+    function checkSession() {
+    const isLogged = localStorage.getItem('f_logged');
+    const authView = document.getElementById('auth-view');
+    const appView = document.getElementById('app-view');
+
+    if (isLogged === 'true') {
+        if (authView) authView.style.display = 'none';
+        if (appView) {
+            appView.classList.remove('hidden');
+            appView.style.display = 'block';
+        }
+        if (typeof updateGreeting === 'function') updateGreeting();
+    }
+}
+
 function handleAuth() {
     const name = document.getElementById('reg-name').value.trim();
     const email = document.getElementById('reg-email').value.trim();
     const pass = document.getElementById('reg-pass').value.trim();
 
     if (name && email && pass) {
-        // 1. حفظ البيانات في الذاكرة
         localStorage.setItem('f_logged', 'true');
         localStorage.setItem('f_user', name);
         
-        // 2. إخفاء شاشة التسجيل (auth-view) وإظهار شاشة التطبيق (app-view)
-        document.getElementById('auth-view').style.display = 'none'; // إخفاء إجباري
-        document.getElementById('app-view').classList.remove('hidden'); // إظهار التطبيق
+        // الانتقال الفوري
+        const authView = document.getElementById('auth-view');
+        const appView = document.getElementById('app-view');
         
-        // 3. تحديث واجهة المستخدم
+        if (authView) authView.style.display = 'none';
+        if (appView) {
+            appView.classList.remove('hidden');
+            appView.style.display = 'block';
+        }
         if (typeof updateGreeting === 'function') updateGreeting();
-        
-        console.log("تم تسجيل الدخول بنجاح! أهلاً بك.");
     } else {
-        alert("يرجى ملء جميع الحقول (الاسم، الإيميل، الباسورد)");
+        alert("يرجى ملء جميع الحقول");
     }
 }
+
+// تشغيل الفحص فور تحميل الصفحة
+window.addEventListener('load', checkSession);
   
     function logout() { localStorage.clear(); location.reload(); }  
   

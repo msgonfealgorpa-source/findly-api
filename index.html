@@ -228,9 +228,10 @@ const translations = {
   zh:{ placeholder:"你想买什么？", search:"搜索"}
 };
 
-function setLang(lang){
-  localStorage.setItem('lang', lang);
-  applyLang(lang);
+window.setLang = function(lang) {
+  localStorage.setItem("findly_lang", lang);
+  location.reload();
+};
 }
 
 function applyLang(lang){

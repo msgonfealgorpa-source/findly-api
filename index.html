@@ -49,7 +49,11 @@
             <input type="text" id="reg-name" placeholder="الاسم الكامل" class="w-full p-4 rounded-2xl bg-white/10 outline-none border border-white/10 focus:border-indigo-400 text-center text-white">  
             <input type="email" id="reg-email" placeholder="البريد الإلكتروني" class="w-full p-4 rounded-2xl bg-white/10 outline-none border border-white/10 focus:border-indigo-400 text-center text-white">  
             <input type="password" id="reg-pass" placeholder="كلمة المرور" class="w-full p-4 rounded-2xl bg-white/10 outline-none border border-white/10 focus:border-indigo-400 text-center text-white">  
-            <<button type="button" onclick="localStorage.setItem('f_logged', 'true'); localStorage.setItem('f_user', document.getElementById('reg-name').value); window.location.reload();" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold text-lg hover:bg-indigo-700 transition-all shadow-lg">ابدأ الآن</button>
+            <<button type="button"
+onclick="localStorage.setItem('f_logged','1'); location.href = location.href"
+class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold text-lg hover:bg-indigo-700 transition-all shadow-lg">
+ابدأ الآن
+</button>
         </div>  
     </div>  
 </section>  <section id="app-view" class="hidden">  

@@ -8,125 +8,55 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 10000;
 
+// حل مشكلة الاتصال (CORS) بشكل نهائي
 app.use(cors());
 app.use(express.json());
 
+app.get("/", (req, res) => res.send("Findly API is Running 🚀"));
+
 app.get("/search", async (req, res) => {
-    const q = req.query.q;
-    if (!q) return res.status(400).json({ error: "اكتب كلمة بحث" });
+    const searchQuery = req.query.q;
+    const API_TOKEN = process.env.APIFY_API_TOKEN;
+    const ACTOR_ID = process.env.APIFY_ACTOR_ID;
 
-    const API = process.env.APIFY_API_TOKEN;
-    const AMAZON = process.env.APIFY_AMAZON_ACTOR_ID;
-    const ALI = process.env.APIFY_ALIEXPRESS_ACTOR_ID;
+    if (!searchQuery) return res.status(400).json({ error: "اكتب كلمة بحث" });
 
-    async function run(actorId, input) {
-        const r = await fetch(`https://api.apify.com/v2/acts/${actorId}/runs?token=${API}`, {
+    try {
+        const runRes = await fetch(`https://api.apify.com/v2/acts/${ACTOR_ID}/runs?token=${API_TOKEN}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(input)
+            body: JSON.stringify({ 
+                "query": searchQuery, 
+                "maxItems": "10", 
+                "page": "1" 
+            })
         });
-        const d = await r.json();
-        return d.data.id;
-    }
 
-    async function getData(runId) {
-        await new Promise(r => setTimeout(r, 15000));
-        const res = await fetch(`https://api.apify.com/v2/actor-runs/${runId}/dataset/items?token=${API}`);
-        return await res.json();
-    }
+        const runData = await runRes.json();
+        if (!runRes.ok) throw new Error(runData.error?.message || "فشل تشغيل البوت");
 
-    try {
-        const [amazonRun, aliRun] = await Promise.all([
-            run(AMAZON, { search: q, maxItems: 10 }),
-            run(ALI, { query: q, maxItems: 10 })
-        ]);
+        const runId = runData.data.id;
+        
+        // الانتظار 15 ثانية لجلب البيانات
+        await new Promise(resolve => setTimeout(resolve, 15000)); 
 
-        const [amazonData, aliData] = await Promise.all([
-            getData(amazonRun),
-            getData(aliRun)
-        ]);
+        const dataRes = await fetch(`https://api.apify.com/v2/actor-runs/${runId}/dataset/items?token=${API_TOKEN}`);
+        const resultsData = await dataRes.json();
 
-        const normalize = (item, source) => ({
-            source,
-            name: item.title || item.name || "Product",
-            price: parseFloat(item.price) || 0,
-            image: item.image || item.imageUrl || "",
+        const finalResults = Array.isArray(resultsData) ? resultsData.map(item => ({
+            name: item.title || "منتج علي إكسبريس",
+            price: item.price || "غير محدد",
+            currency: "USD",
+            image: item.imageUrl || item.image || "https://via.placeholder.com/150",
             link: item.url || item.productUrl || "#",
-            rating: item.rating || 4.5
-        });
+            rating: item.rating || "4.8"
+        })) : [];
 
-        const all = [
-            ...amazonData.map(p => normalize(p, "amazon")),
-            ...aliData.map(p => normalize(p, "aliexpress"))
-        ];
+        res.json({ success: true, top: finalResults });
 
-        all.sort((a, b) =>
-            (b.rating * 2 - b.price / 100) -
-            (a.rating * 2 - a.price / 100)
-        );
-
-        res.json({
-            success: true,
-            count: all.length,
-            top: all.slice(0, 5),
-            all
-        });
-
-    } catch (err) {
-        res.status(500).json({ success: false, error: err.message });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
     }
 });
 
-    const runData = await runRes.json();
-    if (!runRes.ok) throw new Error(runData.error?.message || "Task run failed");
-
-    const runId = runData.data.id;
-
-    await new Promise(resolve => setTimeout(resolve, 15000));
-
-    const dataRes = await fetch(
-        `https://api.apify.com/v2/actor-runs/${runId}/dataset/items?token=${token}`
-    );
-
-    return await dataRes.json();
-}
-
-app.get("/search", async (req, res) => {
-    const q = req.query.q;
-
-    if (!q) return res.status(400).json({ error: "اكتب كلمة بحث" });
-
-    const token = process.env.APIFY_API_TOKEN;
-    const amazonTask = process.env.APIFY_AMAZON_TASK;
-    const aliTask = process.env.APIFY_ALIEXPRESS_TASK;
-
-    try {
-        const [amazonResults, aliResults] = await Promise.all([
-            runApifyTask(amazonTask, q, token),
-            runApifyTask(aliTask, q, token)
-        ]);
-
-        const normalize = (items, source) =>
-            (Array.isArray(items) ? items : []).map(item => ({
-                source,
-                name: item.title || item.name || "Product",
-                price: item.price?.value || item.price || "غير محدد",
-                currency: item.price?.currency || "USD",
-                image: item.imageUrl || item.image || "",
-                link: item.url || item.productUrl || "#",
-                rating: item.rating || item.stars || "4.5"
-            }));
-
-        const results = [
-            ...normalize(amazonResults, "amazon"),
-            ...normalize(aliResults, "aliexpress")
-        ];
-
-        res.json({ success: true, count: results.length, results });
-
-    } catch (err) {
-        res.status(500).json({ success: false, error: err.message });
-    }
-});
-
-app.listen(PORT, () => console.log(`🚀 Findly API running on ${PORT}`));
+app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));

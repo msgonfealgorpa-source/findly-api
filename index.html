@@ -213,7 +213,15 @@
         resultsDiv.innerHTML = '';  
   
         try {  
-            const response = await fetch("https://findly-api.onrender.com/search?q=" + encodeURIComponent(query));  
+            // هذا هو الرابط الصحيح الذي سيربط موقعك بالسيرفر في Render
+const API_URL = "https://findly-api.onrender.com/search?q=";
+
+// مثال لما يجب أن يكون عليه الكود في ملف HTML
+const response = await fetch("https://findly-api.onrender.com/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: emailValue, password: passwordValue })
+});
               
             if (!response.ok) throw new Error("فشل الاتصال");  
   

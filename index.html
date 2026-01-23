@@ -49,7 +49,7 @@
             <input type="text" id="reg-name" placeholder="الاسم الكامل" class="w-full p-4 rounded-2xl bg-white/10 outline-none border border-white/10 focus:border-indigo-400 text-center text-white">  
             <input type="email" id="reg-email" placeholder="البريد الإلكتروني" class="w-full p-4 rounded-2xl bg-white/10 outline-none border border-white/10 focus:border-indigo-400 text-center text-white">  
             <input type="password" id="reg-pass" placeholder="كلمة المرور" class="w-full p-4 rounded-2xl bg-white/10 outline-none border border-white/10 focus:border-indigo-400 text-center text-white">  
-            <button onclick="handleAuth()" class="w-full bg-indigo-500 p-4 rounded-2xl font-black shadow-xl hover:bg-indigo-600 transition mt-2">ابدأ الآن</button>  
+            <button type="button" id="auth-btn" onclick="handleAuth()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold text-lg hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/30">ابدأ الآن</button>>  
         </div>  
     </div>  
 </section>  <section id="app-view" class="hidden">  
@@ -153,37 +153,6 @@
         setTimeout(() => toast.classList.add('hidden'), 3000);  
     }  
   
-    // --- تحديث الترحيب ---  
-    // --- الحل الجذري لدالة تسجيل الدخول ---
-function handleAuth() {
-    console.log("محاولة دخول..."); // للتأكد في Console أن الزر يعمل
-    
-    const nameInput = document.getElementById('reg-name');
-    const emailInput = document.getElementById('reg-email');
-    const passInput = document.getElementById('reg-pass');
-
-    if (nameInput.value && emailInput.value && passInput.value) {
-        // 1. حفظ البيانات في الذاكرة
-        localStorage.setItem('f_logged', 'true');
-        localStorage.setItem('f_user', nameInput.value);
-        
-        // 2. إخفاء شاشة التسجيل وإظهار التطبيق (بأمر مباشر)
-        const authView = document.getElementById('auth-view');
-        const appView = document.getElementById('app-view');
-
-        if (authView) authView.style.setProperty('display', 'none', 'important');
-        if (appView) {
-            appView.classList.remove('hidden');
-            appView.style.setProperty('display', 'block', 'important');
-        }
-
-        // 3. تحديث الترحيب
-        if (typeof updateGreeting === 'function') updateGreeting();
-
-        alert("أهلاً بك في Findly! تم تسجيل الدخول.");
-    } else {
-        alert("يرجى ملء كافة البيانات المطلوبة");
-    }
 }
   
     function checkSession() {  
@@ -300,9 +269,21 @@ function handleAuth() {
         document.getElementById('search-q').value = v;   
         runSmartSearch();   
     }  
-  
-    function toggleTheme() { document.body.classList.toggle('light'); }  
-    
-    window.onload = checkSession;
-</script>  </body>  
+// ضع هذا الكود في آخر سطر داخل الـ script
+window.handleAuth = function() {
+    const name = document.getElementById('reg-name').value;
+    const email = document.getElementById('reg-email').value;
+    const pass = document.getElementById('reg-pass').value;
+
+    if (name && email && pass) {
+        // 1. حفظ البيانات
+        localStorage.setItem('f_logged', 'true');
+        localStorage.setItem('f_user', name);
+        
+        // 2. تحديث الصفحة فوراً (هذا سيجبر الموقع على الدخول)
+        window.location.reload(); 
+    } else {
+        alert("يرجى ملء الحقول المطلوبة");
+    }
+};</script>  </body>  
 </html>

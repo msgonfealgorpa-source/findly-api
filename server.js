@@ -8,55 +8,74 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 10000;
 
-// حل مشكلة الاتصال (CORS) بشكل نهائي
 app.use(cors());
 app.use(express.json());
 
 app.get("/", (req, res) => res.send("Findly API is Running 🚀"));
 
-app.get("/search", async (req, res) => {
-    const searchQuery = req.query.q;
-    const API_TOKEN = process.env.APIFY_API_TOKEN;
-    const ACTOR_ID = process.env.APIFY_ACTOR_ID;
-
-    if (!searchQuery) return res.status(400).json({ error: "اكتب كلمة بحث" });
-
-    try {
-        const runRes = await fetch(`https://api.apify.com/v2/acts/${ACTOR_ID}/runs?token=${API_TOKEN}`, {
+async function runApifyTask(taskId, query, token) {
+    const runRes = await fetch(
+        `https://api.apify.com/v2/actor-tasks/${taskId}/runs?token=${token}`,
+        {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ 
-                "query": searchQuery, 
-                "maxItems": "10", 
-                "page": "1" 
+            body: JSON.stringify({
+                q: query,
+                maxResults: 10
             })
-        });
+        }
+    );
 
-        const runData = await runRes.json();
-        if (!runRes.ok) throw new Error(runData.error?.message || "فشل تشغيل البوت");
+    const runData = await runRes.json();
+    if (!runRes.ok) throw new Error(runData.error?.message || "Task run failed");
 
-        const runId = runData.data.id;
-        
-        // الانتظار 15 ثانية لجلب البيانات
-        await new Promise(resolve => setTimeout(resolve, 15000)); 
+    const runId = runData.data.id;
 
-        const dataRes = await fetch(`https://api.apify.com/v2/actor-runs/${runId}/dataset/items?token=${API_TOKEN}`);
-        const resultsData = await dataRes.json();
+    await new Promise(resolve => setTimeout(resolve, 15000));
 
-        const finalResults = Array.isArray(resultsData) ? resultsData.map(item => ({
-            name: item.title || "منتج علي إكسبريس",
-            price: item.price || "غير محدد",
-            currency: "USD",
-            image: item.imageUrl || item.image || "https://via.placeholder.com/150",
-            link: item.url || item.productUrl || "#",
-            rating: item.rating || "4.8"
-        })) : [];
+    const dataRes = await fetch(
+        `https://api.apify.com/v2/actor-runs/${runId}/dataset/items?token=${token}`
+    );
 
-        res.json({ success: true, top: finalResults });
+    return await dataRes.json();
+}
 
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
+app.get("/search", async (req, res) => {
+    const q = req.query.q;
+
+    if (!q) return res.status(400).json({ error: "اكتب كلمة بحث" });
+
+    const token = process.env.APIFY_API_TOKEN;
+    const amazonTask = process.env.APIFY_AMAZON_TASK;
+    const aliTask = process.env.APIFY_ALIEXPRESS_TASK;
+
+    try {
+        const [amazonResults, aliResults] = await Promise.all([
+            runApifyTask(amazonTask, q, token),
+            runApifyTask(aliTask, q, token)
+        ]);
+
+        const normalize = (items, source) =>
+            (Array.isArray(items) ? items : []).map(item => ({
+                source,
+                name: item.title || item.name || "Product",
+                price: item.price?.value || item.price || "غير محدد",
+                currency: item.price?.currency || "USD",
+                image: item.imageUrl || item.image || "",
+                link: item.url || item.productUrl || "#",
+                rating: item.rating || item.stars || "4.5"
+            }));
+
+        const results = [
+            ...normalize(amazonResults, "amazon"),
+            ...normalize(aliResults, "aliexpress")
+        ];
+
+        res.json({ success: true, count: results.length, results });
+
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
     }
 });
 
-app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Findly API running on ${PORT}`));

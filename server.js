@@ -7,7 +7,7 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 10000;
-
+app.use(cors({ origin: '*' })); // هذا السطر يسمح لموقعك بالوصول للبيانات
 // التعديل هنا: السماح الكامل لكل المصادر لحل مشكلة "فشل الاتصال"
 app.use(cors({
     origin: '*',

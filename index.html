@@ -83,15 +83,18 @@ function checkSession() {
 }
 
 window.handleAuth = function() {
-    const n = reg-name.value.trim();
-    const e = reg-email.value.trim();
-    const p = reg-pass.value.trim();
+    const n = document.getElementById("reg-name").value.trim();
+    const e = document.getElementById("reg-email").value.trim();
+    const p = document.getElementById("reg-pass").value.trim();
 
-    if(!n || !e || !p) return alert("يرجى ملء الحقول");
+    if (!n || !e || !p) {
+        alert("يرجى ملء جميع الحقول");
+        return;
+    }
 
-    localStorage.setItem("f_logged","1");
+    localStorage.setItem("f_logged", "1");
     location.reload();
-}
+};
 
 window.addEventListener("load", checkSession);
 

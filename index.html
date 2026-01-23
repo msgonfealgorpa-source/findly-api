@@ -177,20 +177,32 @@
             updateGreeting();  
             checkSearchLimit();  
             document.getElementById('pref-budget').value = 
-function handleAuth() {  
-    const name = document.getElementById('reg-name').value;  
-    const email = document.getElementById('reg-email').value;  
-    const pass = document.getElementById('reg-pass').value;  
+function handleAuth() {
+    const name = document.getElementById('reg-name').value;
+    const email = document.getElementById('reg-email').value;
+    const pass = document.getElementById('reg-pass').value;
 
-    if(name && email && pass) {  
-        localStorage.setItem('f_logged', 'true');  
-        localStorage.setItem('f_user', name);  
+    if(name && email && pass) {
+        // 1. حفظ البيانات
+        localStorage.setItem('f_logged', 'true');
+        localStorage.setItem('f_user', name);
         
-        // هذا السطر هو المسؤول عن إخفاء الشاشة الزرقاء وفتح الموقع
-        checkSession(); 
-    } else {  
-        alert("يرجى ملء جميع الحقول");  
-    }  
+        // 2. إخفاء شاشة التسجيل وإظهار واجهة البحث فوراً
+        const authView = document.getElementById('auth-view');
+        const appView = document.getElementById('app-view');
+        
+        if(authView) authView.classList.add('hidden');
+        if(appView) appView.classList.remove('hidden');
+        
+        // 3. تحديث رسالة الترحيب إذا كانت الدالة موجودة
+        if(typeof updateGreeting === 'function') {
+            updateGreeting();
+        }
+
+        console.log("تم الدخول بنجاح والواجهة جاهزة للبحث ✅");
+    } else {
+        alert("يرجى ملء جميع الحقول");
+    }
 }
   
     function logout() { localStorage.clear(); location.reload(); }  

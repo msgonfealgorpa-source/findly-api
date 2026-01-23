@@ -180,8 +180,8 @@ function handleAuth() {
     const pass = document.getElementById('reg-pass').value.trim();
 
     if (name && email && pass) {
-        localStorage.setItem('f_logged', 'true');
-        localStorage.setItem('f_user', name);
+        localStorage.setItem('f_logged','1');
+if(localStorage.getItem('f_logged') === '1') { ... }
         
         // الانتقال الفوري
         const authView = document.getElementById('auth-view');

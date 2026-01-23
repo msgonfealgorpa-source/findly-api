@@ -165,12 +165,20 @@ class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold text-lg hover:
     const appView = document.getElementById('app-view');
 
     if (isLogged === '1') {
+        function checkSession() {
+    const isLogged = localStorage.getItem('f_logged');
+    const authView = document.getElementById('auth-view');
+    const appView = document.getElementById('app-view');
+
+    if (isLogged === '1') {
         if (authView) authView.style.display = 'none';
         if (appView) {
             appView.classList.remove('hidden');
             appView.style.display = 'block';
         }
         if (typeof updateGreeting === 'function') updateGreeting();
+    }
+}
     }
 }
         if (authView) authView.style.display = 'none';

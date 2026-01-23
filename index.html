@@ -199,6 +199,68 @@
     window.onload = () => {
         document.getElementById('greeting-box').innerText = "أهلاً بك في Findly AI";
     };
-</script>
+</script>const translations = {
+  ar: {
+    placeholder: "ابحث عن أي منتج...",
+    search: "بحث",
+    best: "الأفضل في السوق",
+    buy: "شراء",
+    loading: "🔍 جاري البحث الذكي..."
+  },
+  en: {
+    placeholder: "Search for any product...",
+    search: "Search",
+    best: "Best in market",
+    buy: "Buy",
+    loading: "🔍 Smart searching..."
+  },
+  fr: {
+    placeholder: "Rechercher un produit...",
+    search: "Rechercher",
+    best: "Meilleur du marché",
+    buy: "Acheter",
+    loading: "🔍 Recherche intelligente..."
+  },
+  it: {
+    placeholder: "Cerca un prodotto...",
+    search: "Cerca",
+    best: "Migliore sul mercato",
+    buy: "Acquista",
+    loading: "🔍 Ricerca intelligente..."
+  },
+  ru: {
+    placeholder: "Поиск товара...",
+    search: "Поиск",
+    best: "Лучший на рынке",
+    buy: "Купить",
+    loading: "🔍 Умный поиск..."
+  },
+  zh: {
+    placeholder: "搜索产品...",
+    search: "搜索",
+    best: "市场最佳",
+    buy: "购买",
+    loading: "🔍 智能搜索..."
+  }
+};
+
+function setLang(lang) {
+  localStorage.setItem('lang', lang);
+  applyLang(lang);
+  document.getElementById('lang-menu').classList.add('hidden');
+}
+
+function applyLang(lang) {
+  const t = translations[lang];
+
+  document.getElementById('search-q').placeholder = t.placeholder;
+  document.getElementById('search-btn').innerText = t.search;
+}
+
+document.getElementById('lang-btn').onclick = () => {
+  document.getElementById('lang-menu').classList.toggle('hidden');
+};
+
+applyLang(localStorage.getItem('lang') || 'ar');
 </body>
 </html>

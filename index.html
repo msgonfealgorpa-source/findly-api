@@ -125,6 +125,36 @@ function changeLanguage(lang) {
     toggleLangMenu();
 }
 function smartFilterAndRank(data, query) {
+   function aiSmartSearchEngine(data, query) {
+
+    const stopWords = ["في","من","على","الى","عن","ما","ماذا","أفضل","جيد","رخيص","سعر","شراء","اريد","أريد","كم","هل"];
+    
+    const keywords = query
+        .toLowerCase()
+        .split(" ")
+        .filter(w => w.length > 2 && !stopWords.includes(w));
+
+    return data
+        .map(item => {
+
+            const title = (item.title || item.name || "").toLowerCase();
+            const desc  = (item.description || "").toLowerCase();
+
+            let score = 0;
+
+            keywords.forEach(word => {
+                if (title.includes(word)) score += 8;
+                if (desc.includes(word))  score += 4;
+            });
+
+            if (item.price) score += 1;
+            if (item.url) score += 1;
+
+            return { ...item, _score: score };
+        })
+        .filter(i => i._score > 0)
+        .sort((a,b) => b._score - a._score);
+}
     const q = query.toLowerCase();
 
     return data

@@ -147,8 +147,54 @@ function detectIntent(query) {
 }
 
 function smartFilterAndRank(data, query) {
+    function analyzeUserIntent(query) {
     const q = query.toLowerCase();
-    const intents = detectIntent(query);
+
+    const intent = {
+        product: null,
+        priorities: [],
+        budget: null,
+        usage: []
+    };
+
+    const productMap = {
+        phone: ["جوال", "هاتف", "phone", "mobile"],
+        laptop: ["لابتوب", "حاسوب", "laptop", "notebook"],
+        headphone: ["سماعة", "سماعات", "headphone", "earbuds"],
+        camera: ["كاميرا", "camera"]
+    };
+
+    for (let p in productMap) {
+        if (productMap[p].some(w => q.includes(w))) {
+            intent.product = p;
+        }
+    }
+
+    const priorityMap = {
+        camera: ["تصوير", "كاميرا", "camera"],
+        battery: ["بطارية", "battery", "شحن"],
+        performance: ["سريع", "أداء", "gaming", "ألعاب"],
+        price: ["رخيص", "cheap", "budget", "سعر"]
+    };
+
+    for (let key in priorityMap) {
+        if (priorityMap[key].some(w => q.includes(w))) {
+            intent.priorities.push(key);
+        }
+    }
+
+    if (q.includes("رخيص") || q.includes("cheap")) intent.budget = "low";
+    else if (q.includes("متوسط") || q.includes("mid")) intent.budget = "mid";
+    else if (q.includes("غالي") || q.includes("premium")) intent.budget = "high";
+
+    if (q.includes("سفر") || q.includes("travel")) intent.usage.push("travel");
+    if (q.includes("طلاب") || q.includes("study")) intent.usage.push("study");
+    if (q.includes("عمل") || q.includes("business")) intent.usage.push("business");
+
+    return intent;
+}
+    const q = query.toLowerCase();
+    const aiIntent = analyzeUserIntent(query);
 
     return data.map(item => {
         const title = (item.title || item.name || '').toLowerCase();
@@ -158,13 +204,10 @@ function smartFilterAndRank(data, query) {
 
         if (title.includes(q)) score += 6;
         if (desc.includes(q)) score += 4;
-
-        if (intents.includes('cheap') && item.price && item.price < 300) score += 5;
-        if (intents.includes('best')) score += 3;
-        if (intents.includes('gaming') && desc.includes('gaming')) score += 5;
-        if (intents.includes('camera') && desc.includes('camera')) score += 5;
-        if (intents.includes('battery') && desc.includes('battery')) score += 5;
-
+if (aiIntent.priorities.includes('price') && item.price && item.price < 300) score += 5;
+if (aiIntent.priorities.includes('performance') && desc.includes('gaming')) score += 5;
+if (aiIntent.priorities.includes('camera') && desc.includes('camera')) score += 5;
+if (aiIntent.priorities.includes('battery') && desc.includes('battery')) score += 5;
         return { ...item, _score: score };
     })
     .filter(item => item._score > 2)

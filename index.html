@@ -434,7 +434,93 @@
                 <input type="text" class="search-box" id="search-input" placeholder="ماذا تريد أن تشتري اليوم؟ (مثال: هاتف للألعاب بسعر متوسط)">
                 <i class="fa-solid fa-microphone mic-icon" onclick="startVoice()"></i>
             </div>
+<main>
+        <section class="hero">
+            <div class="ai-badge">AI Powered Shopping Assistant v2.0</div>
+            <h1 id="hero-title">خيارك المثالي مدروس بذكاء</h1>
+            <p class="sub-text" id="hero-sub">
+                يفهم احتياجاتك، ميزانيتك، وأولوياتك ليقترح عليك الأفضل، وليس فقط الأكثر مبيعًا.
+            </p>
 
+            <div class="search-container">
+                <input type="text" class="search-box" id="search-input" placeholder="ماذا تريد أن تشتري اليوم؟ (مثال: هاتف للألعاب بسعر متوسط)">
+                <i class="fa-solid fa-microphone mic-icon" onclick="startVoice()"></i>
+            </div>
+
+            <button onclick="handleSearch()" style="background: var(--primary); color: white; border: none; padding: 12px 30px; border-radius: 30px; font-weight: bold; cursor: pointer; margin-bottom: 2rem; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> تحليل ذكي بواسطة Findly
+            </button>
+
+            <div class="categories">
+                <div class="cat-item" onclick="quickSearch('هواتف')">
+                    <div class="cat-icon"><i class="fa-solid fa-mobile-screen"></i></div>
+                    <span class="cat-name">هواتف</span>
+                </div>
+                </div>
+        </section>
+
+        <div id="ai-response-area">
+            <div class="loading" id="loading-spinner">
+                <div class="spinner"></div>
+                <p id="loading-text" style="font-weight: bold; color: var(--primary);">جاري تشغيل محرك التحليل واستنتاج نيتك...</p>
+            </div>
+
+            <div class="ai-message" id="ai-advisor-msg" style="background: var(--primary); color: white; border: none; padding: 20px; border-radius: 20px 20px 5px 20px;">
+                <div style="display: flex; gap: 15px; align-items: center;">
+                    <i class="fa-solid fa-robot" style="font-size: 1.5rem;"></i>
+                    <span id="advisor-text"></span>
+                </div>
+            </div>
+
+            <div class="products-grid" id="results-grid"></div>
+        </div>
+    </main>
+
+    <script>
+        // --- محرك الذكاء الاصطناعي الجديد لـ Findly ---
+
+        const productsDB = [
+            { id: 1, name: "iPhone 15 Pro Max", category: "هواتف", price: 1200, tags: ["تصوير", "أداء", "فخم"], score: 98, img: "📱" },
+            { id: 2, name: "Samsung A54", category: "هواتف", price: 350, tags: ["ميزانية", "يومي", "بطارية"], score: 85, img: "📱" },
+            { id: 3, name: "Poco F5 Pro", category: "هواتف", price: 480, tags: ["أداء", "ألعاب", "سرعة"], score: 91, img: "🚀" },
+            { id: 4, name: "MacBook Air M2", category: "لابتوبات", price: 1000, tags: ["عمل", "بطارية", "خفيف"], score: 95, img: "💻" },
+            { id: 5, name: "Sony WH-1000XM5", category: "سماعات", price: 350, tags: ["عزل", "صوت", "سفر"], score: 97, img: "🎧" }
+        ];
+
+        function handleSearch() {
+            const query = document.getElementById('search-input').value;
+            if (!query) return;
+
+            document.getElementById('results-grid').innerHTML = '';
+            document.getElementById('ai-advisor-msg').style.display = 'none';
+            document.getElementById('loading-spinner').style.display = 'block';
+
+            // محاكاة التفكير الذكي
+            setTimeout(() => {
+                const analysis = findlyBrain(query);
+                renderSmartResults(analysis);
+            }, 1500);
+        }
+
+        // --- "عقل" النظام المستنتج ---
+        function findlyBrain(query) {
+            const q = query.toLowerCase();
+            let budget = Infinity;
+            const priceMatch = q.match(/\d+/);
+            if (priceMatch) budget = parseInt(priceMatch[0]);
+
+            let priority = "الجودة العامة";
+            if (q.includes("ألعاب")) priority = "الأداء وسرعة المعالجة";
+            if (q.includes("تصوير") || q.includes("كاميرا")) priority = "دقة الكاميرا";
+            if (q.includes("رخيص") || q.includes("ميزانية")) priority = "السعر الاقتصادي";
+
+
+        // دالة تبديل الثيم الخاصة بك
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+        }
+    </script>
+            
             <div class="categories">
                 <div class="cat-item" onclick="quickSearch('هواتف')">
                     <div class="cat-icon"><i class="fa-solid fa-mobile-screen"></i></div>

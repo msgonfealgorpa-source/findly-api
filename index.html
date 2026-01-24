@@ -124,7 +124,26 @@ function changeLanguage(lang) {
 
     toggleLangMenu();
 }
+function smartFilterAndRank(data, query) {
+    const q = query.toLowerCase();
 
+    return data
+        .map(item => {
+            const title = (item.title || item.name || '').toLowerCase();
+            const desc  = (item.description || '').toLowerCase();
+
+            let score = 0;
+
+            if (title.includes(q)) score += 5;
+            if (desc.includes(q)) score += 3;
+            if (item.price) score += 1;
+            if (item.url) score += 1;
+
+            return { ...item, _score: score };
+        })
+        .filter(item => item._score > 0)
+        .sort((a, b) => b._score - a._score);
+}
 function quickSearch(v) {
     document.getElementById('search-q').value = v;
     runSmartSearch();
@@ -151,7 +170,7 @@ async function runSmartSearch() {
 
         status.innerText = `🔍 نتائج البحث عن: "${query}"`;
 
-        data.slice(0, 5).forEach((item, index) => {
+        smartFilterAndRank(data, query).slice(0,5).forEach((item, index) => { 
             const card = `
             <div class="bg-white/10 backdrop-blur-xl rounded-3xl p-6 border border-white/10 hover:scale-[1.01] transition">
                 <div class="flex justify-between items-center mb-2">

@@ -137,9 +137,8 @@
 }
 
 data.slice(0,5).forEach((item, index) => {
-                const aiReason = `بناءً على طلبك لـ (${query})، هذا المنتج هو الأفضل من حيث السعر (${item.price}) والتقييم الحقيقي (${item.rating}⭐) في متجر ${item.source}.`;
 
-                const card = `
+    const card = `
 <div class="bg-white/5 p-5 rounded-[35px] border border-white/5 flex flex-col md:flex-row gap-4 items-center shadow-xl mb-6 text-right">
 
     <div class="relative w-32 h-32 flex-shrink-0">
@@ -180,6 +179,10 @@ data.slice(0,5).forEach((item, index) => {
 
 </div>
 `;
+
+    resultsDiv.insertAdjacentHTML('beforeend', card);
+
+});
     function toggleTheme() { document.body.classList.toggle('light'); }
     function showLockedMsg() {
         const t = document.getElementById('toast-msg');

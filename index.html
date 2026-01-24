@@ -82,34 +82,63 @@
 <div id="toast-msg" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-yellow-500 text-black px-6 py-3 rounded-full font-bold shadow-2xl z-[100] hidden"></div>
 
 <script>
-    const API_BASE = "https://api.apify.com/v2/datasets/AadkSySMvKXCYSBhW/items?clean=true";
-    const translations = {
-        ar: { title: "اعثر على خيارك<br>المثالي بذكاء", desc: "مساعدك الشخصي الذي يحلل آلاف المنتجات ليقترح لك الأفضل فقط.", placeholder: "ماذا تريد أن تشتري؟", btn: "بحث ذكي", cats: ["🎧 سماعات", "📱 هواتف", "🔒 اختيار ذكي", "🔒 بحث غير محدود", "🔒 مقارنة", "💻 لابتوب"], why: "لماذا نرشحه؟" },
-        en: { title: "Find Your Perfect<br>Choice Smartly", desc: "Your AI assistant that analyzes thousands of products for you.", placeholder: "What to buy?", btn: "Search", cats: ["🎧 Audio", "📱 Phones", "🔒 AI Choice", "🔒 Unlimited", "🔒 Compare", "💻 Laptops"], why: "Why we recommend it?" }
-        // (يمكنك إضافة بقية اللغات هنا بنفس النمط)
-    };
+    
+    <script>
+const API_BASE = "https://api.apify.com/v2/datasets/AadkSySMvKXCYSBhW/items?clean=true";
 
-    function toggleLangMenu() { document.getElementById('lang-menu').classList.toggle('active'); }
+let currentLang = "ar";
 
-    function changeLanguage(lang) {
-        currentLang = lang;
-        const t = translations[lang] || translations['en'];
-        document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-        document.getElementById('main-title').innerHTML = t.title;
-        document.getElementById('main-desc').innerText = t.desc;
-        document.getElementById('search-q').placeholder = t.placeholder;
-        document.getElementById('main-search-btn').innerText = t.btn;
-        for(let i=1; i<=6; i++) { document.getElementById(`cat-${i}`).innerText = t.cats[i-1]; }
-        toggleLangMenu();
+const translations = {
+    ar: {
+        title: "اعثر على خيارك<br>المثالي بذكاء",
+        desc: "مساعدك الشخصي الذي يحلل آلاف المنتجات ليقترح لك الأفضل فقط.",
+        placeholder: "ماذا تريد أن تشتري؟",
+        btn: "بحث ذكي",
+        cats: ["🎧 سماعات", "📱 هواتف", "🔒 اختيار ذكي", "🔒 بحث غير محدود", "🔒 مقارنة", "💻 لابتوب"],
+        why: "لماذا نرشحه؟"
+    },
+    en: {
+        title: "Find Your Perfect<br>Choice Smartly",
+        desc: "Your AI assistant that analyzes thousands of products for you.",
+        placeholder: "What to buy?",
+        btn: "Search",
+        cats: ["🎧 Audio", "📱 Phones", "🔒 AI Choice", "🔒 Unlimited", "🔒 Compare", "💻 Laptops"],
+        why: "Why we recommend it?"
+    }
+};
+
+function toggleLangMenu() {
+    document.getElementById('lang-menu').classList.toggle('active');
+}
+
+function changeLanguage(lang) {
+    currentLang = lang;
+    const t = translations[lang] || translations['en'];
+
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    document.getElementById('main-title').innerHTML = t.title;
+    document.getElementById('main-desc').innerText = t.desc;
+    document.getElementById('search-q').placeholder = t.placeholder;
+    document.getElementById('main-search-btn').innerText = t.btn;
+
+    for (let i = 1; i <= 6; i++) {
+        document.getElementById(`cat-${i}`).innerText = t.cats[i - 1];
     }
 
-    function quickSearch(v) { document.getElementById('search-q').value = v; runSmartSearch(); }
+    toggleLangMenu();
+}
 
-   async function runSmartSearch() {
+function quickSearch(v) {
+    document.getElementById('search-q').value = v;
+    runSmartSearch();
+}
+
+async function runSmartSearch() {
     const query = document.getElementById('search-q').value.trim();
     const resultsDiv = document.getElementById('results');
     const status = document.getElementById('status-msg');
-    if(!query) return;
+
+    if (!query) return;
 
     status.innerText = "⏳ جاري تحليل الخيارات...";
     resultsDiv.innerHTML = '';
@@ -123,40 +152,49 @@
             return;
         }
 
-        data.slice(0,5).forEach((item, index) => {
+        status.innerText = `🔍 نتائج البحث عن: "${query}"`;
 
-    const card = `
-    <div class="bg-white/10 backdrop-blur-xl rounded-3xl p-6 border border-white/10 hover:scale-[1.01] transition">
-        <div class="flex justify-between items-center mb-2">
-            <h3 class="font-black text-lg">${item.title || item.name || 'منتج مقترح'}</h3>
-            <span class="text-yellow-400 font-black text-sm">#${index+1}</span>
-        </div>
+        data.slice(0, 5).forEach((item, index) => {
+            const card = `
+            <div class="bg-white/10 backdrop-blur-xl rounded-3xl p-6 border border-white/10 hover:scale-[1.01] transition">
+                <div class="flex justify-between items-center mb-2">
+                    <h3 class="font-black text-lg">${item.title || item.name || 'منتج مقترح'}</h3>
+                    <span class="text-yellow-400 font-black text-sm">#${index + 1}</span>
+                </div>
 
-        <p class="text-sm opacity-80 mb-3">
-            ${item.description || 'وصف غير متوفر'}
-        </p>
+                <p class="text-sm opacity-80 mb-3">
+                    ${item.description || 'وصف غير متوفر'}
+                </p>
 
-        <div class="flex justify-between items-center">
-            <div class="font-black text-indigo-400">
-                ${item.price ? item.price + '$' : 'سعر غير معروف'}
+                <div class="flex justify-between items-center">
+                    <div class="font-black text-indigo-400">
+                        ${item.price ? item.price + '$' : 'سعر غير معروف'}
+                    </div>
+
+                    ${item.url ? `
+                    <a href="${item.url}" target="_blank"
+                       class="bg-indigo-500 hover:bg-indigo-600 px-4 py-2 rounded-full text-xs font-bold">
+                       عرض المنتج
+                    </a>` : ''}
+                </div>
+
+                <div class="ai-recommendation-box mt-3">
+                    🤖 ${translations[currentLang]?.why || 'لماذا نرشحه؟'}  
+                    أفضل توازن بين السعر والتقييم.
+                </div>
             </div>
+            `;
 
-            ${item.url ? `
-            <a href="${item.url}" target="_blank"
-               class="bg-indigo-500 hover:bg-indigo-600 px-4 py-2 rounded-full text-xs font-bold">
-               عرض المنتج
-            </a>` : ''}
-        </div>
+            resultsDiv.insertAdjacentHTML('beforeend', card);
+        });
 
-        <div class="ai-recommendation-box mt-3">
-            🤖 ${translations[currentLang]?.why || 'لماذا نرشحه؟'}  
-            أفضل توازن بين السعر والتقييم.
-        </div>
-    </div>
-    `;
+    } catch (err) {
+        console.error(err);
+        status.innerText = "⚠️ حدث خطأ في الاتصال";
+    }
+}
 
-    resultsDiv.insertAdjacentHTML('beforeend', card);
-});
+function startVoiceSearch() {
+    alert("🎤 البحث الصوتي سيتم تفعيله في المرحلة القادمة");
+}
 </script>
-</body>
-</html>

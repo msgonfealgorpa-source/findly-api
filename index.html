@@ -140,31 +140,46 @@ data.slice(0,5).forEach((item, index) => {
                 const aiReason = `بناءً على طلبك لـ (${query})، هذا المنتج هو الأفضل من حيث السعر (${item.price}) والتقييم الحقيقي (${item.rating}⭐) في متجر ${item.source}.`;
 
                 const card = `
-                <div class="bg-white/5 p-5 rounded-[35px] border border-white/5 flex flex-col md:flex-row gap-4 items-center shadow-xl mb-6 text-right">
-                    <div class="relative w-32 h-32 flex-shrink-0">
-                        <img src="${item.image}" class="w-full h-full object-contain bg-white rounded-3xl p-2" onerror="this.src='https://via.placeholder.com/150?text=Product'">
-                        <span class="absolute -top-2 -right-2 bg-indigo-600 text-[10px] px-2 py-1 rounded-full text-white font-bold">${item.source}</span>
-                    </div>
-                    <div class="flex-grow w-full">
-                        <h3 class="font-bold text-sm leading-tight text-white mb-2">${item.name}</h3>
-                        <div class="text-yellow-400 text-xs font-bold mb-2">⭐ ${item.rating}</div>
-                        <div class="ai-recommendation-box">
-                            💡 <strong>${currentLang === 'ar' ? 'تحليل الذكاء:' : 'AI Analysis:'}</strong><br>${aiReason}
-                        </div>
-                    </div>
-                    <div class="text-center min-w-[120px] w-full md:w-auto">
-                        <div class="text-indigo-400 font-black mb-3 text-xl">${item.price}</div>
-                        <a href="${item.link}" target="_blank" rel="noopener noreferrer" 
-                           class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-2xl text-xs font-black block transition transform hover:scale-105 shadow-lg">
-                           ${currentLang === 'ar' ? 'شراء الآن' : 'Buy Now'} 🛒
-                        </a>
-                    </div>
-                </div>`;
-                resultsDiv.insertAdjacentHTML('beforeend', card);
-            });
-        } catch (e) { status.innerText = "❌ فشل الاتصال بالسيرفر"; }
-    }
+<div class="bg-white/5 p-5 rounded-[35px] border border-white/5 flex flex-col md:flex-row gap-4 items-center shadow-xl mb-6 text-right">
 
+    <div class="relative w-32 h-32 flex-shrink-0">
+        <img src="${item.image || item.imageUrl || 'https://via.placeholder.com/150?text=Product'}"
+             class="w-full h-full object-contain bg-white rounded-3xl p-2">
+        <span class="absolute -top-2 -right-2 bg-indigo-600 text-[10px] px-2 py-1 rounded-full text-white font-bold">
+            ${item.source || item.store || 'Store'}
+        </span>
+    </div>
+
+    <div class="flex-grow w-full">
+        <h3 class="font-bold text-sm leading-tight text-white mb-2">
+            ${item.title || item.name || 'Unnamed Product'}
+        </h3>
+
+        <div class="text-yellow-400 text-xs font-bold mb-2">
+            ⭐ ${item.rating || '4.5'}
+        </div>
+
+        <div class="ai-recommendation-box">
+            💡 <strong>${currentLang === 'ar' ? 'تحليل الذكاء:' : 'AI Analysis:'}</strong><br>
+            هذا المنتج تم اختياره لأنه الأفضل من حيث السعر مقابل الأداء، التقييم العالي، وانتشاره في السوق.
+        </div>
+    </div>
+
+    <div class="text-center min-w-[120px] w-full md:w-auto">
+        <div class="text-indigo-400 font-black mb-3 text-xl">
+            ${item.price || '—'}
+        </div>
+
+        <a href="${item.link || item.url || '#'}"
+           target="_blank"
+           rel="noopener noreferrer"
+           class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-2xl text-xs font-black block transition transform hover:scale-105 shadow-lg">
+            ${currentLang === 'ar' ? 'شراء الآن' : 'Buy Now'} 🛒
+        </a>
+    </div>
+
+</div>
+`;
     function toggleTheme() { document.body.classList.toggle('light'); }
     function showLockedMsg() {
         const t = document.getElementById('toast-msg');

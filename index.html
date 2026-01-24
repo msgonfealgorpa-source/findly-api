@@ -125,20 +125,38 @@
 
         data.slice(0,5).forEach((item, index) => {
 
-            const card = `
-            ... الكرت ...
-            `;
+    const card = `
+    <div class="bg-white/10 backdrop-blur-xl rounded-3xl p-6 border border-white/10 hover:scale-[1.01] transition">
+        <div class="flex justify-between items-center mb-2">
+            <h3 class="font-black text-lg">${item.title || item.name || 'منتج مقترح'}</h3>
+            <span class="text-yellow-400 font-black text-sm">#${index+1}</span>
+        </div>
 
-            resultsDiv.insertAdjacentHTML('beforeend', card);
-        });
+        <p class="text-sm opacity-80 mb-3">
+            ${item.description || 'وصف غير متوفر'}
+        </p>
 
-    } catch (e) {
-        console.error(e);
-        status.innerText = "❌ حدث خطأ أثناء جلب النتائج";
-    }
-} 
+        <div class="flex justify-between items-center">
+            <div class="font-black text-indigo-400">
+                ${item.price ? item.price + '$' : 'سعر غير معروف'}
+            </div>
 
+            ${item.url ? `
+            <a href="${item.url}" target="_blank"
+               class="bg-indigo-500 hover:bg-indigo-600 px-4 py-2 rounded-full text-xs font-bold">
+               عرض المنتج
+            </a>` : ''}
+        </div>
 
+        <div class="ai-recommendation-box mt-3">
+            🤖 ${translations[currentLang]?.why || 'لماذا نرشحه؟'}  
+            أفضل توازن بين السعر والتقييم.
+        </div>
+    </div>
+    `;
+
+    resultsDiv.insertAdjacentHTML('beforeend', card);
+});
 </script>
 </body>
 </html>

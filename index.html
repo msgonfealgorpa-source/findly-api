@@ -125,33 +125,7 @@ function changeLanguage(lang) {
     toggleLangMenu();
 }
 function detectIntent(query) {
-    const q = query.toLowerCase();
-
-    const intents = {
-        cheap: ["رخيص", "أرخص", "cheap", "low price", "budget"],
-        best: ["أفضل", "احسن", "best", "top", "premium"],
-        gaming: ["العاب", "gaming", "game", "play"],
-        camera: ["كاميرا", "camera", "تصوير"],
-        battery: ["بطارية", "battery", "شحن"],
-        compare: ["مقارنة", "compare", "vs", "versus"]
-    };
-
-    let detected = [];
-
-    for (let key in intents) {
-        if (intents[key].some(word => q.includes(word))) {
-            detected.push(key);
-        }
-    }
-
-    return detected;
-}
-
-        function smartFilterAndRank(data, query) {
-    const q = query.toLowerCase();
-    const intents = detectIntent(query);
-
-    return data.map(item => {
+    
         const title = (item.title || item.name || '').toLowerCase();
         const desc  = (item.description || '').toLowerCase();
 
@@ -171,39 +145,15 @@ function detectIntent(query) {
     }).filter(item => item._score > 2)
       .sort((a, b) => b._score - a._score);
 }
-    const stopWords = ["في","من","على","الى","عن","ما","ماذا","أفضل","جيد","رخيص","سعر","شراء","اريد","أريد","كم","هل"];
     
-    const keywords = query
-        .toLowerCase()
-        .split(" ")
-        .filter(w => w.length > 2 && !stopWords.includes(w));
-
-    return data
-        .map(item => {
-
-            const title = (item.title || item.name || "").toLowerCase();
-            const desc  = (item.description || "").toLowerCase();
-
-            let score = 0;
-
-            keywords.forEach(word => {
-                if (title.includes(word)) score += 8;
-                if (desc.includes(word))  score += 4;
-            });
-
-            if (item.price) score += 1;
-            if (item.url) score += 1;
-
-            return { ...item, _score: score };
-        })
-        .filter(i => i._score > 0)
-        .sort((a,b) => b._score - a._score);
-}
     const q = query.toLowerCase();
 
     return data
         .map(item => {
-            const title = (item.title || item.name || '').toLowerCase();
+            const title = (item.title || item.name |
+                           
+                           
+                           | '').toLowerCase();
             const desc  = (item.description || '').toLowerCase();
 
             let score = 0;

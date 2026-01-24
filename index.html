@@ -1,339 +1,179 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Findly AI | البحث الذكي</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
-    <style>
-        :root { --main-purple: #6366f1; --dark-bg: #0f172a; }
-        body { font-family: 'Cairo', sans-serif; transition: 0.4s; margin: 0; background-color: var(--dark-bg); color: white; overflow-x: hidden; }
-        body.light { background-color: #f1f5f9; color: #1e293b; }
-        .hero-section { background: linear-gradient(180deg, var(--main-purple) 0%, #4f46e5 100%); border-bottom-left-radius: 80px; border-bottom-right-radius: 80px; padding: 30px 20px 80px 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); position: relative; z-index: 10; }  
-        .search-container { background: white; border-radius: 100px; display: flex; align-items: center; padding: 5px; max-width: 500px; margin: 30px auto 0; box-shadow: 0 15px 35px rgba(0,0,0,0.2); }  
-        .search-input { flex: 1; border: none; outline: none; padding: 12px 20px; color: #333; font-weight: bold; background: transparent; font-size: 16px; }  
-        .search-btn { background: var(--main-purple); color: white; border-radius: 100px; padding: 12px 30px; font-weight: 900; cursor: pointer; border: none; }  
-        .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: -40px; padding: 0 25px; position: relative; z-index: 20; }  
-        .cat-card { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1); border-radius: 30px; padding: 25px; text-align: center; font-weight: bold; cursor: pointer; transition: 0.3s; }  
-        .cat-card:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-5px); }
-        .ai-recommendation-box { background: rgba(99, 102, 241, 0.15); border-right: 4px solid #fbbf24; padding: 12px; border-radius: 18px; margin-top: 10px; font-size: 12px; color: #d1d5db; text-align: right; }
-        .lang-dropdown { position: absolute; top: 60px; right: 20px; background: white; color: black; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); display: none; flex-direction: column; z-index: 100; overflow: hidden; width: 160px; }
-        .lang-dropdown button { padding: 10px 20px; text-align: right; width: 100%; border-bottom: 1px solid #eee; transition: 0.2s; font-size: 14px; font-weight: bold; }
-        .lang-dropdown.active { display: flex; }
-        .mic-active { animation: pulse 1.5s infinite; color: #ef4444 !important; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
-        .hidden { display: none !important; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Findly AI | البحث الذكي</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+
+<style>
+:root{--main-purple:#6366f1;--dark-bg:#0f172a;}
+body{font-family:'Cairo',sans-serif;margin:0;background:var(--dark-bg);color:white}
+.hero-section{background:linear-gradient(180deg,var(--main-purple),#4f46e5);border-radius:0 0 80px 80px;padding:30px 20px 80px}
+.search-container{background:white;border-radius:100px;display:flex;align-items:center;padding:5px;max-width:500px;margin:30px auto}
+.search-input{flex:1;border:none;outline:none;padding:12px 20px;font-weight:bold}
+.search-btn{background:var(--main-purple);color:white;border-radius:100px;padding:12px 30px;font-weight:900;border:none}
+.cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:-40px;padding:0 25px}
+.cat-card{background:rgba(255,255,255,.1);border-radius:30px;padding:25px;text-align:center;font-weight:bold;cursor:pointer}
+.ai-recommendation-box{background:rgba(99,102,241,.15);border-right:4px solid #fbbf24;padding:12px;border-radius:18px;margin-top:10px;font-size:12px}
+.hidden{display:none}
+</style>
 </head>
-<body class="dark">
 
-<section id="app-view">  
-    <div class="hero-section">  
-        <header class="flex justify-between items-center max-w-5xl mx-auto mb-10 relative">  
-            <div class="flex items-center gap-3">  
-                <button onclick="toggleTheme()" class="w-10 h-10 flex items-center justify-center bg-white/20 rounded-full">🌓</button>  
-                <button onclick="toggleLangMenu()" class="w-10 h-10 flex items-center justify-center bg-white/20 rounded-full">🌐</button>
-                <div id="greeting-box" class="bg-white/10 px-4 py-2 rounded-full text-[11px] font-bold border border-white/10">Findly AI</div>  
-            </div>  
-            <div class="text-2xl font-black italic">Findly<span class="text-yellow-400">.</span></div>  
+<body>
 
-            <div id="lang-menu" class="lang-dropdown">
-                <button onclick="changeLanguage('ar')">العربية 🇸🇦</button>
-                <button onclick="changeLanguage('en')">English 🇺🇸</button>
-                <button onclick="changeLanguage('fr')">Français 🇫🇷</button>
-                <button onclick="changeLanguage('it')">Italiano 🇮🇹</button>
-                <button onclick="changeLanguage('zh')">中文 🇨🇳</button>
-                <button onclick="changeLanguage('ru')">Русский 🇷🇺</button>
-            </div>
-        </header>
+<section id="app-view">
+<div class="hero-section text-center">
+<h1 id="main-title" class="text-4xl font-black mb-4">اعثر على خيارك<br>المثالي بذكاء</h1>
+<p id="main-desc" class="text-sm opacity-80 mb-8">مساعدك الشخصي الذي يحلل آلاف المنتجات ليقترح لك الأفضل فقط.</p>
 
-        <div class="text-center px-4">  
-            <h1 id="main-title" class="text-4xl font-black leading-tight mb-4">اعثر على خيارك<br>المثالي بذكاء</h1>  
-            <p id="main-desc" class="text-sm opacity-80 max-w-xs mx-auto mb-8">مساعدك الشخصي الذي يحلل آلاف المنتجات ليقترح لك الأفضل فقط.</p>  
-            
-            <div class="search-container">  
-                <button id="mic-btn" onclick="startVoiceSearch()" class="p-3 text-gray-400 transition">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-20a3 3 0 00-3 3v8a3 3 0 006 0V5a3 3 0 00-3-3z" />
-                    </svg>
-                </button>  
-                <input type="text" id="search-q" placeholder="ماذا تريد أن تشتري؟" class="search-input">  
-                <button id="main-search-btn" onclick="runSmartSearch()" class="search-btn">بحث ذكي</button>  
-            </div>  
-        </div>  
-    </div>  
+<div class="search-container">
+<input type="text" id="search-q" placeholder="ماذا تريد أن تشتري؟" class="search-input">
+<button onclick="runSmartSearch()" class="search-btn">بحث ذكي</button>
+</div>
+</div>
 
-    <div class="cat-grid">  
-        <div onclick="quickSearch('سماعات لاسلكية')" id="cat-1" class="cat-card">🎧 سماعات</div>  
-        <div onclick="quickSearch('هواتف ذكية')" id="cat-2" class="cat-card">📱 هواتف</div>  
-        <div onclick="showLockedMsg()" id="cat-3" class="cat-card opacity-50">🔒 اختيار ذكي</div>  
-        <div onclick="showLockedMsg()" id="cat-4" class="cat-card opacity-50">🔒 بحث غير محدود</div>  
-        <div onclick="showLockedMsg()" id="cat-5" class="cat-card opacity-50">🔒 مقارنة</div>  
-        <div onclick="quickSearch('لابتوب عمل')" id="cat-6" class="cat-card">💻 لابتوب</div>  
-    </div>  
+<div class="cat-grid">
+<div onclick="quickSearch('سماعات لاسلكية')" class="cat-card">🎧 سماعات</div>
+<div onclick="quickSearch('هواتف ذكية')" class="cat-card">📱 هواتف</div>
+<div onclick="quickSearch('لابتوب عمل')" class="cat-card">💻 لابتوب</div>
+</div>
 
-    <main class="max-w-4xl mx-auto mt-10 px-6 pb-20">  
-        <div id="status-msg" class="text-center font-bold text-indigo-400 mb-6 min-h-[24px]"></div>  
-        <div id="results" class="space-y-6"></div>  
-    </main>
+<main class="max-w-4xl mx-auto mt-10 px-6 pb-20">
+<div id="status-msg" class="text-center font-bold text-indigo-400 mb-6"></div>
+<div id="results" class="space-y-6"></div>
+</main>
 </section>
 
-<div id="toast-msg" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-yellow-500 text-black px-6 py-3 rounded-full font-bold shadow-2xl z-[100] hidden"></div>
-    <script>
-const API_BASE = "https://api.apify.com/v2/datasets/AadkSySMvKXCYSBhW/items?clean=true";
+<div id="toast-msg" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-yellow-500 text-black px-6 py-3 rounded-full font-bold shadow-2xl hidden"></div>
 
-let currentLang = "ar";
+<script>
+const API_BASE="https://api.apify.com/v2/datasets/AadkSySMvKXCYSBhW/items?clean=true";
 
-const translations = {
-    ar: {
-        title: "اعثر على خيارك<br>المثالي بذكاء",
-        desc: "مساعدك الشخصي الذي يحلل آلاف المنتجات ليقترح لك الأفضل فقط.",
-        placeholder: "ماذا تريد أن تشتري؟",
-        btn: "بحث ذكي",
-        cats: ["🎧 سماعات", "📱 هواتف", "🔒 اختيار ذكي", "🔒 بحث غير محدود", "🔒 مقارنة", "💻 لابتوب"],
-        why: "لماذا نرشحه؟"
-    },
-    en: {
-        title: "Find Your Perfect<br>Choice Smartly",
-        desc: "Your AI assistant that analyzes thousands of products for you.",
-        placeholder: "What to buy?",
-        btn: "Search",
-        cats: ["🎧 Audio", "📱 Phones", "🔒 AI Choice", "🔒 Unlimited", "🔒 Compare", "💻 Laptops"],
-        why: "Why we recommend it?"
-    }
+/* ====== فهم نية المستخدم ====== */
+function analyzeUserIntent(query){
+const q=query.toLowerCase();
+return{
+price:q.includes("رخيص")||q.includes("cheap"),
+best:q.includes("أفضل")||q.includes("best"),
+gaming:q.includes("gaming")||q.includes("ألعاب"),
+camera:q.includes("camera")||q.includes("كاميرا"),
+battery:q.includes("battery")||q.includes("بطارية")
 };
-
-function toggleLangMenu() {
-    document.getElementById('lang-menu').classList.toggle('active');
 }
 
-function changeLanguage(lang) {
-    currentLang = lang;
-    const t = translations[lang] || translations['en'];
+/* ====== فلترة + ترتيب ذكي ====== */
+function smartFilterAndRank(data,query){
+const intent=analyzeUserIntent(query);
+const q=query.toLowerCase();
 
-    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-    document.getElementById('main-title').innerHTML = t.title;
-    document.getElementById('main-desc').innerText = t.desc;
-    document.getElementById('search-q').placeholder = t.placeholder;
-    document.getElementById('main-search-btn').innerText = t.btn;
+return data.map(item=>{
+const title=(item.title||item.name||'').toLowerCase();
+const desc=(item.description||'').toLowerCase();
+let score=0;
 
-    for (let i = 1; i <= 6; i++) {
-        document.getElementById(`cat-${i}`).innerText = t.cats[i - 1];
-    }
+if(title.includes(q))score+=6;
+if(desc.includes(q))score+=4;
+if(intent.price && item.price && item.price<300)score+=6;
+if(intent.gaming && desc.includes("gaming"))score+=6;
+if(intent.camera && desc.includes("camera"))score+=6;
+if(intent.battery && desc.includes("battery"))score+=6;
 
-    toggleLangMenu();
-        }
-function detectIntent(query) {
-    const q = query.toLowerCase();
-
-    const intents = {
-        cheap: ["رخيص", "cheap", "budget", "low price"],
-        best: ["أفضل", "احسن", "best", "top"],
-        gaming: ["العاب", "gaming", "game"],
-        camera: ["كاميرا", "camera"],
-        battery: ["بطارية", "battery"]
-    };
-
-    let detected = [];
-
-    for (let key in intents) {
-        if (intents[key].some(word => q.includes(word))) {
-            detected.push(key);
-        }
-    }
-
-    return detected;
+return {...item,_score:score};
+})
+.filter(i=>i._score>2)
+.sort((a,b)=>b._score-a._score);
 }
 
-function smartFilterAndRank(data, query) {
-    function analyzeUserIntent(query) {
-    function understandUserMeaning(query) {
-    const q = query.toLowerCase();
-
-    return {
-        wantsCheap: q.includes("رخيص") || q.includes("cheap") || q.includes("budget"),
-        wantsBest: q.includes("أفضل") || q.includes("best") || q.includes("top"),
-        wantsGaming: q.includes("العاب") || q.includes("gaming"),
-        wantsCamera: q.includes("كاميرا") || q.includes("camera"),
-        wantsBattery: q.includes("بطارية") || q.includes("battery"),
-        wantsSpeed: q.includes("سريع") || q.includes("fast") || q.includes("performance")
-    };
-}
-        const q = query.toLowerCase();
-
-    const intent = {
-        product: null,
-        priorities: [],
-        budget: null,
-        usage: []
-    };
-
-    const productMap = {
-        phone: ["جوال", "هاتف", "phone", "mobile"],
-        laptop: ["لابتوب", "حاسوب", "laptop", "notebook"],
-        headphone: ["سماعة", "سماعات", "headphone", "earbuds"],
-        camera: ["كاميرا", "camera"]
-    };
-
-    for (let p in productMap) {
-        if (productMap[p].some(w => q.includes(w))) {
-            intent.product = p;
-        }
-    }
-
-    const priorityMap = {
-        camera: ["تصوير", "كاميرا", "camera"],
-        battery: ["بطارية", "battery", "شحن"],
-        performance: ["سريع", "أداء", "gaming", "ألعاب"],
-        price: ["رخيص", "cheap", "budget", "سعر"]
-    };
-
-    for (let key in priorityMap) {
-        if (priorityMap[key].some(w => q.includes(w))) {
-            intent.priorities.push(key);
-        }
-    }
-
-    if (q.includes("رخيص") || q.includes("cheap")) intent.budget = "low";
-    else if (q.includes("متوسط") || q.includes("mid")) intent.budget = "mid";
-    else if (q.includes("غالي") || q.includes("premium")) intent.budget = "high";
-
-    if (q.includes("سفر") || q.includes("travel")) intent.usage.push("travel");
-    if (q.includes("طلاب") || q.includes("study")) intent.usage.push("study");
-    if (q.includes("عمل") || q.includes("business")) intent.usage.push("business");
-
-    return intent;
-}
-    const q = query.toLowerCase();
-    const aiIntent = analyzeUserIntent(query);
-
-    return data.map(item => {
-        const title = (item.title || item.name || '').toLowerCase();
-        const desc  = (item.description || '').toLowerCase();
-
-        let score = 0;
-
-        if (title.includes(q)) score += 6;
-        if (desc.includes(q)) score += 4;
-if (aiIntent.priorities.includes('price') && item.price && item.price < 300) score += 5;
-if (aiIntent.priorities.includes('performance') && desc.includes('gaming')) score += 5;
-if (aiIntent.priorities.includes('camera') && desc.includes('camera')) score += 5;
-if (aiIntent.priorities.includes('battery') && desc.includes('battery')) score += 5;
-        return { ...item, _score: score };
-    })
-    .filter(item => item._score > 2)
-    .sort((a, b) => b._score - a._score);
-}
-if (meaning.wantsCheap && item.price && item.price < 250) score += 7;
-if (meaning.wantsBest && item.rating && item.rating > 4.5) score += 7;
-if (meaning.wantsGaming && desc.includes("gaming")) score += 7;
-if (meaning.wantsCamera && desc.includes("camera")) score += 7;
-if (meaning.wantsBattery && desc.includes("battery")) score += 7;
-
-        function quickSearch(v) {
-  document.getElementById('search-q').value = v;
-  runSmartSearch();
+/* ====== بحث سريع ====== */
+function quickSearch(v){
+document.getElementById('search-q').value=v;
+runSmartSearch();
 }
 
-async function runSmartSearch() { 
-    if (!canSearchToday()) {
-    showLimitMsg();
-    return;
-    }
-    function canSearchToday() {
-    const today = new Date().toISOString().slice(0, 10);
-    const savedDate = localStorage.getItem("findly_date");
-    let searches = parseInt(localStorage.getItem("findly_searches") || "0");
+/* ====== نظام تحديد 3 مرات ====== */
+function canSearchToday(){
+const today=new Date().toISOString().slice(0,10);
+const saved=localStorage.getItem("findly_date");
+let count=parseInt(localStorage.getItem("findly_searches")||"0");
 
-    if (savedDate !== today) {
-        localStorage.setItem("findly_date", today);
-        localStorage.setItem("findly_searches", "0");
-        return true;
-    }
-
-    return searches < 3;
+if(saved!==today){
+localStorage.setItem("findly_date",today);
+localStorage.setItem("findly_searches","0");
+return true;
+}
+return count<3;
 }
 
-function increaseSearchCount() {
-    let searches = parseInt(localStorage.getItem("findly_searches") || "0");
-    localStorage.setItem("findly_searches", searches + 1);
+function increaseSearchCount(){
+let count=parseInt(localStorage.getItem("findly_searches")||"0");
+localStorage.setItem("findly_searches",count+1);
 }
 
-function showLimitMsg() {
-    const toast = document.getElementById("toast-msg");
-    toast.innerText = "🚀 لقد استهلكت 3 عمليات بحث اليوم — أنشئ حسابك لفتح البحث غير المحدود";
-    toast.classList.remove("hidden");
-    setTimeout(() => toast.classList.add("hidden"), 3500);
-}
-    const query = document.getElementById('search-q').value.trim();
-    const resultsDiv = document.getElementById('results');
-    const status = document.getElementById('status-msg');
-
-    if (!query) return;
-
-    status.innerText = "⏳ جاري تحليل الخيارات...";
-    resultsDiv.innerHTML = '';
-
-    try {
-        const response = await fetch(API_BASE);
-        const data = await response.json();
-
-        if (!Array.isArray(data) || data.length === 0) {
-            status.innerText = "❌ لم نجد نتائج";
-            return;
-        }
-
-        const ranked = smartFilterAndRank(data, query);
-
-        if (ranked.length === 0) {
-            status.innerText = "❌ لا توجد نتائج مناسبة";
-            return;
-        }
-
-        status.innerText = `🔍 نتائج البحث عن: "${query}"`;
-
-        ranked.slice(0,5).forEach((item, index) => {
-            const card = `
-            <div class="bg-white/10 backdrop-blur-xl rounded-3xl p-6 border border-white/10 hover:scale-[1.01] transition">
-                <div class="flex justify-between items-center mb-2">
-                    <h3 class="font-black text-lg">${item.title || item.name || 'منتج مقترح'}</h3>
-                    <span class="text-yellow-400 font-black text-sm">#${index + 1}</span>
-                </div>
-
-                <p class="text-sm opacity-80 mb-3">
-                    ${item.description || 'وصف غير متوفر'}
-                </p>
-
-                <div class="flex justify-between items-center">
-                    <div class="font-black text-indigo-400">
-                        ${item.price ? item.price + '$' : 'سعر غير معروف'}
-                    </div>
-
-                    ${item.url ? `
-                    <a href="${item.url}" target="_blank"
-                       class="bg-indigo-500 hover:bg-indigo-600 px-4 py-2 rounded-full text-xs font-bold">
-                       عرض المنتج
-                    </a>` : ''}
-                    increaseSearchCount();
-                </div>
-
-                <div class="ai-recommendation-box mt-3">
-                    🤖 ${translations[currentLang]?.why || 'لماذا نرشحه؟'}  
-                    أفضل توازن بين السعر والتقييم.
-                </div>
-            </div>
-            `;
-            resultsDiv.insertAdjacentHTML('beforeend', card);
-        });
-
-    } catch (err) {
-        console.error(err);
-        status.innerText = "⚠️ حدث خطأ في الاتصال";
-    }
+function showLimitMsg(){
+const t=document.getElementById("toast-msg");
+t.innerText="🚀 استهلكت 3 عمليات بحث اليوم — سجل لفتح البحث غير المحدود";
+t.classList.remove("hidden");
+setTimeout(()=>t.classList.add("hidden"),3500);
 }
 
-function startVoiceSearch() {
-    alert("🎤 البحث الصوتي سيتم تفعيله في المرحلة القادمة");
+/* ====== البحث الرئيسي ====== */
+async function runSmartSearch(){
+if(!canSearchToday()){showLimitMsg();return;}
+
+const query=document.getElementById("search-q").value.trim();
+if(!query)return;
+
+const resultsDiv=document.getElementById("results");
+const status=document.getElementById("status-msg");
+
+status.innerText="⏳ جاري تحليل النتائج...";
+resultsDiv.innerHTML="";
+
+try{
+const res=await fetch(API_BASE);
+const data=await res.json();
+
+const ranked=smartFilterAndRank(data,query);
+
+if(!ranked.length){
+status.innerText="❌ لا توجد نتائج مناسبة";
+return;
+}
+
+status.innerText=`🔍 نتائج البحث عن: "${query}"`;
+
+ranked.slice(0,5).forEach((item,index)=>{
+increaseSearchCount();
+
+resultsDiv.insertAdjacentHTML("beforeend",`
+<div class="bg-white/10 backdrop-blur-xl rounded-3xl p-6 border border-white/10">
+<div class="flex justify-between mb-2">
+<h3 class="font-black text-lg">${item.title||item.name||"منتج مقترح"}</h3>
+<span class="text-yellow-400 font-black">#${index+1}</span>
+</div>
+
+<p class="text-sm opacity-80 mb-3">${item.description||"وصف غير متوفر"}</p>
+
+<div class="flex justify-between items-center">
+<div class="font-black text-indigo-400">${item.price?item.price+"$":"سعر غير معروف"}</div>
+${item.url?`<a href="${item.url}" target="_blank" class="bg-indigo-500 px-4 py-2 rounded-full text-xs font-bold">عرض المنتج</a>`:""}
+</div>
+
+<div class="ai-recommendation-box">
+🤖 أفضل توازن بين السعر والأداء
+</div>
+</div>
+`);
+});
+
+}catch(err){
+console.error(err);
+status.innerText="⚠️ خطأ في الاتصال بالخادم";
+}
 }
 </script>
+
+</body>
+</html>

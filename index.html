@@ -124,51 +124,7 @@ function changeLanguage(lang) {
 
     toggleLangMenu();
 }
-function detectIntent(query) {
-    
-        const title = (item.title || item.name || '').toLowerCase();
-        const desc  = (item.description || '').toLowerCase();
-
-        let score = 0;
-
-        if (title.includes(q)) score += 6;
-        if (desc.includes(q)) score += 4;
-
-        if (intents.includes('cheap') && item.price && item.price < 300) score += 5;
-        if (intents.includes('best')) score += 3;
-        if (intents.includes('gaming') && desc.includes('gaming')) score += 5;
-        if (intents.includes('camera') && desc.includes('camera')) score += 5;
-        if (intents.includes('battery') && desc.includes('battery')) score += 5;
-
-        return { ...item, _score: score };
-
-    }).filter(item => item._score > 2)
-      .sort((a, b) => b._score - a._score);
-}
-    
-    const q = query.toLowerCase();
-
-    return data
-        .map(item => {
-            const title = (item.title || item.name |
-                           
-                           
-                           | '').toLowerCase();
-            const desc  = (item.description || '').toLowerCase();
-
-            let score = 0;
-
-            if (title.includes(q)) score += 5;
-            if (desc.includes(q)) score += 3;
-            if (item.price) score += 1;
-            if (item.url) score += 1;
-
-            return { ...item, _score: score };
-        })
-        .filter(item => item._score > 0)
-        .sort((a, b) => b._score - a._score);
-}
-function quickSearch(v) {
+ {
     document.getElementById('search-q').value = v;
     runSmartSearch();
 }
@@ -187,7 +143,58 @@ async function runSmartSearch() {
         const response = await fetch(API_BASE);
         const data = await response.json();
 
-        if (!Array.isArray(data) || data.length === 0) {
+        if (!Array.isArray(data) || data
+            
+function detectIntent(query) {
+    const q = query.toLowerCase();
+
+    const intents = {
+        cheap: ["رخيص", "cheap", "budget", "low price"],
+        best: ["أفضل", "احسن", "best", "top"],
+        gaming: ["العاب", "gaming", "game"],
+        camera: ["كاميرا", "camera"],
+        battery: ["بطارية", "battery"]
+    };
+
+    let detected = [];
+
+    for (let key in intents) {
+        if (intents[key].some(word => q.includes(word))) {
+            detected.push(key);
+        }
+    }
+
+    return detected;
+}
+
+function smartFilterAndRank(data, query) {
+    const q = query.toLowerCase();
+    const intents = detectIntent(query);
+
+    return data.map(item => {
+        const title = (item.title || item.name || '').toLowerCase();
+        const desc  = (item.description || '').toLowerCase();
+
+        let score = 0;
+
+        if (title.includes(q)) score += 6;
+        if (desc.includes(q)) score += 4;
+
+        if (intents.includes('cheap') && item.price && item.price < 300) score += 5;
+        if (intents.includes('best')) score += 3;
+        if (intents.includes('gaming') && desc.includes('gaming')) score += 5;
+        if (intents.includes('camera') && desc.includes('camera')) score += 5;
+        if (intents.includes('battery') && desc.includes('battery')) score += 5;
+
+        return { ...item, _score: score };
+    })
+    .filter(item => item._score > 2)
+    .sort((a, b) => b._score - a._score);
+}
+
+
+        
+            .length === 0) {
             status.innerText = "❌ لم نجد نتائج";
             return;
         }

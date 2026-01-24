@@ -171,8 +171,12 @@ function smartFilterAndRank(data, query) {
     .sort((a, b) => b._score - a._score);
 }
 
-function quickSearch(v) 
-async function runSmartSearch() {
+function quickSearch(v) {
+    document.getElementById('search-q').value = v;
+    runSmartSearch();
+}
+
+async function runSmartSearch() { 
     const query = document.getElementById('search-q').value.trim();
     const resultsDiv = document.getElementById('results');
     const status = document.getElementById('status-msg');

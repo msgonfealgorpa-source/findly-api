@@ -172,32 +172,7 @@
    }
     
 </body>
-        smartResults.slice(0, 6).forEach((item, index) => {
-            const card = document.createElement('div');
-            card.className = "bg-white p-4 rounded-xl shadow";
-
-            const aiReason = item.explanation || 'تم اختياره بناءً على تحليل السعر والتقييم والشعبية';
-
-            card.innerHTML = `
-                <img src="${item.image}" class="w-full h-40 object-contain mb-2"/>
-                <h3 class="font-bold text-sm mb-1">${item.title}</h3>
-                <p class="text-green-600 font-semibold mb-1">$${item.price}</p>
-                <p class="text-yellow-500 mb-1">⭐ ${item.rating}</p>
-                <p class="text-xs text-gray-600 mb-2">${aiReason}</p>
-                <a href="${item.url}" target="_blank" class="block bg-indigo-600 text-white text-center py-2 rounded-lg">عرض المنتج</a>
-            `;
-
-            resultsDiv.appendChild(card);
-        });
-
-    } catch (err) {
-        resultsDiv.innerHTML = '<p class="text-red-600">حدث خطأ أثناء البحث</p>';
-        console.error(err);
-    }
-
-    loader.classList.add('hidden');
-});
-</script>
+        
 </html>
 </body>
 </html>

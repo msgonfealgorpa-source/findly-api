@@ -148,7 +148,19 @@ function detectIntent(query) {
 
 function smartFilterAndRank(data, query) {
     function analyzeUserIntent(query) {
+    function understandUserMeaning(query) {
     const q = query.toLowerCase();
+
+    return {
+        wantsCheap: q.includes("رخيص") || q.includes("cheap") || q.includes("budget"),
+        wantsBest: q.includes("أفضل") || q.includes("best") || q.includes("top"),
+        wantsGaming: q.includes("العاب") || q.includes("gaming"),
+        wantsCamera: q.includes("كاميرا") || q.includes("camera"),
+        wantsBattery: q.includes("بطارية") || q.includes("battery"),
+        wantsSpeed: q.includes("سريع") || q.includes("fast") || q.includes("performance")
+    };
+}
+        const q = query.toLowerCase();
 
     const intent = {
         product: null,
@@ -213,7 +225,11 @@ if (aiIntent.priorities.includes('battery') && desc.includes('battery')) score +
     .filter(item => item._score > 2)
     .sort((a, b) => b._score - a._score);
 }
-
+if (meaning.wantsCheap && item.price && item.price < 250) score += 7;
+if (meaning.wantsBest && item.rating && item.rating > 4.5) score += 7;
+if (meaning.wantsGaming && desc.includes("gaming")) score += 7;
+if (meaning.wantsCamera && desc.includes("camera")) score += 7;
+if (meaning.wantsBattery && desc.includes("battery")) score += 7;
 function quickSearch(v) {
     document.getElementById('search-q').value = v;
     runSmartSearch();

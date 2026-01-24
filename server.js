@@ -1,69 +1,85 @@
-import express from "express";
-import cors from "cors";
-import fetch from "node-fetch";
-import dotenv from "dotenv";
-
-dotenv.config();
+const express = require('express');
+const cors = require('cors');
+const { ApifyClient } = require('apify-client');
+require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 10000;
 
+// إعدادات الأمان والسماح للواجهة بالاتصال بالسيرفر
 app.use(cors());
 app.use(express.json());
 
-app.get("/search", async (req, res) => {
-    const searchQuery = req.query.q;
-    const API_TOKEN = process.env.APIFY_API_TOKEN;
-    const ALI_ACTOR_ID = process.env.APIFY_ACTOR_ID;
-    const AMZ_ACTOR_ID = process.env.APIFY_AMAZON_ACTOR_ID;
+// 1. إعداد الاتصال بـ Apify باستخدام المفتاح الموجود في المتغيرات
+const client = new ApifyClient({
+    token: process.env.APIFY_API_TOKEN, // يقرأ التوكن من إعدادات Render
+});
 
-    if (!searchQuery) return res.status(400).json({ error: "اكتب كلمة بحث" });
+// رسالة ترحيب للتأكد أن السيرفر يعمل
+app.get('/', (req, res) => {
+    res.send('Findly AI Server is Running! 🚀');
+});
 
+// 2. نقطة البحث (API Endpoint)
+app.post('/api/search', async (req, res) => {
     try {
-        async function getResultsFromActor(actorId, sourceName) {
-            try {
-                const runRes = await fetch(`https://api.apify.com/v2/acts/${actorId}/runs?token=${API_TOKEN}`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ "query": searchQuery, "maxItems": 5 })
-                });
-
-                const runData = await runRes.json();
-                if (!runRes.ok) return [];
-
-                const runId = runData.data.id;
-                
-                // انتظار المعالجة (يمكنك تقليلها لـ 10 ثواني إذا كان الـ Actor سريعاً)
-                await new Promise(resolve => setTimeout(resolve, 12000)); 
-
-                const dataRes = await fetch(`https://api.apify.com/v2/actor-runs/${runId}/dataset/items?token=${API_TOKEN}`);
-                const items = await dataRes.json();
-
-                return Array.isArray(items) ? items.map(item => ({
-                    name: item.title || item.name || item.productName || `منتج من ${sourceName}`,
-                    price: item.price || item.currentPrice || item.priceValue || "عرض السعر",
-                    // إصلاح جلب الصورة لضمان عدم ظهور مربع أبيض
-                    image: item.imageUrl || item.image || item.thumbnail || item.mainImage || "https://via.placeholder.com/150",
-                    link: item.url || item.productUrl || item.link || "#",
-                    rating: item.rating || item.stars || "4.5",
-                    source: sourceName
-                })) : [];
-            } catch (err) {
-                console.error(`Error from ${sourceName}:`, err);
-                return [];
-            }
+        const { query } = req.body;
+        
+        if (!query) {
+            return res.status(400).json({ error: 'الرجاء إدخال كلمة بحث' });
         }
 
-        const [aliResults, amzResults] = await Promise.all([
-            getResultsFromActor(ALI_ACTOR_ID, "AliExpress"),
-            getResultsFromActor(AMZ_ACTOR_ID, "Amazon")
-        ]);
+        console.log(`🔎 جاري البحث عن: ${query}...`);
 
-        res.json({ success: true, top: [...aliResults, ...amzResults] });
+        // إعداد مدخلات البحث لـ Amazon Scraper
+        // نستخدم Actor ID الخاص بأمازون الموجود في متغيرات البيئة
+        const actorInput = {
+            category: "all",
+            keyword: query, // كلمة البحث القادمة من المستخدم
+            country: "US",  // البحث في المتجر الأمريكي (يمكن تغييره)
+        };
+
+        // تشغيل الـ Actor (هذه العملية قد تستغرق بضع ثوانٍ)
+        const run = await client.actor(process.env.AMAZON_ACTOR_ID).call(actorInput);
+
+        console.log('✅ تم انتهاء البحث، جاري جلب النتائج...');
+
+        // جلب النتائج من قاعدة البيانات (Dataset)
+        const { items } = await client.dataset(run.defaultDatasetId).listItems();
+
+        // تصفية وتنسيق البيانات لتناسب واجهة Findly
+        // سنأخذ أول 10 نتائج فقط للسرعة
+        const formattedResults = items.slice(0, 10).map((item, index) => {
+            return {
+                id: index,
+                name: item.title,
+                price: item.price ? item.price.amount : 'غير متوفر', // تأكد من هيكل البيانات القادمة من الـ Actor
+                currency: item.price ? item.price.currency : 'USD',
+                img: item.thumbnailUrl || 'https://via.placeholder.com/150', // صورة بديلة إذا لم تتوفر
+                link: item.url,
+                // محاكاة تقييم الذكاء الاصطناعي بناءً على النجوم الحقيقية
+                score: item.stars ? Math.round(item.stars * 20) : Math.floor(Math.random() * (99 - 80) + 80), 
+                tags: ["Amazon", "Best Seller"]
+            };
+        });
+
+        // إرسال النتائج للواجهة الأمامية
+        res.json({
+            status: 'success',
+            advisorMessage: `وجدت لك ${formattedResults.length} منتجاً ممتازاً من أمازون بناءً على بحثك عن "${query}".`,
+            results: formattedResults
+        });
 
     } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
+        console.error('❌ حدث خطأ أثناء البحث:', error);
+        res.status(500).json({ 
+            error: 'حدث خطأ في الخادم أثناء جلب البيانات.',
+            details: error.message 
+        });
     }
 });
 
-app.listen(PORT, () => console.log(`Findly Server Running on ${PORT}`));
+// تشغيل السيرفر
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});

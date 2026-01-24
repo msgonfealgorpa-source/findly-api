@@ -131,10 +131,12 @@
         try {
             const response = await fetch(API_BASE);
             const data = await response.json();
-            if (!data.top || data.top.length === 0) { status.innerText = "❌ لم نجد نتائج"; return; }
-            
-            status.innerText = "";
-            data.top.forEach((item, index) => {
+            if (!Array.isArray(data) || data.length === 0) { 
+    status.innerText = "❌ لم نجد نتائج"; 
+    return; 
+}
+
+data.slice(0,5).forEach((item, index) => {
                 const aiReason = `بناءً على طلبك لـ (${query})، هذا المنتج هو الأفضل من حيث السعر (${item.price}) والتقييم الحقيقي (${item.rating}⭐) في متجر ${item.source}.`;
 
                 const card = `

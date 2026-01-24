@@ -147,6 +147,30 @@ function detectIntent(query) {
     return detected;
 }
 
+        function smartFilterAndRank(data, query) {
+    const q = query.toLowerCase();
+    const intents = detectIntent(query);
+
+    return data.map(item => {
+        const title = (item.title || item.name || '').toLowerCase();
+        const desc  = (item.description || '').toLowerCase();
+
+        let score = 0;
+
+        if (title.includes(q)) score += 6;
+        if (desc.includes(q)) score += 4;
+
+        if (intents.includes('cheap') && item.price && item.price < 300) score += 5;
+        if (intents.includes('best')) score += 3;
+        if (intents.includes('gaming') && desc.includes('gaming')) score += 5;
+        if (intents.includes('camera') && desc.includes('camera')) score += 5;
+        if (intents.includes('battery') && desc.includes('battery')) score += 5;
+
+        return { ...item, _score: score };
+
+    }).filter(item => item._score > 2)
+      .sort((a, b) => b._score - a._score);
+}
     const stopWords = ["في","من","على","الى","عن","ما","ماذا","أفضل","جيد","رخيص","سعر","شراء","اريد","أريد","كم","هل"];
     
     const keywords = query

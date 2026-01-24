@@ -129,7 +129,7 @@
         resultsDiv.innerHTML = '';
 
         try {
-            const response = await fetch(API_BASE + encodeURIComponent(query));
+            const response = await fetch(API_BASE);
             const data = await response.json();
             if (!data.top || data.top.length === 0) { status.innerText = "❌ لم نجد نتائج"; return; }
             
@@ -170,9 +170,6 @@
         t.classList.remove('hidden');
         setTimeout(() => t.classList.add('hidden'), 3000);
    }
-    
-</body>
-        
-</html>
+</script>
 </body>
 </html>

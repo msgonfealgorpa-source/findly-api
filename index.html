@@ -84,144 +84,88 @@
         footer.locked-features {
             display: flex; justify-content: center; gap: 1rem; padding: 3rem;
             background: var(--glass); border-top: 1px solid var(--border); margin-top: 4rem;
-        }
-        .feature-btn { padding: 10px 20px; border-radius: 30px; border: 1px solid var(--text-color); background: transparent; color: var(--text-color); opacity: 0.5; cursor: not-allowed; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+        }.
 
-        /* Animations */
-        .loading { display: none; text-align: center; margin: 3rem; }
-        .spinner { width: 50px; height: 50px; border: 5px solid rgba(79, 70, 229, 0.1); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s infinite cubic-bezier(0.5, 0, 0.5, 1); margin: auto; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-    </style>
-</head>
-<body>
+        <script>
+        // رابط السيرفر الخاص بك على Render
+        const API_URL = "https://findly-api.onrender.com/api/search";
 
-    <header>
-        <div class="logo">
-            <i class="fa-solid fa-wand-magic-sparkles"></i> 
-            <div>Findly <span id="tagline"> – مستشارك الذكي</span></div>
-        </div>
-        <div style="display: flex; gap: 15px; align-items: center;">
-            <select id="lang-switch" style="padding: 5px 10px; border-radius: 8px; background: var(--card-bg); color: inherit; border: 1px solid var(--border);">
-                <option value="ar">العربية</option>
-                <option value="en">English</option>
-            </select>
-            <button onclick="toggleTheme()" class="icon-btn" style="background:none; border:none; color:inherit; font-size:1.3rem; cursor:pointer;">
-                <i class="fa-solid fa-moon" id="theme-icon"></i>
-            </button>
-        </div>
-    </header>
-
-    <main>
-        <section class="hero">
-            <div class="ai-badge">GLOBAL AI SEARCH v2.5</div>
-            <h1 id="hero-title">تسوق بذكاء، ليس بعناء</h1>
-            <p id="hero-desc">المحرك الأول الذي يحلل نيتك الشرائية ويمنحك خيارات مدروسة بدقة الذكاء الاصطناعي.</p>
-            
-            <div class="search-container">
-                <input type="text" id="search-input" class="search-box" placeholder="مثلاً: لابتوب للمونتاج بسعر منافس...">
-                <button onclick="handleSearch()" style="position: absolute; left: 10px; top: 10px; bottom: 10px; background: var(--primary); color: white; border: none; padding: 0 25px; border-radius: 15px; cursor: pointer; font-weight: bold;">
-                    تحليل
-                </button>
-            </div>
-
-            <div class="categories">
-                <div class="cat-item" onclick="quickSearch('هواتف')">
-                    <div class="cat-icon"><i class="fa-solid fa-mobile-screen"></i></div>
-                    <span>هواتف</span>
-                </div>
-                <div class="cat-item" onclick="quickSearch('لابتوبات')">
-                    <div class="cat-icon"><i class="fa-solid fa-laptop"></i></div>
-                    <span>لابتوبات</span>
-                </div>
-                <div class="cat-item" onclick="quickSearch('سماعات')">
-                    <div class="cat-icon"><i class="fa-solid fa-headphones"></i></div>
-                    <span>سماعات</span>
-                </div>
-            </div>
-        </section>
-
-        <div id="loading-spinner" class="loading">
-            <div class="spinner"></div>
-            <p style="margin-top: 15px; font-weight: 600;" id="loading-text">جاري فحص قاعدة البيانات العالمية...</p>
-        </div>
-
-        <div id="ai-advisor-msg" style="display:none; margin: 2rem 5%; padding: 1.5rem; background: var(--primary); color: white; border-radius: 20px; box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2);">
-            <i class="fa-solid fa-robot"></i> <span id="advisor-text"></span>
-        </div>
-
-        <div id="results-grid" class="products-grid"></div>
-    </main>
-
-    <footer class="locked-features">
-        <button class="feature-btn"><i class="fa-solid fa-lock"></i> مقارنة الأسعار</button>
-        <button class="feature-btn"><i class="fa-solid fa-lock"></i> دعوة صديق</button>
-        <button class="feature-btn"><i class="fa-solid fa-lock"></i> بروفايل ذكي</button>
-    </footer>
-
-    <script>
-        const productsDB = [
-            { id: 1, name: "iPhone 15 Pro", price: 999, tags: ["camera", "قوي", "تصوير"], score: 98, img: "📱" },
-            { id: 2, name: "Samsung S24 Ultra", price: 1100, tags: ["screen", "شاشة", "قلم"], score: 97, img: "📱" },
-            { id: 3, name: "MacBook Air M3", price: 1299, tags: ["work", "مونتاج", "خفيف"], score: 95, img: "💻" },
-            { id: 4, name: "Sony XM5", price: 350, tags: ["noise", "صوت", "سفر"], score: 96, img: "🎧" },
-            { id: 5, name: "Poco F6", price: 400, tags: ["gaming", "ألعاب", "رخيص"], score: 88, img: "🚀" }
-        ];
-
+        // 1. وظيفة تبديل الوضع الليلي
         function toggleTheme() {
             document.body.classList.toggle('dark-mode');
             const icon = document.getElementById('theme-icon');
-            icon.classList.toggle('fa-sun');
-            icon.classList.toggle('fa-moon');
+            if (document.body.classList.contains('dark-mode')) {
+                icon.classList.replace('fa-moon', 'fa-sun');
+            } else {
+                icon.classList.replace('fa-sun', 'fa-moon');
+            }
         }
 
+        // 2. تفعيل رسالة "قريباً" للأزرار المقفولة
+        document.querySelectorAll('.feature-btn').forEach(btn => {
+            btn.onclick = () => alert("هذه الميزة ستتوفر قريباً في التحديث القادم لـ Findly!");
+        });
+
+        // 3. وظيفة البحث السريع
         function quickSearch(term) {
             document.getElementById('search-input').value = term;
             handleSearch();
         }
 
-        function handleSearch() {
+        // 4. وظيفة البحث والاتصال بالسيرفر
+        async function handleSearch() {
             const query = document.getElementById('search-input').value.trim();
             if (!query) return;
 
+            // تجهيز الواجهة
             document.getElementById('results-grid').innerHTML = '';
             document.getElementById('ai-advisor-msg').style.display = 'none';
             document.getElementById('loading-spinner').style.display = 'block';
 
-            setTimeout(() => {
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: query })
+                });
+
+                const data = await response.json();
                 document.getElementById('loading-spinner').style.display = 'none';
-                renderResults(query);
-            }, 1500);
+
+                if (data.results && data.results.length > 0) {
+                    renderFinalResults(data.results, data.advisorMessage);
+                } else {
+                    alert("لم أجد نتائج حالياً، حاول مرة أخرى بكلمات مختلفة.");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                document.getElementById('loading-spinner').style.display = 'none';
+                alert("السيرفر يستغرق وقتاً للتشغيل (Render Sleep). انتظر 30 ثانية وحاول مجدداً.");
+            }
         }
 
-        function renderResults(query) {
-            const q = query.toLowerCase();
-            const filtered = productsDB.filter(p => 
-                p.name.toLowerCase().includes(q) || p.tags.some(t => q.includes(t))
-            );
-
-            const results = filtered.length > 0 ? filtered : productsDB.slice(0, 3);
-            
-            document.getElementById('advisor-text').textContent = filtered.length > 0 ? 
-                "إليك أفضل الخيارات التي وجدتها وتناسب معاييرك تماماً:" : 
-                "لم أجد طلباً دقيقاً، لكن هذه هي الترشيحات الأعلى تقييماً عالمياً حالياً:";
-            
-            document.getElementById('ai-advisor-msg').style.display = 'block';
+        // 5. عرض النتائج النهائية
+        function renderFinalResults(products, advisorMsg) {
+            const advisorBox = document.getElementById('ai-advisor-msg');
+            document.getElementById('advisor-text').textContent = advisorMsg;
+            advisorBox.style.display = 'block';
 
             const grid = document.getElementById('results-grid');
-            results.forEach((p, i) => {
+            products.forEach((p, i) => {
                 const card = document.createElement('div');
                 card.className = 'product-card';
                 card.innerHTML = `
-                    <div class="trust-score"><i class="fa-solid fa-shield-check"></i> ${p.score}% ثقة</div>
-                    <div class="rank-badge">${i === 0 ? 'خيارنا الأول' : 'مقترح ذكي'}</div>
-                    <div class="p-img">${p.img}</div>
+                    <div class="trust-score"><i class="fa-solid fa-shield-check"></i> ${p.score || 95}% ثقة</div>
+                    <div class="rank-badge">${i === 0 ? 'الأفضل لك' : 'ترشيح ذكي'}</div>
+                    <div class="p-img">
+                        <img src="${p.img}" style="max-width: 100%; max-height: 150px; object-fit: contain;">
+                    </div>
                     <div class="p-details">
-                        <h3>${p.name}</h3>
-                        <p style="color:var(--primary); font-size:1.4rem; font-weight:800; margin: 10px 0;">$${p.price}</p>
-                        <div style="font-size:0.8rem; opacity:0.7; margin-bottom:15px;">
-                            <i class="fa-solid fa-circle-check"></i> شحن سريع متوفر
-                        </div>
-                        <button class="btn-view">مشاهدة العرض</button>
+                        <h3 style="font-size: 1rem; line-height: 1.4; height: 2.8rem; overflow: hidden;">${p.name}</h3>
+                        <p style="color:var(--primary); font-size:1.4rem; font-weight:800; margin: 10px 0;">${p.price} ${p.currency || '$'}</p>
+                        <a href="${p.link}" target="_blank" style="text-decoration:none;">
+                            <button class="btn-view">مشاهدة العرض</button>
+                        </a>
                     </div>
                 `;
                 grid.appendChild(card);

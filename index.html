@@ -3,99 +3,243 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Findly AI | البحث الذكي المدمج</title>
+    <title>Findly AI | مساعد التسوق الذكي</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #6366f1; --dark-bg: #0f172a; --card-bg: rgba(30, 41, 59, 0.7); }
-        body { font-family: 'Cairo', sans-serif; background-color: var(--dark-bg); color: white; margin: 0; }
-        .hero-bg { background: radial-gradient(circle at top center, #4f46e5 0%, var(--dark-bg) 60%); position: absolute; top: 0; left: 0; width: 100%; height: 600px; z-index: -1; }
-        .search-wrapper { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 24px; padding: 8px; max-width: 650px; margin: 30px auto 0; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
-        .search-input { width: 100%; border: none; outline: none; padding: 12px 15px; color: white; background: transparent; font-size: 16px; text-align: right; }
-        .search-btn { background: var(--primary); color: white; border-radius: 18px; padding: 10px 30px; font-weight: 700; transition: 0.3s; }
-        .product-card { background: var(--card-bg); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; overflow: hidden; transition: 0.3s; position: relative; }
-        .spec-badge { background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.3); color: #a5b4fc; padding: 4px 10px; border-radius: 8px; font-size: 11px; margin: 2px; display: inline-block; }
-        .buy-btn { background: linear-gradient(90deg, #10b981, #059669); color: white; text-align: center; padding: 12px; border-radius: 12px; font-weight: bold; display: block; text-decoration: none; transition: 0.3s; }
-        .ai-reason { background: linear-gradient(90deg, #fbbf24, #d97706); color: black; font-size: 11px; padding: 4px 12px; border-radius: 0 0 12px 12px; position: absolute; top: 0; left: 20px; font-weight: 800; }
-        .animate-fade-in { animation: fadeIn 0.5s ease forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        :root { 
+            --primary: #6366f1; 
+            --primary-dark: #4338ca;
+            --accent: #fbbf24;
+            --dark-bg: #0f172a; 
+            --card-bg: rgba(255, 255, 255, 0.08);
+        }
+        
+        body { font-family: 'Cairo', sans-serif; transition: background-color 0.4s, color 0.4s; margin: 0; background-color: var(--dark-bg); color: white; overflow-x: hidden; }
+        body.light { background-color: #f8fafc; color: #1e293b; --card-bg: rgba(255, 255, 255, 0.8); }
+        body.light .product-card { background: white; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        
+        .hero-section {   
+            background: radial-gradient(circle at 50% -20%, #4f46e5 0%, var(--dark-bg) 70%);   
+            padding: 20px 20px 60px 20px; 
+            position: relative; 
+            z-index: 10;  
+        }  
+
+        .search-wrapper {
+            background: rgba(255, 255, 255, 0.95); 
+            border-radius: 24px; 
+            padding: 8px; 
+            max-width: 600px; 
+            margin: 20px auto 0; 
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2), 0 20px 40px rgba(0,0,0,0.3);  
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .search-wrapper:focus-within {
+            transform: scale(1.02);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.4), 0 25px 50px rgba(0,0,0,0.4);
+        }
+        
+        .search-input { width: 100%; border: none; outline: none; padding: 12px 15px; color: #1e293b; font-weight: 700; background: transparent; font-size: 16px; }  
+        .search-btn { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; border-radius: 18px; padding: 12px 25px; font-weight: 700; cursor: pointer; border: none; transition: 0.3s; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4); }  
+        .search-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(99, 102, 241, 0.5); }
+        
+        .mode-tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .mode-btn { padding: 8px 20px; border-radius: 50px; font-size: 14px; font-weight: bold; cursor: pointer; transition: 0.3s; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; }
+        .mode-btn.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 0 15px rgba(99, 102, 241, 0.4); }
+
+        .cat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-top: 30px; padding: 0 10px; max-width: 800px; margin-left: auto; margin-right: auto; }  
+        .cat-card { background: var(--card-bg); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 15px; text-align: center; font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; }  
+        .cat-card:hover { background: rgba(255, 255, 255, 0.15); transform: translateY(-3px); border-color: rgba(255,255,255,0.2); }  
+
+        .intent-tag { background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99, 102, 241, 0.4); color: #c7d2fe; padding: 4px 12px; border-radius: 20px; font-size: 11px; animation: popIn 0.3s ease; }
+
+        /* تعديلات كرت المنتج لجعل الصورة واضحة */
+        .product-card { 
+            background: var(--card-bg); 
+            border: 1px solid rgba(255,255,255,0.05); 
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            overflow: hidden;
+        }
+        .product-card:hover { border-color: var(--primary); transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        
+        .img-container {
+            background: #fff;
+            padding: 10px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 140px;
+            height: 140px;
+        }
+        .img-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .hidden { display: none !important; }
+        .mic-active { color: #ef4444 !important; animation: pulse 1.5s infinite; }  
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
     </style>
 </head>
-<body>
+<body class="dark">
 
-<div class="hero-bg"></div>
+<section id="app-view">  
+    <div class="hero-section">  
+        <header class="flex justify-between items-center max-w-6xl mx-auto mb-8 relative">  
+            <div class="flex items-center gap-2">
+                <div class="text-3xl font-black tracking-tighter flex items-center gap-1">
+                    <span class="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-cyan-400">Findly</span>
+                    <span class="text-yellow-400 text-4xl">.</span>
+                </div>
+            </div>  
 
-<section class="max-w-6xl mx-auto px-4 py-8">
-    <header class="flex justify-between items-center mb-12">
-        <div class="text-3xl font-black italic tracking-tighter">Findly<span class="text-indigo-500">.</span></div>
-    </header>
+            <div class="flex items-center gap-3">  
+                <button onclick="toggleTheme()" class="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-full transition backdrop-blur-md">🌓</button>  
+                <button onclick="toggleLangMenu()" class="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-full transition backdrop-blur-md">🌐</button>
+                <div id="lang-menu" class="lang-dropdown hidden absolute top-16 left-0 bg-white text-black p-2 rounded-xl shadow-xl z-50">
+                    <button onclick="changeLanguage('ar')" class="block w-full text-right p-2 hover:bg-gray-100">العربية</button>
+                    <button onclick="changeLanguage('en')" class="block w-full text-right p-2 hover:bg-gray-100">English</button>
+                </div>
+            </div>  
+        </header>
 
-    <div class="text-center mb-16">
-        <h1 class="text-4xl md:text-6xl font-black mb-6 leading-tight">ابحث بذكاء، <span class="text-indigo-400">اشترِ بضغطة واحدة.</span></h1>
-        <div class="search-wrapper flex items-center">
-            <input type="text" id="search-q" placeholder="ما الذي تبحث عنه اليوم؟" class="search-input">
-            <button onclick="runSmartSearch()" class="search-btn">تحليل ذكي</button>
-        </div>
-    </div>
+        <div class="text-center px-4 max-w-4xl mx-auto">  
+            <div class="inline-block mb-4 px-4 py-1.5 rounded-full border border-indigo-500/30 bg-indigo-500/10 text-indigo-300 text-xs font-bold backdrop-blur-sm">
+                ✨ مساعد التسوق الذكي المدعوم بـ AI
+            </div>
 
-    <div id="loading" class="hidden text-center text-indigo-400 font-bold mb-8 animate-pulse">🤖 يحلل الذكاء الاصطناعي طلبك الآن...</div>
-    <div id="results" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            <h1 id="main-title" class="text-4xl md:text-5xl font-black leading-tight mb-4 text-white">
+                خيارك المثالي،<br>
+                <span class="text-indigo-400">مدروس بذكاء.</span>
+            </h1>  
+            
+            <div class="mode-tabs">
+                <div id="tab-search" onclick="switchMode('search')" class="mode-btn active">🔍 بحث عن منتج</div>
+                <div id="tab-chat" onclick="switchMode('chat')" class="mode-btn">🤖 استشارة AI</div>
+            </div>
+
+            <div id="search-interface">
+                <div class="search-wrapper flex items-center">  
+                    <button id="mic-btn" onclick="startVoiceSearch()" class="p-3 text-gray-400 hover:text-indigo-500 transition">  
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-20a3 3 0 00-3 3v8a3 3 0 006 0V5a3 3 0 00-3-3z" /></svg>  
+                    </button>  
+                    <input type="text" id="search-q" placeholder="ماذا تريد أن تشتري اليوم؟" class="search-input text-right">  
+                    <button id="main-search-btn" onclick="runSmartSearch()" class="search-btn">بحث ذكي</button>  
+                </div>  
+                <div id="intent-display" class="intent-tags mt-4 flex justify-center gap-2"></div>
+            </div>
+        </div>  
+    </div>  
+
+    <div id="categories-area" class="cat-grid relative z-20">  
+        <div onclick="quickSearch('أفضل سماعات عازلة للضوضاء')" class="cat-card">🎧 سماعات</div>  
+        <div onclick="quickSearch('أحدث الهواتف الذكية')" class="cat-card">📱 هواتف</div>  
+        <div onclick="quickSearch('لابتوب قيمنق قوي')" class="cat-card">💻 لابتوب</div>  
+    </div>  
+
+    <main class="max-w-5xl mx-auto mt-12 px-6 pb-20">  
+        <div id="status-msg" class="text-center font-bold text-indigo-400 mb-8 h-6"></div>  
+        <div id="results" class="grid grid-cols-1 gap-6"></div>  
+    </main>
 </section>
 
 <script>
-    // رابط السيرفر الخاص بك (تأكد من تشغيل ملف server.js)
-    const API_BASE = "http://localhost:3000"; 
+    // رابط السيرفر الخاص بك
+    const API_BASE = "https://findly-api.onrender.com"; 
 
+    // وظيفة البحث الأساسية
     async function runSmartSearch() {
-        const query = document.getElementById('search-q').value;
+        const query = document.getElementById('search-q').value.trim();
         const resultsDiv = document.getElementById('results');
-        const loader = document.getElementById('loading');
+        const status = document.getElementById('status-msg');
         
-        if(!query) return alert("من فضلك اكتب شيئاً للبحث");
+        if(!query) return;
 
+        // إظهار نية البحث (Visual AI Effect)
+        simulateIntentExtraction(query);
+
+        status.innerHTML = `<span class="animate-pulse">🔍 جاري جلب البيانات من أمازون وعلي إكسبريس...</span>`;
         resultsDiv.innerHTML = '';
-        loader.classList.remove('hidden');
 
         try {
-            // الاتصال بالسيرفر المدمج بـ OpenAI
             const response = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`);
             const data = await response.json();
+            
+            if (!data.top || data.top.length === 0) {
+                status.innerText = "لم نجد نتائج مطابقة، حاول مجدداً.";
+                return;
+            }
 
-            loader.classList.add('hidden');
+            status.innerText = `تم العثور على أفضل ${data.top.length} خيارات لك ✅`;
 
-            if (data.top && data.top.length > 0) {
-                data.top.forEach((item, index) => {
-                    const specsHTML = item.specs.map(s => `<span class="spec-badge">${s}</span>`).join('');
-                    const card = `
-                        <div class="product-card p-5 flex flex-col justify-between h-full animate-fade-in" style="animation-delay: ${index * 100}ms">
-                            <div class="ai-reason">${item.reason || 'ترشيح ذكي'}</div>
-                            <div class="h-48 w-full bg-white rounded-xl flex items-center justify-center p-4 mb-4 mt-4">
-                                <img src="${item.image}" alt="${item.name}" class="max-h-full object-contain">
+            data.top.forEach((item) => {
+                // إنشاء الكرت مع البيانات الحقيقية وزر الشراء المباشر
+                const card = `
+                    <div class="product-card p-6 rounded-[28px] flex flex-col md:flex-row gap-6 items-center">
+                        <div class="img-container shadow-inner">
+                            <img src="${item.image}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/150?text=No+Image'">
+                        </div>
+
+                        <div class="flex-grow text-right w-full">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="bg-indigo-500/20 text-indigo-300 text-[10px] px-2 py-1 rounded-md font-bold uppercase tracking-wider">${item.source}</span>
+                                <span class="text-yellow-400 text-sm font-bold">⭐ ${item.rating || '4.5'}</span>
                             </div>
-                            <div>
-                                <h3 class="font-bold text-lg mb-2">${item.name}</h3>
-                                <div class="mb-3">${specsHTML}</div>
-                            </div>
-                            <div class="mt-4 pt-4 border-t border-white/10">
-                                <div class="flex justify-between items-center mb-3">
-                                    <span class="text-sm text-gray-400 font-bold">السعر</span>
-                                    <span class="text-xl font-black text-white">${item.price}</span>
+                            <h3 class="font-bold text-xl text-white mb-2 leading-tight">${item.name}</h3>
+                            <p class="text-gray-400 text-sm mb-4 line-clamp-2">بناءً على طلبك، هذا المنتج من ${item.source} هو الخيار الأمثل من حيث الجودة والسعر.</p>
+                            
+                            <div class="flex items-center justify-between border-t border-white/10 pt-4">
+                                <div>
+                                    <span class="block text-gray-500 text-xs">السعر الحالي</span>
+                                    <span class="text-2xl font-black text-white">${item.price}</span>
                                 </div>
-                                <a href="${item.link}" target="_blank" class="buy-btn">شراء المنتج المباشر 🛒</a>
+                                
+                                <a href="${item.link}" target="_blank" rel="noopener noreferrer" 
+                                   class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white px-8 py-3 rounded-2xl font-bold shadow-lg transition-all transform active:scale-95">
+                                   شراء الآن 🛒
+                                </a>
                             </div>
                         </div>
-                    `;
-                    resultsDiv.insertAdjacentHTML('beforeend', card);
-                });
-            } else {
-                resultsDiv.innerHTML = '<p class="text-center w-full">عذراً، لم نجد نتائج تطابق بحثك.</p>';
-            }
-        } catch (error) {
-            loader.classList.add('hidden');
-            console.error("خطأ في الاتصال بالسيرفر:", error);
-            alert("تأكد من تشغيل السيرفر (node server.js)");
+                    </div>
+                `;
+                resultsDiv.insertAdjacentHTML('beforeend', card);
+            });
+
+        } catch (e) {
+            status.innerText = "خطأ في الاتصال بالسيرفر ❌";
+            console.error(e);
         }
     }
+
+    // استخراج "الكلمات المفتاحية" شكلياً لزيادة جمالية الـ AI
+    function simulateIntentExtraction(query) {
+        const container = document.getElementById('intent-display');
+        container.innerHTML = '';
+        const tags = ['تحليل المواصفات', 'مقارنة الأسعار', 'فحص التقييمات'];
+        tags.forEach(tag => {
+            container.innerHTML += `<span class="intent-tag">${tag}</span>`;
+        });
+    }
+
+    // وظائف مساعدة
+    function quickSearch(val) {
+        document.getElementById('search-q').value = val;
+        runSmartSearch();
+    }
+
+    function toggleTheme() { document.body.classList.toggle('light'); }
+    function toggleLangMenu() { document.getElementById('lang-menu').classList.toggle('hidden'); }
+    
+    function switchMode(mode) {
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('tab-' + mode).classList.add('active');
+    }
 </script>
+
 </body>
 </html>

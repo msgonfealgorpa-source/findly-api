@@ -230,9 +230,10 @@ if (meaning.wantsBest && item.rating && item.rating > 4.5) score += 7;
 if (meaning.wantsGaming && desc.includes("gaming")) score += 7;
 if (meaning.wantsCamera && desc.includes("camera")) score += 7;
 if (meaning.wantsBattery && desc.includes("battery")) score += 7;
-function quickSearch(v) {
-    document.getElementById('search-q').value = v;
-    runSmartSearch();
+
+        function quickSearch(v) {
+  document.getElementById('search-q').value = v;
+  runSmartSearch();
 }
 
 async function runSmartSearch() { 

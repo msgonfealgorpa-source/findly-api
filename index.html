@@ -3,99 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Findly AI | نتائج دقيقة وشراء مباشر</title>
+    <title>Findly AI | البحث الذكي المدمج</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { 
-            --primary: #6366f1; 
-            --primary-dark: #4338ca;
-            --dark-bg: #0f172a; 
-            --card-bg: rgba(30, 41, 59, 0.7);
-        }
-        
-        body { font-family: 'Cairo', sans-serif; margin: 0; background-color: var(--dark-bg); color: white; overflow-x: hidden; }
-        body.light { background-color: #f8fafc; color: #1e293b; --card-bg: rgba(255, 255, 255, 0.9); }
-        
-        /* تأثيرات الخلفية */
-        .hero-bg {
-            background: radial-gradient(circle at top center, #4f46e5 0%, var(--dark-bg) 60%);
-            position: absolute; top: 0; left: 0; width: 100%; height: 600px; z-index: -1;
-        }
-
-        /* حاوية البحث */
-        .search-wrapper {
-            background: rgba(255, 255, 255, 0.1); 
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 24px; 
-            padding: 8px; 
-            max-width: 650px; 
-            margin: 30px auto 0; 
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);  
-            transition: 0.3s;
-        }
-        .search-wrapper:focus-within { background: rgba(255, 255, 255, 0.2); transform: scale(1.01); }
-        
-        .search-input { width: 100%; border: none; outline: none; padding: 12px 15px; color: white; font-weight: 700; background: transparent; font-size: 16px; }  
-        body.light .search-input { color: #1e293b; }
-        
-        .search-btn { background: var(--primary); color: white; border-radius: 18px; padding: 10px 30px; font-weight: 700; transition: 0.3s; }  
-        .search-btn:hover { background: var(--primary-dark); box-shadow: 0 0 15px var(--primary); }
-
-        /* كارت المنتج الجديد */
-        .product-card { 
-            background: var(--card-bg); 
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.1); 
-            border-radius: 24px;
-            overflow: hidden;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-        }
-        .product-card:hover { 
-            transform: translateY(-5px); 
-            box-shadow: 0 20px 40px -5px rgba(0,0,0,0.3);
-            border-color: var(--primary);
-        }
-        
-        /* قسم المواصفات */
-        .specs-list {
-            display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0;
-        }
-        .spec-badge {
-            background: rgba(99, 102, 241, 0.1);
-            border: 1px solid rgba(99, 102, 241, 0.3);
-            color: #a5b4fc;
-            padding: 4px 10px;
-            border-radius: 8px;
-            font-size: 11px;
-            font-weight: 600;
-        }
-        body.light .spec-badge { color: #4338ca; background: #e0e7ff; }
-
-        /* زر الشراء */
-        .buy-btn {
-            background: linear-gradient(90deg, #10b981, #059669);
-            color: white;
-            text-align: center;
-            padding: 10px;
-            border-radius: 12px;
-            font-weight: bold;
-            display: block;
-            width: 100%;
-            transition: 0.3s;
-            text-decoration: none;
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-        }
-        .buy-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
-        }
-
-        .ai-reason { background: linear-gradient(90deg, #fbbf24, #d97706); color: black; font-size: 11px; padding: 4px 12px; border-radius: 0 0 12px 12px; position: absolute; top: 0; left: 20px; font-weight: 800; z-index: 10; }
-        
-        .animate-fade-in { animation: fadeIn 0.5s ease forwards; opacity: 0; }
+        :root { --primary: #6366f1; --dark-bg: #0f172a; --card-bg: rgba(30, 41, 59, 0.7); }
+        body { font-family: 'Cairo', sans-serif; background-color: var(--dark-bg); color: white; margin: 0; }
+        .hero-bg { background: radial-gradient(circle at top center, #4f46e5 0%, var(--dark-bg) 60%); position: absolute; top: 0; left: 0; width: 100%; height: 600px; z-index: -1; }
+        .search-wrapper { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 24px; padding: 8px; max-width: 650px; margin: 30px auto 0; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
+        .search-input { width: 100%; border: none; outline: none; padding: 12px 15px; color: white; background: transparent; font-size: 16px; text-align: right; }
+        .search-btn { background: var(--primary); color: white; border-radius: 18px; padding: 10px 30px; font-weight: 700; transition: 0.3s; }
+        .product-card { background: var(--card-bg); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; overflow: hidden; transition: 0.3s; position: relative; }
+        .spec-badge { background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.3); color: #a5b4fc; padding: 4px 10px; border-radius: 8px; font-size: 11px; margin: 2px; display: inline-block; }
+        .buy-btn { background: linear-gradient(90deg, #10b981, #059669); color: white; text-align: center; padding: 12px; border-radius: 12px; font-weight: bold; display: block; text-decoration: none; transition: 0.3s; }
+        .ai-reason { background: linear-gradient(90deg, #fbbf24, #d97706); color: black; font-size: 11px; padding: 4px 12px; border-radius: 0 0 12px 12px; position: absolute; top: 0; left: 20px; font-weight: 800; }
+        .animate-fade-in { animation: fadeIn 0.5s ease forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
@@ -104,159 +26,76 @@
 <div class="hero-bg"></div>
 
 <section class="max-w-6xl mx-auto px-4 py-8">
-    
     <header class="flex justify-between items-center mb-12">
         <div class="text-3xl font-black italic tracking-tighter">Findly<span class="text-indigo-500">.</span></div>
-        <button onclick="document.body.classList.toggle('light')" class="w-10 h-10 bg-white/10 rounded-full">🌓</button>
     </header>
 
     <div class="text-center mb-16">
-        <h1 class="text-4xl md:text-6xl font-black mb-6 leading-tight">
-            لا تبحث فقط، <br> <span class="text-indigo-400">اعثر على الأفضل.</span>
-        </h1>
-        
+        <h1 class="text-4xl md:text-6xl font-black mb-6 leading-tight">ابحث بذكاء، <span class="text-indigo-400">اشترِ بضغطة واحدة.</span></h1>
         <div class="search-wrapper flex items-center">
-            <input type="text" id="search-q" placeholder="جرب البحث عن: iPhone 15 Pro, Samsung S24, Sony Headphones..." class="search-input text-right">
-            <button onclick="runSmartSearch()" class="search-btn">بحث</button>
-        </div>
-        
-        <div class="flex justify-center gap-3 mt-6 opacity-70 text-xs">
-            <span>🔥 رائج: iPhone 15</span>
-            <span>🎧 سماعات Sony</span>
-            <span>⌚ ساعات Apple</span>
+            <input type="text" id="search-q" placeholder="ما الذي تبحث عنه اليوم؟" class="search-input">
+            <button onclick="runSmartSearch()" class="search-btn">تحليل ذكي</button>
         </div>
     </div>
 
-    <div id="loading" class="hidden text-center text-indigo-400 font-bold mb-8">جاري تحليل المتاجر والأسعار... ⏳</div>
-    
-    <div id="results" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        </div>
-
+    <div id="loading" class="hidden text-center text-indigo-400 font-bold mb-8 animate-pulse">🤖 يحلل الذكاء الاصطناعي طلبك الآن...</div>
+    <div id="results" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
 </section>
 
 <script>
-    // --- محاكاة قاعدة بيانات (Backend Simulation) ---
-    // ملاحظة: في التطبيق النهائي، هذه البيانات ستأتي من الـ API الخاص بك وليس من هنا
-    const mockDB = {
-        iphone: [
-            {
-                name: "Apple iPhone 15 Pro Max (256 GB)",
-                image: "https://m.media-amazon.com/images/I/81Os1SDWpcL._AC_SX679_.jpg",
-                price: "4,999 ر.س",
-                rating: 4.8,
-                reviews: "1.2k",
-                link: "https://www.amazon.sa/dp/B0CHX1K25C", // رابط شراء حقيقي
-                specs: ["شريحة A17 Pro", "تيتانيوم", "كاميرا 48MP", "بطارية تدوم يوم كامل"],
-                reason: "🏆 الأفضل للأداء العالي"
-            },
-            {
-                name: "Apple iPhone 14 (128 GB) - أزرق",
-                image: "https://m.media-amazon.com/images/I/61bK6PMOC3L._AC_SX679_.jpg",
-                price: "2,899 ر.س",
-                rating: 4.6,
-                reviews: "3k+",
-                link: "https://www.amazon.sa/dp/B0BDJ6zm52",
-                specs: ["شريحة A15", "شاشة OLED", "تصوير سينمائي", "ضد الماء IP68"],
-                reason: "💰 أفضل قيمة مقابل السعر"
-            }
-        ],
-        samsung: [
-            {
-                name: "Samsung Galaxy S24 Ultra",
-                image: "https://m.media-amazon.com/images/I/71OptuHPXNL._AC_SX679_.jpg",
-                price: "4,200 ر.س",
-                rating: 4.7,
-                reviews: "800",
-                link: "https://www.amazon.sa/dp/B0CS15D9K9",
-                specs: ["AI Live Translate", "قلم S Pen", "تكبير 100x", "شاشة مسطحة"],
-                reason: "🤖 الأفضل لميزات الذكاء الاصطناعي"
-            }
-        ],
-        sony: [
-            {
-                name: "Sony WH-1000XM5 سماعات",
-                image: "https://m.media-amazon.com/images/I/61vJtKBassL._AC_SX679_.jpg",
-                price: "1,299 ر.س",
-                rating: 4.9,
-                reviews: "5k+",
-                link: "https://www.amazon.sa/dp/B09XS7JWHH",
-                specs: ["عزل ضوضاء رائد", "بطارية 30 ساعة", "مكالمات فائقة الوضوح"],
-                reason: "🎧 أفضل عزل ضوضاء في العالم"
-            }
-        ]
-    };
+    // رابط السيرفر الخاص بك (تأكد من تشغيل ملف server.js)
+    const API_BASE = "http://localhost:3000"; 
 
-    function runSmartSearch() {
-        const query = document.getElementById('search-q').value.toLowerCase();
+    async function runSmartSearch() {
+        const query = document.getElementById('search-q').value;
         const resultsDiv = document.getElementById('results');
         const loader = document.getElementById('loading');
         
+        if(!query) return alert("من فضلك اكتب شيئاً للبحث");
+
         resultsDiv.innerHTML = '';
         loader.classList.remove('hidden');
 
-        // محاكاة تأخير الشبكة (Loading)
-        setTimeout(() => {
+        try {
+            // الاتصال بالسيرفر المدمج بـ OpenAI
+            const response = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`);
+            const data = await response.json();
+
             loader.classList.add('hidden');
-            
-            // بحث بسيط في البيانات الوهمية
-            let results = [];
-            if(query.includes('iphone') || query.includes('أيفون')) results = mockDB.iphone;
-            else if(query.includes('samsung') || query.includes('سامسونج')) results = mockDB.samsung;
-            else if(query.includes('sony') || query.includes('سماعة')) results = mockDB.sony;
-            else {
-                // نتائج افتراضية إذا لم يتم العثور على شيء
-                results = [...mockDB.iphone, ...mockDB.samsung]; 
+
+            if (data.top && data.top.length > 0) {
+                data.top.forEach((item, index) => {
+                    const specsHTML = item.specs.map(s => `<span class="spec-badge">${s}</span>`).join('');
+                    const card = `
+                        <div class="product-card p-5 flex flex-col justify-between h-full animate-fade-in" style="animation-delay: ${index * 100}ms">
+                            <div class="ai-reason">${item.reason || 'ترشيح ذكي'}</div>
+                            <div class="h-48 w-full bg-white rounded-xl flex items-center justify-center p-4 mb-4 mt-4">
+                                <img src="${item.image}" alt="${item.name}" class="max-h-full object-contain">
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg mb-2">${item.name}</h3>
+                                <div class="mb-3">${specsHTML}</div>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-white/10">
+                                <div class="flex justify-between items-center mb-3">
+                                    <span class="text-sm text-gray-400 font-bold">السعر</span>
+                                    <span class="text-xl font-black text-white">${item.price}</span>
+                                </div>
+                                <a href="${item.link}" target="_blank" class="buy-btn">شراء المنتج المباشر 🛒</a>
+                            </div>
+                        </div>
+                    `;
+                    resultsDiv.insertAdjacentHTML('beforeend', card);
+                });
+            } else {
+                resultsDiv.innerHTML = '<p class="text-center w-full">عذراً، لم نجد نتائج تطابق بحثك.</p>';
             }
-
-            results.forEach((item, index) => {
-                // بناء كود HTML للمواصفات
-                const specsHTML = item.specs.map(s => `<span class="spec-badge">${s}</span>`).join('');
-
-                const card = `
-                    <div class="product-card p-5 flex flex-col justify-between h-full animate-fade-in" style="animation-delay: ${index * 100}ms">
-                        ${item.reason ? `<div class="ai-reason">${item.reason}</div>` : ''}
-                        
-                        <div class="h-48 w-full bg-white rounded-xl flex items-center justify-center p-4 mb-4 mt-4">
-                            <img src="${item.image}" alt="${item.name}" class="max-h-full object-contain hover:scale-110 transition duration-500">
-                        </div>
-
-                        <div>
-                            <h3 class="font-bold text-lg mb-2 leading-snug">${item.name}</h3>
-                            
-                            <div class="flex items-center gap-2 mb-3">
-                                <span class="text-yellow-400 font-bold">★ ${item.rating}</span>
-                                <span class="text-xs text-gray-400">(${item.reviews} تقييم)</span>
-                            </div>
-
-                            <div class="specs-list">
-                                ${specsHTML}
-                            </div>
-                        </div>
-
-                        <div class="mt-4 pt-4 border-t border-white/10">
-                            <div class="flex justify-between items-center mb-3">
-                                <span class="text-xs text-gray-400">أفضل سعر وجدناه</span>
-                                <span class="text-xl font-black text-white">${item.price}</span>
-                            </div>
-                            
-                            <a href="${item.link}" target="_blank" rel="noopener noreferrer" class="buy-btn">
-                                شراء الآن من أمازون 🛒
-                            </a>
-                        </div>
-                    </div>
-                `;
-                resultsDiv.insertAdjacentHTML('beforeend', card);
-            });
-
-        }, 1200); // تأخير 1.2 ثانية
+        } catch (error) {
+            loader.classList.add('hidden');
+            console.error("خطأ في الاتصال بالسيرفر:", error);
+            alert("تأكد من تشغيل السيرفر (node server.js)");
+        }
     }
-
-    // تشغيل بحث افتراضي عند التحميل
-    window.onload = () => {
-        document.getElementById('search-q').value = "Iphone 15";
-        runSmartSearch();
-    };
 </script>
-
 </body>
 </html>

@@ -177,6 +177,35 @@ function quickSearch(v) {
 }
 
 async function runSmartSearch() { 
+    if (!canSearchToday()) {
+    showLimitMsg();
+    return;
+    }
+    function canSearchToday() {
+    const today = new Date().toISOString().slice(0, 10);
+    const savedDate = localStorage.getItem("findly_date");
+    let searches = parseInt(localStorage.getItem("findly_searches") || "0");
+
+    if (savedDate !== today) {
+        localStorage.setItem("findly_date", today);
+        localStorage.setItem("findly_searches", "0");
+        return true;
+    }
+
+    return searches < 3;
+}
+
+function increaseSearchCount() {
+    let searches = parseInt(localStorage.getItem("findly_searches") || "0");
+    localStorage.setItem("findly_searches", searches + 1);
+}
+
+function showLimitMsg() {
+    const toast = document.getElementById("toast-msg");
+    toast.innerText = "🚀 لقد استهلكت 3 عمليات بحث اليوم — أنشئ حسابك لفتح البحث غير المحدود";
+    toast.classList.remove("hidden");
+    setTimeout(() => toast.classList.add("hidden"), 3500);
+}
     const query = document.getElementById('search-q').value.trim();
     const resultsDiv = document.getElementById('results');
     const status = document.getElementById('status-msg');
@@ -226,6 +255,7 @@ async function runSmartSearch() {
                        class="bg-indigo-500 hover:bg-indigo-600 px-4 py-2 rounded-full text-xs font-bold">
                        عرض المنتج
                     </a>` : ''}
+                    increaseSearchCount();
                 </div>
 
                 <div class="ai-recommendation-box mt-3">

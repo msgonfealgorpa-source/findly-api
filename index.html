@@ -105,91 +105,40 @@
 
     function quickSearch(v) { document.getElementById('search-q').value = v; runSmartSearch(); }
 
-    function startVoiceSearch() {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRecognition) return alert("المتصفح لا يدعم الصوت");
-        const rec = new SpeechRecognition();
-        rec.lang = currentLang === 'ar' ? 'ar-SA' : 'en-US';
-        rec.onstart = () => document.getElementById('mic-btn').classList.add('mic-active');
-        rec.onend = () => document.getElementById('mic-btn').classList.remove('mic-active');
-        rec.onresult = (e) => {
-            document.getElementById('search-q').value = e.results[0][0].transcript;
-            runSmartSearch();
-        };
-        rec.start();
+   async function runSmartSearch() {
+    const query = document.getElementById('search-q').value.trim();
+    const resultsDiv = document.getElementById('results');
+    const status = document.getElementById('status-msg');
+    if(!query) return;
+
+    status.innerText = "⏳ جاري تحليل الخيارات...";
+    resultsDiv.innerHTML = '';
+
+    try {
+        const response = await fetch(API_BASE);
+        const data = await response.json();
+
+        if (!Array.isArray(data) || data.length === 0) {
+            status.innerText = "❌ لم نجد نتائج";
+            return;
+        }
+
+        data.slice(0,5).forEach((item, index) => {
+
+            const card = `
+            ... الكرت ...
+            `;
+
+            resultsDiv.insertAdjacentHTML('beforeend', card);
+        });
+
+    } catch (e) {
+        console.error(e);
+        status.innerText = "❌ حدث خطأ أثناء جلب النتائج";
     }
+} 
 
-    async function runSmartSearch() {
-        const query = document.getElementById('search-q').value.trim();
-        const resultsDiv = document.getElementById('results');
-        const status = document.getElementById('status-msg');
-        if(!query) return;
 
-        status.innerText = "⏳ جاري تحليل الخيارات...";
-        resultsDiv.innerHTML = '';
-
-        try {
-            const response = await fetch(API_BASE);
-            const data = await response.json();
-            if (!Array.isArray(data) || data.length === 0) { 
-    status.innerText = "❌ لم نجد نتائج"; 
-    return; 
-}
-
-data.slice(0,5).forEach((item, index) => {
-
-    const card = `
-<div class="bg-white/5 p-5 rounded-[35px] border border-white/5 flex flex-col md:flex-row gap-4 items-center shadow-xl mb-6 text-right">
-
-    <div class="relative w-32 h-32 flex-shrink-0">
-        <img src="${item.image || item.imageUrl || 'https://via.placeholder.com/150?text=Product'}"
-             class="w-full h-full object-contain bg-white rounded-3xl p-2">
-        <span class="absolute -top-2 -right-2 bg-indigo-600 text-[10px] px-2 py-1 rounded-full text-white font-bold">
-            ${item.source || item.store || 'Store'}
-        </span>
-    </div>
-
-    <div class="flex-grow w-full">
-        <h3 class="font-bold text-sm leading-tight text-white mb-2">
-            ${item.title || item.name || 'Unnamed Product'}
-        </h3>
-
-        <div class="text-yellow-400 text-xs font-bold mb-2">
-            ⭐ ${item.rating || '4.5'}
-        </div>
-
-        <div class="ai-recommendation-box">
-            💡 <strong>${currentLang === 'ar' ? 'تحليل الذكاء:' : 'AI Analysis:'}</strong><br>
-            هذا المنتج تم اختياره لأنه الأفضل من حيث السعر مقابل الأداء، التقييم العالي، وانتشاره في السوق.
-        </div>
-    </div>
-
-    <div class="text-center min-w-[120px] w-full md:w-auto">
-        <div class="text-indigo-400 font-black mb-3 text-xl">
-            ${item.price || '—'}
-        </div>
-
-        <a href="${item.link || item.url || '#'}"
-           target="_blank"
-           rel="noopener noreferrer"
-           class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-2xl text-xs font-black block transition transform hover:scale-105 shadow-lg">
-            ${currentLang === 'ar' ? 'شراء الآن' : 'Buy Now'} 🛒
-        </a>
-    </div>
-
-</div>
-`;
-
-    resultsDiv.insertAdjacentHTML('beforeend', card);
-
-});
-    function toggleTheme() { document.body.classList.toggle('light'); }
-    function showLockedMsg() {
-        const t = document.getElementById('toast-msg');
-        t.innerText = "قريباً - Coming Soon";
-        t.classList.remove('hidden');
-        setTimeout(() => t.classList.add('hidden'), 3000);
-   }
 </script>
 </body>
 </html>

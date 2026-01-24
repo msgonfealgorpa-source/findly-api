@@ -172,30 +172,7 @@
    }
     
 </body>
-function smartRank(items, query = "") {
-  const q = query.toLowerCase();
 
-  return items
-    .map(item => {
-      let score = 0;
-
-      const title = (item.name || "").toLowerCase();
-      const desc = (item.description || "").toLowerCase();
-
-      if (title.includes(q)) score += 50;
-      if (desc.includes(q)) score += 30;
-
-      const price = parseFloat(item.price) || 0;
-      if (price > 0 && price < 100) score += 20;
-      if (price > 0 && price < 50) score += 30;
-
-      const rating = parseFloat(item.rating) || 0;
-      score += rating * 10;
-
-      return { ...item, score };
-    })
-    .sort((a, b) => b.score - a.score);
-}
 
 const searchInput = document.getElementById('searchInput');
 const searchBtn = document.getElementById('searchBtn');

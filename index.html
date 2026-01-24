@@ -172,20 +172,6 @@
    }
     
 </body>
-
-    const query = searchInput.value.trim();
-    if (!query) return;
-
-    loader.classList.remove('hidden');
-    resultsDiv.innerHTML = '';
-
-    try {
-        const res = await fetch(API_BASE);
-        const data = await res.json();
-
-        // الذكاء هنا 🔥
-        const smartResults = smartRank(data, query);
-
         smartResults.slice(0, 6).forEach((item, index) => {
             const card = document.createElement('div');
             card.className = "bg-white p-4 rounded-xl shadow";

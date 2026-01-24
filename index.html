@@ -20,6 +20,8 @@
             --glass: rgba(255, 255, 255, 0.8);
             --border: rgba(255, 255, 255, 0.3);
             --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --bg-color: var(--light-bg);
+            --text-color: var(--text-dark);
         }
 
         .dark-mode {
@@ -32,7 +34,7 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
 
-        body { background-color: var(--bg-color, var(--light-bg)); color: var(--text-color, var(--text-dark)); min-height: 100vh; overflow-x: hidden; }
+        body { background-color: var(--bg-color); color: var(--text-color); min-height: 100vh; overflow-x: hidden; }
 
         header {
             display: flex; justify-content: space-between; align-items: center;
@@ -40,7 +42,7 @@
             backdrop-filter: blur(12px); background: var(--glass); border-bottom: 1px solid var(--border);
         }
 
-        .logo { font-size: 1.8rem; font-weight: 900; color: var(--primary); display: flex; align-items: center; gap: 12px; }
+        .logo { font-size: 1.8rem; font-weight: 900; color: var(--primary); display: flex; align-items: center; gap: 12px; cursor: pointer; }
         .logo span { font-size: 0.9rem; color: var(--text-color); font-weight: 400; opacity: 0.7; }
 
         .hero { text-align: center; padding: 5rem 1rem 2rem; max-width: 900px; margin: 0 auto; }
@@ -51,7 +53,8 @@
             box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
         }
 
-        h1 { font-size: 3rem; margin-bottom: 1rem; line-height: 1.2; letter-spacing: -1px; }
+        h1 { font-size: 3rem; margin-bottom: 1rem; line-height: 1.2; letter-spacing: -1px; font-weight: 900; }
+        .hero p { font-size: 1.1rem; opacity: 0.8; max-width: 600px; margin: 0 auto; }
 
         .search-container { position: relative; max-width: 650px; margin: 2.5rem auto; }
         .search-box {
@@ -61,36 +64,139 @@
         }
         .search-box:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1); }
 
-        .categories { display: flex; justify-content: center; gap: 1.5rem; margin-top: 2rem; flex-wrap: wrap; }
-        .cat-item { cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 8px; opacity: 0.8; }
-        .cat-item:hover { transform: translateY(-5px); opacity: 1; }
-        .cat-icon { width: 55px; height: 55px; background: var(--card-bg); border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: var(--primary); box-shadow: var(--shadow); }
+        .btn-search {
+            position: absolute; left: 10px; top: 10px; bottom: 10px;
+            background: var(--primary); color: white; border: none;
+            padding: 0 25px; border-radius: 15px; cursor: pointer;
+            font-weight: bold; display: flex; align-items: center; gap: 8px;
+        }
+
+        .categories { display: flex; justify-content: center; gap: 2rem; margin-top: 3rem; flex-wrap: wrap; }
+        .cat-item { cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .cat-item:hover .cat-icon { transform: translateY(-8px); background: var(--primary); color: white; }
+        .cat-icon { 
+            width: 65px; height: 65px; background: var(--card-bg); 
+            border-radius: 20px; display: flex; align-items: center; 
+            justify-content: center; font-size: 1.6rem; color: var(--primary); 
+            box-shadow: var(--shadow); transition: 0.4s;
+        }
+        .cat-item span { font-size: 0.9rem; font-weight: 600; }
 
         .products-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2.5rem; padding: 3rem 5%; }
         .product-card {
             background: var(--card-bg); border-radius: 24px; overflow: hidden;
             box-shadow: var(--shadow); position: relative; border: 1px solid var(--border);
+            display: flex; flex-direction: column;
         }
-        .product-card:hover { transform: scale(1.03); border-color: var(--primary); }
+        .product-card:hover { transform: translateY(-10px); border-color: var(--primary); }
 
-        .trust-score { position: absolute; top: 15px; left: 15px; background: var(--accent); color: white; padding: 5px 12px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; }
-        .rank-badge { position: absolute; top: 15px; right: 15px; background: var(--primary); color: white; padding: 5px 12px; border-radius: 12px; font-size: 0.8rem; }
+        .trust-score { position: absolute; top: 15px; left: 15px; background: var(--accent); color: white; padding: 5px 12px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; z-index: 10; }
+        .rank-badge { position: absolute; top: 15px; right: 15px; background: var(--primary); color: white; padding: 5px 12px; border-radius: 12px; font-size: 0.8rem; z-index: 10; }
 
-        .p-img { height: 200px; background: linear-gradient(45deg, #e2e8f0, #f8fafc); display: flex; align-items: center; justify-content: center; font-size: 4.5rem; }
-        .p-details { padding: 1.8rem; }
+        .p-img { height: 220px; background: white; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .p-img img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .p-details { padding: 1.8rem; flex-grow: 1; }
         
-        .btn-view { width: 100%; padding: 12px; border-radius: 12px; border: none; background: var(--primary); color: white; font-weight: 700; cursor: pointer; margin-top: 1rem; }
+        .btn-view { width: 100%; padding: 14px; border-radius: 14px; border: none; background: var(--primary); color: white; font-weight: 700; cursor: pointer; margin-top: 1rem; font-size: 1rem; }
 
         footer.locked-features {
-            display: flex; justify-content: center; gap: 1rem; padding: 3rem;
-            background: var(--glass); border-top: 1px solid var(--border); margin-top: 4rem;
-        }.
+            display: flex; justify-content: center; gap: 1.5rem; padding: 4rem 1rem;
+            background: var(--glass); border-top: 1px solid var(--border); margin-top: 4rem; flex-wrap: wrap;
+        }
+        .feature-btn { 
+            padding: 12px 24px; border-radius: 30px; border: 1px solid var(--border); 
+            background: var(--card-bg); color: var(--text-color); opacity: 0.6; 
+            cursor: pointer; display: flex; align-items: center; gap: 10px; font-weight: 600;
+        }
+        .feature-btn:hover { opacity: 1; border-color: var(--primary); }
 
-        <script>
-        // رابط السيرفر الخاص بك على Render
+        .loading { display: none; text-align: center; margin: 4rem 0; }
+        .spinner { width: 60px; height: 60px; border: 6px solid rgba(79, 70, 229, 0.1); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s infinite linear; margin: auto; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .ai-message { 
+            display: none; margin: 2rem 5%; padding: 2rem; 
+            background: linear-gradient(135deg, var(--primary), #6366f1); 
+            color: white; border-radius: 25px; box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2);
+            font-weight: 600; line-height: 1.6;
+        }
+    </style>
+</head>
+<body class="dark-mode">
+
+    <header>
+        <div class="logo" onclick="location.reload()">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> 
+            <div>Findly <span id="tagline"> – مستشارك الذكي</span></div>
+        </div>
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <select id="lang-switch" style="padding: 8px; border-radius: 10px; background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border); cursor: pointer;">
+                <option value="ar">العربية</option>
+                <option value="en">English</option>
+            </select>
+            <button onclick="toggleTheme()" style="background:var(--card-bg); border:1px solid var(--border); color:var(--text-color); width: 45px; height: 45px; border-radius: 12px; cursor:pointer; font-size:1.2rem;">
+                <i class="fa-solid fa-moon" id="theme-icon"></i>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="ai-badge">GLOBAL AI SEARCH v2.5</div>
+            <h1 id="hero-title">تسوق بذكاء، ليس بعناء</h1>
+            <p id="hero-desc">المحرك الأول الذي يحلل نيتك الشرائية ويمنحك خيارات مدروسة بدقة الذكاء الاصطناعي من أفضل المتاجر العالمية.</p>
+            
+            <div class="search-container">
+                <input type="text" id="search-input" class="search-box" placeholder="ماذا تريد أن تشتري اليوم؟ (مثلاً: أفضل هاتف للألعاب ميزانية 400$)">
+                <button onclick="handleSearch()" class="btn-search">
+                    <i class="fa-solid fa-magnifying-glass"></i> تحليل
+                </button>
+            </div>
+
+            <div class="categories">
+                <div class="cat-item" onclick="quickSearch('هواتف ذكية')">
+                    <div class="cat-icon"><i class="fa-solid fa-mobile-screen-button"></i></div>
+                    <span>هواتف</span>
+                </div>
+                <div class="cat-item" onclick="quickSearch('لابتوب للمونتاج')">
+                    <div class="cat-icon"><i class="fa-solid fa-laptop"></i></div>
+                    <span>لابتوبات</span>
+                </div>
+                <div class="cat-item" onclick="quickSearch('سماعات عازلة للضوضاء')">
+                    <div class="cat-icon"><i class="fa-solid fa-headphones"></i></div>
+                    <span>سماعات</span>
+                </div>
+                <div class="cat-item" onclick="quickSearch('ساعة ذكية رياضية')">
+                    <div class="cat-icon"><i class="fa-solid fa-stopwatch-20"></i></div>
+                    <span>ساعات</span>
+                </div>
+            </div>
+        </section>
+
+        <div id="loading-spinner" class="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 20px; font-weight: 700; font-size: 1.2rem;">جاري تحليل نيتك وتفتيش قاعدة البيانات العالمية...</p>
+        </div>
+
+        <div id="ai-advisor-msg" class="ai-message">
+            <div style="display:flex; gap: 15px; align-items: center;">
+                <i class="fa-solid fa-robot" style="font-size: 2rem;"></i>
+                <span id="advisor-text"></span>
+            </div>
+        </div>
+
+        <div id="results-grid" class="products-grid"></div>
+    </main>
+
+    <footer class="locked-features">
+        <button class="feature-btn"><i class="fa-solid fa-lock"></i> مقارنة الأسعار</button>
+        <button class="feature-btn"><i class="fa-solid fa-lock"></i> كود خصم ذكي</button>
+        <button class="feature-btn"><i class="fa-solid fa-lock"></i> بروفايل المتسوق</button>
+    </footer>
+
+    <script>
         const API_URL = "https://findly-api.onrender.com/api/search";
 
-        // 1. وظيفة تبديل الوضع الليلي
         function toggleTheme() {
             document.body.classList.toggle('dark-mode');
             const icon = document.getElementById('theme-icon');
@@ -101,23 +207,20 @@
             }
         }
 
-        // 2. تفعيل رسالة "قريباً" للأزرار المقفولة
         document.querySelectorAll('.feature-btn').forEach(btn => {
-            btn.onclick = () => alert("هذه الميزة ستتوفر قريباً في التحديث القادم لـ Findly!");
+            btn.onclick = () => alert("هذه الميزة الرائعة ستتوفر قريباً في التحديث القادم لـ Findly!");
         });
 
-        // 3. وظيفة البحث السريع
         function quickSearch(term) {
             document.getElementById('search-input').value = term;
             handleSearch();
         }
 
-        // 4. وظيفة البحث والاتصال بالسيرفر
         async function handleSearch() {
-            const query = document.getElementById('search-input').value.trim();
+            const queryInput = document.getElementById('search-input');
+            const query = queryInput.value.trim();
             if (!query) return;
 
-            // تجهيز الواجهة
             document.getElementById('results-grid').innerHTML = '';
             document.getElementById('ai-advisor-msg').style.display = 'none';
             document.getElementById('loading-spinner').style.display = 'block';
@@ -135,16 +238,15 @@
                 if (data.results && data.results.length > 0) {
                     renderFinalResults(data.results, data.advisorMessage);
                 } else {
-                    alert("لم أجد نتائج حالياً، حاول مرة أخرى بكلمات مختلفة.");
+                    alert("لم أجد نتائج حالياً، السيرفر قد يحتاج لحظات للاستيقاظ. حاول مرة أخرى.");
                 }
             } catch (error) {
                 console.error("Error:", error);
                 document.getElementById('loading-spinner').style.display = 'none';
-                alert("السيرفر يستغرق وقتاً للتشغيل (Render Sleep). انتظر 30 ثانية وحاول مجدداً.");
+                alert("السيرفر في وضع النوم (Render Free Plan). يرجى المحاولة مرة أخرى خلال 30 ثانية.");
             }
         }
 
-        // 5. عرض النتائج النهائية
         function renderFinalResults(products, advisorMsg) {
             const advisorBox = document.getElementById('ai-advisor-msg');
             document.getElementById('advisor-text').textContent = advisorMsg;
@@ -156,20 +258,25 @@
                 card.className = 'product-card';
                 card.innerHTML = `
                     <div class="trust-score"><i class="fa-solid fa-shield-check"></i> ${p.score || 95}% ثقة</div>
-                    <div class="rank-badge">${i === 0 ? 'الأفضل لك' : 'ترشيح ذكي'}</div>
+                    <div class="rank-badge">${i === 0 ? 'خيارنا الأول' : 'ترشيح ذكي'}</div>
                     <div class="p-img">
-                        <img src="${p.img}" style="max-width: 100%; max-height: 150px; object-fit: contain;">
+                        <img src="${p.img}" alt="${p.name}">
                     </div>
                     <div class="p-details">
-                        <h3 style="font-size: 1rem; line-height: 1.4; height: 2.8rem; overflow: hidden;">${p.name}</h3>
-                        <p style="color:var(--primary); font-size:1.4rem; font-weight:800; margin: 10px 0;">${p.price} ${p.currency || '$'}</p>
+                        <h3 style="font-size: 1.1rem; line-height: 1.5; height: 3.3rem; overflow: hidden; margin-bottom: 10px;">${p.name}</h3>
+                        <p style="color:var(--primary); font-size:1.6rem; font-weight:900; margin-bottom: 15px;">${p.price} ${p.currency || '$'}</p>
+                        <div style="font-size:0.85rem; opacity:0.7; margin-bottom:15px; display:flex; align-items:center; gap:5px;">
+                            <i class="fa-solid fa-circle-check" style="color:var(--accent)"></i> متوفر الآن - شحن سريع
+                        </div>
                         <a href="${p.link}" target="_blank" style="text-decoration:none;">
-                            <button class="btn-view">مشاهدة العرض</button>
+                            <button class="btn-view">مشاهدة العرض الآن</button>
                         </a>
                     </div>
                 `;
                 grid.appendChild(card);
             });
+            // تمرير تلقائي للنتائج
+            window.scrollTo({ top: advisorBox.offsetTop - 100, behavior: 'smooth' });
         }
     </script>
 </body>

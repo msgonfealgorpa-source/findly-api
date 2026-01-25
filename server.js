@@ -28,11 +28,28 @@ app.all(['/search', '/api/search'], async (req, res) => {
         const ALIEXPRESS_TASK_ID = 'hDVdezzZja9dcf9dY'; // المعرف الذي ظهر في صورك سابقاً
 
         // تشغيل المهمتين في وقت واحد للسرعة
-        const [amazonRun, aliRun] = await Promise.all([
-            client.task(AMAZON_TASK_ID).call({ "queries": [query], "maxResultsPerQuery": 5 }),
-            client.task(ALIEXPRESS_TASK_ID).call({ "query": [query], "maxItems": 5 })
-        ]);
+        
+// 1. تعريف المعرفات
+        const AMAZON_TASK_ID = 'PDwMikqRqTrY4tAcW'; 
+        const ALIEXPRESS_ID = 'hDVdezzZja9dcf9dY'; // المعرف الذي تملكه لعلي إكسبريس
 
+        // 2. تشغيل مهمة أمازون (نحن متأكدون أنها Task)
+        const amazonRun = await client.task(AMAZON_TASK_ID).call({ 
+            "queries": [query], 
+            "maxResultsPerQuery": 5 
+        });
+
+        // 3. تشغيل علي إكسبريس (محاولة ذكية: Task أو Actor)
+        let aliRun;
+        try {
+            // نحاول أولاً كـ Task
+            console.log("尝试 AliEx as Task...");
+            aliRun = await client.task(ALIEXPRESS_ID).call({ "query": [query], "maxItems": 5 });
+        } catch (e) {
+            // إذا فشل، نجرب كـ Actor
+            console.log("فشل كـ Task، جاري التجربة كـ Actor...");
+            aliRun = await client.actor(ALIEXPRESS_ID).call({ "query": [query], "maxItems": 5 });
+        }
         // جلب البيانات من كلاهما
         const [amazonItems, aliItems] = await Promise.all([
             client.dataset(amazonRun.defaultDatasetId).listItems(),

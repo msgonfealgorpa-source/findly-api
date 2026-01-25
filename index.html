@@ -221,29 +221,38 @@
             const query = queryInput.value.trim();
             if (!query) return;
 
+            // تجهيز الواجهة
             document.getElementById('results-grid').innerHTML = '';
             document.getElementById('ai-advisor-msg').style.display = 'none';
             document.getElementById('loading-spinner').style.display = 'block';
 
             try {
+                // إضافة Timeout للتأكد من إعطاء السيرفر وقت للاستيقاظ
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 60000); // إعطاؤه دقيقة كاملة
+
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query: query })
+                    body: JSON.stringify({ query: query }),
+                    signal: controller.signal
                 });
 
+                clearTimeout(timeoutId);
                 const data = await response.json();
                 document.getElementById('loading-spinner').style.display = 'none';
 
                 if (data.results && data.results.length > 0) {
                     renderFinalResults(data.results, data.advisorMessage);
                 } else {
-                    alert("لم أجد نتائج حالياً، السيرفر قد يحتاج لحظات للاستيقاظ. حاول مرة أخرى.");
+                    // إذا لم توجد نتائج، نعرض رسالة ذكية بدلاً من alert
+                    document.getElementById('results-grid').innerHTML = 
+                        `<p style="text-align:center; padding:20px;">لم أجد نتائج مطابقة تماماً، جرب البحث عن كلمات أبسط مثل "iPhone" أو "سماعات".</p>`;
                 }
             } catch (error) {
                 console.error("Error:", error);
                 document.getElementById('loading-spinner').style.display = 'none';
-                alert("السيرفر في وضع النوم (Render Free Plan). يرجى المحاولة مرة أخرى خلال 30 ثانية.");
+                alert("السيرفر استيقظ الآن! يرجى الضغط على زر 'تحليل' مرة أخرى لرؤية النتائج.");
             }
         }
 

@@ -1,80 +1,62 @@
 import express from "express";
 import cors from "cors";
-import { ApifyClient } from 'apify-client';
+import fetch from "node-fetch";
 import dotenv from "dotenv";
 
 dotenv.config();
+
 const app = express();
 const PORT = process.env.PORT || 10000;
 
+// حل مشكلة الاتصال (CORS) بشكل نهائي
 app.use(cors());
 app.use(express.json());
 
-const client = new ApifyClient({
-    token: process.env.APIFY_API_TOKEN,
-});
+app.get("/", (req, res) => res.send("Findly API is Running 🚀"));
 
-// معرفات المهام (التي ظهرت في صورك)
-const AMAZON_TASK_ID = 'PDwMikqRqTrY4tAcW'; 
-const ALI_ID = 'hDVdezzZja9dcf9dY'; 
+app.get("/search", async (req, res) => {
+    const searchQuery = req.query.q;
+    const API_TOKEN = process.env.APIFY_API_TOKEN;
+    const ACTOR_ID = process.env.APIFY_ACTOR_ID;
 
-app.get("/", (req, res) => res.send("Findly Multi-Search is Ready! 🚀"));
-
-app.all(['/search', '/api/search'], async (req, res) => {
-    const query = req.query.q || req.body.query;
-    if (!query) return res.status(400).json({ error: "اكتب كلمة بحث" });
+    if (!searchQuery) return res.status(400).json({ error: "اكتب كلمة بحث" });
 
     try {
-        console.log(`🔎 جاري البحث المزدوج عن: ${query}...`);
-
-        // 1. تشغيل أمازون (كـ Task)
-        const amazonRun = client.task(AMAZON_TASK_ID).call({
-            "queries": [query],
-            "maxResultsPerQuery": 5
+        const runRes = await fetch(`https://api.apify.com/v2/acts/${ACTOR_ID}/runs?token=${API_TOKEN}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+                "query": searchQuery, 
+                "maxItems": "10", 
+                "page": "1" 
+            })
         });
 
-        // 2. تشغيل علي إكسبريس (محاولة ذكية: Task ثم Actor)
-        const runAliEx = async () => {
-            try {
-                return await client.task(ALI_ID).call({ "query": [query], "maxItems": 5 });
-            } catch (e) {
-                return await client.actor(ALI_ID).call({ "query": [query], "maxItems": 5 });
-            }
-        };
+        const runData = await runRes.json();
+        if (!runRes.ok) throw new Error(runData.error?.message || "فشل تشغيل البوت");
 
-        // تشغيل الاثنين معاً لتوفير الوقت
-        const [amzResult, aliResult] = await Promise.all([amazonRun, runAliEx()]);
+        const runId = runData.data.id;
+        
+        // الانتظار 15 ثانية لجلب البيانات
+        await new Promise(resolve => setTimeout(resolve, 15000)); 
 
-        // جلب البيانات
-        const [amzItems, aliItems] = await Promise.all([
-            client.dataset(amzResult.defaultDatasetId).listItems(),
-            client.dataset(aliResult.defaultDatasetId).listItems()
-        ]);
+        const dataRes = await fetch(`https://api.apify.com/v2/actor-runs/${runId}/dataset/items?token=${API_TOKEN}`);
+        const resultsData = await dataRes.json();
 
-        // تنسيق النتائج
-        const finalResults = [
-            ...amzItems.items.map(i => ({
-                name: i.title || "Amazon Product",
-                price: i.price?.value || i.price || "N/A",
-                img: i.thumbnail || i.imageUrl || "https://via.placeholder.com/150",
-                link: i.url || "#",
-                source: "Amazon"
-            })),
-            ...aliItems.items.map(i => ({
-                name: i.title || "AliExpress Product",
-                price: i.price || "N/A",
-                img: i.imageUrl || i.image || "https://via.placeholder.com/150",
-                link: i.url || "#",
-                source: "AliExpress"
-            }))
-        ];
+        const finalResults = Array.isArray(resultsData) ? resultsData.map(item => ({
+            name: item.title || "منتج علي إكسبريس",
+            price: item.price || "غير محدد",
+            currency: "USD",
+            image: item.imageUrl || item.image || "https://via.placeholder.com/150",
+            link: item.url || item.productUrl || "#",
+            rating: item.rating || "4.8"
+        })) : [];
 
-        res.json({ success: true, results: finalResults, top: finalResults });
+        res.json({ success: true, top: finalResults });
 
     } catch (error) {
-        console.error('Search Error:', error.message);
         res.status(500).json({ success: false, error: error.message });
     }
 });
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));

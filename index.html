@@ -195,53 +195,48 @@
     </footer>
 
     <script>
-        const API_URL = "https://findly-api.onrender.com/api/search";
+        const API_URL = "https://findly-api.onrender.com/search"; // تأكد من المسار الصحيح
 
-        function toggleTheme() {
-            document.body.classList.toggle('dark-mode');
-            const icon = document.getElementById('theme-icon');
-            if (document.body.classList.contains('dark-mode')) {
-                icon.classList.replace('fa-moon', 'fa-sun');
-            } else {
-                icon.classList.replace('fa-sun', 'fa-moon');
-            }
-        }
+function toggleTheme() {
+    document.body.classList.toggle('dark-mode');
+    const icon = document.getElementById('theme-icon');
+    if (document.body.classList.contains('dark-mode')) {
+        icon.classList.replace('fa-moon', 'fa-sun');
+    } else {
+        icon.classList.replace('fa-sun', 'fa-moon');
+    }
+}
 
-        document.querySelectorAll('.feature-btn').forEach(btn => {
-            btn.onclick = () => alert("هذه الميزة الرائعة ستتوفر قريباً في التحديث القادم لـ Findly!");
-        });
+document.querySelectorAll('.feature-btn').forEach(btn => {
+    btn.onclick = () => alert("هذه الميزة الرائعة ستتوفر قريباً في التحديث القادم لـ Findly!");
+});
 
-        function quickSearch(term) {
-            document.getElementById('search-input').value = term;
-            handleSearch();
-        }
+function quickSearch(term) {
+    document.getElementById('search-input').value = term;
+    handleSearch();
+}
 
-        // 1. قاعدة البيانات المؤقتة (ستمتلئ عند البحث)
 let currentProducts = [];
 
-// 2. المحرك الرئيسي للبحث
 async function handleSearch() {
     const query = document.getElementById('search-input').value.trim();
     if (!query) return;
 
-    // تجهيز الواجهة
     document.getElementById('loading-spinner').style.display = 'block';
     document.getElementById('results-grid').innerHTML = '';
     document.getElementById('ai-advisor-msg').style.display = 'none';
 
     try {
-        // طلب البيانات من السيرفر (Render)
-        // ملاحظة: الرابط سيبقى كما هو حتى لو غيرنا المصدر في السيرفر
-        const response = await fetch(`https://findly-api.onrender.com/search?q=${encodeURIComponent(query)}`);
+        const response = await fetch(`${API_URL}?q=${encodeURIComponent(query)}`);
         const data = await response.json();
 
-        if (data.success && data.top.length > 0) {
+        if (data.success && data.top && data.top.length > 0) {
             currentProducts = data.top;
             
-            // أولاً: عرض المنتجات فوراً للمستخدم
+            // 1. عرض النتائج فوراً
             renderResults(currentProducts);
             
-            // ثانياً: تشغيل "العقل" لتحليل هذه المنتجات
+            // 2. تشغيل المستشار الذكي
             await runSmartAdvisor(query, currentProducts);
         } else {
             alert("لم نجد نتائج حالياً، جرب كلمة بحث أخرى.");
@@ -254,7 +249,6 @@ async function handleSearch() {
     }
 }
 
-// 3. العقل الجديد (OpenAI Advisor)
 async function runSmartAdvisor(query, products) {
     const advisorBox = document.getElementById('ai-advisor-msg');
     const advisorText = document.getElementById('advisor-text');
@@ -262,9 +256,9 @@ async function runSmartAdvisor(query, products) {
     advisorBox.style.display = 'block';
     advisorText.innerHTML = '<i class="fas fa-robot fa-spin"></i> جاري تحليل الخيارات الأفضل لك...';
 
-    // تأمين المفتاح جزئياً
+    // مفتاح OpenAI الخاص بك
     const keyPart1 = "sk-proj-"; 
-    const keyPart2 = "YOUR_OPENAI_KEY_HERE"; // ضع مفتاحك هنا
+    const keyPart2 = "YOUR_OPENAI_KEY_HERE"; 
 
     try {
         const response = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -276,14 +270,8 @@ async function runSmartAdvisor(query, products) {
             body: JSON.stringify({
                 model: "gpt-4o-mini",
                 messages: [
-                    {
-                        role: "system",
-                        content: "أنت خبير مشتريات ذكي. حلل قائمة المنتجات وأعطِ نصيحة قصيرة جداً (30 كلمة كحد أقصى) عن أفضل منتج من حيث السعر مقابل الجودة."
-                    },
-                    {
-                        role: "user",
-                        content: `البحث: ${query}. المنتجات: ${JSON.stringify(products.slice(0, 5).map(p => ({n: p.name, p: p.price, s: p.source})))}`
-                    }
+                    { role: "system", content: "أنت خبير مشتريات ذكي. حلل قائمة المنتجات وأعطِ نصيحة قصيرة جداً باللغة العربية عن أفضل منتج." },
+                    { role: "user", content: `البحث: ${query}. المنتجات: ${JSON.stringify(products.slice(0, 3).map(p => ({n: p.name, p: p.price, s: p.source})))}` }
                 ],
                 temperature: 0.3
             })
@@ -291,59 +279,34 @@ async function runSmartAdvisor(query, products) {
 
         const aiData = await response.json();
         advisorText.textContent = aiData.choices[0].message.content;
+        
+        // تمرير سلس للمستشار
+        window.scrollTo({ top: advisorBox.offsetTop - 100, behavior: 'smooth' });
 
     } catch (err) {
         advisorText.textContent = "استعن بخبرتك في الاختيار، الذكاء الاصطناعي يأخذ استراحة قصيرة!";
     }
 }
 
-// 4. وظيفة عرض البطاقات (UI Rendering)
 function renderResults(products) {
     const grid = document.getElementById('results-grid');
     grid.innerHTML = products.map((p, index) => `
-        <div class="product-card" style="animation-delay: ${index * 0.1}s">
-            <div class="source-badge ${p.source.toLowerCase()}">${p.source}</div>
-            <div class="p-img-container">
+        <div class="product-card">
+            <div class="trust-score"><i class="fa-solid fa-shield-check"></i> 95% ثقة</div>
+            <div class="rank-badge">${p.source || 'ترشيح ذكي'}</div>
+            <div class="p-img">
                 <img src="${p.image || p.img}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/150'">
             </div>
-            <div class="p-info">
-                <h3 class="p-title">${p.name.substring(0, 50)}...</h3>
-                <div class="p-price-row">
-                    <span class="p-price">${p.price} ${p.currency || '$'}</span>
-                    <a href="${p.link}" target="_blank" class="buy-btn">تسوق الآن</a>
-                </div>
+            <div class="p-details">
+                <h3 style="font-size: 1rem; height: 3rem; overflow: hidden;">${p.name}</h3>
+                <p style="color:var(--primary); font-size:1.4rem; font-weight:900; margin: 10px 0;">${p.price} ${p.currency || '$'}</p>
+                <a href="${p.link}" target="_blank" style="text-decoration:none;">
+                    <button class="btn-view">مشاهدة العرض الآن</button>
+                </a>
             </div>
         </div>
     `).join('');
 }
-        function renderFinalResults(products, advisorMsg) {
-            const advisorBox = document.getElementById('ai-advisor-msg');
-            document.getElementById('advisor-text').textContent = advisorMsg;
-            advisorBox.style.display = 'block';
-
-            const grid = document.getElementById('results-grid');
-            products.forEach((p, i) => {
-                const card = document.createElement('div');
-                card.className = 'product-card';
-                card.innerHTML = `
-                    <div class="trust-score"><i class="fa-solid fa-shield-check"></i> ${p.score || 95}% ثقة</div>
-                    <div class="rank-badge">${i === 0 ? 'خيارنا الأول' : 'ترشيح ذكي'}</div>
-                    <div class="p-img">
-                        <img src="${p.img}" alt="${p.name}">
-                    </div>
-                    <div class="p-details">
-                        <h3 style="font-size: 1.1rem; line-height: 1.5; height: 3.3rem; overflow: hidden; margin-bottom: 10px;">${p.name}</h3>
-                        <p style="color:var(--primary); font-size:1.6rem; font-weight:900; margin-bottom: 15px;">${p.price} ${p.currency || '$'}</p>
-                        <div style="font-size:0.85rem; opacity:0.7; margin-bottom:15px; display:flex; align-items:center; gap:5px;">
-                            <i class="fa-solid fa-circle-check" style="color:var(--accent)"></i> متوفر الآن - شحن سريع
-                        </div>
-                        <a href="${p.link}" target="_blank" style="text-decoration:none;">
-                            <button class="btn-view">مشاهدة العرض الآن</button>
-                        </a>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
             // تمرير تلقائي للنتائج
             window.scrollTo({ top: advisorBox.offsetTop - 100, behavior: 'smooth' });
         }

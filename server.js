@@ -21,36 +21,34 @@ app.post('/get-ai-advice', async (req, res) => {
             messages: [
                 {
                     role: "system",
-                    content: `أنت خبير تسوق. حلل طلب المستخدم واستخرج النية، الأولويات، والميزانية.
-                    يجب أن يكون الرد بتنسيق JSON حصراً بهذا الهيكل تماماً:
+                    content: `أنت خبير تسوق محترف. حلل طلب المستخدم بعمق وقدم رداً بصيغة JSON.
+                    يجب عليك ملء كافة الحقول التالية بتفاصيل دقيقة ومقنعة:
+                    1. "analysis": اشرح نية المستخدم (intent)، الأولويات التي تهمة (priorities)، تقدير ميزانيته (budget_status)، وحالته (use_case). وفي حقل (why) اكتب نصيحة خبير شاملة.
+                    2. "products": قدم قائمة بـ 3 منتجات حقيقية وموجودة في السوق حالياً.
+                    لكل منتج، املأ (name) بالاسم الكامل، و(recommendation_reason) بشرح مفصل لماذا اخترته له، و(features) بذكر أهم المواصفات التقنية.
+                    
+                    الهيكل الإلزامي للرد:
                     {
-                      "analysis": { 
-                        "intent": "النية هنا", 
-                        "priorities": "الأولويات هنا", 
-                        "budget_status": "الميزانية هنا",
-                        "use_case": "الحالة هنا",
-                        "why": "شرح عام للنصيحة"
-                      },
+                      "analysis": { "intent": "...", "priorities": "...", "budget_status": "...", "use_case": "...", "why": "..." },
                       "products": [
-                        {
-                          "name": "اسم المنتج",
-                          "recommendation_reason": "سبب الترشيح",
-                          "features": "المميزات"
-                        }
+                        { "name": "...", "recommendation_reason": "...", "features": "..." },
+                        { "name": "...", "recommendation_reason": "...", "features": "..." },
+                        { "name": "...", "recommendation_reason": "...", "features": "..." }
                       ]
                     }`
                 },
-                { role: "user", content: `الطلب: ${query}` }
+                { role: "user", content: `المستخدم يسأل عن: ${query}` }
             ],
             response_format: { type: "json_object" }
         }, {
             headers: { "Authorization": `Bearer ${apiKey}` }
         });
 
-        const aiResponse = JSON.parse(response.data.choices[0].message.content);
-        res.json(aiResponse);
+        const aiData = JSON.parse(response.data.choices[0].message.content);
+        res.json(aiData);
+
     } catch (error) {
-        console.error("Error with AI:", error);
-        res.status(500).json({ error: "خطأ في تحليل البيانات" });
+        console.error("Server Error:", error);
+        res.status(500).json({ error: "تعذر تحليل البيانات حالياً" });
     }
 });

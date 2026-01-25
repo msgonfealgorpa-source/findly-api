@@ -249,9 +249,11 @@
                     }
                 }
             } catch (error) {
-                advisorText.innerHTML = "تعذر الاتصال بالعقل التحليلي حالياً، ولكن يمكنك التحقق من النتائج في أمازون.";
-                console.error("Error:", error);
-            }
+    // هذا التعديل سيخبرك في الواجهة ما هي المشكلة بالضبط
+    advisorText.innerHTML = `⚠️ حدث خطأ: ${error.message}. تأكد من أن السيرفر مستيقظ وحاول مرة أخرى.`;
+    console.error("Full Error Info:", error);
+        }
+            
         }
 
         function toggleTheme() {

@@ -66,3 +66,13 @@ app.get('/search', async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// إضافة مسار اختبار للتأكد من عمل السيرفر
+app.get('/', (req, res) => {
+    res.send("Findly API is running perfectly! 🚀");
+});
+
+// تشغيل السيرفر على المنفذ المحدد
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server is successfully running on port ${PORT}`);
+});

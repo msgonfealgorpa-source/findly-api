@@ -574,37 +574,39 @@ async function handleSearch() {
     const query = document.getElementById('search-input').value.trim();
     if (!query) return;
 
-    // إظهار اللودينج (الذي ظهر في صورتك)
+    const API_URL = "https://findly-api.onrender.com"; // ضع رابطك هنا بدون / في النهاية
+
     document.getElementById('loading-spinner').style.display = 'block';
     document.getElementById('results-grid').innerHTML = '';
     document.getElementById('ai-advisor-msg').style.display = 'none';
 
     try {
-        // الخطوة 1: جلب النتائج الخام
+        // 1. جلب البيانات الخام من محرك البحث
         const res = await fetch(`${API_URL}/search?q=${encodeURIComponent(query)}`);
         const searchData = await res.json();
         
-        if (searchData.success && searchData.top) {
-            // الخطوة 2: إرسالها للعقل التحليلي (تأكد من أن المسار هو /get-ai-advice)
-            const aiRes = await fetch(`${API_URL}/get-ai-advice`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ 
-                    query: query, 
-                    products: searchData.top, 
-                    lang: currentLang 
-                })
-            });
-            const finalData = await aiRes.json();
-            
-            // الخطوة 3: عرض التحليل والنتائج
-            renderResults(finalData);
-        } else {
-            alert("لم يتم العثور على منتجات أولية.");
-        }
+        // تأكد أن السيرفر يرسل البيانات في مصفوفة اسمها top
+        const productsToAnalyze = searchData.top || searchData.products || [];
+
+        // 2. إرسال البيانات للتحليل الذكي
+        const aiRes = await fetch(`${API_URL}/get-ai-advice`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+                query: query, 
+                products: productsToAnalyze, 
+                lang: currentLang 
+            })
+        });
+        
+        const finalData = await aiRes.json();
+        
+        // 3. عرض النتائج (استدعاء الدالة المحدثة)
+        renderResults(finalData);
+
     } catch (err) {
-        console.error("خطأ في الاتصال بالسيرفر:", err);
-        alert("حدث خطأ أثناء تحليل طلبك. تأكد من عمل السيرفر.");
+        console.error("Error:", err);
+        alert("فشل الاتصال بالعقل الذكي. تأكد من أن السيرفر يعمل.");
     } finally {
         document.getElementById('loading-spinner').style.display = 'none';
     }

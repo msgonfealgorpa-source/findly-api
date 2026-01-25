@@ -547,94 +547,56 @@
         
 // 1. دالة البحث المحدثة التي تطلب التحليل من السيرفر
 async function handleSearch() {
-    const query = document.getElementById('search-input').value.trim();
+    const query = document.getElementById('search-input').value;
     if (!query) return;
 
-    // إظهار واجهة التحميل
-    document.getElementById('loading-spinner').style.display = 'block';
-    document.getElementById('results-grid').innerHTML = '';
-    document.getElementById('ai-advisor-msg').style.display = 'none';
+    showLoading(true);
 
-    try {
-        // 1. جلب المنتجات الخام من مسار البحث
-        const res = await fetch(`${API_URL}/search?q=${encodeURIComponent(query)}`);
-        const searchData = await res.json();
-        
-        // التأكد من وجود بيانات لإرسالها للذكاء الاصطناعي
-        if (searchData.success && (searchData.top || searchData.products)) {
-            const rawProducts = searchData.top || searchData.products;
+    // 1. توليد رابط أمازون المباشر
+    const amazonLink = `https://www.amazon.sa/s?k=${encodeURIComponent(query)}`;
 
-            // 2. إرسال البيانات للمسار الجديد الذي برمجناه /get-ai-advice
-            const aiRes = await fetch(`${API_URL}/get-ai-advice`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ 
-                    query: query, 
-                    products: rawProducts, 
-                    lang: currentLang 
-                })
-            });
-            
-            const finalData = await aiRes.json();
-            
-            // 3. تمرير البيانات النهائية لدالة العرض
-            renderResults(finalData);
-        } else {
-            alert("عذراً، لم نجد نتائج أولية للبحث.");
-        }
-    } catch (err) {
-        console.error("خطأ في الاتصال:", err);
-        alert("حدث خطأ في الوصول للمستشار الذكي.");
-    } finally {
-        document.getElementById('loading-spinner').style.display = 'none';
-    }
-} 
-        function renderResults(data) {
+    // 2. عرض رابط أمازون فوراً لضمان عدم ضياع المستخدم
     const grid = document.getElementById('results-grid');
-    const advisorMsg = document.getElementById('ai-advisor-msg');
-    const advisorText = document.getElementById('advisor-text');
-
-    // 1. ميزة التحليل الذكي (تأكد من وجود هذا الجزء)
-    if (data.analysis) {
-        advisorMsg.style.display = 'block';
-        advisorText.innerHTML = `
-            <div class="analysis-container" style="padding: 10px;">
-                <h4 style="color: #FFD700; margin-bottom: 8px;"><i class="fa-solid fa-wand-magic-sparkles"></i> تحليل Findly الذكي:</h4>
-                <div style="font-size: 0.9rem; line-height: 1.6;">
-                    <strong>أنت تحتاج:</strong> ${data.analysis.intent} <br>
-                    <strong>السبب:</strong> ${data.analysis.why}
-                </div>
+    grid.innerHTML = `
+        <div class="product-card" style="border: 2px solid #FF9900; grid-column: 1/-1;">
+            <div class="p-details" style="text-align: center;">
+                <h3 style="color: #FF9900;">🛒 جاهز للتسوق الحقيقي؟</h3>
+                <p>لقد وجدنا نتائج بحث مباشرة لك في أمازون</p>
+                <button class="btn-action" onclick="window.open('${amazonLink}', '_blank')" style="background: #FF9900; margin-top:10px;">
+                    فتح في أمازون السعودية 🚀
+                </button>
             </div>
-        `;
-    }
+        </div>
+    `;
 
-    // 2. ميزة عرض المنتجات مع المميزات (Pros) والترتيب (Rank)
-    if (data.recommendations) {
-        grid.innerHTML = data.recommendations.map((p, i) => `
-            <div class="product-card" style="border: ${i === 0 ? '2px solid var(--primary)' : '1px solid rgba(255,255,255,0.1)'}">
-                <div class="rank-badge">${p.rank}</div>
-                <div class="p-img">
-                    <img src="${p.image}" style="max-width:80%; max-height:100%; object-fit:contain;" onerror="this.src='https://via.placeholder.com/150'">
+    // 3. طلب النصيحة الذكية من OpenAI (عقل التطبيق)
+    try {
+        const response = await fetch(`${API_URL}/get-ai-advice`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query: query, lang: currentLang })
+        });
+
+        const aiData = await response.json();
+        
+        // عرض نصيحة الذكاء الاصطناعي فوق الرابط
+        if (aiData.analysis) {
+            const advisorMsg = document.getElementById('ai-advisor-msg');
+            const advisorText = document.getElementById('advisor-text');
+            advisorMsg.style.display = 'block';
+            advisorText.innerHTML = `
+                <div style="padding: 15px; background: rgba(79, 70, 229, 0.1); border-radius: 12px;">
+                    <h4 style="color: #4F46E5;"><i class="fa-solid fa-lightbulb"></i> نصيحة الخبير:</h4>
+                    <p><strong>بناءً على بحثك:</strong> ${aiData.analysis.why}</p>
                 </div>
-                <div class="p-details">
-                    <div class="p-title">${p.name}</div>
-                    <div class="p-price" style="color: #22C55E; font-weight: bold; font-size: 1.2rem;">${p.price}</div>
-                    
-                    <div class="p-reason" style="background: rgba(79, 70, 229, 0.05); padding: 10px; border-radius: 8px;">
-                        <strong>لماذا هذا الخيار؟</strong>
-                        <p style="font-size: 0.85rem; margin: 5px 0;">${p.reason}</p>
-                        <ul style="font-size: 0.75rem; padding-inline-start: 15px; margin-top: 5px;">
-                        ${p.pros && Array.isArray(p.pros) ? p.pros.map(pro => `<li>${pro}</li>`).join('') : ''}
-                        </ul>
-                    </div>
-                    
-                    <button class="btn-action" onclick="window.open('${p.link}', '_blank')" style="margin-top:10px;">🛒 شراء الآن</button>
-                </div>
-            </div>
-        `).join('');
+            `;
+        }
+    } catch (e) {
+        console.error("AI Analysis failed.");
+    } finally {
+        showLoading(false);
     }
 }
-        
     </script>
 </body>
 </html>

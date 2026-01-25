@@ -574,29 +574,37 @@ async function handleSearch() {
     const query = document.getElementById('search-input').value.trim();
     if (!query) return;
 
+    // إظهار اللودينج (الذي ظهر في صورتك)
     document.getElementById('loading-spinner').style.display = 'block';
     document.getElementById('results-grid').innerHTML = '';
     document.getElementById('ai-advisor-msg').style.display = 'none';
 
     try {
-        // جلب المنتجات الخام من السيرفر أولاً
+        // الخطوة 1: جلب النتائج الخام
         const res = await fetch(`${API_URL}/search?q=${encodeURIComponent(query)}`);
         const searchData = await res.json();
         
-        if (searchData.success) {
-            // إرسال البيانات للذكاء الاصطناعي للتحليل والترتيب
+        if (searchData.success && searchData.top) {
+            // الخطوة 2: إرسالها للعقل التحليلي (تأكد من أن المسار هو /get-ai-advice)
             const aiRes = await fetch(`${API_URL}/get-ai-advice`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ query, products: searchData.top, lang: currentLang })
+                body: JSON.stringify({ 
+                    query: query, 
+                    products: searchData.top, 
+                    lang: currentLang 
+                })
             });
             const finalData = await aiRes.json();
             
-            // عرض النتائج النهائية المفلترة
+            // الخطوة 3: عرض التحليل والنتائج
             renderResults(finalData);
+        } else {
+            alert("لم يتم العثور على منتجات أولية.");
         }
     } catch (err) {
-        console.error("Search failed:", err);
+        console.error("خطأ في الاتصال بالسيرفر:", err);
+        alert("حدث خطأ أثناء تحليل طلبك. تأكد من عمل السيرفر.");
     } finally {
         document.getElementById('loading-spinner').style.display = 'none';
     }

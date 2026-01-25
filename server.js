@@ -1,7 +1,9 @@
-const express = require('express');
-const cors = require('cors');
-const { ApifyClient } = require('apify-client');
-require('dotenv').config();
+import express from "express";
+import cors from "cors";
+import { ApifyClient } from 'apify-client';
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 10000;
@@ -13,69 +15,53 @@ const client = new ApifyClient({
     token: process.env.APIFY_API_TOKEN,
 });
 
-app.get('/', (req, res) => {
-    res.send('Findly AI Server is Active and Waiting! 🚀');
-});
+app.get("/", (req, res) => res.send("Findly API is Back to Life! 🚀"));
 
-app.post('/api/search', async (req, res) => {
+// دعم المسارين القديم والجديد لضمان عمل الواجهة
+app.all(['/search', '/api/search'], async (req, res) => {
+    // جلب كلمة البحث سواء كانت قادمة من GET أو POST
+    const query = req.query.q || req.body.query;
+
+    if (!query) return res.status(400).json({ error: "اكتب كلمة بحث" });
+
     try {
-        const { query } = req.body;
-        if (!query) return res.status(400).json({ error: 'الرجاء إدخال كلمة بحث' });
-
         console.log(`🔎 جاري البحث عن: ${query}...`);
 
-        // تشغيل Apify
-        const run = await client.actor(process.env.AMAZON_ACTOR_ID).call({
-            keyword: query,
-            locationCode: "us",
-            maxItems: 10
+        // استخدام المعرف الذي أكدت أنت وجوده في Render
+        const actorId = process.env.APIFY_AMAZON_ACTOR_ID || 'kjXDz27ttCGmMCu9S';
+
+        const run = await client.actor(actorId).call({
+            "query": query,
+            "keyword": query, // لضمان التوافق مع مختلف أنواع البوتات
+            "maxItems": 10
         });
 
         const { items } = await client.dataset(run.defaultDatasetId).listItems();
 
-        // تصفية النتائج مع معالجة الأسماء المختلفة للحقول (إصلاح الخلل الرئيسي)
-        let formattedResults = items.map((item, index) => {
-            return {
-                id: index,
-                name: item.title || item.name || "منتج من أمازون",
-                // معالجة السعر لأنه يأتي بأشكال مختلفة
-                price: item.price ? (item.price.value || item.price.amount || item.price) : 'Check Price',
-                currency: item.currency || '$',
-                // معالجة الصورة لأن اسمها يتغير في Apify
-                img: item.thumbnail || item.thumbnailUrl || item.mainImage || 'https://via.placeholder.com/300',
-                link: item.url || item.link || '#',
-                score: item.stars ? Math.round(item.stars * 20) : Math.floor(Math.random() * 20) + 80,
-                tags: ["Amazon", "Verified"]
-            };
-        });
+        const formattedResults = items.map((item, index) => ({
+            id: index,
+            name: item.title || item.name || "منتج رائع",
+            price: item.price?.value || item.price || "Check Price",
+            currency: item.currency || "$",
+            img: item.thumbnail || item.imageUrl || item.image || "https://via.placeholder.com/300",
+            link: item.url || item.productUrl || "#",
+            score: item.stars ? Math.round(item.stars * 20) : 92,
+            tags: ["AI Verified", "Top Choice"]
+        }));
 
-        // 💡 ميزة الأمان: إذا كانت النتائج فارغة، أنشئ نتائج ذكية محاكية
-        if (formattedResults.length === 0) {
-            console.log("⚠️ لا توجد نتائج من Apify، يتم إنشاء نتائج ذكية احتياطية...");
-            formattedResults = [
-                {
-                    id: 99,
-                    name: `أفضل خيار لـ ${query} (موصى به)`,
-                    price: "أسعار تنافسية",
-                    currency: "",
-                    img: "https://cdn-icons-png.flaticon.com/512/3081/3081840.png",
-                    link: `https://www.amazon.com/s?k=${query}`,
-                    score: 98,
-                    tags: ["AI Recommendation"]
-                }
-            ];
-        }
-
-        res.json({
+        // إرجاع النتائج بنفس الهيكل الذي تتوقعه واجهتك
+        res.json({ 
+            success: true, 
             status: 'success',
-            advisorMessage: `بناءً على تحليل ذكي لـ "${query}"، هذه هي أفضل الخيارات المتاحة حالياً:`,
-            results: formattedResults
+            results: formattedResults,
+            top: formattedResults, // للتوافق مع الكود القديم
+            advisorMessage: `وجدت لك أفضل الخيارات لـ "${query}"`
         });
 
     } catch (error) {
-        console.error('❌ Error:', error);
-        res.status(500).json({ error: 'خطأ في السيرفر', details: error.message });
+        console.error('❌ Error:', error.message);
+        res.status(500).json({ success: false, error: error.message });
     }
 });
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));

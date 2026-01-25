@@ -21,23 +21,39 @@ app.post('/get-ai-advice', async (req, res) => {
             messages: [
                 {
                     role: "system",
-                    content: `أنت خبير تسوق محترف. حلل طلب المستخدم بعمق وقدم رداً بصيغة JSON.
-                    يجب عليك ملء كافة الحقول التالية بتفاصيل دقيقة ومقنعة:
-                    1. "analysis": اشرح نية المستخدم (intent)، الأولويات التي تهمة (priorities)، تقدير ميزانيته (budget_status)، وحالته (use_case). وفي حقل (why) اكتب نصيحة خبير شاملة.
-                    2. "products": قدم قائمة بـ 3 منتجات حقيقية وموجودة في السوق حالياً.
-                    لكل منتج، املأ (name) بالاسم الكامل، و(recommendation_reason) بشرح مفصل لماذا اخترته له، و(features) بذكر أهم المواصفات التقنية.
+                    content: `أنت خبير تسوق محترف. حلل طلب المستخدم وقدم رداً بصيغة JSON غني بالمعلومات.
+                    يجب أن يحتوي الرد على تحليل كامل للنية والميزانية و3 منتجات حقيقية.
+                    تجنب الردود الفارغة أو المختصرة.
                     
-                    الهيكل الإلزامي للرد:
+                    هيكل الرد المطلوب:
                     {
-                      "analysis": { "intent": "...", "priorities": "...", "budget_status": "...", "use_case": "...", "why": "..." },
+                      "analysis": {
+                        "intent": "اكتب هنا نية المستخدم بناءً على طلبه",
+                        "priorities": "اكتب الأولويات التقنية المناسبة له",
+                        "budget_status": "قدر ميزانية الطلب (اقتصادية/متوسطة/رائدة)",
+                        "use_case": "حدد طبيعة الاستخدام",
+                        "why": "اكتب نصيحة خبير مفصلة للمستخدم"
+                      },
                       "products": [
-                        { "name": "...", "recommendation_reason": "...", "features": "..." },
-                        { "name": "...", "recommendation_reason": "...", "features": "..." },
-                        { "name": "...", "recommendation_reason": "...", "features": "..." }
+                        {
+                          "name": "اسم المنتج الأول الحقيقي",
+                          "recommendation_reason": "اشرح بدقة لماذا رشحت هذا المنتج للمستخدم",
+                          "features": "اذكر المواصفات التقنية الجذابة"
+                        },
+                        {
+                          "name": "اسم المنتج الثاني الحقيقي",
+                          "recommendation_reason": "اشرح سبب الترشيح",
+                          "features": "اذكر المميزات"
+                        },
+                        {
+                          "name": "اسم المنتج الثالث الحقيقي",
+                          "recommendation_reason": "اشرح سبب الترشيح",
+                          "features": "اذكر المميزات"
+                        }
                       ]
                     }`
                 },
-                { role: "user", content: `المستخدم يسأل عن: ${query}` }
+                { role: "user", content: `المستخدم يبحث عن: ${query}` }
             ],
             response_format: { type: "json_object" }
         }, {
@@ -48,7 +64,7 @@ app.post('/get-ai-advice', async (req, res) => {
         res.json(aiData);
 
     } catch (error) {
-        console.error("Server Error:", error);
-        res.status(500).json({ error: "تعذر تحليل البيانات حالياً" });
+        console.error("AI Error:", error);
+        res.status(500).json({ error: "تعذر التحليل حالياً" });
     }
 });

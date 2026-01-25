@@ -79,7 +79,7 @@
 
         .search-container { position: relative; max-width: 600px; margin: 0 auto 3rem; }
         .search-box { width: 100%; padding: 1.2rem 1.5rem; padding-inline-end: 3.5rem; border-radius: 16px; border: 2px solid transparent; background: var(--card-bg); box-shadow: var(--shadow); font-size: 1.1rem; color: var(--text-color); transition: all 0.3s; }
-        .search-box:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.2); }
+        .search-box:focus { border-color: var(--primary); outline: none; }
         .mic-icon { position: absolute; top: 50%; transform: translateY(-50%); color: var(--primary); font-size: 1.2rem; cursor: pointer; inset-inline-end: 20px; }
 
         .categories { display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 3rem; flex-wrap: wrap; }
@@ -87,19 +87,39 @@
         .cat-item:hover { opacity: 1; transform: translateY(-5px); }
         .cat-icon { width: 50px; height: 50px; background: var(--card-bg); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: var(--primary); box-shadow: var(--shadow); }
 
-        /* نتائج البحث والتحليل */
-        #ai-advisor-msg { display: none; margin: 20px auto; max-width: 800px; }
-        .advisor-card { background: linear-gradient(135deg, #4F46E5 0%, #06B6D4 100%); color: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        /* --- النتائج الذكية (العقل) --- */
+        .results-area { max-width: 1000px; margin: 0 auto; padding: 0 20px 40px; }
         
-        .results-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; max-width: 1000px; margin: 0 auto; padding: 20px; }
-        .amazon-card { border: 2px solid #FF9900; border-radius: 16px; padding: 30px; text-align: center; background: white; color: black; box-shadow: var(--shadow); display: none; }
-        .btn-action { background: #FF9900; color: white; border: none; padding: 15px 30px; border-radius: 10px; cursor: pointer; font-weight: 700; width: 100%; margin-top: 15px; font-size: 1.1rem; }
+        #ai-advisor-msg { display: none; margin-bottom: 30px; animation: slideUp 0.5s ease; }
+        .advisor-card { background: linear-gradient(135deg, #4F46E5 0%, #06B6D4 100%); color: white; padding: 25px; border-radius: 20px; box-shadow: var(--shadow); }
+        
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .product-card { 
+            background: var(--card-bg); border-radius: 20px; padding: 25px; 
+            box-shadow: var(--shadow); border: 1px solid rgba(0,0,0,0.05); 
+            display: flex; flex-direction: column; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        }
+        .product-card:hover { transform: translateY(-10px); border-color: var(--secondary); }
+        
+        .rank-badge { background: var(--primary); color: white; padding: 5px 15px; border-radius: 10px; font-size: 0.8rem; font-weight: bold; width: fit-content; margin-bottom: 15px; }
+        .p-title { font-size: 1.3rem; font-weight: 800; margin-bottom: 10px; color: var(--primary); }
+        .p-reason { font-size: 0.95rem; line-height: 1.6; margin-bottom: 15px; padding: 12px; background: rgba(79, 70, 229, 0.05); border-radius: 12px; border-inline-start: 4px solid var(--secondary); }
+        
+        .btn-amazon { 
+            background: #FF9900; color: white; border: none; padding: 14px; border-radius: 12px; 
+            cursor: pointer; font-weight: bold; width: 100%; text-decoration: none; 
+            display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: auto; 
+        }
 
-        /* الميزات المقفلة */
-        .locked-features { display: flex; justify-content: center; gap: 1rem; padding: 2rem; margin-top: auto; background: var(--glass-bg); border-top: 1px solid var(--glass-border); flex-wrap: wrap; }
-        .feature-btn { background: transparent; border: 1px solid var(--text-color); color: var(--text-color); padding: 10px 20px; border-radius: 30px; cursor: not-allowed; font-size: 0.9rem; opacity: 0.5; display: flex; align-items: center; gap: 8px; }
+        /* --- الميزات المقفلة --- */
+        .locked-features { display: flex; justify-content: center; gap: 15px; padding: 2rem; margin-top: auto; background: var(--glass-bg); border-top: 1px solid var(--glass-border); flex-wrap: wrap; }
+        .feature-btn { background: transparent; border: 1px solid var(--text-color); color: var(--text-color); padding: 10px 20px; border-radius: 30px; cursor: not-allowed; font-size: 0.9rem; opacity: 0.4; display: flex; align-items: center; gap: 8px; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .loading-pulse { animation: pulse 1.5s infinite; text-align: center; padding: 20px; font-weight: bold; }
+        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
     </style>
 </head>
 <body>
@@ -124,10 +144,10 @@
         <section class="hero">
             <div class="ai-badge">AI Powered Shopping Assistant v2.0</div>
             <h1>خيارك المثالي مدروس بذكاء</h1>
-            <p class="sub-text">يفهم احتياجاتك، ميزانيتك، وأولوياتك ليقترح عليك الأفضل.</p>
+            <p class="sub-text">أخبرني بما تحتاجه، وسأحلل لك السوق لاستخراج أفضل 3 خيارات تناسبك بدقة.</p>
 
             <div class="search-container">
-                <input type="text" class="search-box" id="search-input" placeholder="ماذا تريد أن تشتري اليوم؟">
+                <input type="text" class="search-box" id="search-input" placeholder="مثال: هاتف للألعاب ببطارية قوية وسعر متوسط">
                 <i class="fa-solid fa-magnifying-glass mic-icon" onclick="handleSearch()"></i>
             </div>
 
@@ -151,19 +171,15 @@
             </div>
         </section>
 
-        <div id="ai-advisor-msg">
-            <div class="advisor-card">
-                <h3><i class="fas fa-brain"></i> مستشارك الذكي يقول:</h3>
-                <div id="advisor-text" style="margin-top: 15px; line-height: 1.6;"></div>
+        <div class="results-area">
+            <div id="ai-advisor-msg">
+                <div class="advisor-card">
+                    <h3><i class="fas fa-brain"></i> تحليل Findly الخبير:</h3>
+                    <div id="advisor-text" style="margin-top: 15px;"></div>
+                </div>
             </div>
-        </div>
 
-        <div class="results-grid">
-            <div id="amazon-result" class="amazon-card">
-                <h2 style="color: #FF9900;">🛒 نتائج أمازون السعودية</h2>
-                <p style="margin: 10px 0;">اضغط أدناه لمشاهدة كافة الخيارات لـ <strong id="search-term"></strong></p>
-                <button class="btn-action" onclick="openAmazon()">فتح النتائج الآن</button>
-            </div>
+            <div id="products-results" class="products-grid"></div>
         </div>
     </main>
 
@@ -181,14 +197,14 @@
             const query = document.getElementById('search-input').value;
             if (!query) return;
 
-            // إظهار النتائج
-            document.getElementById('amazon-result').style.display = 'block';
-            document.getElementById('search-term').innerText = query;
-            
             const advisor = document.getElementById('ai-advisor-msg');
             const advisorText = document.getElementById('advisor-text');
+            const productsGrid = document.getElementById('products-results');
+
+            // إعداد الواجهة للتحميل
             advisor.style.display = 'block';
-            advisorText.innerHTML = "جاري استشارة العقل الذكي للبحث عن " + query + "... 🧠";
+            advisorText.innerHTML = `<div class="loading-pulse">جاري تحليل النية، استخراج الأولويات، وفلترة أفضل 3 خيارات لـ "${query}"... 🧠</div>`;
+            productsGrid.innerHTML = "";
 
             try {
                 const response = await fetch(`${API_URL}/get-ai-advice`, {
@@ -196,21 +212,46 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ query: query, lang: currentLang })
                 });
-                const data = await response.json();
-                if (data.analysis) {
-                    advisorText.innerHTML = `
-                        <p><strong>التحليل:</strong> ${data.analysis.why}</p>
-                        <p style="margin-top:10px;">💰 <strong>الميزانية:</strong> ${data.analysis.budget_status}</p>
-                    `;
-                }
-            } catch (e) {
-                advisorText.innerHTML = "تم العثور على أفضل العروض في أمازون السعودية بالأسفل.";
-            }
-        }
 
-        function openAmazon() {
-            const query = document.getElementById('search-input').value;
-            window.open(`https://www.amazon.sa/s?k=${encodeURIComponent(query)}`, '_blank');
+                const data = await response.json();
+                
+                if (data.analysis) {
+                    // عرض تحليل العقل للنية والأولويات
+                    advisorText.innerHTML = `
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; font-size: 0.95rem;">
+                            <span>🎯 <b>النية:</b> ${data.analysis.intent || 'شراء منتج مخصص'}</span>
+                            <span>⚖️ <b>الأولويات:</b> ${data.analysis.priorities || 'الأداء مقابل السعر'}</span>
+                            <span>💰 <b>الميزانية:</b> ${data.analysis.budget_status || 'متوسطة'}</span>
+                            <span>🔍 <b>الحالة:</b> ${data.analysis.use_case || 'احترافي'}</span>
+                        </div>
+                        <p style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.2); line-height: 1.6;">
+                            <b>لماذا هذه الترشيحات؟</b><br>${data.analysis.why}
+                        </p>
+                    `;
+
+                    // بناء كروت المنتجات الثلاثة
+                    if (data.products && data.products.length > 0) {
+                        data.products.slice(0, 3).forEach((product, index) => {
+                            productsGrid.innerHTML += `
+                                <div class="product-card">
+                                    <div class="rank-badge">الترشيح الذكي #${index + 1}</div>
+                                    <div class="p-title">${product.name}</div>
+                                    <div class="p-reason"><b>رأي الخبير:</b><br>${product.recommendation_reason}</div>
+                                    <div style="margin-bottom:20px; font-size:0.9rem; opacity:0.8;">
+                                        ⭐ <b>أبرز الميزات:</b> ${product.features || 'مواصفات عالية'}
+                                    </div>
+                                    <a href="https://www.amazon.sa/s?k=${encodeURIComponent(product.name)}" target="_blank" class="btn-amazon">
+                                        <i class="fab fa-amazon"></i> السعر في أمازون السعودية
+                                    </a>
+                                </div>
+                            `;
+                        });
+                    }
+                }
+            } catch (error) {
+                advisorText.innerHTML = "تعذر الاتصال بالعقل التحليلي حالياً، ولكن يمكنك التحقق من النتائج في أمازون.";
+                console.error("Error:", error);
+            }
         }
 
         function toggleTheme() {

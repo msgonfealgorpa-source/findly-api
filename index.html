@@ -451,31 +451,77 @@
             </div>
         </section>
 
-        <div id="ai-advisor-msg" style="display: none; margin-bottom: 20px;">
-    <div class="advisor-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.1);">
-        <h3 style="margin-top: 0;"><i class="fas fa-robot"></i> تحليل الخبير الذكي</h3>
-        <div id="advisor-text" style="line-height: 1.6; font-size: 1.1rem;">
-            </div>
+        <div id="ai-advisor-msg" style="display: none; margin: 20px auto; max-width: 800px;">
+    <div class="advisor-card" style="background: linear-gradient(135deg, #4F46E5 0%, #06B6D4 100%); color: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.1);">
+        <h3 style="margin-top: 0; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 10px;">
+            <i class="fas fa-brain"></i> مستشارك الذكي يقول:
+        </h3>
+        <div id="advisor-text" style="line-height: 1.6; font-size: 1.1rem; margin-top: 15px;"></div>
     </div>
 </div>
 
-            <div class="ai-message" id="ai-advisor-msg">
-                <i class="fa-solid fa-sparkles"></i>
-                <span id="advisor-text"></span>
+<div class="products-grid" id="results-grid" style="max-width: 1000px; margin: 0 auto; padding: 20px;"></div>
+
+<script>
+    const API_URL = "https://findly-api.onrender.com";
+    let currentLang = 'ar';
+
+    function showLoading(status) {
+        const grid = document.getElementById('results-grid');
+        if(status) grid.innerHTML = '<div style="text-align:center; grid-column: 1/-1;">جاري استشارة العقل الذكي... 🧠</div>';
+    }
+
+    async function handleSearch() {
+        const query = document.getElementById('search-input').value;
+        if (!query) return;
+
+        showLoading(true);
+        const advisorMsg = document.getElementById('ai-advisor-msg');
+        const grid = document.getElementById('results-grid');
+        
+        advisorMsg.style.display = 'none';
+        
+        const amazonLink = `https://www.amazon.sa/s?k=${encodeURIComponent(query)}`;
+        
+        grid.innerHTML = `
+            <div class="product-card" style="border: 2px solid #FF9900; grid-column: 1/-1; padding: 30px; text-align: center; background: white;">
+                <h2 style="color: #FF9900;">🛒 نتائج أمازون السعودية</h2>
+                <p style="color: #333; margin: 10px 0;">اضغط أدناه لمشاهدة كافة الخيارات والأسعار المباشرة</p>
+                <button class="btn-action" onclick="window.open('${amazonLink}', '_blank')" style="background: #FF9900; font-size: 1.2rem; padding: 15px 30px; border:none; color:white; border-radius:10px; cursor:pointer;">
+                    فتح النتائج الآن
+                </button>
             </div>
+        `;
 
-            <div class="products-grid" id="results-grid"></div>
-        </div>
-    </main>
+        try {
+            const response = await fetch(`${API_URL}/get-ai-advice`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query: query, lang: currentLang })
+            });
 
-    <footer class="locked-features">
-        <button class="feature-btn" id="feat-compare">
-            <i class="fa-solid fa-lock"></i> <span class="feat-text">مقارنة الأسعار</span>
-        </button>
-        <button class="feature-btn" id="feat-coupon">
-            <i class="fa-solid fa-lock"></i> <span class="feat-text">كود خصم ذكي</span>
-        </button>
-    </footer>
+            const aiData = await response.json();
+            
+            if (aiData.analysis) {
+                advisorMsg.style.display = 'block';
+                document.getElementById('advisor-text').innerHTML = `
+                    <p><strong>الهدف:</strong> ${aiData.analysis.intent}</p>
+                    <p><strong>لماذا هذا الخيار؟:</strong> ${aiData.analysis.why}</p>
+                    <p style="margin-top:10px; font-weight:bold;">💰 ${aiData.analysis.budget_status || ''}</p>
+                `;
+            }
+        } catch (e) {
+            console.error("خطأ في الاتصال بالعقل");
+        } finally {
+            // لا نخفي الـ loading هنا لكي لا نمسح كرت أمازون
+        }
+    }
+
+    // تفعيل البحث عند ضغط Enter
+    document.getElementById('search-input').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleSearch();
+    });
+</script>
 
     <script>
         const API_URL = "https://findly-api.onrender.com"; // رابط سيرفرك
@@ -546,7 +592,10 @@
             featTexts.forEach((el, i) => { if(t.features[i]) el.textContent = t.features[i]; });
         }
 
-        
+        function showLoading(status) {
+    // يمكنك إضافة أيقونة تحميل هنا مستقبلاً
+    console.log(status ? "Loading..." : "Finished");
+                }
 // 1. دالة البحث المحدثة التي تطلب التحليل من السيرفر
 async function handleSearch() {
     const query = document.getElementById('search-input').value;
@@ -599,6 +648,9 @@ async function handleSearch() {
         showLoading(false);
     }
 }
+   document.getElementById('search-input').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') handleSearch();
+});
     </script>
 </body>
 </html>

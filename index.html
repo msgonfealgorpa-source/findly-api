@@ -201,12 +201,13 @@
             const advisorText = document.getElementById('advisor-text');
             const productsGrid = document.getElementById('products-results');
 
-            // إعداد الواجهة للتحميل
+            // إظهار حالة التحميل
             advisor.style.display = 'block';
-            advisorText.innerHTML = `<div class="loading-pulse">جاري تحليل النية، استخراج الأولويات، وفلترة أفضل 3 خيارات لـ "${query}"... 🧠</div>`;
+            advisorText.innerHTML = `<div class="loading-pulse">جارٍ الاتصال بالعقل الذكي... يرجى الانتظار ⏳</div>`;
             productsGrid.innerHTML = "";
 
             try {
+                // تأكد أن هذا الرابط هو رابط سيرفرك في ريندر
                 const response = await fetch(`${API_URL}/get-ai-advice`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -214,46 +215,50 @@
                 });
 
                 const data = await response.json();
-                
+
+                // إذا جاء رد من السيرفر ولكنه يحتوي على خطأ
+                if (data.error) {
+                    throw new Error(data.error); // رمي الخطأ ليظهر في الشاشة
+                }
+
+                // عرض النتائج بنجاح
                 if (data.analysis) {
-                    // عرض تحليل العقل للنية والأولويات
-                    advisorText.innerHTML = `
+                     advisorText.innerHTML = `
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; font-size: 0.95rem;">
-                            <span>🎯 <b>النية:</b> ${data.analysis.intent || 'شراء منتج مخصص'}</span>
-                            <span>⚖️ <b>الأولويات:</b> ${data.analysis.priorities || 'الأداء مقابل السعر'}</span>
-                            <span>💰 <b>الميزانية:</b> ${data.analysis.budget_status || 'متوسطة'}</span>
-                            <span>🔍 <b>الحالة:</b> ${data.analysis.use_case || 'احترافي'}</span>
+                            <span>🎯 <b>النية:</b> ${data.analysis.intent}</span>
+                            <span>⚖️ <b>الأولويات:</b> ${data.analysis.priorities}</span>
+                            <span>💰 <b>الميزانية:</b> ${data.analysis.budget_status}</span>
+                            <span>🔍 <b>الحالة:</b> ${data.analysis.use_case}</span>
                         </div>
-                        <p style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.2); line-height: 1.6;">
-                            <b>لماذا هذه الترشيحات؟</b><br>${data.analysis.why}
+                        <p style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 10px;">
+                            ${data.analysis.why}
                         </p>
                     `;
 
-                    // بناء كروت المنتجات الثلاثة
-                    if (data.products && data.products.length > 0) {
+                    if (data.products) {
                         data.products.slice(0, 3).forEach((product, index) => {
                             productsGrid.innerHTML += `
                                 <div class="product-card">
-                                    <div class="rank-badge">الترشيح الذكي #${index + 1}</div>
+                                    <div class="rank-badge">#${index + 1}</div>
                                     <div class="p-title">${product.name}</div>
-                                    <div class="p-reason"><b>رأي الخبير:</b><br>${product.recommendation_reason}</div>
-                                    <div style="margin-bottom:20px; font-size:0.9rem; opacity:0.8;">
-                                        ⭐ <b>أبرز الميزات:</b> ${product.features || 'مواصفات عالية'}
-                                    </div>
-                                    <a href="https://www.amazon.sa/s?k=${encodeURIComponent(product.name)}" target="_blank" class="btn-amazon">
-                                        <i class="fab fa-amazon"></i> السعر في أمازون السعودية
-                                    </a>
+                                    <div class="p-reason">${product.recommendation_reason}</div>
+                                    <div style="font-size:0.9rem; margin-bottom:15px;">⭐ ${product.features}</div>
                                 </div>
                             `;
                         });
                     }
                 }
+
             } catch (error) {
-    // هذا التعديل سيخبرك في الواجهة ما هي المشكلة بالضبط
-    advisorText.innerHTML = `⚠️ حدث خطأ: ${error.message}. تأكد من أن السيرفر مستيقظ وحاول مرة أخرى.`;
-    console.error("Full Error Info:", error);
-        }
-            
+                // كود كشف الخطأ للهاتف
+                advisorText.innerHTML = `
+                    <div style="background: rgba(255,0,0,0.1); border: 1px solid red; padding: 15px; border-radius: 10px; color: #ff6b6b;">
+                        <h3>⚠️ عذراً، حدث خطأ!</h3>
+                        <p><b>السبب:</b> ${error.message}</p>
+                        <p style="font-size: 0.8rem; margin-top: 10px;">صور هذه الشاشة وأرسلها لي.</p>
+                    </div>
+                `;
+            }
         }
 
         function toggleTheme() {

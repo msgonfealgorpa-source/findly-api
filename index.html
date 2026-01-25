@@ -9,7 +9,6 @@
     
     <style>
         :root {
-            /* Palette */
             --primary: #4F46E5;
             --primary-hover: #4338ca;
             --secondary: #06B6D4;
@@ -22,7 +21,6 @@
             --card-dark: #1e293b;
             --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             
-            /* Current Theme Variables */
             --bg-color: var(--light-bg);
             --text-color: var(--text-dark);
             --card-bg: var(--card-light);
@@ -55,7 +53,6 @@
             overflow-x: hidden;
         }
 
-        /* --- Header --- */
         header {
             display: flex;
             justify-content: space-between;
@@ -117,7 +114,6 @@
             font-family: 'Cairo';
         }
 
-        /* --- Hero Section --- */
         .hero {
             text-align: center;
             padding: 4rem 1rem 2rem;
@@ -151,7 +147,6 @@
             line-height: 1.6;
         }
 
-        /* --- Search Area --- */
         .search-container {
             position: relative;
             max-width: 600px;
@@ -161,7 +156,7 @@
         .search-box {
             width: 100%;
             padding: 1.2rem 1.5rem;
-            padding-inline-end: 3.5rem; /* يترك مساحة للأيقونة حسب الاتجاه */
+            padding-inline-end: 3.5rem;
             border-radius: 16px;
             border: 2px solid transparent;
             background: var(--card-bg);
@@ -184,10 +179,9 @@
             color: var(--primary);
             font-size: 1.2rem;
             cursor: pointer;
-            inset-inline-end: 20px; /* يتحرك تلقائياً مع اللغة */
+            inset-inline-end: 20px;
         }
 
-        /* --- Categories --- */
         .categories {
             display: flex;
             justify-content: center;
@@ -224,26 +218,6 @@
             box-shadow: var(--shadow);
         }
 
-        /* --- AI Message (Advisor) --- */
-        .ai-message {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            padding: 1.5rem;
-            border-radius: 16px;
-            margin-bottom: 2rem;
-            display: none;
-            animation: slideUp 0.5s ease;
-            box-shadow: var(--shadow);
-            line-height: 1.6;
-        }
-
-        /* --- Results Area --- */
-        #ai-response-area {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 0 1rem 4rem;
-        }
-
         .products-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -256,72 +230,16 @@
             overflow: hidden;
             box-shadow: var(--shadow);
             position: relative;
-            transition: transform 0.3s;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             border: 1px solid transparent;
             display: flex;
             flex-direction: column;
         }
 
         .product-card:hover {
-            transform: translateY(-10px);
+            transform: scale(1.02);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
             border-color: var(--secondary);
-        }
-
-        .rank-badge {
-            position: absolute;
-            top: 10px;
-            inset-inline-end: 10px;
-            background: var(--primary);
-            color: white;
-            padding: 5px 10px;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 0.8rem;
-            z-index: 10;
-        }
-
-        .trust-score {
-            position: absolute;
-            top: 10px;
-            inset-inline-start: 10px;
-            background: var(--accent);
-            color: white;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            z-index: 10;
-        }
-
-        .p-img {
-            height: 180px;
-            width: 100%;
-            background: #ffffff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 4rem;
-        }
-        
-        .p-details {
-            padding: 1.5rem;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .p-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 0.5rem; }
-        .p-price { font-size: 1.2rem; color: var(--primary); font-weight: 800; margin-bottom: 1rem; }
-        .p-reason { 
-            font-size: 0.9rem; 
-            color: var(--text-color); 
-            opacity: 0.8; 
-            margin-bottom: 1rem; 
-            background: rgba(6, 182, 212, 0.1);
-            padding: 8px;
-            border-radius: 8px;
         }
 
         .btn-action {
@@ -336,67 +254,16 @@
             font-weight: 700;
         }
 
-        /* --- Feature Buttons --- */
-        .locked-features {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            padding: 2rem;
-            margin-top: auto;
-            background: var(--glass-bg);
-            border-top: 1px solid var(--glass-border);
-            flex-wrap: wrap;
-        }
-
-        .feature-btn {
-            background: transparent;
-            border: 1px solid var(--text-color);
-            color: var(--text-color);
-            padding: 10px 20px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            opacity: 0.6;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        /* --- Animations & Loading --- */
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes spin { to { transform: rotate(360deg); } }
 
-        .loading {
-            display: none;
-            text-align: center;
-            margin: 2rem 0;
+        .analysis-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border-right: 4px solid var(--primary);
         }
-        .spinner {
-            width: 40px; height: 40px;
-            border: 4px solid rgba(79, 70, 229, 0.3);
-            border-radius: 50%;
-            border-top-color: var(--primary);
-            animation: spin 1s infinite linear;
-            margin: 0 auto 10px;
-        }
-.analysis-container {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
-    border-right: 4px solid var(--primary);
-}
-        
-.product-card {
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.product-card:hover {
-    transform: scale(1.02);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
-}
-        
     </style>
 </head>
-<body class="">
+<body>
 
     <header>
         <div class="logo">
@@ -452,83 +319,94 @@
             </div>
         </section>
 
-        <div id="ai-advisor-msg" style="display: none; margin: 20px auto; max-width: 800px;">
-    <div class="advisor-card" style="background: linear-gradient(135deg, #4F46E5 0%, #06B6D4 100%); color: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.1);">
-        <h3 style="margin-top: 0; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 10px;">
-            <i class="fas fa-brain"></i> مستشارك الذكي يقول:
-        </h3>
-        <div id="advisor-text" style="line-height: 1.6; font-size: 1.1rem; margin-top: 15px;"></div>
-    </div>
-</div>
-
-<div class="products-grid" id="results-grid" style="max-width: 1000px; margin: 0 auto; padding: 20px;"></div>
-
-<script>
-    const API_URL = "https://findly-api.onrender.com";
-    let currentLang = 'ar';
-
-    function showLoading(status) {
-        const grid = document.getElementById('results-grid');
-        if(status) grid.innerHTML = '<div style="text-align:center; grid-column: 1/-1;">جاري استشارة العقل الذكي... 🧠</div>';
-    }
-
-    async function handleSearch() {
-        const query = document.getElementById('search-input').value;
-        if (!query) return;
-
-        showLoading(true);
-        const advisorMsg = document.getElementById('ai-advisor-msg');
-        const grid = document.getElementById('results-grid');
-        
-        advisorMsg.style.display = 'none';
-        
-        const amazonLink = `https://www.amazon.sa/s?k=${encodeURIComponent(query)}`;
-        
-        grid.innerHTML = `
-            <div class="product-card" style="border: 2px solid #FF9900; grid-column: 1/-1; padding: 30px; text-align: center; background: white;">
-                <h2 style="color: #FF9900;">🛒 نتائج أمازون السعودية</h2>
-                <p style="color: #333; margin: 10px 0;">اضغط أدناه لمشاهدة كافة الخيارات والأسعار المباشرة</p>
-                <button class="btn-action" onclick="window.open('${amazonLink}', '_blank')" style="background: #FF9900; font-size: 1.2rem; padding: 15px 30px; border:none; color:white; border-radius:10px; cursor:pointer;">
-                    فتح النتائج الآن
-                </button>
+        <div id="ai-advisor-msg" style="display: none; margin: 20px auto; max-width: 800px; padding: 0 15px;">
+            <div class="advisor-card" style="background: linear-gradient(135deg, #4F46E5 0%, #06B6D4 100%); color: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.1);">
+                <h3 style="margin-top: 0; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 10px;">
+                    <i class="fas fa-brain"></i> مستشارك الذكي يقول:
+                </h3>
+                <div id="advisor-text" style="line-height: 1.6; font-size: 1.1rem; margin-top: 15px;"></div>
             </div>
-        `;
+        </div>
 
-        try {
-            const response = await fetch(`${API_URL}/get-ai-advice`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ query: query, lang: currentLang })
-            });
+        <div class="products-grid" id="results-grid" style="max-width: 1000px; margin: 0 auto; padding: 20px;"></div>
+    </main>
 
-            const aiData = await response.json();
-            
-            if (aiData.analysis) {
-                advisorMsg.style.display = 'block';
-                document.getElementById('advisor-text').innerHTML = `
-                    <p><strong>الهدف:</strong> ${aiData.analysis.intent}</p>
-                    <p><strong>لماذا هذا الخيار؟:</strong> ${aiData.analysis.why}</p>
-                    <p style="margin-top:10px; font-weight:bold;">💰 ${aiData.analysis.budget_status || ''}</p>
-                `;
-            }
-        } catch (e) {
-            console.error("خطأ في الاتصال بالعقل");
-        } finally {
-            // لا نخفي الـ loading هنا لكي لا نمسح كرت أمازون
+    <script>
+        const API_URL = "https://findly-api.onrender.com";
+        let currentLang = 'ar';
+
+        function showLoading(status) {
+            const grid = document.getElementById('results-grid');
+            if(status) grid.innerHTML = '<div style="text-align:center; grid-column: 1/-1;">جاري استشارة العقل الذكي... 🧠</div>';
         }
-    }
 
-function toggleTheme() {
-    document.body.classList.toggle('dark-mode');
-    const icon = document.getElementById('theme-icon');
-    icon.classList.toggle('fa-sun');
-    icon.classList.toggle('fa-moon');
-}
+        async function handleSearch() {
+            const query = document.getElementById('search-input').value;
+            if (!query) return;
 
-function quickSearch(category) {
-    document.getElementById('search-input').value = category;
-    handleSearch();
-    }
-    </script> 
+            showLoading(true);
+            const advisorMsg = document.getElementById('ai-advisor-msg');
+            const grid = document.getElementById('results-grid');
+            
+            advisorMsg.style.display = 'none';
+            const amazonLink = `https://www.amazon.sa/s?k=${encodeURIComponent(query)}`;
+            
+            grid.innerHTML = `
+                <div class="product-card" style="border: 2px solid #FF9900; grid-column: 1/-1; padding: 30px; text-align: center; background: white;">
+                    <h2 style="color: #FF9900;">🛒 نتائج أمازون السعودية</h2>
+                    <p style="color: #333; margin: 10px 0;">اضغط أدناه لمشاهدة كافة الخيارات والأسعار المباشرة</p>
+                    <button class="btn-action" onclick="window.open('${amazonLink}', '_blank')" style="background: #FF9900; font-size: 1.2rem; padding: 15px 30px; border:none; color:white; border-radius:10px; cursor:pointer;">
+                        فتح النتائج الآن
+                    </button>
+                </div>
+            `;
+
+            try {
+                const response = await fetch(`${API_URL}/get-ai-advice`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: query, lang: currentLang })
+                });
+
+                const aiData = await response.json();
+                
+                if (aiData.analysis) {
+                    advisorMsg.style.display = 'block';
+                    document.getElementById('advisor-text').innerHTML = `
+                        <p><strong>الهدف:</strong> ${aiData.analysis.intent}</p>
+                        <p><strong>لماذا هذا الخيار؟:</strong> ${aiData.analysis.why}</p>
+                        <p style="margin-top:10px; font-weight:bold;">💰 ${aiData.analysis.budget_status || ''}</p>
+                    `;
+                }
+            } catch (e) {
+                console.error("خطأ في الاتصال بالسيرفر");
+            }
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const icon = document.getElementById('theme-icon');
+            if (document.body.classList.contains('dark-mode')) {
+                icon.classList.replace('fa-moon', 'fa-sun');
+            } else {
+                icon.classList.replace('fa-sun', 'fa-moon');
+            }
+        }
+
+        function quickSearch(category) {
+            document.getElementById('search-input').value = category;
+            handleSearch();
+        }
+
+        // تفعيل البحث عند الضغط على Enter
+        document.getElementById('search-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleSearch();
+        });
+
+        // تحديث اللغة عند التغيير
+        document.getElementById('lang-switch').addEventListener('change', (e) => {
+            currentLang = e.target.value;
+        });
+    </script>
 </body>
 </html>

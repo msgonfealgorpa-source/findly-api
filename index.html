@@ -384,7 +384,7 @@
     border-radius: 12px;
     border-right: 4px solid var(--primary);
 }
-
+        
 .product-card {
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
@@ -393,6 +393,7 @@
     transform: scale(1.02);
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
 }
+        
     </style>
 </head>
 <body class="">
@@ -517,12 +518,17 @@
         }
     }
 
-    // تفعيل البحث عند ضغط Enter
-    document.getElementById('search-input').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') handleSearch();
-    });
-</script>
+function toggleTheme() {
+    document.body.classList.toggle('dark-mode');
+    const icon = document.getElementById('theme-icon');
+    icon.classList.toggle('fa-sun');
+    icon.classList.toggle('fa-moon');
+}
 
-    <script>
+function quickSearch(category) {
+    document.getElementById('search-input').value = category;
+    handleSearch();
+    }
+    </script> 
 </body>
 </html>

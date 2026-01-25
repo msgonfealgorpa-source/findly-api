@@ -124,31 +124,8 @@
 </head>
 <body class="dark-mode">
 
-    <header>
-        <div class="logo" onclick="location.reload()">
-            <i class="fa-solid fa-wand-magic-sparkles"></i> 
-            <div>Findly <span id="tagline"> – مستشارك الذكي</span></div>
-        </div>
-        <div style="display: flex; gap: 15px; align-items: center;">
-            <select id="lang-switch" style="padding: 8px; border-radius: 10px; background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border); cursor: pointer;">
-                <select id="lang-switch" style="padding: 8px; border-radius: 10px; background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border); cursor: pointer; max-width: 120px;">
-    <option value="ar">العربية</option>
-    <option value="en">English</option>
-    <option value="fr">Français</option>
-    <option value="es">Español</option>
-    <option value="de">Deutsch</option>
-    <option value="it">Italiano</option>
-    <option value="tr">Türkçe</option>
-    <option value="ru">Русский</option>
-    <option value="zh">中文</option>
-    <option value="ja">日本語</option>
-    <option value="ko">한국어</option>
-    <option value="pt">Português</option>
-    <option value="hi">हिन्दी</option>
-    <option value="id">Bahasa Indonesia</option>
-</select>
+    
             
-            </select>
             <button onclick="toggleTheme()" style="background:var(--card-bg); border:1px solid var(--border); color:var(--text-color); width: 45px; height: 45px; border-radius: 12px; cursor:pointer; font-size:1.2rem;">
                 <i class="fa-solid fa-moon" id="theme-icon"></i>
             </button>
@@ -163,6 +140,32 @@
             
             <div class="search-container">
                 <input type="text" id="search-input" class="search-box" placeholder="ماذا تريد أن تشتري اليوم؟ (مثلاً: أفضل هاتف للألعاب ميزانية 400$)">
+             <header>
+    <div class="logo" onclick="location.reload()">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> 
+        <div>Findly <span id="tagline"> – مستشارك الذكي</span></div>
+    </div>
+    <div style="display: flex; gap: 10px; align-items: center;">
+        <select id="lang-switch" style="padding: 8px 12px; border-radius: 12px; background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border); cursor: pointer; outline: none; font-weight: 600;">
+            <option value="ar">العربية</option>
+            <option value="en">English</option>
+            <option value="fr">Français</option>
+            <option value="es">Español</option>
+            <option value="de">Deutsch</option>
+            <option value="it">Italiano</option>
+            <option value="tr">Türkçe</option>
+            <option value="ru">Русский</option>
+            <option value="zh">中文</option>
+            <option value="ja">日本語</option>
+            <option value="pt">Português</option>
+            <option value="hi">हिन्दी</option>
+        </select>
+        
+        <button onclick="toggleTheme()" style="background:var(--card-bg); border:1px solid var(--border); color:var(--text-color); width: 45px; height: 45px; border-radius: 12px; cursor:pointer; font-size:1.2rem; display: flex; align-items: center; justify-content: center;">
+            <i class="fa-solid fa-moon" id="theme-icon"></i>
+        </button>
+    </div>
+             </header>
                 <button onclick="handleSearch()" class="btn-search">
                     <i class="fa-solid fa-magnifying-glass"></i> تحليل
                 </button>
@@ -322,13 +325,22 @@ document.getElementById('lang-switch').addEventListener('change', function(e) {
     const selectedLang = e.target.value;
     const rtlLangs = ['ar', 'fa', 'ur', 'he'];
     
-    // تغيير اتجاه الصفحة تلقائياً
     document.documentElement.dir = rtlLangs.includes(selectedLang) ? 'rtl' : 'ltr';
     document.documentElement.lang = selectedLang;
     
-    console.log("Language changed to: " + selectedLang);
+    // تغيير النصوص الثابتة فوراً لتعطي شعوراً بالعالمية
+    if (selectedLang !== 'ar') {
+        document.getElementById('hero-title').textContent = "Shop Smarter, Not Harder";
+        document.getElementById('hero-desc').textContent = "The first AI engine that analyzes your intent and finds the best global deals.";
+        document.getElementById('tagline').textContent = " – Your Smart Advisor";
+        document.querySelector('.btn-search').innerHTML = '<i class="fa-solid fa-magnifying-glass"></i> Analyze';
+    } else {
+        document.getElementById('hero-title').textContent = "تسوق بذكاء، ليس بعناء";
+        document.getElementById('hero-desc').textContent = "المحرك الأول الذي يحلل نيتك الشرائية ويمنحك خيارات مدروسة بدقة الذكاء الاصطناعي.";
+        document.getElementById('tagline').textContent = " – مستشارك الذكي";
+        document.querySelector('.btn-search').innerHTML = '<i class="fa-solid fa-magnifying-glass"></i> تحليل';
+    }
 });
-        
     </script>
 </body>
 </html>

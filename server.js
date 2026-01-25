@@ -1,6 +1,7 @@
 app.post('/get-ai-advice', async (req, res) => {
-    const { query, products, lang } = req.body; // استلام اللغة المختار من المتصفح
-    const apiKey = process.env.OPENAI_API_KEY; 
+    // السطر الذي حددته أنت لاستلام البيانات
+    const { query, products, lang } = req.body; 
+    const apiKey = process.env.OPENAI_API_KEY;
 
     try {
         const response = await axios.post("https://api.openai.com/v1/chat/completions", {
@@ -8,26 +9,22 @@ app.post('/get-ai-advice', async (req, res) => {
             messages: [
                 { 
                     role: "system", 
-                    content: `You are a global shopping expert. 
-                    Analyze the products and provide professional advice.
-                    CRITICAL: You must respond in the following language: ${lang === 'ar' ? 'Arabic' : 'English'}.
-                    Include: Price analysis, a Pro/Con for the top pick, and a 'Buy or Wait' recommendation.` 
+                    // هنا نضع الكود الذي يدعم جميع اللغات عالمياً
+                    content: `You are a universal shopping assistant. Your response MUST be in this language: ${lang}. 
+                    Provide a detailed price analysis and a final recommendation.` 
                 },
                 { 
                     role: "user", 
-                    content: `User is searching for: "${query}". Here are the products: ${JSON.stringify(products)}` 
+                    content: `Analyze these products for: "${query}". Products: ${JSON.stringify(products)}` 
                 }
             ],
-            temperature: 0.7 
+            temperature: 0.7
         }, {
-            headers: { 
-                "Authorization": `Bearer ${apiKey}`,
-                "Content-Type": "application/json"
-            }
+            headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" }
         });
 
         res.json({ advice: response.data.choices[0].message.content });
     } catch (error) {
-        res.json({ advice: lang === 'ar' ? "فشل في تحليل البيانات." : "Failed to analyze data." });
+        res.json({ advice: "Error analyzing data." });
     }
 });

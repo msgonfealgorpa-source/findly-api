@@ -593,6 +593,47 @@ async function handleSearch() {
     const grid = document.getElementById('results-grid');
     const advisorMsg = document.getElementById('ai-advisor-msg');
     const advisorText = document.getElementById('advisor-text');
+
+    // 1. ميزة التحليل الذكي (تأكد من وجود هذا الجزء)
+    if (data.analysis) {
+        advisorMsg.style.display = 'block';
+        advisorText.innerHTML = `
+            <div class="analysis-container" style="padding: 10px;">
+                <h4 style="color: #FFD700; margin-bottom: 8px;"><i class="fa-solid fa-wand-magic-sparkles"></i> تحليل Findly الذكي:</h4>
+                <div style="font-size: 0.9rem; line-height: 1.6;">
+                    <strong>أنت تحتاج:</strong> ${data.analysis.intent} <br>
+                    <strong>السبب:</strong> ${data.analysis.why}
+                </div>
+            </div>
+        `;
+    }
+
+    // 2. ميزة عرض المنتجات مع المميزات (Pros) والترتيب (Rank)
+    if (data.recommendations) {
+        grid.innerHTML = data.recommendations.map((p, i) => `
+            <div class="product-card" style="border: ${i === 0 ? '2px solid var(--primary)' : '1px solid rgba(255,255,255,0.1)'}">
+                <div class="rank-badge">${p.rank}</div>
+                <div class="p-img">
+                    <img src="${p.image}" style="max-width:80%; max-height:100%; object-fit:contain;" onerror="this.src='https://via.placeholder.com/150'">
+                </div>
+                <div class="p-details">
+                    <div class="p-title">${p.name}</div>
+                    <div class="p-price" style="color: #22C55E; font-weight: bold; font-size: 1.2rem;">${p.price}</div>
+                    
+                    <div class="p-reason" style="background: rgba(79, 70, 229, 0.05); padding: 10px; border-radius: 8px;">
+                        <strong>لماذا هذا الخيار؟</strong>
+                        <p style="font-size: 0.85rem; margin: 5px 0;">${p.reason}</p>
+                        <ul style="font-size: 0.75rem; padding-inline-start: 15px; margin-top: 5px;">
+                            ${p.pros ? p.pros.map(pro => `<li>${pro}</li>`).join('') : ''}
+                        </ul>
+                    </div>
+                    
+                    <button class="btn-action" onclick="window.open('${p.link}', '_blank')" style="margin-top:10px;">🛒 شراء الآن</button>
+                </div>
+            </div>
+        `).join('');
+    }
+}
         
     </script>
 </body>

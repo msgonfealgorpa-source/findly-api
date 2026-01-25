@@ -544,83 +544,87 @@
             featTexts.forEach((el, i) => { if(t.features[i]) el.textContent = t.features[i]; });
         }
 
-        async function handleSearch() {
-            const query = document.getElementById('search-input').value.trim();
-            if (!query) return;
-
-            // UI Reset
-            document.getElementById('loading-spinner').style.display = 'block';
-            document.getElementById('results-grid').innerHTML = '';
-            document.getElementById('ai-advisor-msg').style.display = 'none';
-
-            try {
-                // 1. Fetch Products
-                const res = await fetch(`${API_URL}/search?q=${encodeURIComponent(query)}`);
-                const data = await res.json();
-                
-                if (data.success) {
-                    renderResults(data.top);
-                    // 2. Get AI Advice
-                    await getAIAdvice(query, data.top);
-                }
-            } catch (err) {
-                console.error("Search Error:", err);
-            } finally {
-                document.getElementById('loading-spinner').style.display = 'none';
-            }
-        }
+        
 // 1. دالة البحث المحدثة التي تطلب التحليل من السيرفر
 async function handleSearch() {
     const query = document.getElementById('search-input').value.trim();
     if (!query) return;
 
-    const API_URL = "https://findly-api.onrender.com"; // ضع رابطك هنا بدون / في النهاية
-
+    // إظهار واجهة التحميل
     document.getElementById('loading-spinner').style.display = 'block';
     document.getElementById('results-grid').innerHTML = '';
     document.getElementById('ai-advisor-msg').style.display = 'none';
 
     try {
-        // 1. جلب البيانات الخام من محرك البحث
+        // 1. جلب المنتجات الخام من مسار البحث
         const res = await fetch(`${API_URL}/search?q=${encodeURIComponent(query)}`);
         const searchData = await res.json();
         
-        // تأكد أن السيرفر يرسل البيانات في مصفوفة اسمها top
-        const productsToAnalyze = searchData.top || searchData.products || [];
+        // التأكد من وجود بيانات لإرسالها للذكاء الاصطناعي
+        if (searchData.success && (searchData.top || searchData.products)) {
+            const rawProducts = searchData.top || searchData.products;
 
-        // 2. إرسال البيانات للتحليل الذكي
-        const aiRes = await fetch(`${API_URL}/get-ai-advice`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ 
-                query: query, 
-                products: productsToAnalyze, 
-                lang: currentLang 
-            })
-        });
-        
-        const finalData = await aiRes.json();
-        
-        // 3. عرض النتائج (استدعاء الدالة المحدثة)
-        renderResults(finalData);
-
+            // 2. إرسال البيانات للمسار الجديد الذي برمجناه /get-ai-advice
+            const aiRes = await fetch(`${API_URL}/get-ai-advice`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ 
+                    query: query, 
+                    products: rawProducts, 
+                    lang: currentLang 
+                })
+            });
+            
+            const finalData = await aiRes.json();
+            
+            // 3. تمرير البيانات النهائية لدالة العرض
+            renderResults(finalData);
+        } else {
+            alert("عذراً، لم نجد نتائج أولية للبحث.");
+        }
     } catch (err) {
-        console.error("Error:", err);
-        alert("فشل الاتصال بالعقل الذكي. تأكد من أن السيرفر يعمل.");
+        console.error("خطأ في الاتصال:", err);
+        alert("حدث خطأ في الوصول للمستشار الذكي.");
     } finally {
         document.getElementById('loading-spinner').style.display = 'none';
     }
-}
-
-// 2. دالة العرض المحدثة لعرض (التحليل + التوصيات المرتبة)
-function renderResults(data) {
+} 
+        function renderResults(data) {
     const grid = document.getElementById('results-grid');
-    // لاحظ هنا استخدمنا data.recommendations لأن هذا ما يرسله سيرفرك
-    grid.innerHTML = data.recommendations.map((p, i) => `
-        <div class="product-card">
-           </div>
-    `).join('');
+    const advisorMsg = document.getElementById('ai-advisor-msg');
+    const advisorText = document.getElementById('advisor-text');
+
+    // عرض صندوق التحليل الذكي في الأعلى
+    if (data.analysis) {
+        advisorMsg.style.display = 'block';
+        advisorText.innerHTML = `
+            <div class="analysis-container">
+                <h4 style="color: var(--primary);"><i class="fa-solid fa-robot"></i> تحليل ذكي لطلبك:</h4>
+                <p><strong>أنت تريد:</strong> ${data.analysis.intent}</p>
+                <p><strong>السبب:</strong> ${data.analysis.why}</p>
+            </div>
+        `;
+    }
+
+    // عرض المنتجات بناءً على مصفوفة recommendations
+    if (data.recommendations && data.recommendations.length > 0) {
+        grid.innerHTML = data.recommendations.map((p, i) => `
+            <div class="product-card">
+                <div class="rank-badge">${p.rank}</div>
+                <div class="p-img"><img src="${p.image}" onerror="this.src='https://via.placeholder.com/150'"></div>
+                <div class="p-details">
+                    <div class="p-title">${p.name}</div>
+                    <div class="p-price">${p.price}</div>
+                    <div class="p-reason">
+                        <strong>لماذا نرشحه؟</strong><br>${p.reason}
+                    </div>
+                    <button class="btn-action" onclick="window.open('${p.link}', '_blank')">شراء الآن</button>
+                </div>
+            </div>
+        `).join('');
+    }
 }
+        
     // عرض صندوق التحليل الذكي
     advisorMsg.style.display = 'block';
     advisorText.innerHTML = `

@@ -21,8 +21,7 @@ app.post('/get-ai-advice', async (req, res) => {
             messages: [
                 {
                     role: "system",
-                    content: `أنت خبير تسوق محترف. يجب أن يكون الرد JSON نظيف تماماً.
-                    املأ البيانات التالية بدقة:
+                    content: `أنت خبير تسوق محترف. يجب أن يكون الرد JSON تماماً. املأ البيانات التالية بدقة:
                     {
                       "analysis": {
                         "intent": "نية المستخدم",
@@ -45,12 +44,9 @@ app.post('/get-ai-advice', async (req, res) => {
             headers: { "Authorization": `Bearer ${apiKey}` }
         });
 
-        // التعديل الجوهري هنا:
-        // يجب تحويل النص القادم من OpenAI إلى JSON حقيقي قبل إرساله
+        // هذا هو التعديل الجوهري والكامل (لا تقصه):
         const aiContent = JSON.parse(response.data.choices[0].message.content);
-        
-        // إرسال الكائن كـ JSON لكي يفهمه السطر 216 في index.html
-        res.json(aiContent); 
+        res.json(aiContent);
 
     } catch (error) {
         console.error("AI Error:", error.response ? error.response.data : error.message);

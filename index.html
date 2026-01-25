@@ -253,38 +253,32 @@ async function runSmartAdvisor(query, products) {
     const advisorBox = document.getElementById('ai-advisor-msg');
     const advisorText = document.getElementById('advisor-text');
 
+    // 1. إظهار رسالة التحميل
     advisorBox.style.display = 'block';
-    advisorText.innerHTML = '<i class="fas fa-robot fa-spin"></i> جاري تحليل الخيارات الأفضل لك...';
-
-    // مفتاح OpenAI الخاص بك
-    const keyPart1 = "sk-proj-"; 
-    const keyPart2 = "YOUR_OPENAI_KEY_HERE"; 
+    advisorText.innerHTML = '<i class="fas fa-robot fa-spin"></i> جاري تحليل الخيارات الأفضل لك عبر سيرفر Findly...';
 
     try {
-        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        // 2. إرسال البيانات لسيرفرك الخاص (الذي يحمل المفتاح السري)
+        const response = await fetch("https://findly-api.onrender.com/get-ai-advice", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${keyPart1}${keyPart2}`
-            },
-            body: JSON.stringify({
-                model: "gpt-4o-mini",
-                messages: [
-                    { role: "system", content: "أنت خبير مشتريات ذكي. حلل قائمة المنتجات وأعطِ نصيحة قصيرة جداً باللغة العربية عن أفضل منتج." },
-                    { role: "user", content: `البحث: ${query}. المنتجات: ${JSON.stringify(products.slice(0, 3).map(p => ({n: p.name, p: p.price, s: p.source})))}` }
-                ],
-                temperature: 0.3
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+                query: query, 
+                products: products.slice(0, 3) // نرسل أول 3 منتجات فقط لتوفير الجهد
             })
         });
 
-        const aiData = await response.json();
-        advisorText.textContent = aiData.choices[0].message.content;
+        const data = await response.json();
         
-        // تمرير سلس للمستشار
+        // 3. عرض النصيحة القادمة من السيرفر
+        advisorText.textContent = data.advice;
+
+        // 4. تمرير الشاشة تلقائياً للنصيحة
         window.scrollTo({ top: advisorBox.offsetTop - 100, behavior: 'smooth' });
 
     } catch (err) {
-        advisorText.textContent = "استعن بخبرتك في الاختيار، الذكاء الاصطناعي يأخذ استراحة قصيرة!";
+        console.error("AI Error:", err);
+        advisorText.textContent = "استعن بخبرتك في الاختيار حالياً، المحلل الذكي في استراحة!";
     }
 }
 

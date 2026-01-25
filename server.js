@@ -72,7 +72,10 @@ app.get('/', (req, res) => {
 });
 
 // تشغيل السيرفر على المنفذ المحدد
+
+// ... نهاية الكود الخاص بـ app.post
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Server is successfully running on port ${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 });

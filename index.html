@@ -64,13 +64,39 @@
         }
         .search-box:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1); }
 
-        .btn-search {
-            position: absolute; left: 10px; top: 10px; bottom: 10px;
-            background: var(--primary); color: white; border: none;
-            padding: 0 25px; border-radius: 15px; cursor: pointer;
-            font-weight: bold; display: flex; align-items: center; gap: 8px;
-        }
+        
+/* ابحث عن هذا الجزء داخل وسم <style> */
+.btn-search {
+    position: absolute;
+    /* نستخدم inset-inline-start بدلاً من left ليدعم الاتجاهين */
+    inset-inline-start: 10px; 
+    top: 10px;
+    bottom: 10px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 0 25px;
+    border-radius: 15px;
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 5; /* لضمان بقاء الزر فوق شريط البحث */
+}
 
+/* تعديل شريط البحث لترك مساحة للزر في الجهتين */
+.search-box {
+    width: 100%;
+    padding: 1.4rem 1.5rem;
+    padding-inline-start: 120px; /* مساحة كافية للزر */
+    border-radius: 20px;
+    border: 2px solid transparent;
+    background: var(--card-bg);
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+    font-size: 1.1rem;
+    color: var(--text-color);
+}
         .categories { display: flex; justify-content: center; gap: 2rem; margin-top: 3rem; flex-wrap: wrap; }
         .cat-item { cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 10px; }
         .cat-item:hover .cat-icon { transform: translateY(-8px); background: var(--primary); color: white; }
@@ -325,20 +351,31 @@ document.getElementById('lang-switch').addEventListener('change', function(e) {
     const selectedLang = e.target.value;
     const rtlLangs = ['ar', 'fa', 'ur', 'he'];
     
+    // 1. تغيير اتجاه الموقع بالكامل
     document.documentElement.dir = rtlLangs.includes(selectedLang) ? 'rtl' : 'ltr';
     document.documentElement.lang = selectedLang;
-    
-    // تغيير النصوص الثابتة فوراً لتعطي شعوراً بالعالمية
+
+    // 2. ترجمة نصوص الأيقونات والأزرار
+    const catSpans = document.querySelectorAll('.cat-item span');
+    const featBtns = document.querySelectorAll('.feature-btn');
+
     if (selectedLang !== 'ar') {
+        // نصوص إنجليزية
         document.getElementById('hero-title').textContent = "Shop Smarter, Not Harder";
-        document.getElementById('hero-desc').textContent = "The first AI engine that analyzes your intent and finds the best global deals.";
-        document.getElementById('tagline').textContent = " – Your Smart Advisor";
         document.querySelector('.btn-search').innerHTML = '<i class="fa-solid fa-magnifying-glass"></i> Analyze';
+        
+        // ترجمة الأيقونات
+        catSpans[0].textContent = "Phones";
+        catSpans[1].textContent = "Laptops";
+        catSpans[2].textContent = "Audio";
+        catSpans[3].textContent = "Watches";
+
+        // ترجمة الأزرار السفلية
+        featBtns[0].innerHTML = '<i class="fa-solid fa-lock"></i> Compare';
+        featBtns[1].innerHTML = '<i class="fa-solid fa-lock"></i> Coupon';
     } else {
-        document.getElementById('hero-title').textContent = "تسوق بذكاء، ليس بعناء";
-        document.getElementById('hero-desc').textContent = "المحرك الأول الذي يحلل نيتك الشرائية ويمنحك خيارات مدروسة بدقة الذكاء الاصطناعي.";
-        document.getElementById('tagline').textContent = " – مستشارك الذكي";
-        document.querySelector('.btn-search').innerHTML = '<i class="fa-solid fa-magnifying-glass"></i> تحليل';
+        // العودة للعربية (ببساطة نقوم بعمل تحديث للصفحة)
+        location.reload();
     }
 });
     </script>

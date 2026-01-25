@@ -131,8 +131,23 @@
         </div>
         <div style="display: flex; gap: 15px; align-items: center;">
             <select id="lang-switch" style="padding: 8px; border-radius: 10px; background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border); cursor: pointer;">
-                <option value="ar">العربية</option>
-                <option value="en">English</option>
+                <select id="lang-switch" style="padding: 8px; border-radius: 10px; background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border); cursor: pointer; max-width: 120px;">
+    <option value="ar">العربية</option>
+    <option value="en">English</option>
+    <option value="fr">Français</option>
+    <option value="es">Español</option>
+    <option value="de">Deutsch</option>
+    <option value="it">Italiano</option>
+    <option value="tr">Türkçe</option>
+    <option value="ru">Русский</option>
+    <option value="zh">中文</option>
+    <option value="ja">日本語</option>
+    <option value="ko">한국어</option>
+    <option value="pt">Português</option>
+    <option value="hi">हिन्दी</option>
+    <option value="id">Bahasa Indonesia</option>
+</select>
+            
             </select>
             <button onclick="toggleTheme()" style="background:var(--card-bg); border:1px solid var(--border); color:var(--text-color); width: 45px; height: 45px; border-radius: 12px; cursor:pointer; font-size:1.2rem;">
                 <i class="fa-solid fa-moon" id="theme-icon"></i>
@@ -264,7 +279,8 @@ async function runSmartAdvisor(query, products) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 
                 query: query, 
-                products: products.slice(0, 3) // نرسل أول 3 منتجات فقط لتوفير الجهد
+                products: products, 
+                lang: document.getElementById('lang-switch').value // هذا هو السطر المطلوب
             })
         });
 
@@ -301,7 +317,18 @@ function renderResults(products) {
         </div>
     `).join('');
 }
-            
+// أضف هذا الكود في نهاية السكريبت
+document.getElementById('lang-switch').addEventListener('change', function(e) {
+    const selectedLang = e.target.value;
+    const rtlLangs = ['ar', 'fa', 'ur', 'he'];
+    
+    // تغيير اتجاه الصفحة تلقائياً
+    document.documentElement.dir = rtlLangs.includes(selectedLang) ? 'rtl' : 'ltr';
+    document.documentElement.lang = selectedLang;
+    
+    console.log("Language changed to: " + selectedLang);
+});
+        
     </script>
 </body>
 </html>

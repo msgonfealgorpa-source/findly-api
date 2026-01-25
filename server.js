@@ -21,35 +21,20 @@ app.post('/get-ai-advice', async (req, res) => {
             messages: [
                 {
                     role: "system",
-                    content: `أنت خبير تسوق محترف. حلل طلب المستخدم وقدم رداً بصيغة JSON غني بالمعلومات.
-                    يجب أن يحتوي الرد على تحليل كامل للنية والميزانية و3 منتجات حقيقية.
-                    تجنب الردود الفارغة أو المختصرة.
-                    
-                    هيكل الرد المطلوب:
+                    content: `أنت خبير تسوق محترف. يجب أن يكون الرد JSON نظيف تماماً.
+                    املأ البيانات التالية بدقة:
                     {
                       "analysis": {
-                        "intent": "اكتب هنا نية المستخدم بناءً على طلبه",
-                        "priorities": "اكتب الأولويات التقنية المناسبة له",
-                        "budget_status": "قدر ميزانية الطلب (اقتصادية/متوسطة/رائدة)",
-                        "use_case": "حدد طبيعة الاستخدام",
-                        "why": "اكتب نصيحة خبير مفصلة للمستخدم"
+                        "intent": "نية المستخدم",
+                        "priorities": "الأولويات",
+                        "budget_status": "الميزانية",
+                        "use_case": "الاستخدام",
+                        "why": "نصيحة الخبير"
                       },
                       "products": [
-                        {
-                          "name": "اسم المنتج الأول الحقيقي",
-                          "recommendation_reason": "اشرح بدقة لماذا رشحت هذا المنتج للمستخدم",
-                          "features": "اذكر المواصفات التقنية الجذابة"
-                        },
-                        {
-                          "name": "اسم المنتج الثاني الحقيقي",
-                          "recommendation_reason": "اشرح سبب الترشيح",
-                          "features": "اذكر المميزات"
-                        },
-                        {
-                          "name": "اسم المنتج الثالث الحقيقي",
-                          "recommendation_reason": "اشرح سبب الترشيح",
-                          "features": "اذكر المميزات"
-                        }
+                        { "name": "منتج 1", "recommendation_reason": "سبب الترشيح", "features": "المميزات" },
+                        { "name": "منتج 2", "recommendation_reason": "سبب الترشيح", "features": "المميزات" },
+                        { "name": "منتج 3", "recommendation_reason": "سبب الترشيح", "features": "المميزات" }
                       ]
                     }`
                 },
@@ -60,11 +45,15 @@ app.post('/get-ai-advice', async (req, res) => {
             headers: { "Authorization": `Bearer ${apiKey}` }
         });
 
-        const aiData = JSON.parse(response.data.choices[0].message.content);
-        res.json(aiData);
+        // التعديل الجوهري هنا:
+        // يجب تحويل النص القادم من OpenAI إلى JSON حقيقي قبل إرساله
+        const aiContent = JSON.parse(response.data.choices[0].message.content);
+        
+        // إرسال الكائن كـ JSON لكي يفهمه السطر 216 في index.html
+        res.json(aiContent); 
 
     } catch (error) {
-        console.error("AI Error:", error);
-        res.status(500).json({ error: "تعذر التحليل حالياً" });
+        console.error("AI Error:", error.response ? error.response.data : error.message);
+        res.status(500).json({ error: "فشل في تحليل البيانات الذكية" });
     }
 });

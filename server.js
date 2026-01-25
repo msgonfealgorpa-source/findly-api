@@ -4,39 +4,41 @@ const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
+// تفعيل CORS للسماح للموقع بالاتصال بالسيرفر
 app.use(cors());
 app.use(express.json());
 
-app.get('/', (req, res) => {
-    res.send("Findly API is running! 🚀");
-});
+app.get('/', (req, res) => res.send("Findly API Active 🚀"));
 
 app.post('/get-ai-advice', async (req, res) => {
     const { query, lang } = req.body;
-    const apiKey = process.env.OPENAI_API_KEY;
-
     try {
         const response = await axios.post("https://api.openai.com/v1/chat/completions", {
             model: "gpt-4o-mini",
             messages: [
                 {
                     role: "system",
-                    content: `أنت خبير تسوق محترف. يجب أن يكون الرد JSON نظيفاً تماماً. املأ الحقول: analysis (intent, priorities, budget_status, use_case, why) و products (name, recommendation_reason, features).`
+                    content: `You are a shopping expert. Respond ONLY with a JSON object. 
+                    Structure: {
+                      "analysis": { "intent": "..", "priorities": "..", "budget_status": "..", "use_case": "..", "why": ".." },
+                      "products": [ {"name": "..", "recommendation_reason": "..", "features": ".."} ]
+                    }`
                 },
-                { role: "user", content: `المستخدم يبحث عن: ${query}` }
+                { role: "user", content: `User wants: ${query} in language: ${lang}` }
             ],
             response_format: { type: "json_object" }
         }, {
-            headers: { "Authorization": `Bearer ${apiKey}` }
+            headers: { "Authorization": `Bearer ${process.env.OPENAI_API_KEY}` },
+            timeout: 50000 // زيادة وقت الانتظار لـ 50 ثانية
         });
 
-        // التعديل الذي سينقذ السيرفر (داخل الـ try)
-        const aiContent = JSON.parse(response.data.choices[0].message.content);
-        res.json(aiContent);
+        // إرسال البيانات كـ JSON صافي للمتصفح
+        const result = JSON.parse(response.data.choices[0].message.content);
+        res.json(result);
 
     } catch (error) {
         console.error("Error:", error.message);
-        res.status(500).json({ error: "فشل في التحليل" });
+        res.status(500).json({ error: "الذكاء الاصطناعي لم يستجب في الوقت المحدد" });
     }
 });
 

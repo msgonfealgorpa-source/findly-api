@@ -14,84 +14,65 @@ const client = new ApifyClient({
     token: process.env.APIFY_API_TOKEN,
 });
 
-app.get("/", (req, res) => res.send("Findly Multi-Source API is Live! 🚀"));
+// معرفات المهام (التي ظهرت في صورك)
+const AMAZON_TASK_ID = 'PDwMikqRqTrY4tAcW'; 
+const ALI_ID = 'hDVdezzZja9dcf9dY'; 
+
+app.get("/", (req, res) => res.send("Findly Multi-Search is Ready! 🚀"));
 
 app.all(['/search', '/api/search'], async (req, res) => {
     const query = req.query.q || req.body.query;
-    if (!query) return res.status(400).json({ error: "الرجاء كتابة كلمة بحث" });
+    if (!query) return res.status(400).json({ error: "اكتب كلمة بحث" });
 
     try {
         console.log(`🔎 جاري البحث المزدوج عن: ${query}...`);
 
-        // معرفات المهام الخاصة بك
-        const AMAZON_TASK_ID = 'PDwMikqRqTrY4tAcW'; 
-        const ALIEXPRESS_TASK_ID = 'hDVdezzZja9dcf9dY'; // المعرف الذي ظهر في صورك سابقاً
-
-        // تشغيل المهمتين في وقت واحد للسرعة
-        
-// 1. تعريف المعرفات
-        const AMAZON_TASK_ID = 'PDwMikqRqTrY4tAcW'; 
-        const ALIEXPRESS_ID = 'hDVdezzZja9dcf9dY'; // المعرف الذي تملكه لعلي إكسبريس
-
-        // 2. تشغيل مهمة أمازون (نحن متأكدون أنها Task)
-        const amazonRun = await client.task(AMAZON_TASK_ID).call({ 
-            "queries": [query], 
-            "maxResultsPerQuery": 5 
+        // 1. تشغيل أمازون (كـ Task)
+        const amazonRun = client.task(AMAZON_TASK_ID).call({
+            "queries": [query],
+            "maxResultsPerQuery": 5
         });
 
-        // 3. تشغيل علي إكسبريس (محاولة ذكية: Task أو Actor)
-        let aliRun;
-        try {
-            // نحاول أولاً كـ Task
-            console.log("尝试 AliEx as Task...");
-            aliRun = await client.task(ALIEXPRESS_ID).call({ "query": [query], "maxItems": 5 });
-        } catch (e) {
-            // إذا فشل، نجرب كـ Actor
-            console.log("فشل كـ Task، جاري التجربة كـ Actor...");
-            aliRun = await client.actor(ALIEXPRESS_ID).call({ "query": [query], "maxItems": 5 });
-        }
-        // جلب البيانات من كلاهما
-        const [amazonItems, aliItems] = await Promise.all([
-            client.dataset(amazonRun.defaultDatasetId).listItems(),
-            client.dataset(aliRun.defaultDatasetId).listItems()
+        // 2. تشغيل علي إكسبريس (محاولة ذكية: Task ثم Actor)
+        const runAliEx = async () => {
+            try {
+                return await client.task(ALI_ID).call({ "query": [query], "maxItems": 5 });
+            } catch (e) {
+                return await client.actor(ALI_ID).call({ "query": [query], "maxItems": 5 });
+            }
+        };
+
+        // تشغيل الاثنين معاً لتوفير الوقت
+        const [amzResult, aliResult] = await Promise.all([amazonRun, runAliEx()]);
+
+        // جلب البيانات
+        const [amzItems, aliItems] = await Promise.all([
+            client.dataset(amzResult.defaultDatasetId).listItems(),
+            client.dataset(aliResult.defaultDatasetId).listItems()
         ]);
 
-        // تنسيق نتائج أمازون
-        const formattedAmazon = amazonItems.items.map((item, index) => ({
-            id: `amz-${index}`,
-            name: item.title || "منتج أمازون",
-            price: item.price?.value || item.price || "Check Price",
-            currency: item.currency || "$",
-            img: item.thumbnail || item.imageUrl || "https://via.placeholder.com/300",
-            link: item.url || "#",
-            source: "Amazon",
-            score: 95
-        }));
+        // تنسيق النتائج
+        const finalResults = [
+            ...amzItems.items.map(i => ({
+                name: i.title || "Amazon Product",
+                price: i.price?.value || i.price || "N/A",
+                img: i.thumbnail || i.imageUrl || "https://via.placeholder.com/150",
+                link: i.url || "#",
+                source: "Amazon"
+            })),
+            ...aliItems.items.map(i => ({
+                name: i.title || "AliExpress Product",
+                price: i.price || "N/A",
+                img: i.imageUrl || i.image || "https://via.placeholder.com/150",
+                link: i.url || "#",
+                source: "AliExpress"
+            }))
+        ];
 
-        // تنسيق نتائج علي إكسبريس
-        const formattedAli = aliItems.items.map((item, index) => ({
-            id: `ali-${index}`,
-            name: item.title || "منتج علي إكسبريس",
-            price: item.price || "Check Price",
-            currency: "USD",
-            img: item.imageUrl || item.image || "https://via.placeholder.com/300",
-            link: item.url || "#",
-            source: "AliExpress",
-            score: 88
-        }));
-
-        // دمج النتائج معاً (واحدة من هنا وواحدة من هناك)
-        const combinedResults = [...formattedAmazon, ...formattedAli].sort(() => Math.random() - 0.5);
-
-        res.json({ 
-            success: true, 
-            results: combinedResults, 
-            top: combinedResults,
-            advisorMessage: `لقد جمعت لك أفضل العروض من أمازون وعلي إكسبريس لـ "${query}":` 
-        });
+        res.json({ success: true, results: finalResults, top: finalResults });
 
     } catch (error) {
-        console.error('❌ خطأ في البحث المزدوج:', error.message);
+        console.error('Search Error:', error.message);
         res.status(500).json({ success: false, error: error.message });
     }
 });

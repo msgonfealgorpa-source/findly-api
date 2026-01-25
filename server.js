@@ -8,7 +8,7 @@ app.use(cors());
 app.use(express.json());
 
 app.get('/', (req, res) => {
-    res.send("Findly API is running perfectly! 🚀");
+    res.send("Findly API is running! 🚀");
 });
 
 app.post('/get-ai-advice', async (req, res) => {
@@ -21,21 +21,7 @@ app.post('/get-ai-advice', async (req, res) => {
             messages: [
                 {
                     role: "system",
-                    content: `أنت خبير تسوق محترف. يجب أن يكون الرد JSON تماماً. املأ البيانات التالية بدقة:
-                    {
-                      "analysis": {
-                        "intent": "نية المستخدم",
-                        "priorities": "الأولويات",
-                        "budget_status": "الميزانية",
-                        "use_case": "الاستخدام",
-                        "why": "نصيحة الخبير"
-                      },
-                      "products": [
-                        { "name": "منتج 1", "recommendation_reason": "سبب الترشيح", "features": "المميزات" },
-                        { "name": "منتج 2", "recommendation_reason": "سبب الترشيح", "features": "المميزات" },
-                        { "name": "منتج 3", "recommendation_reason": "سبب الترشيح", "features": "المميزات" }
-                      ]
-                    }`
+                    content: `أنت خبير تسوق محترف. يجب أن يكون الرد JSON نظيفاً تماماً. املأ الحقول: analysis (intent, priorities, budget_status, use_case, why) و products (name, recommendation_reason, features).`
                 },
                 { role: "user", content: `المستخدم يبحث عن: ${query}` }
             ],
@@ -44,12 +30,15 @@ app.post('/get-ai-advice', async (req, res) => {
             headers: { "Authorization": `Bearer ${apiKey}` }
         });
 
-        // هذا هو التعديل الجوهري والكامل (لا تقصه):
+        // التعديل الذي سينقذ السيرفر (داخل الـ try)
         const aiContent = JSON.parse(response.data.choices[0].message.content);
         res.json(aiContent);
 
     } catch (error) {
-        console.error("AI Error:", error.response ? error.response.data : error.message);
-        res.status(500).json({ error: "فشل في تحليل البيانات الذكية" });
+        console.error("Error:", error.message);
+        res.status(500).json({ error: "فشل في التحليل" });
     }
 });
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server live on ${PORT}`));

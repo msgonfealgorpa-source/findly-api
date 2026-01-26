@@ -60,7 +60,7 @@ if (brain.brand) {
   smartTextMatch(item.title, keywords)
 );
 
-        if (brain.productType) {
+}   if (brain.productType) {
   const typeKeywords = {
     phone: ["phone", "iphone", "smartphone", "mobile"],
     laptop: ["laptop", "notebook", "macbook"],
@@ -75,7 +75,7 @@ if (brain.brand) {
     filteredResults = filteredResults.filter(item =>
   smartTextMatch(item.title, keywords)
 );
-    
+} 
     // 2. معالجة وتجهيز أفضل 3 منتجات
 
       if (!filteredResults || filteredResults.length === 0) {
@@ -88,7 +88,7 @@ if (brain.brand) {
     products: []
   });
 }
-      
+    }  
       const topProducts = filteredResults.slice(0, 3).map((item) => {
             let cleanLink = item.product_link || item.link;
             if (cleanLink && !cleanLink.startsWith('http')) {

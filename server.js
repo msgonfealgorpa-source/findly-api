@@ -65,6 +65,7 @@ console.log("🧠 Smart Brain:", brain);
             };
         });
 
+        const rankedProducts = smartRank(topProducts, brain);
         // 3. رسالة تحليل الخبير
         const messages = {
             ar: `بناءً على بحثك عن "${query}"، وجدت أن هذه المنتجات هي الأفضل حالياً.`,
@@ -78,10 +79,12 @@ console.log("🧠 Smart Brain:", brain);
 
         // إرسال النتيجة النهائية
         res.json({
-            analysis: { why: analysisMsg },
-            products: topProducts
-        });
-
+  intent: brain.intent,
+  keywords: brain.keywords,
+  analysis: { why: analysisMsg },
+  products: rankedProducts
+});
+        
     } catch (error) {
         console.error("Server Error:", error);
         if (!res.headersSent) {

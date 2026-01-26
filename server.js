@@ -5,6 +5,11 @@ const { generateSmartExplanation } = require('./utils/aiReasoning');
 const axios = require('axios');
 const cors = require('cors');
 require('dotenv').config();
+function smartTextMatch(text, keywords) {
+  if (!text || !Array.isArray(keywords)) return false;
+  const t = text.toLowerCase();
+  return keywords.every(word => t.includes(word));
+}
 
 const app = express();
 app.use(cors()); // مهم جداً للسماح للواجهة بالاتصال بالسيرفر

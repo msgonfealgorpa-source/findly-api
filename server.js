@@ -1,5 +1,6 @@
 const express = require('express');
 const { analyzeSmartQuery } = require('./utils/smartBrain');
+const { smartRank } = require('./utils/smartRank');
 const axios = require('axios');
 const cors = require('cors');
 require('dotenv').config();

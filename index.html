@@ -193,78 +193,55 @@
         const API_URL = "https://findly-api.onrender.com";
         let currentLang = 'ar';
 
-        async function handleSearch() {
-            const query = document.getElementById('search-input').value;
-            if (!query) return;
+        // دالة البحث عند الضغط على الزر
+function searchProducts() {
+    const userInput = document.getElementById('searchQuery').value;
+    const resultsDiv = document.getElementById('results');
+    
+    // إظهار رسالة تحميل
+    resultsDiv.innerHTML = '<p class="loading">جاري تشغيل العقل الخارق للبحث عن أفضل الخيارات...</p>';
 
-            const advisor = document.getElementById('ai-advisor-msg');
-            const advisorText = document.getElementById('advisor-text');
-            const productsGrid = document.getElementById('products-results');
+    fetch('https://findly-api.onrender.com/get-ai-advice', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: userInput })
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('فشل الاتصال بالسيرفر');
+        return response.json();
+    })
+    .then(data => {
+        resultsDiv.innerHTML = ''; // مسح رسالة التحميل
 
-            advisor.style.display = 'block';
-            advisorText.innerHTML = `<div class="loading-pulse">جارٍ تحليل طلبك عبر محرك Gemini... ⏳</div>`;
-            productsGrid.innerHTML = "";
+        // 1. عرض تحليل "العقل"
+        const analysisBox = document.createElement('div');
+        analysisBox.className = 'analysis-box';
+        analysisBox.innerHTML = `<h3>تحليل العقل:</h3><p>${data.analysis.why}</p>`;
+        resultsDiv.appendChild(analysisBox);
 
-            try {
-                const response = await fetch(`${API_URL}/get-ai-advice`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query: query, lang: currentLang })
-                });
+        // 2. عرض المنتجات في شبكة احترافية
+        const grid = document.createElement('div');
+        grid.className = 'products-grid';
 
-                // التحقق مما إذا كان السيرفر استجاب أصلاً
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || "السيرفر لا يستجيب حالياً");
-                }
-
-                const data = await response.json();
-
-            // 1. عرض تحليل العقل (لماذا اخترنا هذه المنتجات)
-            if (data.analysis) {
-                advisorText.innerHTML = `<p style="padding: 10px; line-height: 1.6;">${data.analysis.why}</p>`;
-            }
-
-            // 2. عرض المنتجات في الشبكة (Grid) مع روابط الشراء المباشرة
-            productsGrid.innerHTML = ""; // تنظيف النتائج السابقة
-            if (data.products && data.products.length > 0) {
-                data.products.forEach(product => {
-                    const productCard = `
-                        <div class="product-card" style="border: 1px solid #eee; padding: 15px; border-radius: 15px; background: white; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.05);">
-                            <img src="${product.thumbnail}" alt="${product.name}" style="width: 100%; height: 150px; object-fit: contain; margin-bottom: 10px;">
-                            <h4 style="font-size: 14px; margin-bottom: 10px; height: 40px; overflow: hidden;">${product.name}</h4>
-                            <p style="font-size: 12px; color: #666; margin-bottom: 8px;">💡 ${product.recommendation_reason}</p>
-                            <p style="font-weight: bold; color: #2c3e50; margin-bottom: 15px;">${product.features}</p>
-                            <a href="${product.link}" target="_blank" 
-                               style="display: block; background: #6366f1; color: white; text-decoration: none; padding: 10px; border-radius: 8px; font-weight: bold; font-size: 13px;">
-                               شراء مباشر الآن 🚀
-                            </a>
-                        </div>
-                    `;
-                    productsGrid.innerHTML += productCard;
-                });
-            } else {
-                productsGrid.innerHTML = "<p>لم يتم العثور على منتجات مطابقة حالياً.</p>";
-            }
-        function toggleTheme() {
-            document.body.classList.toggle('dark-mode');
-            const icon = document.getElementById('theme-icon');
-            icon.classList.toggle('fa-sun');
-            icon.classList.toggle('fa-moon');
-        }
-
-        function quickSearch(cat) {
-            document.getElementById('search-input').value = cat;
-            handleSearch();
-        }
-
-        document.getElementById('search-input').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handleSearch();
+        data.products.forEach(product => {
+            grid.innerHTML += `
+                <div class="product-card">
+                    <div class="img-container">
+                        <img src="${product.thumbnail}" alt="${product.name}">
+                    </div>
+                    <h4>${product.name}</h4>
+                    <p class="reason">💡 ${product.recommendation_reason}</p>
+                    <p class="specs">✅ ${product.features}</p>
+                    <a href="${product.link}" target="_blank" class="buy-button">شراء مباشر الآن 🚀</a>
+                </div>
+            `;
         });
-
-        document.getElementById('lang-switch').addEventListener('change', (e) => {
-            currentLang = e.target.value;
-        });
+        resultsDiv.appendChild(grid);
+    })
+    .catch(error => {
+        resultsDiv.innerHTML = `<p style="color:red">خطأ: ${error.message}. تأكد من تشغيل السيرفر في ريندر.</p>`;
+    });
+}
     </script>
 </body>
 </html>

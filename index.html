@@ -242,7 +242,13 @@
         <h1 id="main-title">خيارك المثالي مدروس بذكاء</h1>
         <p class="sub-text" id="main-sub">أخبرني بما تحتاجه، وسأحلل لك السوق لاستخراج أفضل 3 خيارات تناسبك بدقة.</p>
 
+        <div id="limit-badge" style="display: inline-block; padding: 5px 15px; border-radius: 20px; background: white; border: 1px solid #e2e8f0; font-size: 0.8rem; font-weight: 600; margin-bottom: 10px; color: #6366F1; text-align: center;">
+    المحاولات المتبقية: <span id="remaining-count">3</span>
+        </div>
         <div class="search-container">
+           <button id="voice-btn" onclick="startVoice()" style="background: none; border: none; color: #6366F1; font-size: 1.2rem; cursor: pointer; margin-left: 10px; display: flex; align-items: center;">
+    <i class="fa-solid fa-microphone"></i>
+           </button>
             <input type="text" class="search-box" id="search-input" placeholder="مثال: سامسونج S24...">
             <button class="search-btn" onclick="handleSearch()"><i class="fa-solid fa-magnifying-glass"></i></button>
         </div>
@@ -363,8 +369,10 @@
         }
 
         document.getElementById('search-input').addEventListener('keypress', function (e) {
+      
             if (e.key === 'Enter') handleSearch();
         });
+   
     </script>
 </body>
 </html>

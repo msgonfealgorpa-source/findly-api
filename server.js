@@ -3,7 +3,7 @@ const axios = require('axios');
 const cors = require('cors');
 require('dotenv').config();
 
-// استيراد الأدوات الذكية من مجلد utils
+// استيراد الأدوات المحدثة (المستوى 3.5)
 const { analyzeSmartQuery } = require('./utils/smartBrain');
 const { smartRank } = require('./utils/smartRank');
 const { generateSmartExplanation } = require('./utils/aiReasoning');
@@ -14,9 +14,8 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
 
-// التأكد من عمل السيرفر
 app.get('/', (req, res) => {
-  res.send('Findly AI Engine is Online & Intelligent! 🧠🚀');
+  res.send('Findly AI Engine v3.5 - Technical Mode Active! 🚀');
 });
 
 app.post('/get-ai-advice', async (req, res) => {
@@ -24,13 +23,13 @@ app.post('/get-ai-advice', async (req, res) => {
     const { query, lang } = req.body;
     const currentLang = lang || "ar";
 
-    // 1. تحليل الاستعلام بالعقل الذكي
+    // 1. تحليل العقل التقني (استخراج الرام، البطارية، الماركة)
     const brain = analyzeSmartQuery(query);
-    console.log("🧠 Brain Analysis:", brain);
+    console.log("🧠 Technical Analysis:", brain);
 
     const SERPAPI_KEY = process.env.SERPAPI_KEY;
 
-    // 2. جلب البيانات من جوجل باستخدام الكلمات المفتاحية المحسنة
+    // 2. جلب البيانات من جوجل
     const response = await axios.get('https://serpapi.com/search.json', {
       params: {
         engine: "google_shopping",
@@ -43,17 +42,8 @@ app.post('/get-ai-advice', async (req, res) => {
 
     let shoppingResults = response.data.shopping_results || [];
 
-    // 3. فلترة ذكية أولية (حسب النوع أو الماركة)
-    let filtered = shoppingResults;
-    if (brain.brand) {
-      const brandMatches = shoppingResults.filter(item => 
-        item.title.toLowerCase().includes(brain.brand.toLowerCase())
-      );
-      if (brandMatches.length > 0) filtered = brandMatches;
-    }
-
-    // 4. تحويل النتائج لتنسيق التطبيق (Mapping)
-    const products = filtered.slice(0, 10).map(item => ({
+    // 3. تحويل النتائج لتنسيق التطبيق (Mapping)
+    const rawProducts = shoppingResults.map(item => ({
       name: item.title,
       thumbnail: item.thumbnail,
       link: item.product_link || item.link,
@@ -62,27 +52,42 @@ app.post('/get-ai-advice', async (req, res) => {
       source: item.source
     }));
 
-    // 5. الترتيب الذكي (Ranking)
-    const rankedProducts = smartRank(products, brain);
+    // 4. الترتيب التقني الذكي (المقارنة بالأرقام والرام والبطارية)
+    const rankedData = smartRank(rawProducts, brain);
 
-    // 6. صياغة التفسير النهائي (AI Explanation)
-    const explanation = generateSmartExplanation(brain, rankedProducts, currentLang);
+    // 5. تجهيز أفضل 3 نتائج مع "السبب التقني" لكل منها
+    const finalProducts = rankedData.slice(0, 3).map(p => {
+      let reason = "";
+      if (currentLang === "ar") {
+        reason = p.score > 100 ? "مطابق لمواصفاتك التقنية بدقة" : "أفضل خيار متاح حسب الجودة والسعر";
+      } else {
+        reason = p.score > 100 ? "Matches your technical specs perfectly" : "Best available value and rating";
+      }
+      
+      return {
+        ...p,
+        recommendation_reason: reason
+      };
+    });
 
-    // إرسال الرد الكامل للواجهة
+    // 6. صياغة التفسير العام
+    const explanation = generateSmartExplanation(brain, finalProducts, currentLang);
+
+    // إرسال الرد النهائي
     res.json({
-      explanation: explanation, // النص الذي يظهر في المربع الأخضر
-      products: rankedProducts.slice(0, 3) // أفضل 3 منتجات فقط
+      explanation: explanation,
+      products: finalProducts
     });
 
   } catch (error) {
     console.error("🚨 Server Error:", error.message);
     res.status(500).json({ 
-      explanation: "عذراً، حدث خطأ تقني في معالجة طلبك.", 
+      explanation: "Error processing your technical request.", 
       products: [] 
     });
   }
 });
 
 app.listen(PORT, () => {
-  console.log(`Findly Server running on port ${PORT}`);
+  console.log(`Findly Server v3.5 running on port ${PORT}`);
 });

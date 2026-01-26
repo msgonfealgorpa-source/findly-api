@@ -80,7 +80,6 @@ if (brain.brand) {
       // 2. معالجة وتجهيز أفضل 3 منتجات
 
         const topProducts = filteredResults.slice(0, 3).map((item) => {
-    {
             let cleanLink = item.product_link || item.link;
             if (cleanLink && !cleanLink.startsWith('http')) {
                 cleanLink = 'https://www.google.com' + cleanLink;

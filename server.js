@@ -4,42 +4,34 @@ const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
-app.use(cors({ origin: '*' }));
+app.use(cors());
 app.use(express.json());
-
-app.get('/', (req, res) => res.send("Findly API is LIVE! 🚀"));
 
 app.post('/get-ai-advice', async (req, res) => {
     try {
         const { query } = req.body;
         const apiKey = process.env.GEMINI_API_KEY;
 
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-        
-        const response = await axios.post(url, {
-            contents: [{
-                parts: [{
-                    text: `You are a shopping assistant. Return ONLY a valid JSON object for the query: "${query}". 
-                    Keep the response very short.
-                    Format:
-                    {
-                      "analysis": { "intent": "Buying", "priorities": "Quality", "budget_status": "Fits", "use_case": "Daily", "why": "Good choice" },
-                      "products": [ { "name": "Product Name", "recommendation_reason": "Price", "features": "Great" } ]
-                    }`
-                }]
-            }],
-            generationConfig: { response_mime_type: "application/json" }
+        const response = await axios.post(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+            contents: [{ parts: [{ text: `Respond ONLY with JSON. Query: ${query}. Structure: {"analysis":{...}, "products":[...]}` }] }]
         });
 
-        // استلام الرد الصافي
         const rawText = response.data.candidates[0].content.parts[0].text;
-        res.status(200).json(JSON.parse(rawText));
+        
+        // --- عملية الجراحة العاجلة ---
+        const firstBracket = rawText.indexOf('{');
+        const lastBracket = rawText.lastIndexOf('}') + 1;
+        
+        if (firstBracket === -1 || lastBracket === 0) {
+            return res.status(500).json({ error: "الذكاء الاصطناعي لم يرسل صيغة JSON" });
+        }
+
+        const cleanJson = JSON.parse(rawText.substring(firstBracket, lastBracket));
+        res.status(200).json(cleanJson);
 
     } catch (error) {
-        console.error("Error:", error.message);
-        res.status(500).json({ error: "السيرفر واجه مشكلة بسيطة، حاول مرة أخرى" });
+        res.status(500).json({ error: "خطأ في السيرفر", details: error.message });
     }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server is running!`));
+app.listen(process.env.PORT || 3000);

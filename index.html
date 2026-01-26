@@ -93,13 +93,6 @@
     <script>
         const API_URL = "https://findly-api.onrender.com";
         let currentLang = 'ar';
-
-        const translations = {
-            ar: { title: "خيارك المثالي مدروس بذكاء", sub: "أخبرني بما تحتاجه، وسأحلل لك السوق لاستخراج أفضل 3 خيارات تناسبك بدقة.", place: "مثال: هاتف للألعاب ببطارية قوية", tagline: " – مستشارك الذكي للتسوق", advisor: "تحليل Findly الخبير:", catPhones: "هواتف", catLaptops: "لابتوبات", catAudio: "سماعات", buy: "شراء الآن 🚀", smart: "خيار ذكي", loading: "جاري التحليل...", dir: "rtl" },
-            en: { title: "Smart Choices, Analyzed", sub: "Tell me what you need, I'll find the best 3 options.", place: "Ex: Gaming phone with big battery", tagline: " – Your Smart Advisor", advisor: "Findly Expert Analysis:", catPhones: "Phones", catLaptops: "Laptops", catAudio: "Audio", buy: "Buy Now 🚀", smart: "Smart Choice", loading: "Analyzing...", dir: "ltr" },
-            fr: { title: "Choix intelligents", sub: "Dites-moi vos besoins, je trouve le top 3.", place: "Ex: Téléphone gamer", tagline: " – Votre conseiller", advisor: "Analyse d'expert:", catPhones: "Mobiles", catLaptops: "Laptops", catAudio: "Audio", buy: "Acheter 🚀", smart: "Choix Smart", loading: "Analyse...", dir: "ltr" },
-            tr: { title: "Akıllı Seçimler", sub: "İhtiyacınızı söyleyin, en iyi 3 seçeneği bulalım.", place: "Örn: Oyun telefonu", tagline: " – Akıllı Danışman", advisor: "Uzman Analizi:", catPhones: "Telefon", catLaptops: "Laptop", catAudio: "Ses", buy: "Satın Al 🚀", smart: "Akıllı Seçim", loading: "Analiz ediliyor...", dir: "ltr" },
-            es: { title: "Elecciones Inteligentes", sub: "Dime qué necesitas, busco las 3 mejores opciones.", place: "Ej: Teléfono gaming", tagline: " – Tu asesor", advisor: "Análisis experto:", catPhones: "Móviles", catLaptops: "Laptops", catAudio: "Audio", buy: "Comprar 🚀", smart: "Elección Smart", loading: "Analizando...", dir: "ltr" }
         };
 
         const translations = {
@@ -184,7 +177,24 @@
         dir: "ltr"
     }
 };
+function changeLanguage(lang) {
+    currentLang = lang;
+    const t = translations[lang];
 
+    document.getElementById('main-title').innerText = t.title;
+    document.getElementById('main-sub').innerText = t.sub;
+    document.getElementById('search-input').placeholder = t.place;
+    document.getElementById('tagline-text').innerText = t.tagline;
+    document.getElementById('advisor-label').innerText = t.advisor;
+    document.getElementById('cat-phones').innerText = t.catPhones;
+    document.getElementById('cat-laptops').innerText = t.catLaptops;
+    document.getElementById('cat-audio').innerText = t.catAudio;
+    document.getElementById('feat-1').innerText = t.feat1;
+    document.getElementById('feat-2').innerText = t.feat2;
+
+    document.documentElement.dir = t.dir; // لتغيير اتجاه الصفحة (يمين/يسار)
+}
+   
         async function handleSearch() {
             const query = document.getElementById('search-input').value;
             const resultsDiv = document.getElementById('products-results');

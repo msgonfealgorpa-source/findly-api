@@ -9,172 +9,77 @@
     
     <style>
         :root {
-            --primary: #4F46E5;
-            --primary-hover: #4338ca;
-            --secondary: #06B6D4;
-            --accent: #22C55E;
-            --dark-bg: #0F172A;
-            --light-bg: #F8FAFC;
-            --text-dark: #1e293b;
-            --text-light: #f1f5f9;
-            --card-light: #ffffff;
-            --card-dark: #1e293b;
-            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            
-            --bg-color: var(--light-bg);
-            --text-color: var(--text-dark);
-            --card-bg: var(--card-light);
-            --glass-bg: rgba(255, 255, 255, 0.8);
-            --glass-border: rgba(255, 255, 255, 0.3);
+            --primary: #4F46E5; --primary-hover: #4338ca; --secondary: #06B6D4; --accent: #22C55E;
+            --dark-bg: #0F172A; --light-bg: #F8FAFC; --text-dark: #1e293b; --text-light: #f1f5f9;
+            --card-light: #ffffff; --card-dark: #1e293b; --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --bg-color: var(--light-bg); --text-color: var(--text-dark); --card-bg: var(--card-light);
+            --glass-bg: rgba(255, 255, 255, 0.8); --glass-border: rgba(255, 255, 255, 0.3);
         }
-
         .dark-mode {
-            --bg-color: var(--dark-bg);
-            --text-color: var(--text-light);
-            --card-bg: var(--card-dark);
-            --glass-bg: rgba(15, 23, 42, 0.8);
-            --glass-border: rgba(255, 255, 255, 0.1);
+            --bg-color: var(--dark-bg); --text-color: var(--text-light); --card-bg: var(--card-dark);
+            --glass-bg: rgba(15, 23, 42, 0.8); --glass-border: rgba(255, 255, 255, 0.1);
         }
-
-        * {
-            margin: 0; padding: 0; box-sizing: border-box;
-            font-family: 'Cairo', 'Inter', sans-serif;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow-x: hidden;
-        }
-
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1.5rem 5%;
-            position: sticky; top: 0; z-index: 100;
-            backdrop-filter: blur(10px);
-            background: var(--glass-bg);
-            border-bottom: 1px solid var(--glass-border);
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; transition: 0.3s; }
+        body { background-color: var(--bg-color); color: var(--text-color); min-height: 100vh; display: flex; flex-direction: column; }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 5%; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); background: var(--glass-bg); border-bottom: 1px solid var(--glass-border); }
         .logo { font-size: 1.5rem; font-weight: 900; color: var(--primary); display: flex; align-items: center; gap: 10px; }
-        .logo span { font-size: 0.9rem; color: var(--text-color); font-weight: 400; opacity: 0.8; }
-
         .controls { display: flex; gap: 15px; align-items: center; }
-        .icon-btn { background: none; border: none; color: var(--text-color); font-size: 1.2rem; cursor: pointer; padding: 8px; border-radius: 50%; transition: 0.2s; }
-        .icon-btn:hover { background-color: var(--primary); color: white; }
-
+        .icon-btn { background: none; border: none; color: var(--text-color); font-size: 1.2rem; cursor: pointer; padding: 8px; border-radius: 50%; }
+        .icon-btn:hover { background: var(--primary); color: white; }
         select.lang-switch { background: var(--card-bg); border: 1px solid var(--primary); color: var(--text-color); padding: 5px 10px; border-radius: 8px; cursor: pointer; font-weight: bold; }
-
-        .hero { text-align: center; padding: 4rem 1rem 2rem; max-width: 800px; margin: 0 auto; animation: fadeIn 0.8s ease-out; }
-        .ai-badge { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; margin-bottom: 1rem; display: inline-block; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4); }
-
-        h1 { font-size: 2.5rem; margin-bottom: 1rem; line-height: 1.3; }
-        .sub-text { font-size: 1.1rem; opacity: 0.8; margin-bottom: 2.5rem; line-height: 1.6; }
-
-        .search-container { position: relative; max-width: 600px; margin: 0 auto 3rem; }
-        .search-box { width: 100%; padding: 1.2rem 1.5rem; padding-inline-end: 3.5rem; border-radius: 16px; border: 2px solid transparent; background: var(--card-bg); box-shadow: var(--shadow); font-size: 1.1rem; color: var(--text-color); transition: all 0.3s; }
+        .hero { text-align: center; padding: 3rem 1rem; max-width: 800px; margin: 0 auto; }
+        .search-container { position: relative; max-width: 600px; margin: 2rem auto; }
+        .search-box { width: 100%; padding: 1.2rem 1.5rem; border-radius: 16px; border: 2px solid transparent; background: var(--card-bg); box-shadow: var(--shadow); font-size: 1.1rem; color: var(--text-color); }
         .search-box:focus { border-color: var(--primary); outline: none; }
-        .mic-icon { position: absolute; top: 50%; transform: translateY(-50%); color: var(--primary); font-size: 1.2rem; cursor: pointer; inset-inline-end: 20px; }
-
+        .mic-icon { position: absolute; top: 50%; transform: translateY(-50%); color: var(--primary); cursor: pointer; inset-inline-end: 20px; }
         .categories { display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 3rem; flex-wrap: wrap; }
-        .cat-item { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; opacity: 0.7; transition: 0.2s; }
+        .cat-item { cursor: pointer; text-align: center; opacity: 0.8; }
         .cat-item:hover { opacity: 1; transform: translateY(-5px); }
-        .cat-icon { width: 50px; height: 50px; background: var(--card-bg); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: var(--primary); box-shadow: var(--shadow); }
-
+        .cat-icon { width: 55px; height: 55px; background: var(--card-bg); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; color: var(--primary); box-shadow: var(--shadow); margin-bottom: 8px; }
         .results-area { max-width: 1000px; margin: 0 auto; padding: 0 20px 40px; }
-        
-        #ai-advisor-msg { display: none; margin-bottom: 30px; animation: slideUp 0.5s ease; }
-        .advisor-card { background: linear-gradient(135deg, #4F46E5 0%, #06B6D4 100%); color: white; padding: 25px; border-radius: 20px; box-shadow: var(--shadow); }
-        
-        .products-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-        .product-card { 
-            background: var(--card-bg); border-radius: 20px; padding: 25px; 
-            box-shadow: var(--shadow); border: 1px solid rgba(0,0,0,0.05); 
-            display: flex; flex-direction: column; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-        }
-        .product-card:hover { transform: translateY(-10px); border-color: var(--secondary); }
-        
-        .rank-badge { background: var(--primary); color: white; padding: 5px 15px; border-radius: 10px; font-size: 0.8rem; font-weight: bold; width: fit-content; margin-bottom: 15px; }
-        .p-title { font-size: 1.3rem; font-weight: 800; margin-bottom: 10px; color: var(--primary); }
-        .p-reason { font-size: 0.95rem; line-height: 1.6; margin-bottom: 15px; padding: 12px; background: rgba(79, 70, 229, 0.05); border-radius: 12px; border-inline-start: 4px solid var(--secondary); }
-        
-        .btn-amazon { 
-            background: #FF9900; color: white; border: none; padding: 14px; border-radius: 12px; 
-            cursor: pointer; font-weight: bold; width: 100%; text-decoration: none; 
-            display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: auto; 
-        }
-
-        .locked-features { display: flex; justify-content: center; gap: 15px; padding: 2rem; margin-top: auto; background: var(--glass-bg); border-top: 1px solid var(--glass-border); flex-wrap: wrap; }
-        .feature-btn { background: transparent; border: 1px solid var(--text-color); color: var(--text-color); padding: 10px 20px; border-radius: 30px; cursor: not-allowed; font-size: 0.9rem; opacity: 0.4; display: flex; align-items: center; gap: 8px; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .loading-pulse { animation: pulse 1.5s infinite; text-align: center; padding: 20px; font-weight: bold; }
+        .advisor-card { background: linear-gradient(135deg, #4F46E5, #06B6D4); color: white; padding: 25px; border-radius: 20px; box-shadow: var(--shadow); display: none; margin-bottom: 30px; }
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .product-card { background: var(--card-bg); border-radius: 20px; padding: 20px; box-shadow: var(--shadow); display: flex; flex-direction: column; border: 1px solid rgba(0,0,0,0.05); }
+        .rank-badge { background: var(--primary); color: white; padding: 4px 12px; border-radius: 8px; font-size: 0.8rem; width: fit-content; margin-bottom: 10px; }
+        .p-reason { font-size: 0.9rem; background: rgba(34, 197, 94, 0.1); color: #166534; padding: 10px; border-radius: 10px; margin-bottom: 10px; }
+        .btn-amazon { background: #FF9900; color: white; border: none; padding: 12px; border-radius: 12px; cursor: pointer; font-weight: bold; text-decoration: none; text-align: center; margin-top: auto; }
+        .locked-features { display: flex; justify-content: center; gap: 15px; padding: 2rem; background: var(--glass-bg); border-top: 1px solid var(--glass-border); opacity: 0.5; }
+        .feature-btn { background: transparent; border: 1px solid var(--text-color); color: var(--text-color); padding: 8px 18px; border-radius: 30px; cursor: not-allowed; font-size: 0.9rem; }
+        .loading-pulse { animation: pulse 1.5s infinite; text-align: center; }
         @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="logo">
-            <i class="fa-solid fa-robot"></i>
-            <div>Findly <span id="tagline-text"> – مستشارك الذكي للتسوق</span></div>
-        </div>
+        <div class="logo"><i class="fa-solid fa-robot"></i> <div>Findly <span id="tagline-text"> – مستشارك الذكي للتسوق</span></div></div>
         <div class="controls">
             <select class="lang-switch" id="lang-switch" onchange="changeLanguage(this.value)">
-                <option value="ar">العربية</option>
-                <option value="en">English</option>
-                <option value="fr">Français</option>
-                <option value="tr">Türkçe</option>
-                <option value="es">Español</option>
+                <option value="ar">العربية</option><option value="en">English</option><option value="fr">Français</option><option value="tr">Türkçe</option><option value="es">Español</option>
             </select>
-            
-            <button class="icon-btn" onclick="toggleTheme()">
-                <i class="fa-solid fa-moon" id="theme-icon"></i>
-            </button>
+            <button class="icon-btn" onclick="toggleTheme()"><i class="fa-solid fa-moon" id="theme-icon"></i></button>
         </div>
     </header>
 
     <main>
         <section class="hero">
-            <div class="ai-badge">AI Powered Shopping Assistant v2.0</div>
             <h1 id="main-title">خيارك المثالي مدروس بذكاء</h1>
             <p class="sub-text" id="main-sub">أخبرني بما تحتاجه، وسأحلل لك السوق لاستخراج أفضل 3 خيارات تناسبك بدقة.</p>
-
             <div class="search-container">
-                <input type="text" class="search-box" id="search-input" placeholder="مثال: هاتف للألعاب ببطارية قوية وسعر متوسط">
+                <input type="text" class="search-box" id="search-input" placeholder="مثال: هاتف للألعاب ببطارية قوية">
                 <i class="fa-solid fa-magnifying-glass mic-icon" onclick="handleSearch()"></i>
             </div>
-
             <div class="categories">
-                <div class="cat-item" onclick="quickSearch('هواتف')">
-                    <div class="cat-icon"><i class="fa-solid fa-mobile-screen"></i></div>
-                    <span id="cat-phones">هواتف</span>
-                </div>
-                <div class="cat-item" onclick="quickSearch('لابتوبات')">
-                    <div class="cat-icon"><i class="fa-solid fa-laptop"></i></div>
-                    <span id="cat-laptops">لابتوبات</span>
-                </div>
-                <div class="cat-item" onclick="quickSearch('سماعات')">
-                    <div class="cat-icon"><i class="fa-solid fa-headphones"></i></div>
-                    <span id="cat-audio">سماعات</span>
-                </div>
+                <div class="cat-item" onclick="quickSearch('هواتف')"><div class="cat-icon"><i class="fa-solid fa-mobile-screen"></i></div><span id="cat-phones">هواتف</span></div>
+                <div class="cat-item" onclick="quickSearch('لابتوبات')"><div class="cat-icon"><i class="fa-solid fa-laptop"></i></div><span id="cat-laptops">لابتوبات</span></div>
+                <div class="cat-item" onclick="quickSearch('سماعات')"><div class="cat-icon"><i class="fa-solid fa-headphones"></i></div><span id="cat-audio">سماعات</span></div>
             </div>
         </section>
 
         <div class="results-area">
-            <div id="ai-advisor-msg">
-                <div class="advisor-card">
-                    <h3><i class="fas fa-brain"></i> <span id="advisor-label">تحليل Findly الخبير:</span></h3>
-                    <div id="advisor-text" style="margin-top: 15px;"></div>
-                </div>
+            <div id="ai-advisor-msg" class="advisor-card">
+                <h3><i class="fas fa-brain"></i> <span id="advisor-label">تحليل Findly الخبير:</span></h3>
+                <div id="advisor-text" style="margin-top: 15px;"></div>
             </div>
             <div id="products-results" class="products-grid"></div>
         </div>
@@ -186,100 +91,142 @@
     </div>
 
     <script>
-        <script>
-    const API_URL = "https://findly-api.onrender.com"; // تأكد أن هذا هو رابط Render الخاص بك
-    
-    // ... (ابقِ على كائن translations كما هو بدون تغيير) ...
+        const API_URL = "https://findly-api.onrender.com";
+        let currentLang = 'ar';
 
-    let currentLang = 'ar';
+        const translations = {
+            ar: { title: "خيارك المثالي مدروس بذكاء", sub: "أخبرني بما تحتاجه، وسأحلل لك السوق لاستخراج أفضل 3 خيارات تناسبك بدقة.", place: "مثال: هاتف للألعاب ببطارية قوية", tagline: " – مستشارك الذكي للتسوق", advisor: "تحليل Findly الخبير:", catPhones: "هواتف", catLaptops: "لابتوبات", catAudio: "سماعات", buy: "شراء الآن 🚀", smart: "خيار ذكي", loading: "جاري التحليل...", dir: "rtl" },
+            en: { title: "Smart Choices, Analyzed", sub: "Tell me what you need, I'll find the best 3 options.", place: "Ex: Gaming phone with big battery", tagline: " – Your Smart Advisor", advisor: "Findly Expert Analysis:", catPhones: "Phones", catLaptops: "Laptops", catAudio: "Audio", buy: "Buy Now 🚀", smart: "Smart Choice", loading: "Analyzing...", dir: "ltr" },
+            fr: { title: "Choix intelligents", sub: "Dites-moi vos besoins, je trouve le top 3.", place: "Ex: Téléphone gamer", tagline: " – Votre conseiller", advisor: "Analyse d'expert:", catPhones: "Mobiles", catLaptops: "Laptops", catAudio: "Audio", buy: "Acheter 🚀", smart: "Choix Smart", loading: "Analyse...", dir: "ltr" },
+            tr: { title: "Akıllı Seçimler", sub: "İhtiyacınızı söyleyin, en iyi 3 seçeneği bulalım.", place: "Örn: Oyun telefonu", tagline: " – Akıllı Danışman", advisor: "Uzman Analizi:", catPhones: "Telefon", catLaptops: "Laptop", catAudio: "Ses", buy: "Satın Al 🚀", smart: "Akıllı Seçim", loading: "Analiz ediliyor...", dir: "ltr" },
+            es: { title: "Elecciones Inteligentes", sub: "Dime qué necesitas, busco las 3 mejores opciones.", place: "Ej: Teléfono gaming", tagline: " – Tu asesor", advisor: "Análisis experto:", catPhones: "Móviles", catLaptops: "Laptops", catAudio: "Audio", buy: "Comprar 🚀", smart: "Elección Smart", loading: "Analizando...", dir: "ltr" }
+        };
 
-    function changeLanguage(lang) {
-        currentLang = lang;
-        const t = translations[lang];
-        document.getElementById('main-title').innerText = t.title;
-        document.getElementById('main-sub').innerText = t.sub;
-        document.getElementById('search-input').placeholder = t.place;
-        document.getElementById('tagline-text').innerText = t.tagline;
-        document.getElementById('advisor-label').innerText = t.advisor;
-        document.getElementById('cat-phones').innerText = t.catPhones;
-        document.getElementById('cat-laptops').innerText = t.catLaptops;
-        document.getElementById('cat-audio').innerText = t.catAudio;
-        document.getElementById('feat-1').innerText = t.feat1;
-        document.getElementById('feat-2').innerText = t.feat2;
-        document.documentElement.dir = t.dir;
-        document.documentElement.lang = lang;
+        const translations = {
+    ar: {
+        title: "خيارك المثالي مدروس بذكاء",
+        sub: "أخبرني بما تحتاجه، وسأحلل لك السوق لاستخراج أفضل 3 خيارات تناسبك بدقة.",
+        place: "مثال: هاتف للألعاب ببطارية قوية وسعر متوسط",
+        tagline: " – مستشارك الذكي للتسوق",
+        advisor: "تحليل Findly الخبير:",
+        catPhones: "هواتف",
+        catLaptops: "لابتوبات",
+        catAudio: "سماعات",
+        feat1: "مقارنة الأسعار",
+        feat2: "تتبع التخفيضات",
+        buy: "شراء الآن 🚀",
+        smart: "خيار ذكي",
+        loading: "جاري تحليل أفضل الخيارات...",
+        dir: "rtl"
+    },
+    en: {
+        title: "Your Perfect Choice, Smartly Analyzed",
+        sub: "Tell me what you need, and I'll analyze the market to find the best 3 options.",
+        place: "Example: Gaming phone with strong battery",
+        tagline: " – Your Smart Shopping Advisor",
+        advisor: "Findly Expert Analysis:",
+        catPhones: "Phones",
+        catLaptops: "Laptops",
+        catAudio: "Audio",
+        feat1: "Price Comparison",
+        feat2: "Price Tracking",
+        buy: "Buy Now 🚀",
+        smart: "Smart Choice",
+        loading: "Analyzing best options...",
+        dir: "ltr"
+    },
+    fr: {
+        title: "Votre choix idéal, analysé intelligemment",
+        sub: "Dites-moi vos besoins, j'analyserai le marché pour vous.",
+        place: "Ex: Téléphone gamer avec bonne batterie",
+        tagline: " – Votre conseiller shopping",
+        advisor: "Analyse experte Findly:",
+        catPhones: "Mobiles",
+        catLaptops: "Laptops",
+        catAudio: "Audio",
+        feat1: "Comparer les prix",
+        feat2: "Suivi des prix",
+        buy: "Acheter 🚀",
+        smart: "Choix Intelligent",
+        loading: "Analyse en cours...",
+        dir: "ltr"
+    },
+    tr: {
+        title: "Mükemmel Seçiminiz, Akıllıca Analiz Edildi",
+        sub: "İhtiyacınızı söyleyin, piyasayı analiz edelim.",
+        place: "Örn: Güçlü bataryalı oyun telefonu",
+        tagline: " – Akıllı Alışveriş Danışmanınız",
+        advisor: "Findly Uzman Analizi:",
+        catPhones: "Telefonlar",
+        catLaptops: "Laptoplar",
+        catAudio: "Kulaklıklar",
+        feat1: "Fiyat Karşılaştırma",
+        feat2: "İndirim Takibi",
+        buy: "Satın Al 🚀",
+        smart: "Akıllı Seçim",
+        loading: "Analiz ediliyor...",
+        dir: "ltr"
+    },
+    es: {
+        title: "Tu elección ideal, analizada inteligentemente",
+        sub: "Dime qué necesitas y buscaré las 3 mejores opciones.",
+        place: "Ej: Teléfono gaming con buena batería",
+        tagline: " – Tu asesor de compras",
+        advisor: "Análisis experto Findly:",
+        catPhones: "Móviles",
+        catLaptops: "Portátiles",
+        catAudio: "Audio",
+        feat1: "Comparar precios",
+        feat2: "Seguimiento de ofertas",
+        buy: "Comprar 🚀",
+        smart: "Elección Inteligente",
+        loading: "Analizando opciones...",
+        dir: "ltr"
     }
+};
 
-    async function handleSearch() {
-        const userInput = document.getElementById('search-input').value;
-        const resultsDiv = document.getElementById('products-results');
-        const advisorText = document.getElementById('advisor-text');
-        const advisorMsg = document.getElementById('ai-advisor-msg');
+        async function handleSearch() {
+            const query = document.getElementById('search-input').value;
+            const resultsDiv = document.getElementById('products-results');
+            const advisorMsg = document.getElementById('ai-advisor-msg');
+            const advisorText = document.getElementById('advisor-text');
 
-        if (!userInput) return;
+            if (!query) return;
+            advisorMsg.style.display = 'block';
+            advisorText.innerHTML = `<p class="loading-pulse">${translations[currentLang].loading}</p>`;
+            resultsDiv.innerHTML = '';
 
-        // إظهار حالة التحميل
-        advisorMsg.style.display = 'block';
-        advisorText.innerHTML = `<p class="loading-pulse">${translations[currentLang].loading}</p>`;
-        resultsDiv.innerHTML = '';
+            try {
+                const response = await fetch(`${API_URL}/get-ai-advice`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query, lang: currentLang })
+                });
+                const data = await response.json();
+                advisorText.innerHTML = data.explanation.replace(/\n/g, '<br>');
 
-        try {
-            const response = await fetch(`${API_URL}/get-ai-advice`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ query: userInput, lang: currentLang })
-            });
-
-            if (!response.ok) throw new Error('Network error');
-            const data = await response.json();
-
-            // تصحيح: قراءة 'explanation' بدلاً من 'analysis.why'
-            // استخدمنا .replace لإظهار السطور الجديدة بشكل صحيح في HTML
-            const formattedExplanation = data.explanation ? data.explanation.replace(/\n/g, '<br>') : "";
-            advisorText.innerHTML = `<div style="line-height: 1.6; font-size: 1.1rem;">${formattedExplanation}</div>`;
-            
-            resultsDiv.innerHTML = ''; 
-
-            if (data.products && data.products.length > 0) {
-                data.products.forEach(product => {
+                data.products.forEach(p => {
                     resultsDiv.innerHTML += `
                         <div class="product-card">
                             <div class="rank-badge">${translations[currentLang].smart}</div>
-                            <img src="${product.thumbnail}" style="width: 100%; height: 180px; object-fit: contain; margin-bottom: 15px;" onerror="this.src='https://via.placeholder.com/150?text=No+Image'">
-                            <div class="p-title">${product.name}</div>
-                            <div class="p-reason">💡 ${product.recommendation_reason}</div>
-                            <div style="font-size:1.1rem; font-weight:bold; color:var(--accent); margin-bottom:15px;">${product.features}</div>
-                            <a href="${product.link}" target="_blank" class="btn-amazon">
-                                ${translations[currentLang].buy}
-                            </a>
+                            <img src="${p.thumbnail}" style="width: 100%; height: 160px; object-fit: contain; margin-bottom: 15px;">
+                            <h4 style="margin-bottom:10px;">${p.name}</h4>
+                            <div class="p-reason">💡 ${p.recommendation_reason}</div>
+                            <div style="font-weight:bold; color:var(--primary); margin-bottom:15px;">${p.features}</div>
+                            <a href="${p.link}" target="_blank" class="btn-amazon">${translations[currentLang].buy}</a>
                         </div>`;
                 });
-            } else {
-                advisorText.innerHTML = currentLang === 'ar' ? "لم أجد نتائج دقيقة، جرب كلمات بحث أخرى." : "No exact matches found, try different keywords.";
-            }
-        } catch (error) {
-            console.error("Fetch Error:", error);
-            advisorText.innerHTML = "<span style='color: #ff8080;'>عذراً، تعذر الاتصال بالسيرفر. تأكد من تشغيل Render.</span>";
+            } catch (e) { advisorText.innerText = "Error connecting to server."; }
         }
-    }
 
-    // تشغيل البحث عند ضغط Enter
-    document.getElementById('search-input').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') handleSearch();
-    });
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const icon = document.getElementById('theme-icon');
+            icon.classList.toggle('fa-moon'); icon.classList.toggle('fa-sun');
+        }
 
-    function toggleTheme() {
-        document.body.classList.toggle('dark-mode');
-        const icon = document.getElementById('theme-icon');
-        icon.classList.toggle('fa-moon');
-        icon.classList.toggle('fa-sun');
-    }
+        function quickSearch(v) { document.getElementById('search-input').value = v; handleSearch(); }
 
-    function quickSearch(cat) {
-        document.getElementById('search-input').value = cat;
-        handleSearch();
-    }
-</script>
-
+        document.getElementById('search-input').addEventListener('keypress', (e) => { if(e.key === 'Enter') handleSearch(); });
+    </script>
 </body>
 </html>

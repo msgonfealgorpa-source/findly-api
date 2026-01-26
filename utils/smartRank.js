@@ -3,18 +3,19 @@ function smartRank(products, brain) {
     .map(p => {
       let score = 0;
 
-      // السعر
-      if (p.price) {
-        if (brain.intent === 'cheap') score += 50 / p.price;
-        if (brain.intent === 'best') score += 30;
+      // تحويل نص السعر (مثل "1500 SAR") إلى رقم حقيقي
+      const numericPrice = p.features ? parseFloat(p.features.replace(/[^0-9.]/g, '')) : 0;
+
+      // منطق الترتيب الذكي
+      if (brain.intent === 'cheap') {
+        score += (10000 / (numericPrice || 1)); // كلما قل السعر زاد السكور
+      } else {
+        score += (p.rating || 0) * 20; // التركيز على الجودة
       }
 
-      // التقييم
-      if (p.rating) score += p.rating * 10;
-
-      // المطابقة مع نية المستخدم
-      if (brain.brand && p.title?.toLowerCase().includes(brain.brand.toLowerCase())) {
-        score += 40;
+      // مكافأة مطابقة الماركة
+      if (brain.brand && p.name?.toLowerCase().includes(brain.brand.toLowerCase())) {
+        score += 100;
       }
 
       return { ...p, score };

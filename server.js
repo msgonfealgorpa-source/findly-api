@@ -7,31 +7,29 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// لجعل الصفحة البيضاء تختفي وتظهر رسالة نجاح
+app.get('/', (req, res) => res.send("Findly API is Online!"));
+
 app.post('/get-ai-advice', async (req, res) => {
     try {
         const { query } = req.body;
         const apiKey = process.env.GEMINI_API_KEY;
 
         const response = await axios.post(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
-            contents: [{ parts: [{ text: `Respond ONLY with JSON. Query: ${query}. Structure: {"analysis":{...}, "products":[...]}` }] }]
+            contents: [{ parts: [{ text: `أجب بصيغة JSON فقط لهذا الطلب: "${query}". الهيكل: {"analysis": {"intent": "..", "priorities": "..", "budget_status": "..", "use_case": "..", "why": ".."}, "products": [{"name": "..", "recommendation_reason": "..", "features": ".."}]}` }] }]
         });
 
-        const rawText = response.data.candidates[0].content.parts[0].text;
+        let text = response.data.candidates[0].content.parts[0].text;
+        // استخراج الـ JSON فقط لضمان عدم حدوث خطأ "فشل التحليل"
+        const cleanJson = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
         
-        // --- عملية الجراحة العاجلة ---
-        const firstBracket = rawText.indexOf('{');
-        const lastBracket = rawText.lastIndexOf('}') + 1;
-        
-        if (firstBracket === -1 || lastBracket === 0) {
-            return res.status(500).json({ error: "الذكاء الاصطناعي لم يرسل صيغة JSON" });
-        }
-
-        const cleanJson = JSON.parse(rawText.substring(firstBracket, lastBracket));
-        res.status(200).json(cleanJson);
+        // إرسال البيانات بالهيكل الذي ينتظره ملف الـ HTML الخاص بك
+        res.json(JSON.parse(cleanJson));
 
     } catch (error) {
-        res.status(500).json({ error: "خطأ في السيرفر", details: error.message });
+        res.status(500).json({ error: "فشل في معالجة البيانات من المصدر" });
     }
 });
 
-app.listen(process.env.PORT || 3000);
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log('Server Ready'));

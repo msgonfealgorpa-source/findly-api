@@ -3,30 +3,34 @@ const axios = require('axios');
 const cors = require('cors');
 require('dotenv').config();
 
-const app = express();
-app.use(cors());
-app.use(express.json());
-
-// المنفذ الذي سيعمل عليه السيرفر
-const PORT = process.env.PORT || 3000;
+// ... الكود السابق ...
 
 app.post('/get-ai-advice', async (req, res) => {
     try {
-        const { query, lang } = req.body;
+        const { query, lang } = req.body; // استلام اللغة من الواجهة (ar, en, fr, etc.)
+        const SERPAPI_KEY = process.env.SERPAPI_KEY;
+        
+        // تحديد لغة البحث ولغة النتائج بناءً على اختيار المستخدم
+        const searchLang = lang || "ar"; 
 
-        // إعدادات البحث بناءً على اللغة المختارة من الواجهة
-        const searchLanguage = lang || "ar";
-        const countryCode = (searchLanguage === "ar") ? "sa" : "us";
-
-        // 1. جلب البيانات من Google Shopping عبر SerpApi
         const response = await axios.get('https://serpapi.com/search.json', {
             params: {
                 engine: "google_shopping",
                 q: query,
-                api_key: process.env.SERPAPI_KEY, // تأكد من وجود المفتاح في Environment Variables
-                hl: searchLanguage,
-                gl: countryCode
+                api_key: SERPAPI_KEY,
+                hl: searchLang, // لغة الواجهة في جوجل
+                gl: searchLang === "ar" ? "sa" : "us" // اختيار الدولة بناءً على اللغة
             }
+        });
+
+        // ... منطق العقل الخارق مع تعديل النصوص لتناسب اللغة المرسلة ...
+        // (يمكنك لاحقاً استخدام مكتبة ترجمة أو نصوص ثابتة لكل لغة)
+        
+        res.json({
+            analysis: {
+                why: searchLang === "ar" ? `تحليل لـ ${query}...` : `Analysis for ${query}...`
+            },
+            products: products // المنتجات ستأتي تلقائياً بلغة hl المختارة
         });
 
         const shoppingResults = response.data.shopping_results || [];

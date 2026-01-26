@@ -3,63 +3,227 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Findly – مستشارك الذكي</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <title>Findly – مستشارك الذكي للتسوق</title>
+    <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root {
-            --primary: #4F46E5; 
-            --bg: #F8FAFC; 
-            --text: #1e293b; 
-            --card: #ffffff; 
-            --border: #e2e8f0;
+            /* لوحة ألوان عصرية وجذابة */
+            --primary-gradient: linear-gradient(135deg, #6366F1, #A855F7);
+            --secondary-gradient: linear-gradient(135deg, #3B82F6, #06B6D4);
+            --accent-color: #F59E0B; /* لون برتقالي جذاب للأزرار */
+            
+            --bg-light: #F3F4F6;
+            --text-light: #1F2937;
+            --card-light: #FFFFFF;
+            --border-light: #E5E7EB;
+            
+            --bg-dark: #111827;
+            --text-dark: #F9FAFB;
+            --card-dark: #1F2937;
+            --border-dark: #374151;
+            
+            /* المتغيرات النشطة */
+            --bg: var(--bg-light);
+            --text: var(--text-light);
+            --card-bg: var(--card-light);
+            --border-color: var(--border-light);
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
+
         .dark-mode {
-            --bg: #0F172A; --text: #f1f5f9; --card: #1e293b; --border: #334155;
+            --bg: var(--bg-dark);
+            --text: var(--text-dark);
+            --card-bg: var(--card-dark);
+            --border-color: var(--border-dark);
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
         }
-        body { background-color: var(--bg); color: var(--text); font-family: 'Cairo', sans-serif; margin: 0; padding: 0; transition: 0.3s; overflow-x: hidden; }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Readex+Pro', sans-serif; transition: all 0.3s ease; }
+        body { background-color: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
         
-        /* الشريط العلوي */
-        header { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: var(--card); box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; }
-        .logo { font-size: 1.2rem; font-weight: 900; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+        /* تصميم الشريط العلوي */
+        header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 1rem 5%; 
+            background: var(--card-bg); /* جعل الخلفية صلبة وليست شفافة للموبايل */
+            box-shadow: var(--shadow); 
+            position: sticky; top: 0; z-index: 1000; 
+        }
+        .logo-container { display: flex; flex-direction: column; }
+        .logo { 
+            font-size: 1.4rem; 
+            font-weight: 900; 
+            background: var(--primary-gradient); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            display: flex; align-items: center; gap: 8px; 
+        }
+        .tagline { font-size: 0.8rem; opacity: 0.8; font-weight: 400; margin-top: -2px; }
+
         .controls { display: flex; gap: 10px; align-items: center; }
-        select.lang-switch { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 5px; border-radius: 8px; font-size: 0.85rem; outline: none; }
+        select.lang-switch { 
+            background: var(--bg); 
+            border: 1px solid var(--border-color); 
+            color: var(--text); 
+            padding: 6px 10px; 
+            border-radius: 12px; 
+            font-size: 0.85rem; 
+            outline: none; 
+            cursor: pointer;
+        }
+        .theme-btn { background: none; border: none; color: var(--text); font-size: 1.2rem; cursor: pointer; padding: 5px; }
+
+        /* تصميم قسم البحث */
+        .hero { text-align: center; padding: 3rem 1rem 2rem; max-width: 600px; margin: 0 auto; }
+        h1 { font-size: 1.8rem; margin-bottom: 10px; font-weight: 800; line-height: 1.3; }
+        .sub-text { font-size: 1rem; opacity: 0.8; margin-bottom: 2.5rem; }
         
-        /* المحتوى الرئيسي */
-        .hero { text-align: center; padding: 2rem 1rem; }
-        h1 { font-size: 1.5rem; margin-bottom: 10px; line-height: 1.4; }
-        .sub-text { font-size: 0.9rem; opacity: 0.8; margin-bottom: 2rem; }
+        .search-container { position: relative; width: 100%; margin-bottom: 2.5rem; }
+        .search-box { 
+            width: 100%; 
+            padding: 16px 25px; 
+            padding-inline-end: 60px; 
+            border-radius: 20px; 
+            border: 2px solid transparent; 
+            background: var(--card-bg); 
+            box-shadow: var(--shadow); 
+            font-size: 1.1rem; 
+            color: var(--text); 
+            outline: none; 
+        }
+        .search-box:focus { border-color: #6366F1; }
+        .search-btn { 
+            position: absolute; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            inset-inline-end: 15px; 
+            color: white; 
+            background: var(--primary-gradient); 
+            border: none; 
+            width: 40px; 
+            height: 40px; 
+            border-radius: 15px; 
+            font-size: 1.2rem; 
+            cursor: pointer; 
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+        }
+        .search-btn:hover { transform: translateY(-50%) scale(1.05); }
+
+        /* تصميم التصنيفات */
+        .categories { display: flex; justify-content: center; gap: 20px; margin-bottom: 3rem; }
+        .cat-item { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 8px; 
+            cursor: pointer; 
+        }
+        .cat-icon { 
+            width: 60px; 
+            height: 60px; 
+            background: var(--card-bg); 
+            border-radius: 20px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 1.4rem; 
+            color: #6366F1; 
+            box-shadow: var(--shadow); 
+        }
+        .cat-item:hover .cat-icon { background: var(--primary-gradient); color: white; transform: translateY(-5px); }
+        .cat-item span { font-size: 0.9rem; font-weight: 600; }
+
+        /* تصميم منطقة النتائج */
+        .results-area { padding: 0 20px 40px; max-width: 800px; margin: 0 auto; }
+        .advisor-card { 
+            background: var(--secondary-gradient); 
+            color: white; 
+            padding: 25px; 
+            border-radius: 20px; 
+            margin-bottom: 25px; 
+            display: none; 
+            font-size: 0.95rem; 
+            line-height: 1.7; 
+            box-shadow: 0 10px 20px rgba(6, 182, 212, 0.2);
+            animation: slideUp 0.5s ease;
+        }
         
-        /* مربع البحث */
-        .search-container { position: relative; width: 100%; max-width: 500px; margin: 0 auto 2rem; }
-        .search-box { width: 100%; padding: 15px 20px; padding-inline-end: 50px; border-radius: 15px; border: 1px solid transparent; background: var(--card); box-shadow: 0 4px 15px rgba(0,0,0,0.05); font-size: 1rem; color: var(--text); outline: none; box-sizing: border-box; }
-        .search-btn { position: absolute; top: 50%; transform: translateY(-50%); inset-inline-end: 15px; color: var(--primary); background: none; border: none; font-size: 1.2rem; cursor: pointer; }
-        
-        /* التصنيفات */
-        .categories { display: flex; justify-content: center; gap: 15px; margin-bottom: 2rem; flex-wrap: wrap; }
-        .cat-item { display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; min-width: 70px; }
-        .cat-icon { width: 50px; height: 50px; background: var(--card); border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .cat-item span { font-size: 0.8rem; font-weight: 600; }
-        
-        /* النتائج */
-        .results-area { padding: 0 15px 40px; max-width: 800px; margin: 0 auto; }
-        .advisor-card { background: linear-gradient(135deg, #4F46E5, #06B6D4); color: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; display: none; font-size: 0.9rem; line-height: 1.6; }
-        .product-card { background: var(--card); padding: 15px; border-radius: 15px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 10px; }
-        .btn-amazon { background: #FF9900; color: white; text-decoration: none; padding: 10px; border-radius: 8px; text-align: center; font-weight: bold; font-size: 0.9rem; display: block; margin-top: 5px; }
-        
+        /* تصميم بطاقة المنتج العصرية */
+        .product-card { 
+            background: var(--card-bg); 
+            padding: 20px; 
+            border-radius: 20px; 
+            margin-bottom: 20px; 
+            box-shadow: var(--shadow); 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+            border: 1px solid var(--border-color);
+        }
+        .product-card:hover { transform: translateY(-5px); border-color: #6366F1; }
+
+        .product-header { display: flex; gap: 15px; align-items: center; }
+        .product-img { 
+            width: 90px; 
+            height: 90px; 
+            object-fit: contain; 
+            border-radius: 15px; 
+            background: var(--bg); 
+            padding: 5px; 
+        }
+        .product-info h4 { margin: 0 0 8px 0; font-size: 1rem; line-height: 1.4; }
+        .smart-badge { 
+            font-size: 0.8rem; 
+            color: #065F46; 
+            background: #D1FAE5; 
+            padding: 4px 10px; 
+            border-radius: 8px; 
+            display: inline-block; 
+            font-weight: 600;
+        }
+        .product-price { font-weight: 800; color: #6366F1; font-size: 1.1rem; }
+        .btn-amazon { 
+            background: var(--accent-color); 
+            color: white; 
+            text-decoration: none; 
+            padding: 14px; 
+            border-radius: 15px; 
+            text-align: center; 
+            font-weight: 700; 
+            display: flex; justify-content: center; align-items: center; gap: 8px;
+            box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);
+        }
+        .btn-amazon:hover { filter: brightness(1.1); }
+
         /* الأزرار المقفلة */
-        .locked-area { display: flex; justify-content: center; gap: 10px; margin-top: 2rem; opacity: 0.5; padding-bottom: 2rem; }
-        .locked-btn { border: 1px solid var(--text); padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; background: none; color: var(--text); display: flex; align-items: center; gap: 5px; }
+        .locked-area { display: flex; justify-content: center; gap: 15px; margin-top: 2rem; padding-bottom: 2rem; opacity: 0.6; }
+        .locked-btn { 
+            border: 1px solid var(--text); 
+            padding: 8px 16px; 
+            border-radius: 25px; 
+            font-size: 0.8rem; 
+            background: var(--card-bg); 
+            color: var(--text); 
+            display: flex; align-items: center; gap: 6px; 
+        }
 
         .loader { display: inline-block; animation: spin 1s infinite linear; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="logo"><i class="fa-solid fa-robot"></i> Findly</div>
+        <div class="logo-container">
+            <div class="logo"><i class="fa-solid fa-robot"></i> Findly</div>
+            <div class="tagline" id="tagline-text">مستشارك الذكي للتسوق</div>
+        </div>
         <div class="controls">
             <select class="lang-switch" onchange="changeLanguage(this.value)">
                 <option value="ar">العربية</option>
@@ -68,7 +232,9 @@
                 <option value="tr">Türkçe</option>
                 <option value="es">Español</option>
             </select>
-            <i class="fa-solid fa-moon" onclick="toggleTheme()" style="font-size: 1.2rem; cursor: pointer;"></i>
+            <button class="theme-btn" onclick="toggleTheme()">
+                <i class="fa-solid fa-moon" id="theme-icon"></i>
+            </button>
         </div>
     </header>
 
@@ -96,7 +262,7 @@
         <div class="results-area">
             <div id="advisor-card" class="advisor-card">
                 <strong><i class="fas fa-brain"></i> <span id="advisor-title">تحليل Findly الخبير:</span></strong>
-                <div id="advisor-text" style="margin-top: 10px;"></div>
+                <div id="advisor-text" style="margin-top: 15px;"></div>
             </div>
             <div id="products-list"></div>
         </div>
@@ -108,50 +274,50 @@
     </main>
 
     <script>
-        const API_URL = "https://findly-api.onrender.com";
+        const API_URL = "https://findly-api.onrender.com"; // تأكد من أن رابط السيرفر الخاص بك صحيح
         let currentLang = 'ar';
 
-        // 1. قاموس اللغات الكامل (لن ينقص شيئاً هذه المرة)
+        // 1. قاموس اللغات الكامل
         const translations = {
-            ar: { title: "خيارك المثالي مدروس بذكاء", sub: "أخبرني بما تحتاجه، وسأحلل لك السوق.", placeholder: "مثال: سامسونج S24...", advisor: "تحليل Findly الخبير:", catPhones: "هواتف", catLaptops: "لابتوبات", catAudio: "سماعات", feat1: "مقارنة الأسعار", feat2: "تتبع التخفيضات", buy: "شراء الآن 🚀", smart: "خيار ذكي", loading: "جاري تحليل السوق...", dir: "rtl" },
-            en: { title: "Your Smart Choice", sub: "Tell me what you need, I'll analyze the market.", placeholder: "Ex: Samsung S24...", advisor: "Findly Expert Analysis:", catPhones: "Phones", catLaptops: "Laptops", catAudio: "Audio", feat1: "Price Check", feat2: "Price Alert", buy: "Buy Now 🚀", smart: "Smart Pick", loading: "Analyzing market...", dir: "ltr" },
-            fr: { title: "Choix Intelligent", sub: "Dites-moi vos besoins, j'analyse le marché.", placeholder: "Ex: iPhone 15...", advisor: "Analyse d'Expert:", catPhones: "Mobiles", catLaptops: "Laptops", catAudio: "Audio", feat1: "Prix", feat2: "Alertes", buy: "Acheter 🚀", smart: "Choix Smart", loading: "Analyse en cours...", dir: "ltr" },
-            tr: { title: "Akıllı Seçim", sub: "İhtiyacınızı söyleyin, piyasayı analiz edelim.", placeholder: "Örn: Samsung...", advisor: "Uzman Analizi:", catPhones: "Telefon", catLaptops: "Laptop", catAudio: "Ses", feat1: "Fiyatlar", feat2: "İndirimler", buy: "Satın Al 🚀", smart: "Akıllı Seçim", loading: "Analiz ediliyor...", dir: "ltr" },
-            es: { title: "Elección Inteligente", sub: "Dime qué necesitas, analizo el mercado.", placeholder: "Ej: Samsung...", advisor: "Análisis Experto:", catPhones: "Móviles", catLaptops: "Portátiles", catAudio: "Audio", feat1: "Precios", feat2: "Alertas", buy: "Comprar 🚀", smart: "Elección Smart", loading: "Analizando...", dir: "ltr" }
+            ar: { title: "خيارك المثالي مدروس بذكاء", sub: "أخبرني بما تحتاجه، وسأحلل لك السوق.", placeholder: "مثال: سامسونج S24...", advisor: "تحليل Findly الخبير:", tagline: "مستشارك الذكي للتسوق", catPhones: "هواتف", catLaptops: "لابتوبات", catAudio: "سماعات", feat1: "مقارنة الأسعار", feat2: "تتبع التخفيضات", buy: "شراء الآن 🚀", smart: "خيار ذكي", loading: "جاري تحليل السوق...", dir: "rtl" },
+            en: { title: "Your Smart Choice", sub: "Tell me what you need, I'll analyze the market.", placeholder: "Ex: Samsung S24...", advisor: "Findly Expert Analysis:", tagline: "Your Smart Shopping Advisor", catPhones: "Phones", catLaptops: "Laptops", catAudio: "Audio", feat1: "Price Check", feat2: "Price Alert", buy: "Buy Now 🚀", smart: "Smart Pick", loading: "Analyzing market...", dir: "ltr" },
+            fr: { title: "Choix Intelligent", sub: "Dites-moi vos besoins, j'analyse le marché.", placeholder: "Ex: iPhone 15...", advisor: "Analyse d'Expert:", tagline: "Votre conseiller shopping", catPhones: "Mobiles", catLaptops: "Laptops", catAudio: "Audio", feat1: "Prix", feat2: "Alertes", buy: "Acheter 🚀", smart: "Choix Smart", loading: "Analyse en cours...", dir: "ltr" },
+            tr: { title: "Akıllı Seçim", sub: "İhtiyacınızı söyleyin, piyasayı analiz edelim.", placeholder: "Örn: Samsung...", advisor: "Uzman Analizi:", tagline: "Akıllı Alışveriş Danışmanınız", catPhones: "Telefon", catLaptops: "Laptop", catAudio: "Ses", feat1: "Fiyatlar", feat2: "İndirimler", buy: "Satın Al 🚀", smart: "Akıllı Seçim", loading: "Analiz ediliyor...", dir: "ltr" },
+            es: { title: "Elección Inteligente", sub: "Dime qué necesitas, analizo el mercado.", placeholder: "Ej: Samsung...", advisor: "Análisis Experto:", tagline: "Tu asesor de compras", catPhones: "Móviles", catLaptops: "Portátiles", catAudio: "Audio", feat1: "Precios", feat2: "Alertas", buy: "Comprar 🚀", smart: "Elección Smart", loading: "Analizando...", dir: "ltr" }
         };
 
-        // 2. دالة تغيير اللغة (مرتبطة بكل النصوص في الصفحة)
+        // 2. دالة تغيير اللغة
         function changeLanguage(lang) {
             currentLang = lang;
             const t = translations[lang];
             
-            // تحديث النصوص
             document.getElementById('main-title').innerText = t.title;
             document.getElementById('main-sub').innerText = t.sub;
             document.getElementById('search-input').placeholder = t.placeholder;
             document.getElementById('advisor-title').innerText = t.advisor;
+            document.getElementById('tagline-text').innerText = t.tagline;
             document.getElementById('cat-phones').innerText = t.catPhones;
             document.getElementById('cat-laptops').innerText = t.catLaptops;
             document.getElementById('cat-audio').innerText = t.catAudio;
             document.getElementById('feat-1').innerText = t.feat1;
             document.getElementById('feat-2').innerText = t.feat2;
-
-            // تغيير الاتجاه
             document.documentElement.dir = t.dir;
         }
 
         // 3. دالة الوضع الليلي
         function toggleTheme() {
             document.body.classList.toggle('dark-mode');
+            const icon = document.getElementById('theme-icon');
+            icon.classList.toggle('fa-moon'); icon.classList.toggle('fa-sun');
         }
 
-        // 4. البحث السريع عبر الأيقونات
+        // 4. البحث السريع
         function quickSearch(term) {
             document.getElementById('search-input').value = term;
             handleSearch();
         }
 
-        // 5. دالة البحث الرئيسية (القلب النابض)
+        // 5. دالة البحث الرئيسية
         async function handleSearch() {
             const query = document.getElementById('search-input').value;
             const list = document.getElementById('products-list');
@@ -160,50 +326,42 @@
 
             if (!query) return;
 
-            // إظهار التحميل
             advisorCard.style.display = 'block';
             advisorText.innerHTML = `<i class="fa-solid fa-circle-notch loader"></i> ${translations[currentLang].loading}`;
             list.innerHTML = '';
 
             try {
-                // الاتصال بالسيرفر
                 const res = await fetch(`${API_URL}/get-ai-advice`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ query, lang: currentLang })
                 });
-
                 const data = await res.json();
                 
-                // عرض النتيجة النصية
                 advisorText.innerHTML = data.explanation.replace(/\n/g, '<br>');
 
-                // عرض المنتجات
                 data.products.forEach(p => {
                     list.innerHTML += `
                         <div class="product-card">
-                            <div style="display:flex; gap:15px; align-items:flex-start;">
-                                <img src="${p.thumbnail}" style="width:80px; height:80px; object-fit:contain; border-radius:8px;" onerror="this.src='https://via.placeholder.com/80'">
-                                <div style="flex:1;">
-                                    <h4 style="margin:0 0 5px 0; font-size:0.9rem;">${p.name}</h4>
-                                    <div style="font-size:0.75rem; color:green; background:#f0fdf4; padding:3px 6px; border-radius:4px; display:inline-block; margin-bottom:5px;">
+                            <div class="product-header">
+                                <img src="${p.thumbnail}" class="product-img" onerror="this.src='https://via.placeholder.com/80'">
+                                <div class="product-info">
+                                    <h4>${p.name}</h4>
+                                    <div class="smart-badge">
                                         💡 ${p.recommendation_reason || translations[currentLang].smart}
                                     </div>
-                                    <div style="font-weight:bold; color:var(--primary); font-size:0.9rem;">${p.features}</div>
                                 </div>
                             </div>
+                            <div class="product-price">${p.features}</div>
                             <a href="${p.link}" target="_blank" class="btn-amazon">${translations[currentLang].buy}</a>
                         </div>
                     `;
                 });
-
             } catch (err) {
                 console.error(err);
                 advisorText.innerHTML = "حدث خطأ في الاتصال، يرجى المحاولة مرة أخرى.";
             }
         }
 
-        // تفعيل زر Enter للبحث
         document.getElementById('search-input').addEventListener('keypress', function (e) {
             if (e.key === 'Enter') handleSearch();
         });

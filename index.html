@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -206,33 +205,15 @@ const translations = {
 };
 
 let currentLang = 'ar';
+
 function changeLanguage(lang) {
-    currentLang = lang;
-    const t = translations[lang];
-    
-    // 1. تغيير العناوين الرئيسية
-    document.querySelector('h1').innerText = t.title;
-    document.querySelector('.sub-text').innerText = t.sub;
-    document.getElementById('search-input').placeholder = t.place;
-    
-    // 2. تغيير اتجاه الموقع (يمين/يسار)
-    document.documentElement.dir = t.dir;
-    document.documentElement.lang = lang;
-
-    // 3. تغيير "شعار الموقع" (Tagline) ليناسب اللغة
-    const tagline = document.getElementById('tagline-text');
-    if (lang === 'ar') tagline.innerText = ' – مستشارك الذكي للتسوق';
-    else if (lang === 'en') tagline.innerText = ' – Your Smart Shopping Advisor';
-    else if (lang === 'fr') tagline.innerText = ' – Votre conseiller shopping';
-    else if (lang === 'tr') tagline.innerText = ' – Akıllı Alışveriş Danışmanınız';
-    else tagline.innerText = ' – Tu asesor de compras inteligente';
-
-    // 4. تغيير أسماء الفئات (هواتف، لابتوبات، سماعات)
-    document.querySelector('[onclick="quickSearch(\'هواتف\')"] span').innerText = (lang === 'ar') ? 'هواتف' : 'Phones';
-    document.querySelector('[onclick="quickSearch(\'لابتوبات\')"] span').innerText = (lang === 'ar') ? 'لابتوبات' : 'Laptops';
-    document.querySelector('[onclick="quickSearch(\'سماعات\')"] span').innerText = (lang === 'ar') ? 'سماعات' : 'Audio';
+    currentLang = lang;
+    const t = translations[lang];
+    document.querySelector('h1').innerText = t.title;
+    document.querySelector('.sub-text').innerText = t.sub;
+    document.getElementById('search-input').placeholder = t.place;
+    document.documentElement.dir = t.dir; 
 }
-
         // الدالة الأساسية لتشغيل "العقل الخارق"
         async function handleSearch() {
             const userInput = document.getElementById('search-input').value;
@@ -253,7 +234,7 @@ function changeLanguage(lang) {
                 const response = await fetch(`${API_URL}/get-ai-advice`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query: userInput, lang: currentLang }) //
+                    body: JSON.stringify({ query: userInput, lang: currentLang })
 
                 if (!response.ok) throw new Error('السيرفر لا يستجيب حالياً');
                 

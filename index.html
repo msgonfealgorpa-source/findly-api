@@ -196,7 +196,25 @@
     <script>
         // الرابط المباشر لسيرفرك على ريندر
         const API_URL = "https://findly-api.onrender.com";
+// قاموس اللغات - يوضع بعد تعريف API_URL
+const translations = {
+    ar: { title: "خيارك المثالي مدروس بذكاء", sub: "أخبرني بما تحتاجه، وسأحلل لك السوق لاستخراج أفضل 3 خيارات تناسبك بدقة.", place: "مثال: هاتف للألعاب...", dir: "rtl" },
+    en: { title: "Your Perfect Choice, Smartly Analyzed", sub: "Tell me what you need, and I will analyze the market to find the top 3 options for you.", place: "Example: Gaming phone...", dir: "ltr" },
+    fr: { title: "Votre choix idéal, analysé intelligemment", sub: "Dites-moi ce dont vous avez besoin, et j'analyserai le marché.", place: "Ex: Téléphone gamer...", dir: "ltr" },
+    tr: { title: "Mükemmel Seçiminiz, Akıllıca Analiz Edildi", sub: "Neye ihtiyacınız olduğunu söyleyin, piyasayı analiz edeyim.", place: "Örnek: Oyun telefonu...", dir: "ltr" },
+    es: { title: "Tu elección ideal, analizada inteligentemente", sub: "Dime qué necesitas y analizaré el mercado para ti.", place: "Ej: Teléfono para juegos...", dir: "ltr" }
+};
 
+let currentLang = 'ar';
+
+function changeLanguage(lang) {
+    currentLang = lang;
+    const t = translations[lang];
+    document.querySelector('h1').innerText = t.title;
+    document.querySelector('.sub-text').innerText = t.sub;
+    document.getElementById('search-input').placeholder = t.place;
+    document.documentElement.dir = t.dir; 
+}
         // الدالة الأساسية لتشغيل "العقل الخارق"
         async function handleSearch() {
             const userInput = document.getElementById('search-input').value;
@@ -217,8 +235,7 @@
                 const response = await fetch(`${API_URL}/get-ai-advice`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query: userInput })
-                });
+                    body: JSON.stringify({ query: userInput, lang: currentLang })
 
                 if (!response.ok) throw new Error('السيرفر لا يستجيب حالياً');
                 

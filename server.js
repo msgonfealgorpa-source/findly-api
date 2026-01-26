@@ -71,15 +71,12 @@ if (brain.brand) {
 
   const keywords = typeKeywords[brain.productType];
 
-  if (keywords) {
+  if (keywords) 
     filteredResults = filteredResults.filter(item =>
-      keywords.some(key =>
-        item.title && item.title.toLowerCase().includes(key)
-      )
-    );
-  }
-}
-      // 2. معالجة وتجهيز أفضل 3 منتجات
+  smartTextMatch(item.title, keywords)
+);
+    
+    // 2. معالجة وتجهيز أفضل 3 منتجات
 
       if (!filteredResults || filteredResults.length === 0) {
   return res.json({

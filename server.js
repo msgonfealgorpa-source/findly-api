@@ -57,11 +57,8 @@ if (brain.brand) {
   const keywords = brandKeywords[brain.brand] || [brain.brand];
 
   filteredResults = shoppingResults.filter(item =>
-    keywords.some(key =>
-      item.title && item.title.toLowerCase().includes(key)
-    )
-  );
-}
+  smartTextMatch(item.title, keywords)
+);
 
         if (brain.productType) {
   const typeKeywords = {

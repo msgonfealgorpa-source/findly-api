@@ -40,10 +40,10 @@ console.log("🧠 Smart Brain:", brain);
                 gl: currentLang === "ar" ? "sa" : "us" 
             }
         });
-
-        const shoppingResults = response.data.shopping_results || [];
+const shoppingResults = response.data.shopping_results || [];
 let filteredResults = shoppingResults;
 
+// فلترة حسب البراند
 if (brain.brand) {
   const brandKeywords = {
     apple: ["apple", "iphone", "ios"],
@@ -56,11 +56,13 @@ if (brain.brand) {
 
   const keywords = brandKeywords[brain.brand] || [brain.brand];
 
-  filteredResults = shoppingResults.filter(item =>
-  smartTextMatch(item.title, keywords)
-);
+  filteredResults = filteredResults.filter(item =>
+    smartTextMatch(item.title, keywords)
+  );
+}
 
-}   if (brain.productType) {
+// فلترة حسب نوع المنتج
+if (brain.productType) {
   const typeKeywords = {
     phone: ["phone", "iphone", "smartphone", "mobile"],
     laptop: ["laptop", "notebook", "macbook"],
@@ -71,11 +73,13 @@ if (brain.brand) {
 
   const keywords = typeKeywords[brain.productType];
 
-  if (keywords) 
+  if (keywords) {
     filteredResults = filteredResults.filter(item =>
-  smartTextMatch(item.title, keywords)
-);
-} 
+      smartTextMatch(item.title, keywords)
+    );
+  }
+}
+      
     // 2. معالجة وتجهيز أفضل 3 منتجات
 
       if (!filteredResults || filteredResults.length === 0) {

@@ -196,174 +196,101 @@
     <script>
         // الرابط المباشر لسيرفرك على ريندر
         <script>
-        const API_URL = "https://findly-api.onrender.com";
-        let currentLang = 'ar'; // تعريف اللغة الافتراضية
+        <script>
+    const API_URL = "https://findly-api.onrender.com";
+    let currentLang = 'ar'; // تعريف اللغة الافتراضية
 
-        const translations = {
-            ar: { 
-                title: "خيارك المثالي مدروس بذكاء", 
-                sub: "أخبرني بما تحتاجه، وسأحلل لك السوق لاستخراج أفضل 3 خيارات تناسبك بدقة.", 
-                place: "مثال: هاتف للألعاب...", 
-                dir: "rtl",
-                tag: " – مستشارك الذكي للتسوق",
-                cat1: "هواتف", cat2: "لابتوبات", cat3: "سماعات", cat4: "ساعات",
-                advTitle: "تحليل Findly الخبير:",
-                loading: "جاري تشغيل العقل الخارق لتحليل أفضل الخيارات...",
-                buyBtn: "شراء مباشر الآن 🚀",
-                imgSearch: "البحث بالصور",
-                compare: "مقارنة الأسعار",
-                track: "تتبع التخفيضات",
-                badge: "خيار مرشح ذكي"
-            },
-            en: { 
-                title: "Your Perfect Choice, Smartly Analyzed", 
-                sub: "Tell me what you need, and I will analyze the market to find the top 3 options for you.", 
-                place: "Example: Gaming phone...", 
-                dir: "ltr",
-                tag: " – Your Smart Shopping Advisor",
-                cat1: "Phones", cat2: "Laptops", cat3: "Audio", cat4: "Watches",
-                advTitle: "Findly Expert Analysis:",
-                loading: "Running the super-brain to analyze the best options...",
-                buyBtn: "Buy Now Direct 🚀",
-                imgSearch: "Image Search",
-                compare: "Price Compare",
-                track: "Price Tracker",
-                badge: "Smart Choice"
-            },
-            fr: { 
-                title: "Votre choix idéal, analysé intelligemment", 
-                sub: "Dites-moi ce dont vous avez besoin, et j'analyserai le marché pour vous.", 
-                place: "Ex: Téléphone gamer...", 
-                dir: "ltr",
-                tag: " – Votre conseiller shopping",
-                cat1: "Téléphones", cat2: "Laptops", cat3: "Audio", cat4: "Montres",
-                advTitle: "Analyse d'expert Findly:",
-                loading: "Analyse en cours par le super-cerveau...",
-                buyBtn: "Acheter maintenant 🚀",
-                imgSearch: "Recherche par image",
-                compare: "Comparer les prix",
-                track: "Suivi des prix",
-                badge: "Choix Intelligent"
-            },
-            tr: { 
-                title: "Mükemmel Seçiminiz, Akıllıca Analiz Edildi", 
-                sub: "Neye ihtiyacınız olduğunu söyleyin, piyasayı analiz edeyim.", 
-                place: "Örnek: Oyun telefonu...", 
-                dir: "ltr",
-                tag: " – Akıllı Alışveriş Danışمانınız",
-                cat1: "Telefonlar", cat2: "Laptoplar", cat3: "Ses", cat4: "Saatler",
-                advTitle: "Findly Uzman Analizi:",
-                loading: "Süper zeka en iyi seçenekleri analiz ediyor...",
-                buyBtn: "Hemen Satın Al 🚀",
-                imgSearch: "Görselle Ara",
-                compare: "Fiyat Karşılaştır",
-                track: "Fiyat Takibi",
-                badge: "Akıllı Seçim"
-            },
-            es: { 
-                title: "Tu elección ideal, analizada inteligentemente", 
-                sub: "Dime qué necesitas y analizaré el mercado para encontrar las 3 mejores opciones.", 
-                place: "Ej: Teléfono gamer...", 
-                dir: "ltr",
-                tag: " – Tu asesor de compras inteligente",
-                cat1: "Teléfonos", cat2: "Laptops", cat3: "Audio", cat4: "Relojes",
-                advTitle: "Análisis experto de Findly:",
-                loading: "El supercerebro está analizando las mejores opciones...",
-                buyBtn: "Comprar ahora 🚀",
-                imgSearch: "Buscar por imagen",
-                compare: "Comparar precios",
-                track: "Rastreo de precios",
-                badge: "Elección Inteligente"
-            }
-        };
+    const translations = {
+        ar: { title: "خيارك المثالي مدروس بذكاء", sub: "أخبرني بما تحتاجه، وسأحلل لك السوق لاستخراج أفضل 3 خيارات تناسبك بدقة.", place: "مثال: هاتف للألعاب...", dir: "rtl", tag: " – مستشارك الذكي للتسوق", cat1: "هواتف", cat2: "لابتوبات", cat3: "سماعات", cat4: "ساعات", advTitle: "تحليل Findly الخبير:", loading: "جاري تشغيل العقل الخارق لتحليل أفضل الخيارات...", buyBtn: "شراء مباشر الآن 🚀", imgSearch: "البحث بالصور", compare: "مقارنة الأسعار", track: "تتبع التخفيضات", badge: "خيار مرشح ذكي" },
+        en: { title: "Your Perfect Choice, Smartly Analyzed", sub: "Tell me what you need, and I will analyze the market to find the top 3 options for you.", place: "Example: Gaming phone...", dir: "ltr", tag: " – Your Smart Shopping Advisor", cat1: "Phones", cat2: "Laptops", cat3: "Audio", cat4: "Watches", advTitle: "Findly Expert Analysis:", loading: "Running the super-brain to analyze the best options...", buyBtn: "Buy Now Direct 🚀", imgSearch: "Image Search", compare: "Price Compare", track: "Price Tracker", badge: "Smart Choice" },
+        fr: { title: "Votre choix idéal, analysé intelligemment", sub: "Dites-moi ce dont vous avez besoin, et j'analyserai le marché pour vous.", place: "Ex: Téléphone gamer...", dir: "ltr", tag: " – Votre conseiller shopping", cat1: "Téléphones", cat2: "Laptops", cat3: "Audio", cat4: "Montres", advTitle: "Analyse d'expert Findly:", loading: "Analyse en cours...", buyBtn: "Acheter maintenant 🚀", imgSearch: "Recherche par image", compare: "Comparer les prix", track: "Suivi des prix", badge: "Choix Intelligent" },
+        tr: { title: "Mükemmel Seçiminiz", sub: "Neye ihtiyacınız olduğunu söyleyin, piyasayı analiz edeyim.", place: "Örnek: Oyun telefonu...", dir: "ltr", tag: " – Akıllı Alışveriş Danışmanınız", cat1: "Telefonlar", cat2: "Laptoplar", cat3: "Ses", cat4: "Saatler", advTitle: "Findly Uzman Analizi:", loading: "Analiz ediliyor...", buyBtn: "Hemen Satın Al 🚀", imgSearch: "Görselle Ara", compare: "Fiyat Karşılaştır", track: "Fiyat Takibi", badge: "Akıllı Seçim" },
+        es: { title: "Tu elección ideal", sub: "Dime qué necesitas y analizaré el mercado.", place: "Ej: Teléfono gamer...", dir: "ltr", tag: " – Tu asesor inteligente", cat1: "Teléfonos", cat2: "Laptops", cat3: "Audio", cat4: "Relojes", advTitle: "Análisis experto:", loading: "Analizando...", buyBtn: "Comprar ahora 🚀", imgSearch: "Buscar por imagen", compare: "Comparar precios", track: "Rastreo de precios", badge: "Elección Inteligente" }
+    };
 
-        function changeLanguage(lang) {
-            currentLang = lang;
-            const t = translations[lang];
-            document.documentElement.dir = t.dir;
-            document.querySelector('h1').innerText = t.title;
-            document.querySelector('.sub-text').innerText = t.sub;
-            document.getElementById('search-input').placeholder = t.place;
-            document.getElementById('tagline-text').innerText = t.tag;
+    function changeLanguage(lang) {
+        currentLang = lang;
+        const t = translations[lang];
+        document.documentElement.dir = t.dir;
+        document.querySelector('h1').innerText = t.title;
+        document.querySelector('.sub-text').innerText = t.sub;
+        document.getElementById('search-input').placeholder = t.place;
+        document.getElementById('tagline-text').innerText = t.tag;
 
-            const catItems = document.querySelectorAll('.cat-item span');
-            if (catItems.length >= 4) {
-                catItems[0].innerText = t.cat1;
-                catItems[1].innerText = t.cat2;
-                catItems[2].innerText = t.cat3;
-                catItems[3].innerText = t.cat4;
-            }
-
-            const featureBtns = document.querySelectorAll('.feature-btn');
-            if (featureBtns.length >= 3) {
-                featureBtns[0].innerHTML = `<i class="fa-solid fa-lock"></i> ${t.compare}`;
-                featureBtns[1].innerHTML = `<i class="fa-solid fa-lock"></i> ${t.track}`;
-                featureBtns[2].innerHTML = `<i class="fa-solid fa-camera"></i> ${t.imgSearch}`;
-            }
+        const catSpans = document.querySelectorAll('.cat-item span');
+        if(catSpans.length >= 4) {
+            catSpans[0].innerText = t.cat1; catSpans[1].innerText = t.cat2;
+            catSpans[2].innerText = t.cat3; catSpans[3].innerText = t.cat4;
         }
 
-        async function handleSearch() {
-            const userInput = document.getElementById('search-input').value;
-            const resultsDiv = document.getElementById('products-results');
-            const advisorText = document.getElementById('advisor-text');
-            const advisorMsg = document.getElementById('ai-advisor-msg');
+        const featureBtns = document.querySelectorAll('.feature-btn');
+        if(featureBtns.length >= 3) {
+            featureBtns[0].innerHTML = `<i class="fa-solid fa-lock"></i> ${t.compare}`;
+            featureBtns[1].innerHTML = `<i class="fa-solid fa-lock"></i> ${t.track}`;
+            featureBtns[2].innerHTML = `<i class="fa-solid fa-lock"></i> ${t.imgSearch}`;
+        }
+    }
 
-            if (!userInput) return;
+    async function handleSearch() {
+        const userInput = document.getElementById('search-input').value;
+        const resultsDiv = document.getElementById('products-results');
+        const advisorText = document.getElementById('advisor-text');
+        const advisorMsg = document.getElementById('ai-advisor-msg');
 
-            advisorMsg.style.display = 'block';
-            document.querySelector('.advisor-card h3').innerHTML = `<i class="fas fa-brain"></i> ${translations[currentLang].advTitle}`;
-            advisorText.innerHTML = `<p class="loading-pulse">${translations[currentLang].loading}</p>`;
-            resultsDiv.innerHTML = '';
+        if (!userInput) return;
 
-            try {
-                const response = await fetch(`${API_URL}/get-ai-advice`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query: userInput, lang: currentLang })
-                }); // أغلقنا القوس هنا بشكل صحيح
+        advisorMsg.style.display = 'block';
+        advisorText.innerHTML = `<p class="loading-pulse">${translations[currentLang].loading}</p>`;
+        resultsDiv.innerHTML = '';
 
-                if (!response.ok) throw new Error('Error');
-                
-                const data = await response.json();
-                advisorText.innerHTML = `<p style="line-height: 1.6;">${data.analysis.why}</p>`;
+        try {
+            const response = await fetch(`${API_URL}/get-ai-advice`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query: userInput, lang: currentLang })
+            });
 
-                if (data.products && data.products.length > 0) {
-                    data.products.forEach(product => { // أضفنا حلقة التكرار المفقودة
-                        resultsDiv.innerHTML += `
-                            <div class="product-card" dir="${translations[currentLang].dir}">
-                                <div class="rank-badge">${translations[currentLang].badge}</div>
-                                <img src="${product.thumbnail}" alt="${product.name}" style="width: 100%; height: 180px; object-fit: contain; margin-bottom: 15px;">
-                                <div class="p-title" dir="auto">${product.name}</div>
-                                <div class="p-reason" dir="auto">💡 ${product.recommendation_reason}</div>
-                                <div style="font-weight: bold; margin-bottom: 15px; color: var(--text-color);" dir="ltr">${product.features}</div>
-                                <a href="${product.link}" target="_blank" class="btn-amazon">${translations[currentLang].buyBtn}</a>
-                            </div>
-                        `;
-                    });
-                } else {
-                    resultsDiv.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">No results found.</p>';
-                }
-            } catch (error) {
-                console.error("Search Error:", error);
-                advisorText.innerHTML = `<p style="color:#ff4d4d">Error connecting to AI Server.</p>`;
+            if (!response.ok) throw new Error('Network response was not ok');
+            const data = await response.json();
+
+            advisorText.innerHTML = `<p style="line-height: 1.6;">${data.analysis.why}</p>`;
+
+            if (data.products && data.products.length > 0) {
+                data.products.forEach(product => {
+                    resultsDiv.innerHTML += `
+                        <div class="product-card" dir="${translations[currentLang].dir}">
+                            <div class="rank-badge">${translations[currentLang].badge}</div>
+                            <img src="${product.thumbnail}" alt="${product.name}" style="width: 100%; height: 180px; object-fit: contain; margin-bottom: 15px;">
+                            <div class="p-title" dir="auto">${product.name}</div>
+                            <div class="p-reason" dir="auto">💡 ${product.recommendation_reason}</div>
+                            <div style="font-weight: bold; margin-bottom: 15px; color: var(--text-color);" dir="ltr">${product.features}</div>
+                            <a href="${product.link}" target="_blank" class="btn-amazon">${translations[currentLang].buyBtn}</a>
+                        </div>
+                    `;
+                });
+            } else {
+                resultsDiv.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">لم يتم العثور على نتائج.</p>';
             }
+        } catch (error) {
+            console.error("Error:", error);
+            advisorText.innerHTML = `<p style="color:#ff4d4d">عذراً، تعذر الاتصال بالسيرفر. تأكد من أن السيرفر يعمل.</p>`;
         }
+    }
 
-        document.getElementById('search-input').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handleSearch();
-        });
+    document.getElementById('search-input').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleSearch();
+    });
 
-        function toggleTheme() {
-            document.body.classList.toggle('dark-mode');
-            const icon = document.getElementById('theme-icon');
-            icon.classList.toggle('fa-moon');
-            icon.classList.toggle('fa-sun');
-        }
+    function toggleTheme() {
+        document.body.classList.toggle('dark-mode');
+        const icon = document.getElementById('theme-icon');
+        icon.classList.toggle('fa-moon'); icon.classList.toggle('fa-sun');
+    }
 
-        function quickSearch(category) {
-            document.getElementById('search-input').value = category;
-            handleSearch();
-        }
-    </script>
+    function quickSearch(category) {
+        document.getElementById('search-input').value = category;
+        handleSearch();
+    }
+</script>
 </body>
 </html>

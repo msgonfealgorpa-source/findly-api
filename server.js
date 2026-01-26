@@ -11,33 +11,43 @@ app.post('/get-ai-advice', async (req, res) => {
     try {
         const { query } = req.body;
         const SERPAPI_KEY = process.env.SERPAPI_KEY;
-        const GEMINI_KEY = process.env.GEMINI_KEY;
 
-        // 1. جلب بيانات حقيقية من جوجل
-        const searchRes = await axios.get(`https://serpapi.com/search.json?engine=google_shopping&q=${encodeURIComponent(query)}&api_key=${SERPAPI_KEY}&hl=ar`);
-        const rawProducts = searchRes.data.shopping_results ? searchRes.data.shopping_results.slice(0, 5) : [];
+        if (!SERPAPI_KEY) {
+            return res.status(500).json({ error: "مفتاح SerpApi مفقود في ريندر" });
+        }
 
-        // 2. إرسال البيانات لجيمناي مع "إجبار" تنسيق JSON
-        const aiResponse = await axios.post(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`, {
-            contents: [{
-                parts: [{
-                    text: `أنت مساعد تسوق. حلل هذه المنتجات: ${JSON.stringify(rawProducts)}. 
-                    اختر أفضل 3 لطلب المستخدم: "${query}".
-                    يجب أن يكون الرد JSON فقط بهذا الهيكل:
-                    {"analysis": {"why": ".."}, "products": [{"name": "..", "recommendation_reason": "..", "features": ".."}]}`
-                }]
-            }],
-            generationConfig: {
-                responseMimeType: "application/json" // هذه الخاصية تضمن لك عدم وجود أخطاء في البيانات
+        // 1. جلب البيانات الخام من جوجل
+        const response = await axios.get('https://serpapi.com/search.json', {
+            params: {
+                engine: "google_shopping",
+                q: query,
+                api_key: SERPAPI_KEY,
+                hl: "ar",
+                gl: "sa"
             }
         });
 
-        // إرسال النتيجة مباشرة لأنها ستكون JSON نظيف
-        const result = JSON.parse(aiResponse.data.candidates[0].content.parts[0].text);
-        res.json(result);
+        const rawResults = response.data.shopping_results || [];
+
+        // 2. تنسيق البيانات يدوياً (بدون ذكاء اصطناعي) لتناسب واجهة الموقع
+        const formattedProducts = rawResults.slice(0, 6).map(item => ({
+            name: item.title,
+            recommendation_reason: `السعر: ${item.price} - متوفر في ${item.source}`,
+            features: item.delivery || "شحن سريع متوفر",
+            link: item.link,
+            thumbnail: item.thumbnail
+        }));
+
+        // 3. إرسال النتيجة بنفس الهيكل الذي يتوقعه ملف الـ HTML
+        res.json({
+            analysis: {
+                why: `نتائج مباشرة وموثوقة من بحث جوجل لـ "${query}"`
+            },
+            products: formattedProducts
+        });
 
     } catch (error) {
-        res.status(500).json({ error: "فشل النظام المتكامل", details: error.message });
+        res.status(500).json({ error: "فشل جلب البيانات من جوجل" });
     }
 });
 

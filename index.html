@@ -201,61 +201,63 @@
             const advisorText = document.getElementById('advisor-text');
             const productsGrid = document.getElementById('products-results');
 
-            // إظهار حالة التحميل
             advisor.style.display = 'block';
-            advisorText.innerHTML = `<div class="loading-pulse">جارٍ الاتصال بالعقل الذكي... يرجى الانتظار ⏳</div>`;
+            advisorText.innerHTML = `<div class="loading-pulse">جارٍ تحليل طلبك عبر محرك Gemini... ⏳</div>`;
             productsGrid.innerHTML = "";
 
             try {
-                // تأكد أن هذا الرابط هو رابط سيرفرك في ريندر
                 const response = await fetch(`${API_URL}/get-ai-advice`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ query: query, lang: currentLang })
                 });
 
-                const data = await response.json();
-
-                // إذا جاء رد من السيرفر ولكنه يحتوي على خطأ
-                if (data.error) {
-                    throw new Error(data.error); // رمي الخطأ ليظهر في الشاشة
+                // التحقق مما إذا كان السيرفر استجاب أصلاً
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || "السيرفر لا يستجيب حالياً");
                 }
 
-                // عرض النتائج بنجاح
+                const data = await response.json();
+
+                // عرض تحليل الخبير
                 if (data.analysis) {
-                     advisorText.innerHTML = `
+                    advisorText.innerHTML = `
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; font-size: 0.95rem;">
-                            <span>🎯 <b>النية:</b> ${data.analysis.intent}</span>
-                            <span>⚖️ <b>الأولويات:</b> ${data.analysis.priorities}</span>
-                            <span>💰 <b>الميزانية:</b> ${data.analysis.budget_status}</span>
-                            <span>🔍 <b>الحالة:</b> ${data.analysis.use_case}</span>
+                            <span>🎯 <b>النية:</b> ${data.analysis.intent || 'تحليل...'}</span>
+                            <span>⚖️ <b>الأولويات:</b> ${data.analysis.priorities || 'تحليل...'}</span>
+                            <span>💰 <b>الميزانية:</b> ${data.analysis.budget_status || 'تحليل...'}</span>
+                            <span>🔍 <b>الحالة:</b> ${data.analysis.use_case || 'تحليل...'}</span>
                         </div>
                         <p style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 10px;">
-                            ${data.analysis.why}
+                            ${data.analysis.why || ''}
                         </p>
                     `;
 
-                    if (data.products) {
-                        data.products.slice(0, 3).forEach((product, index) => {
+                    // عرض المنتجات
+                    if (data.products && Array.isArray(data.products)) {
+                        productsGrid.innerHTML = ""; // مسح النتائج القديمة
+                        data.products.forEach((product, index) => {
                             productsGrid.innerHTML += `
                                 <div class="product-card">
-                                    <div class="rank-badge">#${index + 1}</div>
+                                    <div class="rank-badge">ترشيح #${index + 1}</div>
                                     <div class="p-title">${product.name}</div>
                                     <div class="p-reason">${product.recommendation_reason}</div>
-                                    <div style="font-size:0.9rem; margin-bottom:15px;">⭐ ${product.features}</div>
+                                    <div style="font-size:0.9rem; margin-bottom:15px;">✨ المميزات: ${product.features}</div>
                                 </div>
                             `;
                         });
                     }
+                } else {
+                    throw new Error("وصلت بيانات ناقصة من السيرفر");
                 }
 
             } catch (error) {
-                // كود كشف الخطأ للهاتف
                 advisorText.innerHTML = `
                     <div style="background: rgba(255,0,0,0.1); border: 1px solid red; padding: 15px; border-radius: 10px; color: #ff6b6b;">
-                        <h3>⚠️ عذراً، حدث خطأ!</h3>
+                        <h3>⚠️ عذراً، لم تكتمل العملية</h3>
                         <p><b>السبب:</b> ${error.message}</p>
-                        <p style="font-size: 0.8rem; margin-top: 10px;">صور هذه الشاشة وأرسلها لي.</p>
+                        <p style="font-size: 0.8rem; margin-top: 10px;">نصيحة: تأكد من تحديث السيرفر في ريندر وعمل Clear Cache.</p>
                     </div>
                 `;
             }

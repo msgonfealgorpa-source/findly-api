@@ -3,15 +3,10 @@ const axios = require('axios');
 const cors = require('cors');
 require('dotenv').config();
 
+// استيراد الأدوات الذكية من مجلد utils
 const { analyzeSmartQuery } = require('./utils/smartBrain');
 const { smartRank } = require('./utils/smartRank');
 const { generateSmartExplanation } = require('./utils/aiReasoning');
-
-function smartTextMatch(text, keywords) {
-  if (!text || !Array.isArray(keywords)) return false;
-  const t = text.toLowerCase();
-  return keywords.every(word => t.includes(word));
-}
 
 const app = express();
 app.use(cors());
@@ -19,120 +14,75 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
 
+// التأكد من عمل السيرفر
 app.get('/', (req, res) => {
-  res.send('Findly AI Server is Running Successfully! 🚀');
+  res.send('Findly AI Engine is Online & Intelligent! 🧠🚀');
 });
 
 app.post('/get-ai-advice', async (req, res) => {
   try {
     const { query, lang } = req.body;
-    const brain = analyzeSmartQuery(query);
-    console.log("🧠 Smart Brain:", brain);
-
-    const SERPAPI_KEY = process.env.SERPAPI_KEY;
     const currentLang = lang || "ar";
 
+    // 1. تحليل الاستعلام بالعقل الذكي
+    const brain = analyzeSmartQuery(query);
+    console.log("🧠 Brain Analysis:", brain);
+
+    const SERPAPI_KEY = process.env.SERPAPI_KEY;
+
+    // 2. جلب البيانات من جوجل باستخدام الكلمات المفتاحية المحسنة
     const response = await axios.get('https://serpapi.com/search.json', {
       params: {
         engine: "google_shopping",
-        q: brain.searchQuery || query,
+        q: brain.searchQuery,
         api_key: SERPAPI_KEY,
         hl: currentLang,
         gl: currentLang === "ar" ? "sa" : "us"
       }
     });
 
-    const shoppingResults = response.data.shopping_results || [];
-    let filteredResults = shoppingResults;
+    let shoppingResults = response.data.shopping_results || [];
 
-    // فلترة حسب البراند
+    // 3. فلترة ذكية أولية (حسب النوع أو الماركة)
+    let filtered = shoppingResults;
     if (brain.brand) {
-      const brandKeywords = {
-        apple: ["apple", "iphone", "ios"],
-        samsung: ["samsung", "galaxy"],
-        xiaomi: ["xiaomi", "redmi", "poco"],
-        huawei: ["huawei", "honor"],
-        oppo: ["oppo"],
-        realme: ["realme"]
-      };
-
-      const keywords = brandKeywords[brain.brand] || [brain.brand];
-
-      filteredResults = filteredResults.filter(item =>
-        smartTextMatch(item.title, keywords)
+      const brandMatches = shoppingResults.filter(item => 
+        item.title.toLowerCase().includes(brain.brand.toLowerCase())
       );
+      if (brandMatches.length > 0) filtered = brandMatches;
     }
 
-    // فلترة حسب نوع المنتج
-    if (brain.productType) {
-      const typeKeywords = {
-        phone: ["phone", "iphone", "smartphone", "mobile"],
-        laptop: ["laptop", "notebook", "macbook"],
-        headphones: ["headphone", "earbuds", "airpods", "headset"],
-        watch: ["watch", "smartwatch", "apple watch"],
-        tablet: ["tablet", "ipad"]
-      };
+    // 4. تحويل النتائج لتنسيق التطبيق (Mapping)
+    const products = filtered.slice(0, 10).map(item => ({
+      name: item.title,
+      thumbnail: item.thumbnail,
+      link: item.product_link || item.link,
+      features: item.price || "Contact for price",
+      rating: item.rating || 0,
+      source: item.source
+    }));
 
-      const keywords = typeKeywords[brain.productType];
+    // 5. الترتيب الذكي (Ranking)
+    const rankedProducts = smartRank(products, brain);
 
-      if (keywords) {
-        filteredResults = filteredResults.filter(item =>
-          smartTextMatch(item.title, keywords)
-        );
-      }
-    }
-
-    if (!filteredResults || filteredResults.length === 0) {
-      return res.json({
-        intent: brain.intent,
-        keywords: brain.keywords,
-        explanation: currentLang === "ar"
-          ? "لم يتم العثور على نتائج مطابقة بدقة لبحثك."
-          : "No matching products found.",
-        products: []
-      });
-    }
-
-    const topProducts = filteredResults.slice(0, 3).map(item => {
-      let cleanLink = item.product_link || item.link;
-      if (cleanLink && !cleanLink.startsWith('http')) {
-        cleanLink = 'https://www.google.com' + cleanLink;
-      }
-
-      const reasons = {
-        ar: item.rating >= 4 ? "تقييم مرتفع من المستخدمين" : "سعر ممتاز مقارنة بالمواصفات",
-        en: item.rating >= 4 ? "Highly rated by users" : "Great value for the price",
-        fr: item.rating >= 4 ? "Très bien noté" : "Excellent rapport qualité-prix",
-        tr: item.rating >= 4 ? "Yüksek puanlı" : "Fiyatına göre mükemmel",
-        es: item.rating >= 4 ? "Muy valorado" : "Gran valor por el precio"
-      };
-
-      return {
-        name: item.title,
-        thumbnail: item.thumbnail,
-        link: cleanLink,
-        recommendation_reason: reasons[currentLang] || reasons.en,
-        features: item.price,
-        rating: item.rating || 0
-      };
-    });
-
-    const rankedProducts = smartRank(topProducts, brain);
+    // 6. صياغة التفسير النهائي (AI Explanation)
     const explanation = generateSmartExplanation(brain, rankedProducts, currentLang);
 
+    // إرسال الرد الكامل للواجهة
     res.json({
-      intent: brain.intent,
-      keywords: brain.keywords,
-      explanation,
-      products: rankedProducts
+      explanation: explanation, // النص الذي يظهر في المربع الأخضر
+      products: rankedProducts.slice(0, 3) // أفضل 3 منتجات فقط
     });
 
   } catch (error) {
-    console.error("Server Error:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    console.error("🚨 Server Error:", error.message);
+    res.status(500).json({ 
+      explanation: "عذراً، حدث خطأ تقني في معالجة طلبك.", 
+      products: [] 
+    });
   }
 });
 
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`Findly Server running on port ${PORT}`);
 });

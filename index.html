@@ -195,7 +195,7 @@ function changeLanguage(lang) {
     document.documentElement.dir = t.dir; // لتغيير اتجاه الصفحة (يمين/يسار)
 }
    
-        async function handleSearch() {
+               async function handleSearch() {
             const query = document.getElementById('search-input').value;
             const resultsDiv = document.getElementById('products-results');
             const advisorMsg = document.getElementById('ai-advisor-msg');
@@ -218,10 +218,10 @@ function changeLanguage(lang) {
                     resultsDiv.innerHTML += `
                         <div class="product-card">
                             <div class="rank-badge">${translations[currentLang].smart}</div>
-                            <img src="${p.thumbnail}" style="width: 100%; height: 160px; object-fit: contain; margin-bottom: 15px;">
-                            <h4 style="margin-bottom:10px;">${p.name}</h4>
+                            <img src="${p.thumbnail}" style="width: 100%; height: 160px; object-fit: contain; margin-bottom: 15px;" onerror="this.src='https://via.placeholder.com/150?text=Findly'">
+                            <h4 style="margin-bottom:10px; font-size:1.1rem;">${p.name}</h4>
                             <div class="p-reason">💡 ${p.recommendation_reason}</div>
-                            <div style="font-weight:bold; color:var(--primary); margin-bottom:15px;">${p.features}</div>
+                            <div style="font-weight:bold; color:var(--primary); margin-bottom:15px; font-size:1.2rem;">${p.features}</div>
                             <a href="${p.link}" target="_blank" class="btn-amazon">${translations[currentLang].buy}</a>
                         </div>`;
                 });

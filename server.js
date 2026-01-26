@@ -27,7 +27,7 @@ console.log("🧠 Smart Brain:", brain);
         const response = await axios.get('https://serpapi.com/search.json', {
             params: {
                 engine: "google_shopping",
-                q: query,
+                q: brain.searchQuery || query,
                 api_key: SERPAPI_KEY,
                 hl: currentLang, 
                 gl: currentLang === "ar" ? "sa" : "us" 

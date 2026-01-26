@@ -1,6 +1,7 @@
 const express = require('express');
 const { analyzeSmartQuery } = require('./utils/smartBrain');
 const { smartRank } = require('./utils/smartRank');
+const { generateSmartExplanation } = require('./utils/aiReasoning');
 const axios = require('axios');
 const cors = require('cors');
 require('dotenv').config();
@@ -122,7 +123,7 @@ if (brain.brand) {
         res.json({
   intent: brain.intent,
   keywords: brain.keywords,
-  analysis: { why: analysisMsg },
+  explanation,
   products: rankedProducts
 });
         

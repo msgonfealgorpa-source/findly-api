@@ -220,49 +220,32 @@
 
                 const data = await response.json();
 
-                // عرض تحليل الخبير
-                if (data.analysis) {
-                    advisorText.innerHTML = `
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; font-size: 0.95rem;">
-                            <span>🎯 <b>النية:</b> ${data.analysis.intent || 'تحليل...'}</span>
-                            <span>⚖️ <b>الأولويات:</b> ${data.analysis.priorities || 'تحليل...'}</span>
-                            <span>💰 <b>الميزانية:</b> ${data.analysis.budget_status || 'تحليل...'}</span>
-                            <span>🔍 <b>الحالة:</b> ${data.analysis.use_case || 'تحليل...'}</span>
-                        </div>
-                        <p style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 10px;">
-                            ${data.analysis.why || ''}
-                        </p>
-                    `;
-
-                    // عرض المنتجات
-                    if (data.products && Array.isArray(data.products)) {
-                        productsGrid.innerHTML = ""; // مسح النتائج القديمة
-                        data.products.forEach((product, index) => {
-                            productsGrid.innerHTML += `
-                                <div class="product-card">
-                                    <div class="rank-badge">ترشيح #${index + 1}</div>
-                                    <div class="p-title">${product.name}</div>
-                                    <div class="p-reason">${product.recommendation_reason}</div>
-                                    <div style="font-size:0.9rem; margin-bottom:15px;">✨ المميزات: ${product.features}</div>
-                                </div>
-                            `;
-                        });
-                    }
-                } else {
-                    throw new Error("وصلت بيانات ناقصة من السيرفر");
-                }
-
-            } catch (error) {
-                advisorText.innerHTML = `
-                    <div style="background: rgba(255,0,0,0.1); border: 1px solid red; padding: 15px; border-radius: 10px; color: #ff6b6b;">
-                        <h3>⚠️ عذراً، لم تكتمل العملية</h3>
-                        <p><b>السبب:</b> ${error.message}</p>
-                        <p style="font-size: 0.8rem; margin-top: 10px;">نصيحة: تأكد من تحديث السيرفر في ريندر وعمل Clear Cache.</p>
-                    </div>
-                `;
+            // 1. عرض تحليل العقل (لماذا اخترنا هذه المنتجات)
+            if (data.analysis) {
+                advisorText.innerHTML = `<p style="padding: 10px; line-height: 1.6;">${data.analysis.why}</p>`;
             }
-        }
 
+            // 2. عرض المنتجات في الشبكة (Grid) مع روابط الشراء المباشرة
+            productsGrid.innerHTML = ""; // تنظيف النتائج السابقة
+            if (data.products && data.products.length > 0) {
+                data.products.forEach(product => {
+                    const productCard = `
+                        <div class="product-card" style="border: 1px solid #eee; padding: 15px; border-radius: 15px; background: white; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.05);">
+                            <img src="${product.thumbnail}" alt="${product.name}" style="width: 100%; height: 150px; object-fit: contain; margin-bottom: 10px;">
+                            <h4 style="font-size: 14px; margin-bottom: 10px; height: 40px; overflow: hidden;">${product.name}</h4>
+                            <p style="font-size: 12px; color: #666; margin-bottom: 8px;">💡 ${product.recommendation_reason}</p>
+                            <p style="font-weight: bold; color: #2c3e50; margin-bottom: 15px;">${product.features}</p>
+                            <a href="${product.link}" target="_blank" 
+                               style="display: block; background: #6366f1; color: white; text-decoration: none; padding: 10px; border-radius: 8px; font-weight: bold; font-size: 13px;">
+                               شراء مباشر الآن 🚀
+                            </a>
+                        </div>
+                    `;
+                    productsGrid.innerHTML += productCard;
+                });
+            } else {
+                productsGrid.innerHTML = "<p>لم يتم العثور على منتجات مطابقة حالياً.</p>";
+            }
         function toggleTheme() {
             document.body.classList.toggle('dark-mode');
             const icon = document.getElementById('theme-icon');

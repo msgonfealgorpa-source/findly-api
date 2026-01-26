@@ -197,22 +197,110 @@
         // الرابط المباشر لسيرفرك على ريندر
         const API_URL = "https://findly-api.onrender.com";
 const translations = {
-    ar: { title: "خيارك المثالي مدروس بذكاء", sub: "أخبرني بما تحتاجه، وسأحلل لك السوق لاستخراج أفضل 3 خيارات تناسبك بدقة.", place: "مثال: هاتف للألعاب...", dir: "rtl" },
-    en: { title: "Your Perfect Choice, Smartly Analyzed", sub: "Tell me what you need, and I will analyze the market to find the top 3 options for you.", place: "Example: Gaming phone...", dir: "ltr" },
-    fr: { title: "Votre choix idéal, analysé intelligemment", sub: "Dites-moi ce dont vous avez besoin, et j'analyserai le marché.", place: "Ex: Téléphone gamer...", dir: "ltr" },
-    tr: { title: "Mükemmel Seçiminiz, Akıllıca Analiz Edildi", sub: "Neye ihtiyacınız olduğunu söyleyin, piyasayı analiz edeyim.", place: "Örnek: Oyun telefonu...", dir: "ltr" },
-    es: { title: "Tu elección ideal, analizada inteligentemente", sub: "Dime qué necesitas y analizaré el mercado para ti.", place: "Ej: Teléfono para juegos...", dir: "ltr" }
+    ar: { 
+        title: "خيارك المثالي مدروس بذكاء", 
+        sub: "أخبرني بما تحتاجه، وسأحلل لك السوق لاستخراج أفضل 3 خيارات تناسبك بدقة.", 
+        place: "مثال: هاتف للألعاب...", 
+        dir: "rtl",
+        tag: " – مستشارك الذكي للتسوق",
+        cat1: "هواتف", cat2: "لابتوبات", cat3: "سماعات", cat4: "ساعات",
+        advTitle: "تحليل Findly الخبير:",
+        loading: "جاري تشغيل العقل الخارق لتحليل أفضل الخيارات...",
+        buyBtn: "شراء مباشر الآن 🚀",
+        imgSearch: "البحث بالصور",
+        compare: "مقارنة الأسعار",
+        track: "تتبع التخفيضات",
+        badge: "خيار مرشح ذكي"
+    },
+    en: { 
+        title: "Your Perfect Choice, Smartly Analyzed", 
+        sub: "Tell me what you need, and I will analyze the market to find the top 3 options for you.", 
+        place: "Example: Gaming phone...", 
+        dir: "ltr",
+        tag: " – Your Smart Shopping Advisor",
+        cat1: "Phones", cat2: "Laptops", cat3: "Audio", cat4: "Watches",
+        advTitle: "Findly Expert Analysis:",
+        loading: "Running the super-brain to analyze the best options...",
+        buyBtn: "Buy Now Direct 🚀",
+        imgSearch: "Image Search",
+        compare: "Price Compare",
+        track: "Price Tracker",
+        badge: "Smart Choice"
+    },
+    fr: { 
+        title: "Votre choix idéal, analysé intelligemment", 
+        sub: "Dites-moi ce dont vous avez besoin, et j'analyserai le marché pour vous.", 
+        place: "Ex: Téléphone gamer...", 
+        dir: "ltr",
+        tag: " – Votre conseiller shopping",
+        cat1: "Téléphones", cat2: "Laptops", cat3: "Audio", cat4: "Montres",
+        advTitle: "Analyse d'expert Findly:",
+        loading: "Analyse en cours par le super-cerveau...",
+        buyBtn: "Acheter maintenant 🚀",
+        imgSearch: "Recherche par image",
+        compare: "Comparer les prix",
+        track: "Suivi des prix",
+        badge: "Choix Intelligent"
+    },
+    tr: { 
+        title: "Mükemmel Seçiminiz, Akıllıca Analiz Edildi", 
+        sub: "Neye ihtiyacınız olduğunu söyleyin, piyasayı analiz edeyim.", 
+        place: "Örnek: Oyun telefonu...", 
+        dir: "ltr",
+        tag: " – Akıllı Alışveriş Danışmanınız",
+        cat1: "Telefonlar", cat2: "Laptoplar", cat3: "Ses", cat4: "Saatler",
+        advTitle: "Findly Uzman Analizi:",
+        loading: "Süper zeka en iyi seçenekleri analiz ediyor...",
+        buyBtn: "Hemen Satın Al 🚀",
+        imgSearch: "Görselle Ara",
+        compare: "Fiyat Karşılaştır",
+        track: "Fiyat Takibi",
+        badge: "Akıllı Seçim"
+    },
+    es: { 
+        title: "Tu elección ideal, analizada inteligentemente", 
+        sub: "Dime qué necesitas y analizaré el mercado para encontrar las 3 mejores opciones.", 
+        place: "Ej: Teléfono gamer...", 
+        dir: "ltr",
+        tag: " – Tu asesor de compras inteligente",
+        cat1: "Teléfonos", cat2: "Laptops", cat3: "Audio", cat4: "Relojes",
+        advTitle: "Análisis experto de Findly:",
+        loading: "El supercerebro está analizando las mejores opciones...",
+        buyBtn: "Comprar ahora 🚀",
+        imgSearch: "Buscar por imagen",
+        compare: "Comparar precios",
+        track: "Rastreo de precios",
+        badge: "Elección Inteligente"
+    }
 };
 
-let currentLang = 'ar';
-
 function changeLanguage(lang) {
-    currentLang = lang;
-    const t = translations[lang];
-    document.querySelector('h1').innerText = t.title;
-    document.querySelector('.sub-text').innerText = t.sub;
-    document.getElementById('search-input').placeholder = t.place;
-    document.documentElement.dir = t.dir; 
+    currentLang = lang;
+    const t = translations[lang];
+
+    // 1. تغيير النصوص الأساسية والاتجاه
+    document.documentElement.dir = t.dir;
+    document.querySelector('h1').innerText = t.title;
+    document.querySelector('.sub-text').innerText = t.sub;
+    document.getElementById('search-input').placeholder = t.place;
+    document.getElementById('tagline-text').innerText = t.tag;
+
+    // 2. تغيير أسماء الفئات (تحديث النص داخل الـ span فقط)
+    const catItems = document.querySelectorAll('.cat-item span');
+    if (catItems.length >= 4) {
+        catItems[0].innerText = t.cat1;
+        catItems[1].innerText = t.cat2;
+        catItems[2].innerText = t.cat3;
+        catItems[3].innerText = t.cat4;
+    }
+
+    // 3. تغيير أزرار الميزات (تحديث النص مع الحفاظ على الأيقونة)
+    const featureBtns = document.querySelectorAll('.feature-btn');
+    if (featureBtns.length >= 3) {
+        featureBtns[0].innerHTML = `<i class="fa-solid fa-lock"></i> ${t.compare}`;
+        featureBtns[1].innerHTML = `<i class="fa-solid fa-lock"></i> ${t.track}`;
+        featureBtns[2].innerHTML = `<i class="fa-solid fa-camera"></i> ${t.imgSearch}`;
+    }
 }
         // الدالة الأساسية لتشغيل "العقل الخارق"
         async function handleSearch() {
@@ -225,7 +313,7 @@ function changeLanguage(lang) {
             if (!userInput) return;
 
             // 1. تجهيز الواجهة لبدء التحميل
-            advisorMsg.style.display = 'block';
+            document.querySelector('.advisor-card h3').innerHTML = `<i class="fas fa-brain"></i> ${translations[currentLang].advTitle}`;
             advisorText.innerHTML = '<p class="loading-pulse">جاري تشغيل العقل الخارق لتحليل أفضل الخيارات...</p>';
             resultsDiv.innerHTML = '';
 
@@ -244,22 +332,28 @@ function changeLanguage(lang) {
                 advisorText.innerHTML = `<p style="line-height: 1.6;">${data.analysis.why}</p>`;
 
                 // 4. عرض المنتجات في الشبكة (Cards)
-                resultsDiv.innerHTML = ''; 
-                if (data.products && data.products.length > 0) {
-                    data.products.forEach(product => {
-                        resultsDiv.innerHTML += `
-                            <div class="product-card">
-                                <div class="rank-badge">خيار مرشح ذكي</div>
-                                <img src="${product.thumbnail}" alt="${product.name}" style="width: 100%; height: 180px; object-fit: contain; margin-bottom: 15px;">
-                                <div class="p-title">${product.name}</div>
-                                <div class="p-reason">💡 ${product.recommendation_reason}</div>
-                                <div style="font-weight: bold; margin-bottom: 15px; color: var(--text-color);">${product.features}</div>
-                                <a href="${product.link}" target="_blank" class="btn-amazon">
-                                    شراء مباشر الآن 🚀
-                                </a>
-                            </div>
-                        `;
-                    });
+                resultsDiv.innerHTML += `
+    <div class="product-card" dir="${translations[currentLang].dir}">
+        <div class="rank-badge">${translations[currentLang].badge}</div>
+        <img src="${product.thumbnail}" alt="${product.name}" style="width: 100%; height: 180px; object-fit: contain; margin-bottom: 15px;">
+        
+        <div class="p-title" dir="auto">${product.name}</div>
+        
+        <div class="p-reason" dir="auto">
+            💡 ${product.recommendation_reason}
+        </div>
+        
+        <div style="font-weight: bold; margin-bottom: 15px; color: var(--text-color);" dir="ltr">
+            ${product.features}
+        </div>
+        
+        <a href="${product.link}" target="_blank" class="btn-amazon">
+            ${translations[currentLang].buyBtn}
+        </a>
+    </div>
+//      
+    });  forEach
+
                 } else {
                     resultsDiv.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">لم أجد نتائج دقيقة، جرب كتابة اسم المنتج بشكل أوضح.</p>';
                 }

@@ -130,10 +130,14 @@
             <div>Findly <span id="tagline-text"> – مستشارك الذكي للتسوق</span></div>
         </div>
         <div class="controls">
-            <select class="lang-switch" id="lang-switch">
-                <option value="ar">العربية</option>
-                <option value="en">English</option>
+            <select class="lang-switch" id="lang-switch" onchange="changeLanguage(this.value)">
+    <option value="ar">العربية</option>
+    <option value="en">English</option>
+    <option value="fr">Français</option>
+    <option value="tr">Türkçe</option>
+    <option value="es">Español</option>
             </select>
+            
             <button class="icon-btn" onclick="toggleTheme()">
                 <i class="fa-solid fa-moon" id="theme-icon"></i>
             </button>

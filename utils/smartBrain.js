@@ -1,32 +1,35 @@
-function smartRank(products, brain) {
-  return products.map(p => {
-    let score = 0;
-    const title = p.name.toLowerCase();
+function analyzeSmartQuery(text = "") {
+  const q = text.toLowerCase();
+  
+  // استخراج الأرقام التقنية (رام، بطارية، ذاكرة)
+  const ramMatch = q.match(/(\d+)\s*(جيجا|gb|ram)/);
+  const batteryMatch = q.match(/(\d+)\s*(ملي|mah)/);
+  const storageMatch = q.match(/(\d+)\s*(ترا|tb|gb|storage|ذاكرة)/);
 
-    // 1. مكافأة مطابقة المواصفات التقنية (رام وبطارية)
-    if (brain.targetSpecs.ram) {
-      const foundRam = title.match(/(\d+)\s*(gb|ram)/);
-      if (foundRam && parseInt(foundRam[1]) >= brain.targetSpecs.ram) score += 60;
-    }
+  const brands = {
+    samsung: ["سامسونج", "samsung", "galaxy"],
+    apple: ["ايفون", "iphone", "apple"],
+    xiaomi: ["شاومي", "xiaomi", "redmi", "poco"],
+    huawei: ["هواوي", "huawei"]
+  };
 
-    if (brain.targetSpecs.battery) {
-      const foundBat = title.match(/(\d+)\s*mah/);
-      if (foundBat && parseInt(foundBat[1]) >= brain.targetSpecs.battery) score += 60;
-    }
+  let result = {
+    raw: text,
+    brand: null,
+    targetSpecs: {
+      ram: ramMatch ? parseInt(ramMatch[1]) : null,
+      battery: batteryMatch ? parseInt(batteryMatch[1]) : null,
+      storage: storageMatch ? parseInt(storageMatch[1]) : null
+    },
+    intent: (q.includes("رخيص") || q.includes("cheap")) ? "cheap" : "best",
+    searchQuery: text
+  };
 
-    // 2. مكافأة الماركة
-    if (brain.brand && title.includes(brain.brand)) score += 40;
+  for (const [brand, keys] of Object.entries(brands)) {
+    if (keys.some(k => q.includes(k))) { result.brand = brand; break; }
+  }
 
-    // 3. ترتيب السعر والجودة
-    const numericPrice = p.features ? parseFloat(p.features.replace(/[^0-9.]/g, '')) : 0;
-    score += (p.rating || 0) * 15;
-    
-    if (brain.intent === 'cheap') {
-      score += (10000 / (numericPrice || 1));
-    }
-
-    return { ...p, score };
-  }).sort((a, b) => b.score - a.score);
+  return result;
 }
 
-module.exports = { smartRank };
+module.exports = { analyzeSmartQuery };

@@ -7,45 +7,39 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.get('/', (req, res) => res.send("Server is Active!"));
-
 app.post('/get-ai-advice', async (req, res) => {
-    const { query } = req.body;
-    const apiKey = "sk-687d0950a7404517bfdc06cc916951a3";
-
     try {
-        const response = await axios.post('https://api.deepseek.com/v1/chat/completions', {
-            model: "deepseek-chat",
-            messages: [
-                { role: "system", content: "You are a shopping assistant. Respond only in JSON." },
-                { role: "user", content: query }
-            ],
-            response_format: { type: 'json_object' }
-        }, {
-            headers: { 'Authorization': `Bearer ${apiKey}` },
-            timeout: 5000 // إذا تأخر الرد أكثر من 5 ثوانٍ
+        const { query } = req.body;
+        
+        // جلب المفاتيح من بيئة العمل (Render)
+        const SERPAPI_KEY = process.env.SERPAPI_KEY;
+        const GEMINI_KEY = process.env.GEMINI_KEY;
+
+        if (!SERPAPI_KEY || !GEMINI_KEY) {
+            return res.status(500).json({ error: "المفاتيح غير معرفة في ريندر" });
+        }
+
+        // 1. "العين" تجلب البيانات
+        const searchRes = await axios.get(`https://serpapi.com/search.json?engine=google_shopping&q=${encodeURIComponent(query)}&api_key=${SERPAPI_KEY}`);
+        const rawProducts = searchRes.data.shopping_results ? searchRes.data.shopping_results.slice(0, 10) : [];
+
+        // 2. "العقل" يحلل
+        const aiResponse = await axios.post(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`, {
+            contents: [{
+                parts: [{
+                    text: `أنت خبير تسوق ذكي. إليك هذه المنتجات الحقيقية: ${JSON.stringify(rawProducts)}. 
+                    حللها واختر أفضل 3 تناسب طلب المستخدم "${query}" ونسقها كـ JSON.`
+                }]
+            }]
         });
 
-        res.json(JSON.parse(response.data.choices[0].message.content));
+        const aiText = aiResponse.data.candidates[0].content.parts[0].text;
+        const cleanJson = aiText.substring(aiText.indexOf('{'), aiText.lastIndexOf('}') + 1);
+        res.json(JSON.parse(cleanJson));
 
     } catch (error) {
-        // --- الخطة البديلة: إذا فشل الذكاء الاصطناعي، أرسل بيانات وهمية لكي يعمل الموقع ---
-        console.log("DeepSeek failed, sending demo data...");
-        res.json({
-            analysis: {
-                intent: "بحث عن منتج",
-                priorities: "الأداء والسعر",
-                budget_status: "متوفر خيارات",
-                use_case: "استخدام عام",
-                why: "هذه نتائج تجريبية لأن محرك البحث قيد التحديث حالياً."
-            },
-            products: [
-                { name: "خيار مميز 1", recommendation_reason: "أفضل قيمة مقابل سعر", features: "أداء قوي وضمان سنتين" },
-                { name: "خيار مميز 2", recommendation_reason: "الأكثر مبيعاً", features: "تصميم أنيق وبطارية تدوم طويلًا" }
-            ]
-        });
+        res.status(500).json({ error: "فشل النظام المتكامل", details: error.message });
     }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT);
+app.listen(process.env.PORT || 3000);

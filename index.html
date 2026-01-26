@@ -189,26 +189,114 @@
         const API_URL = "https://findly-api.onrender.com";
         
         const translations = {
-            ar: { title: "خيارك المثالي مدروس بذكاء", sub: "أخبرني بما تحتاجه، وسأحلل لك السوق لاستخراج أفضل 3 خيارات تناسبك بدقة.", place: "مثال: هاتف للألعاب...", dir: "rtl", tagline: " – مستشارك الذكي للتسوق", loading: "جاري تحليل أفضل الخيارات...", advisor: "تحليل Findly الخبير:" },
-            en: { title: "Your Perfect Choice, Smartly Analyzed", sub: "Tell me what you need, and I will analyze the market to find the top 3 options for you.", place: "Example: Gaming phone...", dir: "ltr", tagline: " – Your Smart Shopping Advisor", loading: "Analyzing best options...", advisor: "Findly Expert Analysis:" },
-            fr: { title: "Votre choix idéal, analysé intelligemment", sub: "Dites-moi ce dont vous avez besoin, et j'analyserai le marché.", place: "Ex: Téléphone gamer...", dir: "ltr", tagline: " – Votre conseiller shopping", loading: "Analyse en cours...", advisor: "Analyse d'expert Findly:" },
-            tr: { title: "Mükemmel Seçiminiz, Akıllıca Analiz Edildi", sub: "Neye ihtiyacınız olduğunu söyleyin, piyasayı analiz edeyim.", place: "Örnek: Oyun telefonu...", dir: "ltr", tagline: " – Akıllı Alışveriş Danışmanınız", loading: "En iyi seçenekler analiz ediliyor...", advisor: "Findly Uzman Analizi:" },
-            es: { title: "Tu elección ideal, analizada inteligentemente", sub: "Dime qué necesitas y analizaré el mercado para ti.", place: "Ej: Teléfono para juegos...", dir: "ltr", tagline: " – Tu asesor de compras", loading: "Analizando mejores opciones...", advisor: "Análisis experto de Findly:" }
-        };
+    ar: {
+        title: "خيارك المثالي مدروس بذكاء",
+        sub: "أخبرني بما تحتاجه، وسأحلل لك السوق لاستخراج أفضل 3 خيارات تناسبك بدقة.",
+        place: "مثال: هاتف للألعاب ببطارية قوية وسعر متوسط",
+        dir: "rtl",
+        tagline: " – مستشارك الذكي للتسوق",
+        loading: "جاري تحليل أفضل الخيارات...",
+        advisor: "تحليل Findly الخبير:",
+        catPhones: "هواتف",
+        catLaptops: "لابتوبات",
+        catAudio: "سماعات",
+        feat1: "مقارنة الأسعار",
+        feat2: "تتبع التخفيضات",
+        buy: "شراء الآن 🚀",
+        smart: "خيار ذكي"
+    },
+
+    en: {
+        title: "Your Perfect Choice, Smartly Analyzed",
+        sub: "Tell me what you need, and I will analyze the market to find the top 3 options for you.",
+        place: "Example: Gaming phone with strong battery",
+        dir: "ltr",
+        tagline: " – Your Smart Shopping Advisor",
+        loading: "Analyzing best options...",
+        advisor: "Findly Expert Analysis:",
+        catPhones: "Phones",
+        catLaptops: "Laptops",
+        catAudio: "Headphones",
+        feat1: "Price Comparison",
+        feat2: "Deal Tracking",
+        buy: "Buy Now 🚀",
+        smart: "Smart Choice"
+    },
+
+    fr: {
+        title: "Votre choix idéal, analysé intelligemment",
+        sub: "Dites-moi ce dont vous avez besoin et j’analyserai le marché.",
+        place: "Ex: Téléphone gamer avec bonne batterie",
+        dir: "ltr",
+        tagline: " – Votre conseiller shopping",
+        loading: "Analyse en cours...",
+        advisor: "Analyse experte Findly:",
+        catPhones: "Téléphones",
+        catLaptops: "Ordinateurs",
+        catAudio: "Casques",
+        feat1: "Comparaison des prix",
+        feat2: "Suivi des promotions",
+        buy: "Acheter 🚀",
+        smart: "Choix intelligent"
+    },
+
+    tr: {
+        title: "Mükemmel Seçiminiz, Akıllıca Analiz Edildi",
+        sub: "İhtiyacınızı söyleyin, piyasayı analiz edelim.",
+        place: "Örnek: Güçlü bataryalı oyun telefonu",
+        dir: "ltr",
+        tagline: " – Akıllı Alışveriş Danışmanınız",
+        loading: "En iyi seçenekler analiz ediliyor...",
+        advisor: "Findly Uzman Analizi:",
+        catPhones: "Telefonlar",
+        catLaptops: "Laptoplar",
+        catAudio: "Kulaklıklar",
+        feat1: "Fiyat Karşılaştırma",
+        feat2: "İndirim Takibi",
+        buy: "Satın Al 🚀",
+        smart: "Akıllı Seçim"
+    },
+
+    es: {
+        title: "Tu elección ideal, analizada inteligentemente",
+        sub: "Dime qué necesitas y analizaré el mercado.",
+        place: "Ej: Teléfono gaming con buena batería",
+        dir: "ltr",
+        tagline: " – Tu asesor de compras",
+        loading: "Analizando mejores opciones...",
+        advisor: "Análisis experto Findly:",
+        catPhones: "Teléfonos",
+        catLaptops: "Portátiles",
+        catAudio: "Auriculares",
+        feat1: "Comparar precios",
+        feat2: "Seguimiento de ofertas",
+        buy: "Comprar 🚀",
+        smart: "Elección inteligente"
+    }
+};
 
         let currentLang = 'ar';
 
         function changeLanguage(lang) {
-            currentLang = lang;
-            const t = translations[lang];
-            document.getElementById('main-title').innerText = t.title;
-            document.getElementById('main-sub').innerText = t.sub;
-            document.getElementById('search-input').placeholder = t.place;
-            document.getElementById('tagline-text').innerText = t.tagline;
-            document.getElementById('advisor-label').innerText = t.advisor;
-            document.documentElement.dir = t.dir;
-            document.documentElement.lang = lang;
-        }
+    currentLang = lang;
+    const t = translations[lang];
+
+    document.getElementById('main-title').innerText = t.title;
+    document.getElementById('main-sub').innerText = t.sub;
+    document.getElementById('search-input').placeholder = t.place;
+    document.getElementById('tagline-text').innerText = t.tagline;
+    document.getElementById('advisor-label').innerText = t.advisor;
+
+    document.getElementById('cat-phones').innerText = t.catPhones;
+    document.getElementById('cat-laptops').innerText = t.catLaptops;
+    document.getElementById('cat-audio').innerText = t.catAudio;
+
+    document.getElementById('feat-1').innerText = t.feat1;
+    document.getElementById('feat-2').innerText = t.feat2;
+
+    document.documentElement.dir = t.dir;
+    document.documentElement.lang = lang;
+}
 
         async function handleSearch() {
             const userInput = document.getElementById('search-input').value;

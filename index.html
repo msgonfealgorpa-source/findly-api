@@ -191,71 +191,92 @@
 
     <script>
         <script>
-    const API_URL = "https://findly-api.onrender.com";
 
-    // الدالة المسؤولة عن البحث
-    async function handleSearch() {
-        const userInput = document.getElementById('search-input').value;
-        const resultsDiv = document.getElementById('products-results');
-        const advisorText = document.getElementById('advisor-text');
-        const advisorMsg = document.getElementById('ai-advisor-msg');
+            <script>
+        // الرابط المباشر لسيرفرك على ريندر
+        const API_URL = "https://findly-api.onrender.com";
 
-        if (!userInput) return;
+        // الدالة الأساسية لتشغيل "العقل الخارق"
+        async function handleSearch() {
+            const userInput = document.getElementById('search-input').value;
+            const resultsDiv = document.getElementById('products-results');
+            const advisorText = document.getElementById('advisor-text');
+            const advisorMsg = document.getElementById('ai-advisor-msg');
 
-        // 1. تهيئة الواجهة للتحميل
-        advisorMsg.style.display = 'block';
-        advisorText.innerHTML = '<p class="loading-pulse">جاري تشغيل العقل الخارق لتحليل أفضل الخيارات...</p>';
-        resultsDiv.innerHTML = '';
+            // إذا كان الحقل فارغاً لا تفعل شيئاً
+            if (!userInput) return;
 
-        try {
-            const response = await fetch(`${API_URL}/get-ai-advice`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ query: userInput })
-            });
+            // 1. تجهيز الواجهة لبدء التحميل
+            advisorMsg.style.display = 'block';
+            advisorText.innerHTML = '<p class="loading-pulse">جاري تشغيل العقل الخارق لتحليل أفضل الخيارات...</p>';
+            resultsDiv.innerHTML = '';
 
-            if (!response.ok) throw new Error('السيرفر لا يستجيب حالياً');
-            
-            const data = await response.json();
+            try {
+                // 2. إرسال الطلب للسيرفر
+                const response = await fetch(`${API_URL}/get-ai-advice`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: userInput })
+                });
 
-            // 2. عرض تحليل العقل
-            advisorText.innerHTML = `<p>${data.analysis.why}</p>`;
+                if (!response.ok) throw new Error('السيرفر لا يستجيب حالياً');
+                
+                const data = await response.json();
 
-            // 3. عرض المنتجات في البطاقات
-            resultsDiv.innerHTML = ''; 
-            data.products.forEach(product => {
-                resultsDiv.innerHTML += `
-                    <div class="product-card">
-                        <div class="rank-badge">خيار مرشح ذكي</div>
-                        <img src="${product.thumbnail}" style="width: 100%; height: 180px; object-fit: contain; margin-bottom: 15px;">
-                        <div class="p-title">${product.name}</div>
-                        <div class="p-reason">💡 ${product.recommendation_reason}</div>
-                        <div style="font-weight: bold; margin-bottom: 15px; color: var(--text-color);">${product.features}</div>
-                        <a href="${product.link}" target="_blank" class="btn-amazon">
-                            شراء مباشر الآن 🚀
-                        </a>
-                    </div>
-                `;
-            });
+                // 3. عرض تحليل "العقل" في المربع الملون
+                advisorText.innerHTML = `<p style="line-height: 1.6;">${data.analysis.why}</p>`;
 
-        } catch (error) {
-            advisorText.innerHTML = `<p style="color:#ff4d4d">عذراً، حدث خطأ: ${error.message}</p>`;
+                // 4. عرض المنتجات في الشبكة (Cards)
+                resultsDiv.innerHTML = ''; 
+                if (data.products && data.products.length > 0) {
+                    data.products.forEach(product => {
+                        resultsDiv.innerHTML += `
+                            <div class="product-card">
+                                <div class="rank-badge">خيار مرشح ذكي</div>
+                                <img src="${product.thumbnail}" alt="${product.name}" style="width: 100%; height: 180px; object-fit: contain; margin-bottom: 15px;">
+                                <div class="p-title">${product.name}</div>
+                                <div class="p-reason">💡 ${product.recommendation_reason}</div>
+                                <div style="font-weight: bold; margin-bottom: 15px; color: var(--text-color);">${product.features}</div>
+                                <a href="${product.link}" target="_blank" class="btn-amazon">
+                                    شراء مباشر الآن 🚀
+                                </a>
+                            </div>
+                        `;
+                    });
+                } else {
+                    resultsDiv.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">لم أجد نتائج دقيقة، جرب كتابة اسم المنتج بشكل أوضح.</p>';
+                }
+
+            } catch (error) {
+                console.error("خطأ في البحث:", error);
+                advisorText.innerHTML = `<p style="color:#ff4d4d">عذراً، حدث خطأ: تعذر الاتصال بالعقل الخارق. تأكد من تشغيل السيرفر.</p>`;
+            }
         }
-    }
 
-    // إضافة ميزة البحث عند الضغط على Enter
-    document.getElementById('search-input').addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') handleSearch();
-    });
+        // تشغيل البحث عند الضغط على زر Enter من لوحة المفاتيح
+        document.getElementById('search-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                handleSearch();
+            }
+        });
 
-    // تبديل الثيم (Dark/Light)
-    function toggleTheme() {
-        document.body.classList.toggle('dark-mode');
-        const icon = document.getElementById('theme-icon');
-        icon.classList.toggle('fa-moon');
-        icon.classList.toggle('fa-sun');
-    }
-</script>
+        // دالة تبديل الوضع الليلي/النهاري
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const icon = document.getElementById('theme-icon');
+            if (document.body.classList.contains('dark-mode')) {
+                icon.classList.replace('fa-moon', 'fa-sun');
+            } else {
+                icon.classList.replace('fa-sun', 'fa-moon');
+            }
+        }
+
+        // دالة للبحث السريع من خلال الكلمات المفتاحية
+        function quickSearch(category) {
+            document.getElementById('search-input').value = category;
+            handleSearch();
+        }
     </script>
 </body>
 </html>
+

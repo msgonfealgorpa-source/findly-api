@@ -36,7 +36,27 @@ console.log("🧠 Smart Brain:", brain);
         });
 
         const shoppingResults = response.data.shopping_results || [];
+let filteredResults = shoppingResults;
 
+if (brain.brand) {
+  const brandKeywords = {
+    apple: ["apple", "iphone", "ios"],
+    samsung: ["samsung", "galaxy"],
+    xiaomi: ["xiaomi", "redmi", "poco"],
+    huawei: ["huawei", "honor"],
+    oppo: ["oppo"],
+    realme: ["realme"]
+  };
+
+  const keywords = brandKeywords[brain.brand] || [brain.brand];
+
+  filteredResults = shoppingResults.filter(item =>
+    keywords.some(key =>
+      item.title && item.title.toLowerCase().includes(key)
+    )
+  );
+}
+        
         // 2. معالجة وتجهيز أفضل 3 منتجات
         const topProducts = shoppingResults.slice(0, 3).map((item) => {
             let cleanLink = item.product_link || item.link;

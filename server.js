@@ -108,6 +108,11 @@ if (brain.brand) {
         });
 
         const rankedProducts = smartRank(topProducts, brain);
+      const explanation = generateSmartExplanation(
+  brain,
+  rankedProducts,
+  currentLang
+);
         // 3. رسالة تحليل الخبير
         const messages = {
             ar: `بناءً على بحثك عن "${query}"، وجدت أن هذه المنتجات هي الأفضل حالياً.`,

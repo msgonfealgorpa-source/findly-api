@@ -10,7 +10,7 @@ app.use(express.json());
 // نقطة النهاية (API Endpoint) لجلب نصائح الذكاء الاصطناعي
 app.post('/get-ai-advice', async (req, res) => {
     try {
-        const { query } = req.body;
+        const { query, lang } = req.body;
         const SERPAPI_KEY = process.env.SERPAPI_KEY;
 
         if (!query) {
@@ -23,8 +23,8 @@ app.post('/get-ai-advice', async (req, res) => {
                 engine: "google_shopping",
                 q: query,
                 api_key: SERPAPI_KEY,
-                hl: "ar",
-                gl: "sa" // استهداف السوق السعودي
+                hl: lang || "ar",
+                gl: (lang === "ar") ? "sa" : "us"
             }
         });
 

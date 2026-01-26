@@ -56,7 +56,26 @@ if (brain.brand) {
     )
   );
 }
-        
+
+        if (brain.productType) {
+  const typeKeywords = {
+    phone: ["phone", "iphone", "smartphone", "mobile"],
+    laptop: ["laptop", "notebook", "macbook"],
+    headphones: ["headphone", "earbuds", "airpods", "headset"],
+    watch: ["watch", "smartwatch", "apple watch"],
+    tablet: ["tablet", "ipad"]
+  };
+
+  const keywords = typeKeywords[brain.productType];
+
+  if (keywords) {
+    filteredResults = filteredResults.filter(item =>
+      keywords.some(key =>
+        item.title && item.title.toLowerCase().includes(key)
+      )
+    );
+  }
+}
       // 2. معالجة وتجهيز أفضل 3 منتجات
 
         const topProducts = filteredResults.slice(0, 3).map((item) => {

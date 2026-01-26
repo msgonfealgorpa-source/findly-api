@@ -4,68 +4,42 @@ const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
-
-// السماح بالاتصال من أي مصدر لضمان عمله على هاتفك
 app.use(cors({ origin: '*' }));
 app.use(express.json());
 
-// اختبار سريع للتأكد أن السيرفر يعمل
-app.get('/', (req, res) => res.send("Findly API is LIVE and Running! 🚀"));
+app.get('/', (req, res) => res.send("Findly API is LIVE! 🚀"));
 
 app.post('/get-ai-advice', async (req, res) => {
-    const { query } = req.body;
-    const apiKey = process.env.GEMINI_API_KEY;
-
-    if (!apiKey) {
-        return res.status(500).json({ error: "API Key مفقود في إعدادات ريندر" });
-    }
-
     try {
+        const { query } = req.body;
+        const apiKey = process.env.GEMINI_API_KEY;
+
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
         
         const response = await axios.post(url, {
             contents: [{
                 parts: [{
-                    text: `أنت مساعد تسوق ذكي. قدم رداً بصيغة JSON حصراً بدون أي نصوص إضافية.
-                    الهيكل المطلوب:
+                    text: `You are a shopping assistant. Return ONLY a valid JSON object for the query: "${query}". 
+                    Keep the response very short.
+                    Format:
                     {
-                      "analysis": { "intent": "string", "priorities": "string", "budget_status": "string", "use_case": "string", "why": "string" },
-                      "products": [ { "name": "string", "recommendation_reason": "string", "features": "string" } ]
-                    }
-                    طلب المستخدم: ${query}`
+                      "analysis": { "intent": "Buying", "priorities": "Quality", "budget_status": "Fits", "use_case": "Daily", "why": "Good choice" },
+                      "products": [ { "name": "Product Name", "recommendation_reason": "Price", "features": "Great" } ]
+                    }`
                 }]
             }],
-            generationConfig: {
-                response_mime_type: "application/json",
-                temperature: 0.7
-            }
+            generationConfig: { response_mime_type: "application/json" }
         });
 
-        // استلام الرد الخام
-        let rawText = response.data.candidates[0].content.parts[0].text;
-        
-        // --- المعالج السحري ---
-        // البحث عن أول { وآخر } لقص أي نصوص زائدة قد يضيفها Gemini
-        const startBracket = rawText.indexOf('{');
-        const endBracket = rawText.lastIndexOf('}') + 1;
-        
-        if (startBracket === -1) {
-            throw new Error("الذكاء الاصطناعي لم يرسل بيانات صحيحة");
-        }
-
-        const cleanJson = rawText.substring(startBracket, endBracket);
-        const finalData = JSON.parse(cleanJson);
-
-        res.status(200).json(finalData);
+        // استلام الرد الصافي
+        const rawText = response.data.candidates[0].content.parts[0].text;
+        res.status(200).json(JSON.parse(rawText));
 
     } catch (error) {
-        console.error("Server Error:", error.message);
-        res.status(500).json({ 
-            error: "عذراً، حدث خطأ في تحليل البيانات", 
-            details: error.message 
-        });
+        console.error("Error:", error.message);
+        res.status(500).json({ error: "السيرفر واجه مشكلة بسيطة، حاول مرة أخرى" });
     }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server is running!`));

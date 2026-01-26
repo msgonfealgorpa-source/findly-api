@@ -1,37 +1,32 @@
-function analyzeSmartQuery(text = "") {
-  const q = text.toLowerCase();
-  
-  // (نفس القواميس السابقة الخاصة بك: brands, categories, usage, budget)
-  const brands = { /* ... قواميسك ... */ };
-  const categories = { /* ... قواميسك ... */ };
+function smartRank(products, brain) {
+  return products.map(p => {
+    let score = 0;
+    const title = p.name.toLowerCase();
 
-  let result = {
-    raw: text,
-    productType: null, // قمنا بتغيير اسمها من category لتوافق السيرفر
-    brand: null,
-    intent: "best", // القيمة الافتراضية
-    searchQuery: text,
-    confidence: 0.5
-  };
+    // 1. مكافأة مطابقة المواصفات التقنية (رام وبطارية)
+    if (brain.targetSpecs.ram) {
+      const foundRam = title.match(/(\d+)\s*(gb|ram)/);
+      if (foundRam && parseInt(foundRam[1]) >= brain.targetSpecs.ram) score += 60;
+    }
 
-  // تحديد الماركة
-  for (const [brand, keys] of Object.entries(brands)) {
-    if (keys.some(k => q.includes(k))) { result.brand = brand; break; }
-  }
+    if (brain.targetSpecs.battery) {
+      const foundBat = title.match(/(\d+)\s*mah/);
+      if (foundBat && parseInt(foundBat[1]) >= brain.targetSpecs.battery) score += 60;
+    }
 
-  // تحديد النوع (productType)
-  for (const [cat, keys] of Object.entries(categories)) {
-    if (keys.some(k => q.includes(k))) { result.productType = cat; break; }
-  }
+    // 2. مكافأة الماركة
+    if (brain.brand && title.includes(brain.brand)) score += 40;
 
-  // تحديد النية (Intent) بناءً على الكلمات المفتاحية
-  if (q.includes("رخيص") || q.includes("cheap") || q.includes("budget")) {
-    result.intent = "cheap";
-  } else if (q.includes("افضل") || q.includes("best") || q.includes("قوي")) {
-    result.intent = "best";
-  }
+    // 3. ترتيب السعر والجودة
+    const numericPrice = p.features ? parseFloat(p.features.replace(/[^0-9.]/g, '')) : 0;
+    score += (p.rating || 0) * 15;
+    
+    if (brain.intent === 'cheap') {
+      score += (10000 / (numericPrice || 1));
+    }
 
-  return result;
+    return { ...p, score };
+  }).sort((a, b) => b.score - a.score);
 }
 
-module.exports = { analyzeSmartQuery };
+module.exports = { smartRank };

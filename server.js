@@ -1,4 +1,5 @@
 const express = require('express');
+const { analyzeSmartQuery } = require('./utils/smartBrain');
 const axios = require('axios');
 const cors = require('cors');
 require('dotenv').config();
@@ -17,6 +18,8 @@ app.get('/', (req, res) => {
 app.post('/get-ai-advice', async (req, res) => {
     try {
         const { query, lang } = req.body; 
+       const brain = analyzeSmartQuery(query);
+console.log("🧠 Smart Brain:", brain);
         const SERPAPI_KEY = process.env.SERPAPI_KEY;
         const currentLang = lang || "ar"; 
 

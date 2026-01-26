@@ -7,29 +7,49 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// لجعل الصفحة البيضاء تختفي وتظهر رسالة نجاح
-app.get('/', (req, res) => res.send("Findly API is Online!"));
+// رسالة بسيطة للتأكد أن السيرفر يعمل عند فتح الرابط المباشر
+app.get('/', (req, res) => res.send("DeepSeek API is Live! 🚀"));
 
 app.post('/get-ai-advice', async (req, res) => {
     try {
         const { query } = req.body;
-        const apiKey = process.env.GEMINI_API_KEY;
+        
+        // ملاحظة: يفضل وضع المفتاح في Environment Variables في Render باسم DEEPSEEK_KEY
+        // ولكن سأضعه لك هنا مباشرة ليعمل فوراً
+        const apiKey = "sk-687d0950a7404517bfdc06cc916951a3";
 
-        const response = await axios.post(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
-            contents: [{ parts: [{ text: `أجب بصيغة JSON فقط لهذا الطلب: "${query}". الهيكل: {"analysis": {"intent": "..", "priorities": "..", "budget_status": "..", "use_case": "..", "why": ".."}, "products": [{"name": "..", "recommendation_reason": "..", "features": ".."}]}` }] }]
+        const response = await axios.post('https://api.deepseek.com/v1/chat/completions', {
+            model: "deepseek-chat",
+            messages: [
+                { 
+                    role: "system", 
+                    content: "You are a shopping assistant. Respond ONLY with a valid JSON object. Structure: {\"analysis\": {\"intent\": \"..\", \"priorities\": \"..\", \"budget_status\": \"..\", \"use_case\": \"..\", \"why\": \"..\"}, \"products\": [{\"name\": \"..\", \"recommendation_reason\": \"..\", \"features\": \"..\"}]}" 
+                },
+                { role: "user", content: query }
+            ],
+            response_format: {
+                type: 'json_object'
+            },
+            stream: false
+        }, {
+            headers: {
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json'
+            }
         });
 
-        let text = response.data.candidates[0].content.parts[0].text;
-        // استخراج الـ JSON فقط لضمان عدم حدوث خطأ "فشل التحليل"
-        const cleanJson = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
-        
-        // إرسال البيانات بالهيكل الذي ينتظره ملف الـ HTML الخاص بك
-        res.json(JSON.parse(cleanJson));
+        // إرسال النتيجة للمتصفح
+        const aiContent = JSON.parse(response.data.choices[0].message.content);
+        res.json(aiContent);
 
     } catch (error) {
-        res.status(500).json({ error: "فشل في معالجة البيانات من المصدر" });
+        console.error("DeepSeek Error:", error.response ? error.response.data : error.message);
+        res.status(500).json({ 
+            error: "فشل في الاتصال بمحرك DeepSeek",
+            details: error.message 
+        });
     }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log('Server Ready'));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

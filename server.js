@@ -84,7 +84,18 @@ if (brain.brand) {
 }
       // 2. معالجة وتجهيز أفضل 3 منتجات
 
-        const topProducts = filteredResults.slice(0, 3).map((item) => {
+      if (!filteredResults || filteredResults.length === 0) {
+  return res.json({
+    intent: brain.intent,
+    keywords: brain.keywords,
+    explanation: currentLang === "ar"
+      ? "لم يتم العثور على نتائج مطابقة بدقة لبحثك."
+      : "No matching products found.",
+    products: []
+  });
+}
+      
+      const topProducts = filteredResults.slice(0, 3).map((item) => {
             let cleanLink = item.product_link || item.link;
             if (cleanLink && !cleanLink.startsWith('http')) {
                 cleanLink = 'https://www.google.com' + cleanLink;

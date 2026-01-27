@@ -362,6 +362,10 @@
                         </div>
                     `;
                 });
+           // داخل دالة handleSearch بعد نجاح البحث:
+let currentCount = parseInt(localStorage.getItem('findly_usage') || 0);
+localStorage.setItem('findly_usage', currentCount + 1);
+document.getElementById('remaining-count').innerText = 3 - (currentCount + 1);
             } catch (err) {
                 console.error(err);
                 advisorText.innerHTML = "حدث خطأ في الاتصال، يرجى المحاولة مرة أخرى.";
@@ -372,7 +376,13 @@
       
             if (e.key === 'Enter') handleSearch();
         });
-   
-    </script>
+   </script>
+<div id="paywall-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 2000; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: white; padding: 30px; border-radius: 25px; text-align: center; max-width: 400px; border: 2px solid #6366F1;">
+        <i class="fa-solid fa-crown" style="font-size: 3rem; color: #F59E0B; margin-bottom: 15px;"></i>
+        <h2 style="color: #1F2937;">انتهت خطتك المجانية</h2>
+        <p style="color: #4B5563; margin-top: 10px;">لقد استهلكت 3 عمليات بحث مجانية. اشترك الآن لفتح ميزة البحث غير المحدود.</p>
+        <button onclick="window.location.href='#'" style="background: linear-gradient(135deg, #6366F1, #A855F7); color: white; border: none; padding: 12px; border-radius: 15px; width: 100%; font-weight: bold; margin-top: 20px; cursor: pointer;">الاشتراك في الخطة المميزة</button>
+</div>
 </body>
 </html>

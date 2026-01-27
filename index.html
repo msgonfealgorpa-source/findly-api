@@ -208,7 +208,14 @@ function saveProfile() {
             document.getElementById('search-input').placeholder = data.placeholder;
             document.getElementById('limit-text').innerText = data.limit;
             document.getElementById('remaining-count').innerText = attempts;
-
+        modal.querySelector('h3').innerText = data.profileTitle;
+        modal.querySelectorAll('label')[0].innerText = data.nameLabel;
+        modal.querySelectorAll('label')[1].innerText = data.budgetLabel;
+        modal.querySelector('#user-name-input').placeholder = data.placeholderName;
+        modal.querySelector('#user-budget-input').placeholder = data.placeholderBudget;
+        modal.querySelectorAll('button')[0].innerText = data.saveBtn;
+        modal.querySelectorAll('button')[1].innerText = data.closeBtn;
+    }
             const hour = new Date().getHours();
             let msg = (hour >= 5 && hour < 12) ? data.morning : (hour >= 12 && hour < 18) ? data.afternoon : data.evening;
             document.getElementById('greeting').innerText = msg;
@@ -318,23 +325,19 @@ function saveProfile() {
         window.onclick = (e) => { if (!e.target.closest('.lang-container')) document.getElementById('lang-dropdown').style.display = 'none'; };
         window.onload = updateUI;
     </script>
-<div id="profile-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; align-items:center; justify-content:center; backdrop-filter: blur(5px);">
-    <div style="background:var(--card-bg); width:90%; max-width:380px; padding:25px; border-radius:25px; text-align:center; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-        <h3 style="margin-bottom:20px; color:var(--text);"><i class="fa-solid fa-coins" style="color:#22C55E;"></i> ميزانيتك الشخصية</h3>
-        
-        <div style="text-align:right; margin-bottom:15px;">
-            <label style="font-size:0.8rem; color:var(--text); opacity:0.8;">اسمك المفضل:</label>
-            <input type="text" id="user-name-input" placeholder="اكتب اسمك هنا..." style="width:100%; padding:12px; border-radius:12px; border:1px solid var(--border); background:var(--bg); color:var(--text); margin-top:5px;">
+<div id="profile-modal" style="display:none; ...">
+    <div style="...">
+        <h3 id="modal-title"></h3>
+        <div style="text-align:right;">
+            <label id="label-name"></label>
+            <input type="text" id="user-name-input">
         </div>
-
-        <div style="text-align:right; margin-bottom:20px;">
-            <label style="font-size:0.8rem; color:var(--text); opacity:0.8;">ميزانيتك (ر.س):</label>
-            <input type="number" id="user-budget-input" placeholder="مثلاً: 2500" style="width:100%; padding:12px; border-radius:12px; border:1px solid var(--border); background:var(--bg); color:var(--text); margin-top:5px;">
-            <p style="font-size:0.7rem; opacity:0.5; margin-top:5px;">سنستخدم هذا الرقم لفلترة أفضل الصفقات لك.</p>
+        <div style="text-align:right;">
+            <label id="label-budget"></label>
+            <input type="number" id="user-budget-input">
         </div>
-
-        <button onclick="saveProfile()" style="width:100%; background:var(--primary-gradient); color:white; border:none; padding:15px; border-radius:15px; font-weight:bold; cursor:pointer; margin-bottom:10px;">حفظ الإعدادات ✨</button>
-        <button onclick="closeProfile()" style="background:none; border:none; color:var(--text); cursor:pointer; opacity:0.6; font-size:0.9rem;">إلغاء</button>
+        <button onclick="saveProfile()" id="save-profile-btn"></button>
+        <button onclick="closeProfile()" id="close-modal-btn"></button>
     </div>
 </div>
 </body>

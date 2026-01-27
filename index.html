@@ -27,9 +27,22 @@
         }
         .logo { font-size: 1.6rem; font-weight: 900; background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
+        /* قائمة اختيار اللغة */
+        .lang-container { position: relative; }
+        .lang-btn { background: none; border: 1px solid var(--border); color: var(--text); padding: 5px 12px; border-radius: 10px; cursor: pointer; font-weight: 700; display: flex; align-items: center; gap: 5px; }
+        
+        .lang-dropdown { 
+            position: absolute; top: 110%; left: 0; background: var(--card-bg); 
+            border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            display: none; flex-direction: column; min-width: 120px; z-index: 2000; overflow: hidden;
+        }
+        .lang-dropdown div { padding: 10px 15px; cursor: pointer; font-size: 0.9rem; font-weight: 600; }
+        .lang-dropdown div:hover { background: var(--primary-gradient); color: white; }
+
         .hero { text-align: center; padding: 2.5rem 1rem; max-width: 900px; margin: 0 auto; }
         .welcome-msg { font-size: 1.1rem; font-weight: 600; color: #6366F1; margin-bottom: 5px; }
         h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 10px; }
+        .sub-text { opacity: 0.8; font-size: 1rem; margin-bottom: 20px; }
 
         .search-container { position: relative; width: 100%; max-width: 600px; margin: 0 auto 2.5rem; }
         .search-box { 
@@ -38,14 +51,13 @@
             font-size: 1rem; outline: none; box-shadow: 0 10px 25px rgba(0,0,0,0.05);
         }
 
-        /* حاوية القات مع التمرير الجانبي */
-        .categories-wrapper {
-            display: flex; gap: 15px; overflow-x: auto; padding: 10px 5px;
-            scrollbar-width: none; justify-content: center; margin-bottom: 2rem;
+        .categories { 
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; 
+            margin-bottom: 3rem; max-width: 500px; margin: 0 auto 3rem;
         }
-        .categories-wrapper::-webkit-scrollbar { display: none; }
+        @media (min-width: 600px) { .categories { grid-template-columns: repeat(6, 1fr); max-width: 800px; } }
 
-        .cat-item { cursor: pointer; text-align: center; flex: 0 0 80px; }
+        .cat-item { cursor: pointer; text-align: center; }
         .cat-icon {
             width: 60px; height: 60px; background: var(--card-bg); border-radius: 18px;
             display: flex; align-items: center; justify-content: center;
@@ -53,7 +65,7 @@
             border: 1px solid var(--border);
         }
         .cat-item:hover .cat-icon { background: var(--primary-gradient); color: white; transform: translateY(-5px); }
-        .cat-item span { font-size: 0.8rem; font-weight: 600; }
+        .cat-item span { font-size: 0.85rem; font-weight: 600; display: block; }
 
         .advisor-card { background: var(--secondary-gradient); color: white; padding: 20px; border-radius: 20px; margin-bottom: 20px; display: none; text-align: start; }
         .product-card { background: var(--card-bg); border-radius: 20px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--border); text-align: start; }
@@ -61,9 +73,6 @@
         
         .loader { animation: spin 1s infinite linear; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
-
-        /* زر تبديل اللغة */
-        .lang-btn { background: none; border: 1px solid var(--border); color: var(--text); padding: 5px 10px; border-radius: 8px; cursor: pointer; font-weight: 600; }
     </style>
 </head>
 
@@ -71,8 +80,17 @@
 
     <header>
         <div class="logo">Findly</div>
-        <div style="display: flex; gap: 10px; align-items: center;">
-            <button onclick="toggleLanguage()" class="lang-btn" id="lang-toggle-btn">EN</button>
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <div class="lang-container">
+                <button class="lang-btn" onclick="toggleLangDropdown()">
+                    <i class="fa-solid fa-globe"></i> <span id="current-lang-name">AR</span>
+                </button>
+                <div class="lang-dropdown" id="lang-dropdown">
+                    <div onclick="selectLanguage('ar')">العربية (AR)</div>
+                    <div onclick="selectLanguage('en')">English (EN)</div>
+                </div>
+            </div>
+
             <button onclick="toggleTheme()" style="background:none; border:none; color:var(--text); font-size:1.3rem; cursor:pointer;">
                 <i class="fa-solid fa-sun" id="theme-icon"></i>
             </button>
@@ -82,6 +100,7 @@
     <main class="hero">
         <div id="greeting" class="welcome-msg">...</div>
         <h1 id="main-title">خيارك المثالي مدروس بذكاء</h1>
+        <p class="sub-text" id="marketing-text">مستشارك التقني لتحليل السوق وإيجاد أفضل الصفقات.</p>
         
         <div id="limit-badge" style="display:inline-block; padding:8px 20px; background:var(--primary-gradient); color:white; border-radius:50px; margin-bottom:20px;">
             <span id="limit-text">المحاولات المتبقية:</span> <span id="remaining-count">3</span>
@@ -93,8 +112,7 @@
             <button onclick="handleSearch()" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); background:var(--primary-gradient); color:white; border:none; width:42px; height:42px; border-radius:15px; cursor:pointer;"><i class="fa-solid fa-magnifying-glass"></i></button>
         </div>
 
-        <div class="categories-wrapper" id="categories-list">
-            </div>
+        <div class="categories" id="categories-list"></div>
 
         <div id="advisor-card" class="advisor-card">
             <strong id="advisor-title"><i class="fas fa-brain"></i> تحليل Findly:</strong>
@@ -110,108 +128,95 @@
         const dictionary = {
             ar: {
                 title: "خيارك المثالي مدروس بذكاء",
+                marketing: "مستشارك التقني لتحليل السوق وإيجاد أفضل الصفقات.",
                 placeholder: "عن ماذا نبحث اليوم؟",
                 limit: "المحاولات المتبقية:",
-                advisor: "تحليل Findly الخبير:",
-                analyzing: "جاري التحليل...",
                 buy: "تسوق الآن 🚀",
+                analyzing: "جاري التحليل...",
                 morning: "صباح الخير أيها المستكشف الجديد 🌅",
                 afternoon: "طاب يومك أيها المستكشف الجديد ☀️",
                 evening: "مساء الخير أيها المستكشف الجديد 🌙",
                 cats: [
-                    { name: 'هواتف', query: 'هواتف ذكية' },
-                    { name: 'لابتوبات', query: 'أجهزة لابتوب' },
-                    { name: 'سماعات', query: 'سماعات' },
-                    { name: 'ساعات', query: 'ساعات ذكية' },
-                    { name: 'إكسسوارات', query: 'إكسسوارات' },
-                    { name: 'منزلية', query: 'أجهزة منزلية' }
+                    { name: 'هواتف', query: 'هواتف ذكية', icon: 'fa-mobile-screen-button' },
+                    { name: 'لابتوبات', query: 'أجهزة لابتوب', icon: 'fa-laptop' },
+                    { name: 'سماعات', query: 'سماعات', icon: 'fa-headphones' },
+                    { name: 'ساعات', query: 'ساعات ذكية', icon: 'fa-stopwatch' },
+                    { name: 'إكسسوارات', query: 'إكسسوارات', icon: 'fa-plug' },
+                    { name: 'منزلية', query: 'أجهزة منزلية', icon: 'fa-house-laptop' }
                 ]
             },
             en: {
-                title: "Your Perfect Choice, Smartly Studied",
+                title: "Your Choice, Smartly Studied",
+                marketing: "Your technical advisor for market analysis and finding best deals.",
                 placeholder: "What are we looking for today?",
                 limit: "Remaining attempts:",
-                advisor: "Findly Expert Analysis:",
-                analyzing: "Analyzing...",
                 buy: "Shop Now 🚀",
+                analyzing: "Analyzing...",
                 morning: "Good morning, New Explorer 🌅",
                 afternoon: "Good afternoon, New Explorer ☀️",
                 evening: "Good evening, New Explorer 🌙",
                 cats: [
-                    { name: 'Phones', query: 'Smartphones' },
-                    { name: 'Laptops', query: 'Laptops' },
-                    { name: 'Audio', query: 'Headphones' },
-                    { name: 'Watches', query: 'Smartwatches' },
-                    { name: 'Accessories', query: 'Accessories' },
-                    { name: 'Home', query: 'Home Appliances' }
+                    { name: 'Phones', query: 'Smartphones', icon: 'fa-mobile-screen-button' },
+                    { name: 'Laptops', query: 'Laptops', icon: 'fa-laptop' },
+                    { name: 'Audio', query: 'Headphones', icon: 'fa-headphones' },
+                    { name: 'Watches', query: 'Smartwatches', icon: 'fa-stopwatch' },
+                    { name: 'Accessories', query: 'Accessories', icon: 'fa-plug' },
+                    { name: 'Home', query: 'Home Appliances', icon: 'fa-house-laptop' }
                 ]
             }
         };
 
-        const icons = ['fa-mobile-screen-button', 'fa-laptop', 'fa-headphones', 'fa-stopwatch', 'fa-plug', 'fa-house-laptop'];
+        function toggleLangDropdown() {
+            const dropdown = document.getElementById('lang-dropdown');
+            dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        function selectLanguage(lang) {
+            currentLang = lang;
+            document.getElementById('current-lang-name').innerText = lang.toUpperCase();
+            document.getElementById('lang-dropdown').style.display = 'none';
+            updateUI();
+        }
 
         function updateUI() {
             const langData = dictionary[currentLang];
             document.getElementById('main-html').dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-            document.getElementById('main-html').lang = currentLang;
             document.getElementById('main-title').innerText = langData.title;
+            document.getElementById('marketing-text').innerText = langData.marketing;
             document.getElementById('search-input').placeholder = langData.placeholder;
             document.getElementById('limit-text').innerText = langData.limit;
-            document.getElementById('lang-toggle-btn').innerText = currentLang === 'ar' ? 'EN' : 'AR';
             
-            // تحديث الترحيب
             const hour = new Date().getHours();
             let msg = langData.evening;
             if (hour >= 5 && hour < 12) msg = langData.morning;
             else if (hour >= 12 && hour < 18) msg = langData.afternoon;
             document.getElementById('greeting').innerText = msg;
 
-            // تحديث القات
             const catContainer = document.getElementById('categories-list');
-            catContainer.innerHTML = langData.cats.map((cat, i) => `
+            catContainer.innerHTML = langData.cats.map(cat => `
                 <div class="cat-item" onclick="quickSearch('${cat.query}')">
-                    <div class="cat-icon"><i class="fa-solid ${icons[i]}"></i></div>
+                    <div class="cat-icon"><i class="fa-solid ${cat.icon}"></i></div>
                     <span>${cat.name}</span>
                 </div>
             `).join('');
         }
 
-        function toggleLanguage() {
-            currentLang = currentLang === 'ar' ? 'en' : 'ar';
-            updateUI();
-        }
-
         async function handleSearch() {
             const query = document.getElementById('search-input').value;
             if (!query) return;
-            
             const advisorCard = document.getElementById('advisor-card');
             const advisorText = document.getElementById('advisor-text');
-            const list = document.getElementById('products-list');
-            
             advisorCard.style.display = 'block';
             advisorText.innerHTML = `<i class="fa-solid fa-circle-notch loader"></i> ${dictionary[currentLang].analyzing}`;
-            list.innerHTML = '';
-
+            
             try {
                 const res = await fetch(`${API_URL}/get-ai-advice`, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query, lang: currentLang }) // نرسل اللغة المختارة للسيرفر
+                    body: JSON.stringify({ query, lang: currentLang })
                 });
                 const data = await res.json();
                 advisorText.innerHTML = data.explanation;
-                data.products.forEach(p => {
-                    list.innerHTML += `
-                        <div class="product-card">
-                            <div style="display:flex; gap:12px; align-items:center;">
-                                <img src="${p.thumbnail}" style="width:60px; height:60px; object-fit:contain;">
-                                <h4 style="font-size:1rem;">${p.name}</h4>
-                            </div>
-                            <p style="font-size:0.9rem; color:#6366F1; margin:8px 0;">${p.features || ''}</p>
-                            <a href="${p.link}" target="_blank" class="btn-amazon">${dictionary[currentLang].buy}</a>
-                        </div>`;
-                });
-            } catch (e) { advisorText.innerText = "Error / خطأ"; }
+            } catch (e) { advisorText.innerText = "Error"; }
         }
 
         function toggleTheme() {
@@ -221,7 +226,7 @@
         }
 
         function quickSearch(t) { document.getElementById('search-input').value = t; handleSearch(); }
-        
+        window.onclick = (e) => { if (!e.target.closest('.lang-container')) document.getElementById('lang-dropdown').style.display = 'none'; };
         window.onload = updateUI;
     </script>
 </body>

@@ -124,109 +124,89 @@ function saveProfile() {
         let currentLang = 'ar';
         let attempts = localStorage.getItem('findly_attempts') ? parseInt(localStorage.getItem('findly_attempts')) : 3;
 
-        // --- قاموس اللغات ---
-        const dictionary = {
-            ar: {
-                title: "خيارك المثالي مدروس بذكاء",
-                marketing: "مستشارك التقني لتحليل السوق وإيجاد أفضل الصفقات بدقة.",
-                placeholder: "عن ماذا نبحث اليوم؟",
-                limit: "المحاولات المتبقية:",
-                analyzing: "جاري تحليل السوق وجمع الصفقات...",
-                morning: "صباح الخير أيها المستكشف الجديد 🌅",
-                afternoon: "طاب يومك أيها المستكشف الجديد ☀️",
-                evening: "مساء الخير أيها المستكشف الجديد 🌙",
-                cats: [
-                    { name: 'هواتف', query: 'هواتف ذكية', icon: 'fa-mobile-screen-button' },
-                    { name: 'لابتوبات', query: 'أجهزة لابتوب', icon: 'fa-laptop' },
-                    { name: 'سماعات', query: 'سماعات', icon: 'fa-headphones' },
-                    { name: 'ساعات', query: 'ساعات ذكية', icon: 'fa-stopwatch' },
-                    { name: 'إكسسوارات', query: 'إكسسوارات', icon: 'fa-plug' },
-                    { name: 'منزلية', query: 'أجهزة منزلية', icon: 'fa-house-laptop' }
-                ]
-            },
-            en: {
-                title: "Your Choice, Smartly Studied",
-                marketing: "Your technical advisor for market analysis and finding best deals.",
-                placeholder: "What are we looking for today?",
-                limit: "Remaining attempts:",
-                analyzing: "Analyzing market and gathering deals...",
-                morning: "Good morning, New Explorer 🌅",
-                afternoon: "Good afternoon, New Explorer ☀️",
-                evening: "Good evening, New Explorer 🌙",
-                cats: [
-                    { name: 'Phones', query: 'Smartphones', icon: 'fa-mobile-screen-button' },
-                    { name: 'Laptops', query: 'Laptops', icon: 'fa-laptop' },
-                    { name: 'Audio', query: 'Headphones', icon: 'fa-headphones' },
-                    { name: 'Watches', query: 'Smartwatches', icon: 'fa-stopwatch' },
-                    { name: 'Accessories', query: 'Accessories', icon: 'fa-plug' },
-                    { name: 'Home', query: 'Home Appliances', icon: 'fa-house-laptop' }
-                ]
-            }
-        };
-
-        // --- إصلاح نظام التبديل والوضع الليلي ---
-        function toggleTheme() {
-            const body = document.body;
-            body.classList.toggle('dark-mode');
-            const isDark = body.classList.contains('dark-mode');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            updateThemeIcon(isDark);
-        }
-
-        function updateThemeIcon(isDark) {
-            const icon = document.getElementById('theme-icon');
-            icon.className = isDark ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
-        }
-
-        // تشغيل الوضع المحفوظ عند التحميل
-        (function initTheme() {
-            const savedTheme = localStorage.getItem('theme') || 'dark'; // الوضع الليلي افتراضي
-            if (savedTheme === 'dark') {
-                document.body.classList.add('dark-mode');
-                updateThemeIcon(true);
-            }
-        })();
-
-        // --- وظائف اللغة ---
-        function toggleLangDropdown() {
-            const d = document.getElementById('lang-dropdown');
-            d.style.display = d.style.display === 'flex' ? 'none' : 'flex';
-        }
-
-        function selectLanguage(lang) {
-            currentLang = lang;
-            document.getElementById('current-lang-name').innerText = lang.toUpperCase();
-            document.getElementById('lang-dropdown').style.display = 'none';
-            updateUI();
-        }
-
-        function updateUI() {
-            const data = dictionary[currentLang];
-            document.getElementById('main-html').dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-            document.getElementById('main-title').innerText = data.title;
-            document.getElementById('marketing-text').innerText = data.marketing;
-            document.getElementById('search-input').placeholder = data.placeholder;
-            document.getElementById('limit-text').innerText = data.limit;
-            document.getElementById('remaining-count').innerText = attempts;
-        modal.querySelector('h3').innerText = data.profileTitle;
-        modal.querySelectorAll('label')[0].innerText = data.nameLabel;
-        modal.querySelectorAll('label')[1].innerText = data.budgetLabel;
-        modal.querySelector('#user-name-input').placeholder = data.placeholderName;
-        modal.querySelector('#user-budget-input').placeholder = data.placeholderBudget;
-        modal.querySelectorAll('button')[0].innerText = data.saveBtn;
-        modal.querySelectorAll('button')[1].innerText = data.closeBtn;
+// 1. القاموس المحدث بنصوص البروفايل
+const dictionary = {
+    ar: {
+        title: "خيارك المثالي مدروس بذكاء",
+        marketing: "مستشارك التقني لتحليل السوق وإيجاد أفضل الصفقات بدقة.",
+        placeholder: "عن ماذا نبحث اليوم؟",
+        limit: "المحاولات المتبقية:",
+        analyzing: "جاري تحليل السوق وجمع الصفقات...",
+        morning: "صباح الخير أيها المستكشف 🌅",
+        afternoon: "طاب يومك أيها المستكشف ☀️",
+        evening: "مساء الخير أيها المستكشف 🌙",
+        profileTitle: "إعدادات ميزانيتك",
+        nameLabel: "اسمك العزيز:",
+        budgetLabel: "ميزانيتك (ر.س):",
+        saveBtn: "حفظ واهتمام ✨",
+        closeBtn: "إغلاق الآن",
+        placeholderName: "كيف ناديك؟",
+        placeholderBudget: "مثلاً: 2500",
+        cats: [
+            { name: 'هواتف', query: 'هواتف ذكية', icon: 'fa-mobile-screen-button' },
+            { name: 'لابتوبات', query: 'أجهزة لابتوب', icon: 'fa-laptop' },
+            { name: 'سماعات', query: 'سماعات', icon: 'fa-headphones' },
+            { name: 'ساعات', query: 'ساعات ذكية', icon: 'fa-stopwatch' },
+            { name: 'إكسسوارات', query: 'إكسسوارات', icon: 'fa-plug' },
+            { name: 'منزلية', query: 'أجهزة منزلية', icon: 'fa-house-laptop' }
+        ]
+    },
+    en: {
+        title: "Your Choice, Smartly Studied",
+        marketing: "Your technical advisor for market analysis.",
+        placeholder: "What are we looking for today?",
+        limit: "Remaining attempts:",
+        analyzing: "Analyzing market...",
+        morning: "Good morning, Explorer 🌅",
+        afternoon: "Good afternoon, Explorer ☀️",
+        evening: "Good evening, Explorer 🌙",
+        profileTitle: "Budget Settings",
+        nameLabel: "Your Name:",
+        budgetLabel: "Budget (SAR):",
+        saveBtn: "Save Settings ✨",
+        closeBtn: "Close",
+        placeholderName: "Your name...",
+        placeholderBudget: "e.g. 2500",
+        cats: [
+            { name: 'Phones', query: 'Smartphones', icon: 'fa-mobile-screen-button' },
+            { name: 'Laptops', query: 'Laptops', icon: 'fa-laptop' },
+            { name: 'Audio', query: 'Headphones', icon: 'fa-headphones' },
+            { name: 'Watches', query: 'Smartwatches', icon: 'fa-stopwatch' },
+            { name: 'Accessories', query: 'Accessories', icon: 'fa-plug' },
+            { name: 'Home', query: 'Home Appliances', icon: 'fa-house-laptop' }
+        ]
     }
-            const hour = new Date().getHours();
-            let msg = (hour >= 5 && hour < 12) ? data.morning : (hour >= 12 && hour < 18) ? data.afternoon : data.evening;
-            document.getElementById('greeting').innerText = msg;
+};
 
-            document.getElementById('categories-list').innerHTML = data.cats.map(c => `
-                <div class="cat-item" onclick="quickSearch('${c.query}')">
-                    <div class="cat-icon"><i class="fa-solid ${c.icon}"></i></div>
-                    <span>${c.name}</span>
-                </div>`).join('');
-        }
+// 2. دالة التحديث المصححة
+function updateUI() {
+    const data = dictionary[currentLang];
+    document.getElementById('main-html').dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+    document.getElementById('main-title').innerText = data.title;
+    document.getElementById('marketing-text').innerText = data.marketing;
+    document.getElementById('search-input').placeholder = data.placeholder;
+    document.getElementById('limit-text').innerText = data.limit;
+    document.getElementById('remaining-count').innerText = attempts;
 
+    // تحديث نصوص المودال (البروفايل)
+    document.getElementById('modal-title').innerText = data.profileTitle;
+    document.getElementById('label-name').innerText = data.nameLabel;
+    document.getElementById('label-budget').innerText = data.budgetLabel;
+    document.getElementById('user-name-input').placeholder = data.placeholderName;
+    document.getElementById('user-budget-input').placeholder = data.placeholderBudget;
+    document.getElementById('save-profile-btn').innerText = data.saveBtn;
+    document.getElementById('close-modal-btn').innerText = data.closeBtn;
+
+    const hour = new Date().getHours();
+    let msg = (hour >= 5 && hour < 12) ? data.morning : (hour >= 12 && hour < 18) ? data.afternoon : data.evening;
+    document.getElementById('greeting').innerText = msg;
+
+    document.getElementById('categories-list').innerHTML = data.cats.map(c => `
+        <div class="cat-item" onclick="quickSearch('${c.query}')">
+            <div class="cat-icon"><i class="fa-solid ${c.icon}"></i></div>
+            <span>${c.name}</span>
+        </div>`).join('');
+}
         // --- البحث الصوتي المحسن للهاتف ---
         function startVoice() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -325,20 +305,23 @@ function saveProfile() {
         window.onclick = (e) => { if (!e.target.closest('.lang-container')) document.getElementById('lang-dropdown').style.display = 'none'; };
         window.onload = updateUI;
     </script>
-<div id="profile-modal" style="display:none; ...">
-    <div style="...">
-        <h3 id="modal-title"></h3>
-        <div style="text-align:right;">
-            <label id="label-name"></label>
-            <input type="text" id="user-name-input">
+    <div id="profile-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; align-items:center; justify-content:center; backdrop-filter: blur(5px);">
+    <div style="background:var(--card-bg); width:90%; max-width:380px; padding:30px; border-radius:30px; text-align:center; border: 1px solid var(--border); box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+        <h3 id="modal-title" style="margin-bottom:20px; color:var(--text);"></h3>
+        
+        <div style="text-align:start; margin-bottom:15px;">
+            <label id="label-name" style="font-size:0.8rem; color:var(--text); opacity:0.8;"></label>
+            <input type="text" id="user-name-input" style="width:100%; padding:12px; border-radius:12px; border:1px solid var(--border); background:var(--bg); color:var(--text); margin-top:5px; outline:none;">
         </div>
-        <div style="text-align:right;">
-            <label id="label-budget"></label>
-            <input type="number" id="user-budget-input">
+
+        <div style="text-align:start; margin-bottom:25px;">
+            <label id="label-budget" style="font-size:0.8rem; color:var(--text); opacity:0.8;"></label>
+            <input type="number" id="user-budget-input" style="width:100%; padding:12px; border-radius:12px; border:1px solid var(--border); background:var(--bg); color:var(--text); margin-top:5px; outline:none;">
         </div>
-        <button onclick="saveProfile()" id="save-profile-btn"></button>
-        <button onclick="closeProfile()" id="close-modal-btn"></button>
+
+        <button onclick="saveProfile()" id="save-profile-btn" style="width:100%; background:var(--primary-gradient); color:white; border:none; padding:15px; border-radius:15px; font-weight:bold; cursor:pointer; margin-bottom:10px;"></button>
+        <button onclick="closeProfile()" id="close-modal-btn" style="background:none; border:none; color:var(--text); cursor:pointer; opacity:0.6; font-size:0.9rem;"></button>
     </div>
-</div>
+    </div>
 </body>
 </html>

@@ -261,8 +261,19 @@ function saveProfile() {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ query, lang: currentLang })
-                });
-                const data = await res.json();
+               // داخل دالة handleSearch
+const res = await fetch(`${API_URL}/get-ai-advice`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ 
+        query, 
+        lang: currentLang,
+        // 🟢 تأكد من إضافة هذا السطر الصغير هنا:
+        budget: localStorage.getItem('findly_budget') 
+    })
+
+               });
+                 const data = await res.json();
 
                 attempts--;
                 localStorage.setItem('findly_attempts', attempts);

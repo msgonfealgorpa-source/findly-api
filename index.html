@@ -77,40 +77,50 @@
         }
         .theme-btn { background: none; border: none; color: var(--text); font-size: 1.2rem; cursor: pointer; padding: 5px; }
 
-        /* تصميم قسم البحث */
-        .hero { text-align: center; padding: 3rem 1rem 2rem; max-width: 600px; margin: 0 auto; }
-        h1 { font-size: 1.8rem; margin-bottom: 10px; font-weight: 800; line-height: 1.3; }
-        .sub-text { font-size: 1rem; opacity: 0.8; margin-bottom: 2.5rem; }
-        
-        .search-container { position: relative; width: 100%; margin-bottom: 2.5rem; }
-        .search-box { 
-            width: 100%; 
-            padding: 16px 25px; 
-            padding-inline-end: 60px; 
-            border-radius: 20px; 
-            border: 2px solid transparent; 
-            background: var(--card-bg); 
-            box-shadow: var(--shadow); 
-            font-size: 1.1rem; 
-            color: var(--text); 
-            outline: none; 
-        }
-        .search-box:focus { border-color: #6366F1; }
-        .search-btn { 
-            position: absolute; 
-            top: 50%; 
-            transform: translateY(-50%); 
-            inset-inline-end: 15px; 
-            color: white; 
-            background: var(--primary-gradient); 
-            border: none; 
-            width: 40px; 
-            height: 40px; 
-            border-radius: 15px; 
-            font-size: 1.2rem; 
-            cursor: pointer; 
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+        .search-container {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    margin: 20px auto;
+}
+
+.search-box {
+    width: 100%;
+    padding: 15px 50px; /* مساحة للعدسة والميكروفون */
+    border-radius: 30px;
+    border: 1px solid #ddd;
+    font-size: 1rem;
+    outline: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* أيقونة البحث (العدسة) */
+.search-btn {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #6366F1;
+    color: white;
+    border: none;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+/* أيقونة الميكروفون */
+#voice-btn {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #6366F1;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
         }
         .search-btn:hover { transform: translateY(-50%) scale(1.05); }
 

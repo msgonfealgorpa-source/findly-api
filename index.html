@@ -187,77 +187,62 @@
         }
 
         // --- وظيفة البحث مع عرض المنتجات ---
-        async function handleSearch() {
-    const query = document.getElementById('search-input').value;
+        // في بداية السكريبت تأكد من تعريف العداد
+let attempts = localStorage.getItem('user_attempts') ? parseInt(localStorage.getItem('user_attempts')) : 3;
+
+// دالة تحديث الرقم في الشاشة
+function updateAttemptUI() {
+    document.getElementById('remaining-count').innerText = attempts;
+}
+updateAttemptUI(); // استدعاء عند التشغيل
+
+async function handleSearch() {
+    const inputField = document.getElementById('search-input');
+    const query = inputField.value;
+
+    // منع البحث إذا انتهت المحاولات
+    if (attempts <= 0) {
+        alert(currentLang === 'ar' ? "عذراً، انتهت محاولاتك المجانية اليوم!" : "Sorry, your free attempts are over!");
+        return;
+    }
+
     if (!query) return;
-    
-    const advisorCard = document.getElementById('advisor-card');
-    const advisorText = document.getElementById('advisor-text');
-    const productsList = document.getElementById('products-list');
-    
-    advisorCard.style.display = 'block';
-    productsList.innerHTML = '';
-    advisorText.innerHTML = `<i class="fa-solid fa-circle-notch loader"></i> ${dictionary[currentLang].analyzing}`;
+
+    // إظهار اللودر
+    document.getElementById('advisor-card').style.display = 'block';
+    document.getElementById('advisor-text').innerHTML = dictionary[currentLang].analyzing;
+    document.getElementById('products-list').innerHTML = '';
 
     try {
         const res = await fetch(`${API_URL}/get-ai-advice`, {
-            method: 'POST', 
+            method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ query, lang: currentLang })
         });
-        
         const data = await res.json();
-        advisorText.innerHTML = data.explanation;
-        
-        if (data.products && data.products.length > 0) {
-            data.products.forEach(p => {
-                // نظام النجوم الديناميكي
-                const rating = p.rating || 4.5;
-                const stars = Array(5).fill(0).map((_, i) => 
-                    `<i class="fa-solid fa-star" style="color: ${i < Math.floor(rating) ? '#FFD700' : '#E2E8F0'}; font-size: 0.8rem;"></i>`
-                ).join('');
 
-                // استخراج سبب الترشيح: إذا لم يتوفر من السيرفر، يتم استخلاصه من الميزات
-                const reasonText = p.reason || p.features || (currentLang === 'ar' ? "أداء ممتاز مقابل سعر منافس." : "Excellent performance at a competitive price.");
+        // --- هنا يحدث الخصم بعد نجاح العملية ---
+        attempts--; 
+        localStorage.setItem('user_attempts', attempts);
+        updateAttemptUI();
+        // ---------------------------------------
 
-                productsList.innerHTML += `
-                    <div class="product-card" style="border: 1px solid var(--border); padding: 20px; border-radius: 20px; background: var(--card-bg); margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
-                        
-                        <div style="display:flex; justify-content: space-between; align-items: flex-start; gap: 15px;">
-                            <div style="display:flex; gap:12px; align-items:center;">
-                                <div style="background: #fff; padding: 5px; border-radius: 12px; border: 1px solid #f0f0f0;">
-                                    <img src="${p.thumbnail}" style="width:70px; height:70px; object-fit:contain;">
-                                </div>
-                                <div>
-                                    <h4 style="font-size:1rem; color:var(--text); margin-bottom:4px; line-height:1.3;">${p.name}</h4>
-                                    <div style="display: flex; align-items: center; gap: 4px;">
-                                        ${stars}
-                                        <span style="font-size: 0.8rem; opacity: 0.7;">(${rating})</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div style="background: var(--primary-gradient); color: white; padding: 5px 12px; border-radius: 10px; font-weight: bold; font-size: 0.9rem; white-space: nowrap;">
-                                ${p.price || '---'}
-                            </div>
-                        </div>
+        document.getElementById('advisor-text').innerHTML = data.explanation;
 
-                        <div style="margin-top: 18px; padding: 12px; background: rgba(99, 102, 241, 0.08); border-radius: 12px; border-inline-start: 5px solid #6366F1;">
-                            <div style="font-weight: bold; font-size: 0.9rem; color: #6366F1; margin-bottom: 6px;">
-                                <i class="fa-solid fa-award"></i> ${currentLang === 'ar' ? 'لماذا نرشحه لك؟' : 'Why we recommend it?'}
-                            </div>
-                            <p style="font-size: 0.85rem; line-height: 1.5; color: var(--text); opacity: 0.9;">
-                                ${reasonText}
-                            </p>
-                        </div>
+        data.products.forEach(p => {
+            document.getElementById('products-list').innerHTML += `
+                <div class="product-card">
+                    <h4 style="margin-bottom:10px;">${p.name}</h4>
+                    <p style="color:#6366F1; font-weight:bold;">السعر: ${p.price}</p>
+                    <div style="background:#f0f4ff; padding:10px; border-radius:10px; margin:10px 0; border-right:4px solid #6366F1;">
+                        <small>💡 <b>لماذا نرشحه:</b> ${p.reason}</small>
+                    </div>
+                    <a href="${p.link}" target="_blank" class="btn-amazon">تسوق الآن 🚀</a>
+                </div>`;
+        });
 
-                        <a href="${p.link}" target="_blank" class="btn-amazon" style="margin-top: 15px;">
-                            <i class="fa-solid fa-cart-shopping"></i> ${dictionary[currentLang].buy}
-                        </a>
-                    </div>`;
-            });
-        }
-    } catch (e) { 
-        advisorText.innerText = "Error / خطأ في الاتصال"; 
+    } catch (e) {
+        console.error(e);
     }
 }
 

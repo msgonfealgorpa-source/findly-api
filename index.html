@@ -188,42 +188,69 @@
 
         // --- وظيفة البحث مع عرض المنتجات ---
         async function handleSearch() {
-            const query = document.getElementById('search-input').value;
-            if (!query) return;
-            const advisorCard = document.getElementById('advisor-card');
-            const advisorText = document.getElementById('advisor-text');
-            const productsList = document.getElementById('products-list');
-            
-            advisorCard.style.display = 'block';
-            productsList.innerHTML = '';
-            advisorText.innerHTML = `<i class="fa-solid fa-circle-notch loader"></i> ${dictionary[currentLang].analyzing}`;
+    const query = document.getElementById('search-input').value;
+    if (!query) return;
+    
+    const advisorCard = document.getElementById('advisor-card');
+    const advisorText = document.getElementById('advisor-text');
+    const productsList = document.getElementById('products-list');
+    
+    advisorCard.style.display = 'block';
+    productsList.innerHTML = '';
+    advisorText.innerHTML = `<i class="fa-solid fa-circle-notch loader"></i> ${dictionary[currentLang].analyzing}`;
 
-            try {
-                const res = await fetch(`${API_URL}/get-ai-advice`, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query, lang: currentLang })
-                });
-                const data = await res.json();
-                advisorText.innerHTML = data.explanation;
-                
-                if (data.products && data.products.length > 0) {
-                    data.products.forEach(p => {
-                        productsList.innerHTML += `
-                            <div class="product-card">
-                                <div style="display:flex; gap:15px; align-items:center;">
-                                    <img src="${p.thumbnail}" style="width:70px; height:70px; object-fit:contain; border-radius:10px;">
-                                    <div>
-                                        <h4 style="font-size:1rem;">${p.name}</h4>
-                                        <span style="color:#6366F1; font-weight:bold; font-size:0.9rem;">${p.price || ''}</span>
-                                    </div>
+    try {
+        const res = await fetch(`${API_URL}/get-ai-advice`, {
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query, lang: currentLang })
+        });
+        
+        const data = await res.json();
+        advisorText.innerHTML = data.explanation;
+        
+        if (data.products && data.products.length > 0) {
+            data.products.forEach(p => {
+                // توليد النجوم بناءً على التقييم (افتراضي 4.5 إذا لم يوجد)
+                const rating = p.rating || 4.5;
+                const stars = Array(5).fill(0).map((_, i) => 
+                    `<i class="fa-solid fa-star" style="color: ${i < Math.floor(rating) ? '#FFD700' : '#E2E8F0'}; font-size: 0.8rem;"></i>`
+                ).join('');
+
+                productsList.innerHTML += `
+                    <div class="product-card" style="position: relative; overflow: hidden;">
+                        <div style="position: absolute; top: 15px; left: 15px; background: #6366F1; color: white; padding: 4px 10px; border-radius: 8px; font-weight: bold; font-size: 0.9rem;">
+                            ${p.price || '---'}
+                        </div>
+
+                        <div style="display:flex; gap:15px; align-items:center; margin-top: 10px;">
+                            <img src="${p.thumbnail}" style="width:80px; height:80px; object-fit:contain; border-radius:12px; background: #fff; padding: 5px;">
+                            <div style="flex: 1;">
+                                <h4 style="font-size:1rem; margin-bottom: 5px; padding-left: 60px;">${p.name}</h4>
+                                <div style="display: flex; align-items: center; gap: 5px;">
+                                    ${stars}
+                                    <span style="font-size: 0.8rem; opacity: 0.7;">(${rating})</span>
                                 </div>
-                                <p style="font-size:0.85rem; margin-top:10px; opacity:0.9;">${p.features || ''}</p>
-                                <a href="${p.link}" target="_blank" class="btn-amazon">${dictionary[currentLang].buy}</a>
-                            </div>`;
-                    });
-                }
-            } catch (e) { advisorText.innerText = "Error Connecting to Server."; }
+                            </div>
+                        </div>
+
+                        <div style="margin: 15px 0; padding: 10px; background: rgba(99, 102, 241, 0.1); border-radius: 10px; border-right: 4px solid #6366F1;">
+                            <p style="font-size: 0.85rem; line-height: 1.4; color: var(--text);">
+                                <strong><i class="fa-solid fa-check-double"></i> لماذا نرشحه:</strong> 
+                                ${p.features || 'خيار ممتاز يقدم قيمة عالية مقابل السعر بناءً على مراجعات المستخدمين.'}
+                            </p>
+                        </div>
+
+                        <a href="${p.link}" target="_blank" class="btn-amazon">
+                            <i class="fa-solid fa-cart-shopping"></i> ${dictionary[currentLang].buy}
+                        </a>
+                    </div>`;
+            });
         }
+    } catch (e) { 
+        advisorText.innerText = "خطأ في جلب البيانات، يرجى المحاولة مرة أخرى."; 
+    }
+}
 
         function toggleTheme() {
             document.body.classList.toggle('dark-mode');

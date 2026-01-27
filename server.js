@@ -58,19 +58,30 @@ app.post('/get-ai-advice', async (req, res) => {
     const rankedData = smartRank(rawProducts, brain);
 
     // 5. تجهيز أفضل 3 نتائج مع "سبب الترشيح" الموحد للواجهة
-    const finalProducts = rankedData.slice(0, 3).map(p => {
-      let reason = "";
-      if (currentLang === "ar") {
-        reason = p.score > 80 ? `تم اختياره بدقة لأنه يطابق معاييرك لـ "${query}" من حيث المواصفات والقيمة.` : "خيار اقتصادي ممتاز حائز على تقييمات إيجابية.";
-      } else {
-        reason = p.score > 80 ? `Perfectly matches your specs for "${query}" with the best market value.` : "Top-rated budget-friendly choice based on user reviews.";
-      }
-      
-      return {
+    // داخل دالة المعالجة في السيرفر
+const finalProducts = rankedData.slice(0, 3).map(p => {
+    let reasonText = "";
+    
+    // توليد شرح ذكي بناءً على مواصفات المنتج والبحث
+    if (currentLang === "ar") {
+        if (p.rating >= 4.5 && p.score > 90) {
+            reasonText = `هذا المنتج هو الأفضل تقييماً (${p.rating} نجوم). نرشحه لأنه يجمع بين الجودة العالية من ${p.source} وأفضل سعر متاح حالياً.`;
+        } else if (p.price.includes("ر.س") || p.price.includes("$")) {
+            reasonText = `خيار اقتصادي ممتاز. تم اختياره بناءً على تحليل السعر العادل ومطابقته لطلبك "${query}" مقارنة بالمنافسين.`;
+        } else {
+            reasonText = `نرشحه لك بسبب موثوقية البائع (${p.source}) وتوفر الميزات الأساسية التي بحثت عنها بدقة.`;
+        }
+    } else {
+        reasonText = p.score > 90 
+            ? `Top-rated choice with ${p.rating} stars. Best balance between technical specs and price.` 
+            : `Selected as a value-for-money option for your "${query}" search.`;
+    }
+    
+    return {
         ...p,
-        reason: reason // تم تثبيت المسمى ليتوافق مع الواجهة
-      };
-    });
+        reason: reasonText // هذا النص هو الذي سيشرح السبب للمستخدم
+    };
+});
 
     // 6. صياغة التفسير العام من الذكاء الاصطناعي
     const explanation = generateSmartExplanation(brain, finalProducts, currentLang);

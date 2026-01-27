@@ -246,91 +246,73 @@ function saveProfile() {
             };
         }
 
-        // --- دالة البحث الرئيسية ---
-        async function handleSearch() {
-            const query = document.getElementById('search-input').value;
-            if (attempts <= 0) return alert("نفدت محاولاتك!");
-            if (!query) return;
+        // --- دالة البحث الرئيسية (نسخة صافية وبدون تكرار) ---
+    async function handleSearch() {
+        const query = document.getElementById('search-input').value;
+        if (attempts <= 0) return alert(currentLang === 'ar' ? "نفدت محاولاتك!" : "No more attempts!");
+        if (!query) return;
 
-            document.getElementById('advisor-card').style.display = 'block';
-            document.getElementById('advisor-text').innerHTML = dictionary[currentLang].analyzing;
-            document.getElementById('products-list').innerHTML = '';
+        // تجهيز الواجهة
+        document.getElementById('advisor-card').style.display = 'block';
+        document.getElementById('advisor-text').innerHTML = dictionary[currentLang].analyzing;
+        document.getElementById('products-list').innerHTML = '';
 
-             {
-const res = await fetch(`${API_URL}/get-ai-advice`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ 
-        query, 
-        lang: currentLang,
-        // 🟢 تأكد من إضافة هذا السطر الصغير هنا:
-        budget: localStorage.getItem('findly_budget') 
-    })
- });
- const data = await res.json();
+        try {
+            const res = await fetch(`${API_URL}/get-ai-advice`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    query,
+                    lang: currentLang,
+                    budget: localStorage.getItem('findly_budget') // يرسل الميزانية المحفوظة
+                })
+            });
 
-                attempts--;
-                localStorage.setItem('findly_attempts', attempts);
-                document.getElementById('remaining-count').innerText = attempts;
-
-                document.getElementById('advisor-text').innerHTML = data.explanation;
-
-                data.products.forEach(p => {
-    // 1. نظام النجوم الديناميكي
-    const fullStars = Math.floor(p.rating || 4);
-    let stars = '';
-    for(let i=0; i<5; i++) {
-        stars += `<i class="fa-solid fa-star" style="color:${i < fullStars ? '#FFD700' : '#4b5563'}"></i>`;
-    }
-
-    // 2. إضافة وسام "أفضل سعر" (الذكاء الجديد)
-    // هذا الوسام يظهر فقط للمنتج الذي حدده السيرفر كأرخص خيار
-    const cheapestBadge = p.isCheapest ? 
-        `<div style="background: #22C55E; color: white; padding: 5px 12px; border-radius: 10px; font-size: 0.8rem; font-weight: bold; margin-bottom: 12px; display: inline-flex; align-items: center; gap: 5px; box-shadow: 0 4px 10px rgba(34, 197, 94, 0.3);">
-            <i class="fa-solid fa-bolt"></i> أفضل سعر
-        </div>` : '';
-
-    // 3. بناء بطاقة المنتج (دمج الذكاء القديم والجديد)
-    document.getElementById('products-list').innerHTML += `
-        <div class="product-card" style="position: relative; background: var(--card-bg); border: 1px solid var(--border); padding: 20px; border-radius: 25px; margin-bottom: 20px; transition: transform 0.3s ease;">
+            const data = await res.json();
             
-            ${cheapestBadge}
+            // تحديث المحاولات
+            attempts--;
+            localStorage.setItem('findly_attempts', attempts);
+            document.getElementById('remaining-count').innerText = attempts;
+            document.getElementById('advisor-text').innerHTML = data.explanation;
 
-            <div style="display:flex; justify-content:space-between; align-items:start; gap:15px;">
-                <div style="flex:1;">
-                    <h4 style="font-size:1rem; color: var(--text); margin-bottom:8px; line-height:1.4;">${p.name}</h4>
-                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
-                        ${stars} <span style="font-size:0.85rem; color: var(--text); opacity:0.6;">(${p.rating})</span>
-                    </div>
-                </div>
-                <div style="background: #fff; padding: 8px; border-radius: 15px; border: 1px solid #f0f0f0; flex-shrink: 0;">
-                    <img src="${p.thumbnail}" style="width:70px; height:70px; object-fit:contain;">
-                </div>
-            </div>
+            // رسم المنتجات
+            data.products.forEach(p => {
+                const fullStars = Math.floor(p.rating || 4);
+                let stars = '';
+                for(let i=0; i<5; i++) {
+                    stars += `<i class="fa-solid fa-star" style="color:${i < fullStars ? '#FFD700' : '#4b5563'}"></i>`;
+                }
 
-            <div style="font-size:1.2rem; color: #6366F1; font-weight:900; margin: 15px 0;">
-                ${p.price}
-            </div>
+                const cheapestBadge = p.isCheapest ? 
+                    `<div style="background: #22C55E; color: white; padding: 5px 12px; border-radius: 10px; font-size: 0.8rem; font-weight: bold; margin-bottom: 10px; display: inline-block;">
+                        <i class="fa-solid fa-bolt"></i> ${currentLang === 'ar' ? 'أفضل سعر ومناسب لميزانيتك' : 'Best Price & Budget Friendly'}
+                    </div>` : '';
 
-            <div style="background: rgba(99, 102, 241, 0.08); padding: 15px; border-radius: 18px; border-inline-start: 5px solid #6366F1;">
-                <div style="color: #6366F1; font-weight: bold; font-size: 0.9rem; margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i> تحليل Findly الذكي:
-                </div>
-                <p style="color: var(--text); font-size: 0.9rem; line-height: 1.6; margin: 0; opacity: 0.95;">
-                    ${p.reason}
-                </p>
-            </div>
+                document.getElementById('products-list').innerHTML += `
+                    <div class="product-card" style="position: relative; background: var(--card-bg); border: 1px solid var(--border); padding: 20px; border-radius: 20px; margin-bottom: 15px;">
+                        ${cheapestBadge}
+                        <div style="display:flex; justify-content:space-between; align-items:start; gap:15px;">
+                            <div style="flex:1;">
+                                <h4 style="font-size:1rem; color: var(--text); margin-bottom:8px;">${p.name}</h4>
+                                <div style="display:flex; align-items:center; gap:8px;">${stars}</div>
+                            </div>
+                            <div style="background: #fff; padding: 5px; border-radius: 10px;">
+                                <img src="${p.thumbnail}" style="width:70px; height:70px; object-fit:contain;">
+                            </div>
+                        </div>
+                        <div style="font-size:1.2rem; color: #6366F1; font-weight:900; margin: 10px 0;">${p.price}</div>
+                        <a href="${p.link}" target="_blank" class="btn-amazon" style="display: block; text-align: center; background: var(--primary-gradient); color: white; padding: 12px; border-radius: 12px; text-decoration: none; font-weight: bold;">
+                            ${currentLang === 'ar' ? 'تسوق الآن 🚀' : 'Shop Now 🚀'}
+                        </a>
+                    </div>`;
+            });
 
-            <a href="${p.link}" target="_blank" class="btn-amazon" style="margin-top: 20px; display: block; text-decoration: none;">
-                تسوق الآن 🚀
-            </a>
-        </div>`;
-});
-                
-            } catch (e) {
-                document.getElementById('advisor-text').innerText = "خطأ في الاتصال بالسيرفر";
-            }
+        } catch (e) {
+            console.error(e);
+            document.getElementById('advisor-text').innerText = "خطأ في الاتصال بالسيرفر";
         }
+    }
 
         function quickSearch(t) { document.getElementById('search-input').value = t; handleSearch(); }
         window.onclick = (e) => { if (!e.target.closest('.lang-container')) document.getElementById('lang-dropdown').style.display = 'none'; };

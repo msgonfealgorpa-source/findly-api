@@ -14,25 +14,23 @@
             --secondary-gradient: linear-gradient(135deg, #3B82F6, #06B6D4);
             --bg: #F8FAFC; --text: #1E293B; --card-bg: #FFFFFF; --border: #E2E8F0;
         }
-        .dark-mode {
+        /* تأكد أن هذا الكلاس موجود ليعمل الوضع الليلي */
+        body.dark-mode {
             --bg: #0F172A; --text: #F1F5F9; --card-bg: #1E293B; --border: #334155;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Readex+Pro', sans-serif; transition: all 0.3s ease; }
-        body { background-color: var(--bg); color: var(--text); min-height: 100vh; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Readex+Pro', sans-serif; transition: background 0.3s, color 0.3s; }
+        body { background-color: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
 
         header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 5%; background: var(--card-bg); box-shadow: 0 4px 15px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000; }
         .logo { font-size: 1.6rem; font-weight: 900; background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-        .lang-container { position: relative; }
         .lang-btn { background: none; border: 1px solid var(--border); color: var(--text); padding: 5px 12px; border-radius: 10px; cursor: pointer; font-weight: 700; display: flex; align-items: center; gap: 5px; }
         .lang-dropdown { position: absolute; top: 110%; left: 0; background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; display: none; flex-direction: column; min-width: 130px; z-index: 2000; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-        .lang-dropdown div { padding: 12px; cursor: pointer; font-size: 0.9rem; font-weight: 600; text-align: center; border-bottom: 1px solid var(--border); }
-        .lang-dropdown div:hover { background: var(--primary-gradient); color: white; }
+        .lang-dropdown div { padding: 12px; cursor: pointer; font-size: 0.9rem; font-weight: 600; text-align: center; border-bottom: 1px solid var(--border); color: var(--text); }
 
         .hero { text-align: center; padding: 2rem 1rem; max-width: 900px; margin: 0 auto; }
-        .welcome-msg { font-size: 1.1rem; font-weight: 600; color: #6366F1; margin-bottom: 5px; }
-        h1 { font-size: 2rem; font-weight: 700; margin-bottom: 10px; }
-        .sub-text { opacity: 0.8; font-size: 1rem; margin-bottom: 25px; }
+        h1 { font-size: 2rem; font-weight: 700; margin-bottom: 10px; color: var(--text); }
+        .sub-text { opacity: 0.8; font-size: 1rem; margin-bottom: 25px; color: var(--text); }
 
         .search-container { position: relative; width: 100%; max-width: 550px; margin: 0 auto 2.5rem; }
         .search-box { width: 100%; padding: 18px 60px; border-radius: 30px; border: 2px solid var(--border); background: var(--card-bg); color: var(--text); font-size: 1rem; outline: none; }
@@ -42,22 +40,16 @@
         .categories { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 3rem; }
         @media (min-width: 600px) { .categories { grid-template-columns: repeat(6, 1fr); } }
 
-        .cat-item { cursor: pointer; text-align: center; }
         .cat-icon { width: 65px; height: 65px; background: var(--card-bg); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; color: #6366F1; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin: 0 auto 8px; border: 1px solid var(--border); }
-        .cat-item span { font-size: 0.85rem; font-weight: 600; }
+        .cat-item span { font-size: 0.85rem; font-weight: 600; color: var(--text); }
 
         .advisor-card { background: var(--secondary-gradient); color: white; padding: 25px; border-radius: 25px; margin-bottom: 20px; display: none; text-align: start; line-height: 1.6; }
-        .product-card { background: var(--card-bg); border-radius: 20px; padding: 20px; margin-bottom: 15px; border: 1px solid var(--border); text-align: start; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .product-card { background: var(--card-bg); border-radius: 20px; padding: 20px; margin-bottom: 15px; border: 1px solid var(--border); text-align: start; }
         .btn-amazon { background: var(--primary-gradient); color: white; text-decoration: none; display: block; width: 100%; padding: 12px; border-radius: 12px; text-align: center; font-weight: 700; margin-top: 15px; }
-        
-        .loader { animation: spin 1s infinite linear; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="dark-mode">
-
-    <header>
-        <div class="logo">Findly <i class="fa-solid fa-robot" style="font-size: 1.2rem;"></i></div>
+<body> <header>
+        <div class="logo">Findly <i class="fa-solid fa-robot"></i></div>
         <div style="display: flex; gap: 12px;">
             <div class="lang-container">
                 <button class="lang-btn" onclick="toggleLangDropdown()">
@@ -68,12 +60,14 @@
                     <div onclick="selectLanguage('en')">English (EN)</div>
                 </div>
             </div>
-            <button onclick="toggleTheme()" style="background:none; border:none; color:var(--text); font-size:1.3rem; cursor:pointer;"><i class="fa-solid fa-sun" id="theme-icon"></i></button>
+            <button onclick="toggleTheme()" style="background:none; border:none; color:var(--text); font-size:1.3rem; cursor:pointer;">
+                <i class="fa-solid fa-sun" id="theme-icon"></i>
+            </button>
         </div>
     </header>
 
     <main class="hero">
-        <div id="greeting" class="welcome-msg">...</div>
+        <div id="greeting" class="welcome-msg" style="color: #6366F1; font-weight: bold; margin-bottom: 10px;">...</div>
         <h1 id="main-title">...</h1>
         <p class="sub-text" id="marketing-text">...</p>
         
@@ -90,7 +84,7 @@
         <div class="categories" id="categories-list"></div>
 
         <div id="advisor-card" class="advisor-card">
-            <strong id="advisor-header"><i class="fas fa-brain"></i> تحليل Findly:</strong>
+            <strong><i class="fas fa-brain"></i> تحليل Findly:</strong>
             <div id="advisor-text" style="margin-top:10px;"></div>
         </div>
         <div id="products-list"></div>
@@ -99,14 +93,15 @@
     <script>
         const API_URL = "https://findly-api.onrender.com";
         let currentLang = 'ar';
+        let attempts = localStorage.getItem('findly_attempts') ? parseInt(localStorage.getItem('findly_attempts')) : 3;
 
+        // --- قاموس اللغات ---
         const dictionary = {
             ar: {
                 title: "خيارك المثالي مدروس بذكاء",
                 marketing: "مستشارك التقني لتحليل السوق وإيجاد أفضل الصفقات بدقة.",
                 placeholder: "عن ماذا نبحث اليوم؟",
                 limit: "المحاولات المتبقية:",
-                buy: "تسوق الآن 🚀",
                 analyzing: "جاري تحليل السوق وجمع الصفقات...",
                 morning: "صباح الخير أيها المستكشف الجديد 🌅",
                 afternoon: "طاب يومك أيها المستكشف الجديد ☀️",
@@ -125,7 +120,6 @@
                 marketing: "Your technical advisor for market analysis and finding best deals.",
                 placeholder: "What are we looking for today?",
                 limit: "Remaining attempts:",
-                buy: "Shop Now 🚀",
                 analyzing: "Analyzing market and gathering deals...",
                 morning: "Good morning, New Explorer 🌅",
                 afternoon: "Good afternoon, New Explorer ☀️",
@@ -141,6 +135,30 @@
             }
         };
 
+        // --- إصلاح نظام التبديل والوضع الليلي ---
+        function toggleTheme() {
+            const body = document.body;
+            body.classList.toggle('dark-mode');
+            const isDark = body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            updateThemeIcon(isDark);
+        }
+
+        function updateThemeIcon(isDark) {
+            const icon = document.getElementById('theme-icon');
+            icon.className = isDark ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+        }
+
+        // تشغيل الوضع المحفوظ عند التحميل
+        (function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'dark'; // الوضع الليلي افتراضي
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                updateThemeIcon(true);
+            }
+        })();
+
+        // --- وظائف اللغة ---
         function toggleLangDropdown() {
             const d = document.getElementById('lang-dropdown');
             d.style.display = d.style.display === 'flex' ? 'none' : 'flex';
@@ -160,7 +178,8 @@
             document.getElementById('marketing-text').innerText = data.marketing;
             document.getElementById('search-input').placeholder = data.placeholder;
             document.getElementById('limit-text').innerText = data.limit;
-            
+            document.getElementById('remaining-count').innerText = attempts;
+
             const hour = new Date().getHours();
             let msg = (hour >= 5 && hour < 12) ? data.morning : (hour >= 12 && hour < 18) ? data.afternoon : data.evening;
             document.getElementById('greeting').innerText = msg;
@@ -172,98 +191,81 @@
                 </div>`).join('');
         }
 
-        // --- ميزة البحث الصوتي المستعادة ---
+        // --- البحث الصوتي المحسن للهاتف ---
         function startVoice() {
-            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alert(currentLang === 'ar' ? "متصفحك لا يدعم البحث الصوتي" : "Voice search not supported");
+                return;
+            }
+
+            const recognition = new SpeechRecognition();
             recognition.lang = currentLang === 'ar' ? 'ar-SA' : 'en-US';
             document.getElementById('voice-btn').style.color = 'red';
+
             recognition.start();
+
             recognition.onresult = (e) => {
                 document.getElementById('search-input').value = e.results[0][0].transcript;
                 document.getElementById('voice-btn').style.color = '#6366F1';
                 handleSearch();
             };
-            recognition.onerror = () => document.getElementById('voice-btn').style.color = '#6366F1';
+
+            recognition.onerror = (e) => {
+                console.error(e);
+                document.getElementById('voice-btn').style.color = '#6366F1';
+            };
         }
-// 1. نظام المحاولات (يُحفظ في المتصفح)
-let attempts = localStorage.getItem('findly_attempts') ? parseInt(localStorage.getItem('findly_attempts')) : 3;
-document.getElementById('remaining-count').innerText = attempts;
 
-async function handleSearch() {
-    const query = document.getElementById('search-input').value;
-    
-    // التحقق من المحاولات
-    if (attempts <= 0) {
-        alert(currentLang === 'ar' ? "نفدت محاولاتك!" : "No attempts left!");
-        return;
-    }
-    if (!query) return;
+        // --- دالة البحث الرئيسية ---
+        async function handleSearch() {
+            const query = document.getElementById('search-input').value;
+            if (attempts <= 0) return alert("نفدت محاولاتك!");
+            if (!query) return;
 
-    // تهيئة الواجهة للبحث
-    document.getElementById('advisor-card').style.display = 'block';
-    document.getElementById('advisor-text').innerHTML = dictionary[currentLang].analyzing;
-    document.getElementById('products-list').innerHTML = '';
+            document.getElementById('advisor-card').style.display = 'block';
+            document.getElementById('advisor-text').innerHTML = dictionary[currentLang].analyzing;
+            document.getElementById('products-list').innerHTML = '';
 
-    try {
-        const res = await fetch(`${API_URL}/get-ai-advice`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ query, lang: currentLang })
-        });
-        const data = await res.json();
+            try {
+                const res = await fetch(`${API_URL}/get-ai-advice`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query, lang: currentLang })
+                });
+                const data = await res.json();
 
-        // خصم محاولة وتحديث العداد
-        attempts--;
-        localStorage.setItem('findly_attempts', attempts);
-        document.getElementById('remaining-count').innerText = attempts;
+                attempts--;
+                localStorage.setItem('findly_attempts', attempts);
+                document.getElementById('remaining-count').innerText = attempts;
 
-        document.getElementById('advisor-text').innerHTML = data.explanation;
-data.products.forEach(p => {
-    // نظام النجوم الديناميكي
-    const fullStars = Math.floor(p.rating || 4);
-    let stars = '';
-    for(let i=0; i<5; i++) {
-        stars += `<i class="fa-solid fa-star" style="color:${i < fullStars ? '#FFD700' : '#4b5563'}"></i>`;
-    }
+                document.getElementById('advisor-text').innerHTML = data.explanation;
 
-    // بناء البطاقة باستخدام متغيرات الـ CSS لضمان استجابة اللون
-    document.getElementById('products-list').innerHTML += `
-        <div class="product-card" style="background: var(--card-bg); border: 1px solid var(--border); padding: 18px; border-radius: 20px; margin-bottom: 20px;">
-            <div style="display:flex; justify-content:space-between; align-items:start; gap:10px;">
-                <div style="flex:1;">
-                    <h4 style="font-size:0.95rem; color: var(--text); margin-bottom:5px;">${p.name}</h4>
-                    <div style="display:flex; align-items:center; gap:6px; margin-bottom:10px;">
-                        ${stars} <span style="font-size:0.8rem; color: var(--text); opacity:0.6;">(${p.rating})</span>
-                    </div>
-                </div>
-                <div style="background: #fff; padding: 5px; border-radius: 12px; border: 1px solid #eee;">
-                    <img src="${p.thumbnail}" style="width:65px; height:65px; object-fit:contain;">
-                </div>
-            </div>
+                data.products.forEach(p => {
+                    const fullStars = Math.floor(p.rating || 4);
+                    let stars = '';
+                    for(let i=0; i<5; i++) stars += `<i class="fa-solid fa-star" style="color:${i < fullStars ? '#FFD700' : '#4b5563'}"></i>`;
 
-            <div style="font-size:1.1rem; color: #6366F1; font-weight:bold; margin: 12px 0;">
-                السعر: ${p.price}
-            </div>
-
-            <div style="background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: 15px; border-inline-start: 4px solid #6366F1;">
-                <div style="color: #6366F1; font-weight: bold; font-size: 0.85rem; margin-bottom: 5px;">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i> تحليل Findly:
-                </div>
-                <p style="color: var(--text); font-size: 0.85rem; line-height: 1.5; margin: 0; opacity: 0.9;">
-                    ${p.reason}
-                </p>
-            </div>
-
-            <a href="${p.link}" target="_blank" class="btn-amazon" style="margin-top: 15px; display: block; text-align: center; background: var(--primary-gradient); color: white; padding: 12px; border-radius: 12px; text-decoration: none; font-weight: bold;">
-                تسوق الآن 🚀
-            </a>
-        </div>`;
-});
-        
-    } catch (e) {
-        document.getElementById('advisor-text').innerText = "خطأ في الاتصال بالسيرفر";
-    }
-}
+                    document.getElementById('products-list').innerHTML += `
+                        <div class="product-card">
+                            <div style="display:flex; justify-content:space-between; align-items:start;">
+                                <div style="flex:1;">
+                                    <h4 style="font-size:0.95rem; color: var(--text); margin-bottom:5px;">${p.name}</h4>
+                                    <div style="margin-bottom:10px;">${stars}</div>
+                                </div>
+                                <img src="${p.thumbnail}" style="width:60px; height:60px; object-fit:contain; border-radius:10px;">
+                            </div>
+                            <div style="color: #6366F1; font-weight:bold; margin-bottom:10px;">السعر: ${p.price}</div>
+                            <div style="background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: 12px; border-inline-start: 4px solid #6366F1;">
+                                <p style="color: var(--text); font-size: 0.85rem; line-height: 1.5; margin: 0;">${p.reason}</p>
+                            </div>
+                            <a href="${p.link}" target="_blank" class="btn-amazon">تسوق الآن 🚀</a>
+                        </div>`;
+                });
+            } catch (e) {
+                document.getElementById('advisor-text').innerText = "خطأ في الاتصال بالسيرفر";
+            }
+        }
 
         function quickSearch(t) { document.getElementById('search-input').value = t; handleSearch(); }
         window.onclick = (e) => { if (!e.target.closest('.lang-container')) document.getElementById('lang-dropdown').style.display = 'none'; };

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" id="main-html">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Findly – مستشارك الذكي</title>
+    <title>Findly – العالم بين يديك</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -12,24 +12,14 @@
         :root {
             --primary-gradient: linear-gradient(135deg, #6366F1, #A855F7);
             --secondary-gradient: linear-gradient(135deg, #3B82F6, #06B6D4);
-            --bg: #F8FAFC;
-            --text: #1E293B;
-            --card-bg: #FFFFFF;
-            --border: #E2E8F0;
+            --bg: #F8FAFC; --text: #1E293B; --card-bg: #FFFFFF; --border: #E2E8F0;
         }
-
         .dark-mode {
-            --bg: #0F172A;
-            --text: #F1F5F9;
-            --card-bg: #1E293B;
-            --border: #334155;
+            --bg: #0F172A; --text: #F1F5F9; --card-bg: #1E293B; --border: #334155;
         }
-
-        /* التنسيق العام */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Readex+Pro', sans-serif; transition: all 0.3s ease; }
         body { background-color: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
 
-        /* الهيدر (يمكنك إضافة زر تسجيل الدخول هنا مستقبلاً) */
         header { 
             display: flex; justify-content: space-between; align-items: center; 
             padding: 1rem 5%; background: var(--card-bg); 
@@ -37,81 +27,52 @@
         }
         .logo { font-size: 1.6rem; font-weight: 900; background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-        /* القسم الرئيسي */
         .hero { text-align: center; padding: 2.5rem 1rem; max-width: 900px; margin: 0 auto; }
+        .welcome-msg { font-size: 1.1rem; font-weight: 600; color: #6366F1; margin-bottom: 5px; }
         h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 10px; }
-        .sub-text { opacity: 0.8; font-size: 1rem; margin-bottom: 20px; }
 
-        /* العداد */
-        #limit-badge {
-            display: inline-block; padding: 8px 20px; border-radius: 50px;
-            background: var(--primary-gradient); color: white;
-            font-size: 0.85rem; font-weight: 600; margin-bottom: 25px;
-            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
-        }
-
-        /* صندوق البحث */
         .search-container { position: relative; width: 100%; max-width: 600px; margin: 0 auto 2.5rem; }
         .search-box { 
             width: 100%; padding: 18px 60px; border-radius: 20px; 
             border: 2px solid var(--border); background: var(--card-bg); color: var(--text);
             font-size: 1rem; outline: none; box-shadow: 0 10px 25px rgba(0,0,0,0.05);
         }
-        .search-btn {
-            position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
-            background: var(--primary-gradient); color: white; border: none;
-            width: 42px; height: 42px; border-radius: 15px; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-        }
-        #voice-btn {
-            position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
-            background: none; border: none; color: #6366F1; font-size: 1.4rem; cursor: pointer;
-        }
 
-        /* القات (التصنيفات) */
-        .categories { 
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; 
-            margin-bottom: 3rem; max-width: 500px; margin-left: auto; margin-right: auto;
+        /* حاوية القات مع التمرير الجانبي */
+        .categories-wrapper {
+            display: flex; gap: 15px; overflow-x: auto; padding: 10px 5px;
+            scrollbar-width: none; justify-content: center; margin-bottom: 2rem;
         }
-        @media (min-width: 600px) { .categories { grid-template-columns: repeat(6, 1fr); max-width: 800px; } }
+        .categories-wrapper::-webkit-scrollbar { display: none; }
 
-        .cat-item { cursor: pointer; text-align: center; }
+        .cat-item { cursor: pointer; text-align: center; flex: 0 0 80px; }
         .cat-icon {
-            width: 65px; height: 65px; background: var(--card-bg); border-radius: 20px;
+            width: 60px; height: 60px; background: var(--card-bg); border-radius: 18px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.6rem; color: #6366F1; box-shadow: 0 8px 20px rgba(0,0,0,0.06); margin: 0 auto 8px;
+            font-size: 1.5rem; color: #6366F1; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin: 0 auto 8px;
             border: 1px solid var(--border);
         }
         .cat-item:hover .cat-icon { background: var(--primary-gradient); color: white; transform: translateY(-5px); }
-        .cat-item span { font-weight: 600; font-size: 0.85rem; display: block; }
+        .cat-item span { font-size: 0.8rem; font-weight: 600; }
 
-        /* بطاقات النتائج */
-        .advisor-card {
-            background: var(--secondary-gradient); color: white; 
-            padding: 20px; border-radius: 20px; margin-bottom: 20px; display: none; text-align: right;
-        }
-        .product-card {
-            background: var(--card-bg); border-radius: 20px; padding: 15px; margin-bottom: 15px;
-            border: 1px solid var(--border); display: flex; flex-direction: column; gap: 10px;
-        }
-        .btn-amazon {
-            background: var(--primary-gradient); color: white; text-decoration: none;
-            display: block; width: 100%; padding: 12px; border-radius: 12px;
-            text-align: center; font-weight: 700;
-        }
-
-        /* أنيميشن التحميل */
+        .advisor-card { background: var(--secondary-gradient); color: white; padding: 20px; border-radius: 20px; margin-bottom: 20px; display: none; text-align: start; }
+        .product-card { background: var(--card-bg); border-radius: 20px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--border); text-align: start; }
+        .btn-amazon { background: var(--primary-gradient); color: white; text-decoration: none; display: block; width: 100%; padding: 12px; border-radius: 12px; text-align: center; font-weight: 700; }
+        
         .loader { animation: spin 1s infinite linear; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* زر تبديل اللغة */
+        .lang-btn { background: none; border: 1px solid var(--border); color: var(--text); padding: 5px 10px; border-radius: 8px; cursor: pointer; font-weight: 600; }
     </style>
 </head>
 
 <body class="dark-mode">
 
     <header>
-        <div class="logo"><i class="fa-solid fa-robot"></i> Findly</div>
-        
-        <div class="header-actions" style="display: flex; gap: 15px; align-items: center;">
+        <div class="logo">Findly</div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <button onclick="toggleLanguage()" class="lang-btn" id="lang-toggle-btn">EN</button>
             <button onclick="toggleTheme()" style="background:none; border:none; color:var(--text); font-size:1.3rem; cursor:pointer;">
                 <i class="fa-solid fa-sun" id="theme-icon"></i>
             </button>
@@ -119,103 +80,123 @@
     </header>
 
     <main class="hero">
-        <h1>خيارك المثالي مدروس بذكاء</h1>
-        <p class="sub-text">مستشارك التقني لتحليل السوق وإيجاد أفضل الصفقات.</p>
-
-        <div id="limit-badge">المحاولات المتبقية: <span id="remaining-count">3</span></div>
+        <div id="greeting" class="welcome-msg">...</div>
+        <h1 id="main-title">خيارك المثالي مدروس بذكاء</h1>
+        
+        <div id="limit-badge" style="display:inline-block; padding:8px 20px; background:var(--primary-gradient); color:white; border-radius:50px; margin-bottom:20px;">
+            <span id="limit-text">المحاولات المتبقية:</span> <span id="remaining-count">3</span>
+        </div>
 
         <div class="search-container">
-            <button id="voice-btn" onclick="startVoice()"><i class="fa-solid fa-microphone"></i></button>
+            <button id="voice-btn" onclick="startVoice()" style="position:absolute; right:20px; top:50%; transform:translateY(-50%); background:none; border:none; color:#6366F1; font-size:1.4rem; cursor:pointer;"><i class="fa-solid fa-microphone"></i></button>
             <input type="text" class="search-box" id="search-input" placeholder="عن ماذا نبحث اليوم؟">
-            <button class="search-btn" onclick="handleSearch()"><i class="fa-solid fa-magnifying-glass"></i></button>
+            <button onclick="handleSearch()" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); background:var(--primary-gradient); color:white; border:none; width:42px; height:42px; border-radius:15px; cursor:pointer;"><i class="fa-solid fa-magnifying-glass"></i></button>
         </div>
 
-        <div class="categories">
-            <div class="cat-item" onclick="quickSearch('هواتف ذكية')">
-                <div class="cat-icon"><i class="fa-solid fa-mobile-screen-button"></i></div><span>هواتف</span>
+        <div class="categories-wrapper" id="categories-list">
             </div>
-            <div class="cat-item" onclick="quickSearch('أجهزة لابتوب')">
-                <div class="cat-icon"><i class="fa-solid fa-laptop"></i></div><span>لابتوبات</span>
-            </div>
-            <div class="cat-item" onclick="quickSearch('سماعات لاسلكية')">
-                <div class="cat-icon"><i class="fa-solid fa-headphones"></i></div><span>سماعات</span>
-            </div>
-            <div class="cat-item" onclick="quickSearch('ساعات ذكية')">
-                <div class="cat-icon"><i class="fa-solid fa-stopwatch"></i></div><span>ساعات</span>
-            </div>
-            <div class="cat-item" onclick="quickSearch('إكسسوارات')">
-                <div class="cat-icon"><i class="fa-solid fa-plug"></i></div><span>إكسسوارات</span>
-            </div>
-            <div class="cat-item" onclick="quickSearch('أجهزة منزلية')">
-                <div class="cat-icon"><i class="fa-solid fa-house-laptop"></i></div><span>منزلية</span>
-            </div>
-        </div>
 
         <div id="advisor-card" class="advisor-card">
-            <strong><i class="fas fa-brain"></i> تحليل Findly الخبير:</strong>
-            <div id="advisor-text" style="margin-top: 10px;"></div>
+            <strong id="advisor-title"><i class="fas fa-brain"></i> تحليل Findly:</strong>
+            <div id="advisor-text" style="margin-top:10px;"></div>
         </div>
         <div id="products-list"></div>
     </main>
 
-    <div id="paywall-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; align-items: center; justify-content: center;">
-        <div style="background: white; padding: 30px; border-radius: 20px; text-align: center; color: black; max-width: 350px;">
-            <i class="fa-solid fa-crown" style="font-size: 2.5rem; color: gold;"></i>
-            <h2 style="margin-top:15px;">انتهت المحاولات</h2>
-            <p>اشترك للاستمرار في استخدام Findly</p>
-            <button onclick="location.reload()" style="margin-top:20px; width:100%; padding:12px; background:#6366F1; color:white; border:none; border-radius:10px; font-weight:bold;">ترقية الحساب</button>
-        </div>
-    </div>
-
     <script>
         const API_URL = "https://findly-api.onrender.com";
-        
-        // تبديل الوضع الليلي
-        function toggleTheme() {
-            document.body.classList.toggle('dark-mode');
-            const icon = document.getElementById('theme-icon');
-            if(document.body.classList.contains('dark-mode')) {
-                icon.classList.replace('fa-moon', 'fa-sun');
-            } else {
-                icon.classList.replace('fa-sun', 'fa-moon');
+        let currentLang = 'ar';
+
+        const dictionary = {
+            ar: {
+                title: "خيارك المثالي مدروس بذكاء",
+                placeholder: "عن ماذا نبحث اليوم؟",
+                limit: "المحاولات المتبقية:",
+                advisor: "تحليل Findly الخبير:",
+                analyzing: "جاري التحليل...",
+                buy: "تسوق الآن 🚀",
+                morning: "صباح الخير أيها المستكشف الجديد 🌅",
+                afternoon: "طاب يومك أيها المستكشف الجديد ☀️",
+                evening: "مساء الخير أيها المستكشف الجديد 🌙",
+                cats: [
+                    { name: 'هواتف', query: 'هواتف ذكية' },
+                    { name: 'لابتوبات', query: 'أجهزة لابتوب' },
+                    { name: 'سماعات', query: 'سماعات' },
+                    { name: 'ساعات', query: 'ساعات ذكية' },
+                    { name: 'إكسسوارات', query: 'إكسسوارات' },
+                    { name: 'منزلية', query: 'أجهزة منزلية' }
+                ]
+            },
+            en: {
+                title: "Your Perfect Choice, Smartly Studied",
+                placeholder: "What are we looking for today?",
+                limit: "Remaining attempts:",
+                advisor: "Findly Expert Analysis:",
+                analyzing: "Analyzing...",
+                buy: "Shop Now 🚀",
+                morning: "Good morning, New Explorer 🌅",
+                afternoon: "Good afternoon, New Explorer ☀️",
+                evening: "Good evening, New Explorer 🌙",
+                cats: [
+                    { name: 'Phones', query: 'Smartphones' },
+                    { name: 'Laptops', query: 'Laptops' },
+                    { name: 'Audio', query: 'Headphones' },
+                    { name: 'Watches', query: 'Smartwatches' },
+                    { name: 'Accessories', query: 'Accessories' },
+                    { name: 'Home', query: 'Home Appliances' }
+                ]
             }
+        };
+
+        const icons = ['fa-mobile-screen-button', 'fa-laptop', 'fa-headphones', 'fa-stopwatch', 'fa-plug', 'fa-house-laptop'];
+
+        function updateUI() {
+            const langData = dictionary[currentLang];
+            document.getElementById('main-html').dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+            document.getElementById('main-html').lang = currentLang;
+            document.getElementById('main-title').innerText = langData.title;
+            document.getElementById('search-input').placeholder = langData.placeholder;
+            document.getElementById('limit-text').innerText = langData.limit;
+            document.getElementById('lang-toggle-btn').innerText = currentLang === 'ar' ? 'EN' : 'AR';
+            
+            // تحديث الترحيب
+            const hour = new Date().getHours();
+            let msg = langData.evening;
+            if (hour >= 5 && hour < 12) msg = langData.morning;
+            else if (hour >= 12 && hour < 18) msg = langData.afternoon;
+            document.getElementById('greeting').innerText = msg;
+
+            // تحديث القات
+            const catContainer = document.getElementById('categories-list');
+            catContainer.innerHTML = langData.cats.map((cat, i) => `
+                <div class="cat-item" onclick="quickSearch('${cat.query}')">
+                    <div class="cat-icon"><i class="fa-solid ${icons[i]}"></i></div>
+                    <span>${cat.name}</span>
+                </div>
+            `).join('');
         }
 
-        // البحث الصوتي
-        function startVoice() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) return alert("المتصفح لا يدعم الصوت");
-            const recognition = new SpeechRecognition();
-            recognition.lang = 'ar-SA';
-            recognition.onstart = () => { document.getElementById('voice-btn').style.color = 'red'; };
-            recognition.onend = () => { document.getElementById('voice-btn').style.color = '#6366F1'; };
-            recognition.onresult = (event) => {
-                document.getElementById('search-input').value = event.results[0][0].transcript;
-                handleSearch();
-            };
-            recognition.start();
+        function toggleLanguage() {
+            currentLang = currentLang === 'ar' ? 'en' : 'ar';
+            updateUI();
         }
 
-        // معالجة البحث واستدعاء API
         async function handleSearch() {
             const query = document.getElementById('search-input').value;
             if (!query) return;
-
-            let count = parseInt(localStorage.getItem('findly_usage') || 0);
-            if (count >= 3) { document.getElementById('paywall-modal').style.display = 'flex'; return; }
-
+            
             const advisorCard = document.getElementById('advisor-card');
             const advisorText = document.getElementById('advisor-text');
             const list = document.getElementById('products-list');
-
+            
             advisorCard.style.display = 'block';
-            advisorText.innerHTML = '<i class="fa-solid fa-circle-notch loader"></i> جاري التحليل...';
+            advisorText.innerHTML = `<i class="fa-solid fa-circle-notch loader"></i> ${dictionary[currentLang].analyzing}`;
             list.innerHTML = '';
 
             try {
                 const res = await fetch(`${API_URL}/get-ai-advice`, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query, lang: 'ar' })
+                    body: JSON.stringify({ query, lang: currentLang }) // نرسل اللغة المختارة للسيرفر
                 });
                 const data = await res.json();
                 advisorText.innerHTML = data.explanation;
@@ -226,18 +207,22 @@
                                 <img src="${p.thumbnail}" style="width:60px; height:60px; object-fit:contain;">
                                 <h4 style="font-size:1rem;">${p.name}</h4>
                             </div>
-                            <p style="font-size:0.9rem; color:#6366F1;">${p.features}</p>
-                            <a href="${p.link}" target="_blank" class="btn-amazon">تسوق الآن 🚀</a>
+                            <p style="font-size:0.9rem; color:#6366F1; margin:8px 0;">${p.features || ''}</p>
+                            <a href="${p.link}" target="_blank" class="btn-amazon">${dictionary[currentLang].buy}</a>
                         </div>`;
                 });
-                localStorage.setItem('findly_usage', count + 1);
-                document.getElementById('remaining-count').innerText = 3 - (count + 1);
-            } catch (e) { advisorText.innerText = "خطأ في الشبكة"; }
+            } catch (e) { advisorText.innerText = "Error / خطأ"; }
         }
 
-        // البحث السريع عبر التصنيفات
-        function quickSearch(t) { document.getElementById('search-input').value = t; handleSearch(); }
-    </script>
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const icon = document.getElementById('theme-icon');
+            icon.classList.toggle('fa-sun'); icon.classList.toggle('fa-moon');
+        }
 
+        function quickSearch(t) { document.getElementById('search-input').value = t; handleSearch(); }
+        
+        window.onload = updateUI;
+    </script>
 </body>
 </html>

@@ -219,26 +219,44 @@ async function handleSearch() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ query, lang: currentLang })
         });
-        const data = await res.json();
+   // تأكد من تحديث دالة الرسم داخل handleSearch
+data.products.forEach(p => {
+    // حساب النجوم
+    const fullStars = Math.floor(p.rating || 4);
+    let stars = '';
+    for(let i=0; i<5; i++) {
+        stars += `<i class="fa-solid fa-star" style="color:${i < fullStars ? '#FFD700' : '#4b5563'}"></i>`;
+    }
 
-        // --- هنا يحدث الخصم بعد نجاح العملية ---
-        attempts--; 
-        localStorage.setItem('user_attempts', attempts);
-        updateAttemptUI();
-        // ---------------------------------------
-
-        document.getElementById('advisor-text').innerHTML = data.explanation;
-
-        data.products.forEach(p => {
-            document.getElementById('products-list').innerHTML += `
-                <div class="product-card">
-                    <h4 style="margin-bottom:10px;">${p.name}</h4>
-                    <p style="color:#6366F1; font-weight:bold;">السعر: ${p.price}</p>
-                    <div style="background:#f0f4ff; padding:10px; border-radius:10px; margin:10px 0; border-right:4px solid #6366F1;">
-                        <small>💡 <b>لماذا نرشحه:</b> ${p.reason}</small>
+    document.getElementById('products-list').innerHTML += `
+        <div class="product-card" style="background:#1e293b; border:1px solid #334155; padding:15px; border-radius:18px; margin-bottom:15px;">
+            <div style="display:flex; justify-content:space-between; align-items:start;">
+                <div style="flex:1;">
+                    <h4 style="font-size:0.95rem; color:#f1f5f9; margin-bottom:8px;">${p.name}</h4>
+                    <div style="display:flex; align-items:center; gap:6px; margin-bottom:10px;">
+                        ${stars} <span style="font-size:0.8rem; color:#94a3b8;">(${p.rating})</span>
                     </div>
-                    <a href="${p.link}" target="_blank" class="btn-amazon">تسوق الآن 🚀</a>
-                </div>`;
+                </div>
+                <img src="${p.thumbnail}" style="width:60px; height:60px; object-fit:contain; border-radius:10px; background:white; padding:4px;">
+            </div>
+
+            <div style="font-size:1.1rem; color:#818cf8; font-weight:bold; margin-bottom:12px;">
+                السعر: ${p.price}
+            </div>
+
+            <div style="background:rgba(99,102,241,0.15); padding:12px; border-radius:12px; border-right:4px solid #6366f1;">
+                <div style="color:#818cf8; font-weight:bold; font-size:0.85rem; margin-bottom:5px;">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> تحليل Findly للسبب:
+                </div>
+                <p style="color:#cbd5e1; font-size:0.85rem; line-height:1.5; margin:0;">
+                    ${p.reason}
+                </p>
+            </div>
+
+            <a href="${p.link}" target="_blank" class="btn-amazon" style="margin-top:15px; display:block; text-align:center; background:linear-gradient(135deg, #6366f1, #a855f7); color:white; padding:12px; border-radius:12px; text-decoration:none; font-weight:bold;">
+                تسوق الآن 🚀
+            </a>
+        </div>    
         });
 
     } catch (e) {

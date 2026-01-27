@@ -96,6 +96,30 @@
     </main>
 
     <script>
+       // دالة لفتح نافذة البروفايل
+function openProfile() {
+    document.getElementById('profile-modal').style.display = 'flex';
+    // استرجاع البيانات المحفوظة سابقاً من ذاكرة المتصفح
+    document.getElementById('user-name-input').value = localStorage.getItem('findly_name') || "";
+    document.getElementById('user-budget-input').value = localStorage.getItem('findly_budget') || "";
+}
+
+// دالة لإغلاق النافذة
+function closeProfile() {
+    document.getElementById('profile-modal').style.display = 'none';
+}
+
+// دالة لحفظ البيانات
+function saveProfile() {
+    const name = document.getElementById('user-name-input').value;
+    const budget = document.getElementById('user-budget-input').value;
+    
+    localStorage.setItem('findly_name', name);
+    localStorage.setItem('findly_budget', budget);
+    
+    alert(currentLang === 'ar' ? "تم حفظ ميزانيتك! Findly سيهتم بك الآن." : "Budget saved! Findly is now looking out for you.");
+    closeProfile();
+}
         const API_URL = "https://findly-api.onrender.com";
         let currentLang = 'ar';
         let attempts = localStorage.getItem('findly_attempts') ? parseInt(localStorage.getItem('findly_attempts')) : 3;

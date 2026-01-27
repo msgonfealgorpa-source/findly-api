@@ -192,66 +192,86 @@
         }
 
         async function handleSearch() {
-            const query = document.getElementById('search-input').value;
-            if (!query || attempts <= 0) return;
-            
-            document.getElementById('advisor-card').style.display = 'block';
-            document.getElementById('advisor-text').innerHTML = dictionary[currentLang].analyzing;
-            document.getElementById('products-list').innerHTML = '';
+    const query = document.getElementById('search-input').value;
+    if (!query) return;
+    if (attempts <= 0) return alert(currentLang === 'ar' ? "نفدت محاولاتك!" : "No attempts left!");
 
-            try {
-                const res = await fetch(`${API_URL}/get-ai-advice`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        query, 
-                        lang: currentLang, 
-                        budget: localStorage.getItem('findly_budget') 
-                    })
-                });
-                const data = await res.json();
-                
-                attempts--;
-                localStorage.setItem('findly_attempts', attempts);
-                updateUI();
+    // إعداد واجهة التحميل
+    document.getElementById('advisor-card').style.display = 'block';
+    document.getElementById('advisor-text').innerHTML = dictionary[currentLang].analyzing;
+    document.getElementById('products-list').innerHTML = '';
 
-                document.getElementById('advisor-text').innerHTML = data.explanation;
+    try {
+        const userBudget = localStorage.getItem('findly_budget') || 0;
 
-                data.products.forEach(p => {
-                    const fullStars = Math.floor(p.rating || 4);
-                    let stars = '';
-                    for(let i=0; i<5; i++) {
-                        stars += `<i class="fa-solid fa-star" style="color:${i < fullStars ? '#FFD700' : '#4b5563'}"></i>`;
-                    }
+        const res = await fetch(`${API_URL}/get-ai-advice`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                query, 
+                lang: currentLang,
+                budget: userBudget // إرسال الميزانية للعقل المدبر
+            })
+        });
 
-                    const cheapestBadge = p.isCheapest ? 
-                        `<div style="background: #22C55E; color: white; padding: 6px 14px; border-radius: 12px; font-size: 0.75rem; font-weight: 900; margin-bottom: 12px; display: inline-block;">
-                            <i class="fa-solid fa-bolt"></i> ${currentLang === 'ar' ? 'أفضل سعر لميزانيتك' : 'Best Price For You'}
-                        </div>` : '';
+        const data = await res.json();
+        
+        // تحديث المحاولات
+        attempts--;
+        localStorage.setItem('findly_attempts', attempts);
+        updateUI();
 
-                    document.getElementById('products-list').innerHTML += `
-                        <div class="product-card">
-                            ${cheapestBadge}
-                            <div style="display:flex; justify-content:space-between; align-items:start; gap:15px;">
-                                <div style="flex:1;">
-                                    <h4 style="font-size:1rem; margin-bottom:8px; line-height:1.4;">${p.name}</h4>
-                                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">${stars}</div>
-                                </div>
-                                <div style="background: #fff; padding: 8px; border-radius: 15px; flex-shrink:0;">
-                                    <img src="${p.thumbnail}" style="width:75px; height:75px; object-fit:contain;">
-                                </div>
+        // عرض نصيحة المستشار العامة
+        document.getElementById('advisor-text').innerHTML = data.explanation;
+
+        // رسم بطاقات المنتجات مع "كل الميزات"
+        data.products.forEach(p => {
+            // 1. حساب النجوم
+            const fullStars = Math.floor(p.rating || 4);
+            let starsHtml = '';
+            for(let i=0; i<5; i++) {
+                starsHtml += `<i class="fa-solid fa-star" style="color:${i < fullStars ? '#FFD700' : '#4b5563'}"></i>`;
+            }
+
+            // 2. وسام "أفضل سعر لميزانيتك" (العقل)
+            const isWithinBudget = p.isCheapest ? 
+                `<div style="background: #22C55E; color: white; padding: 6px 14px; border-radius: 12px; font-size: 0.75rem; font-weight: 900; margin-bottom: 12px; display: inline-block;">
+                    <i class="fa-solid fa-check-double"></i> ${currentLang === 'ar' ? 'يتوافق مع ميزانيتك' : 'Matches Your Budget'}
+                </div>` : '';
+
+            // 3. بناء البطاقة النهائية
+            document.getElementById('products-list').innerHTML += `
+                <div class="product-card" style="position: relative; background: var(--card-bg); border: 1px solid var(--border); border-radius: 25px; padding: 20px; margin-bottom: 20px;">
+                    ${isWithinBudget}
+                    <div style="display:flex; justify-content:space-between; align-items:start; gap:15px;">
+                        <div style="flex:1;">
+                            <h4 style="font-size:1rem; margin-bottom:8px; line-height:1.4; color: var(--text);">${p.name}</h4>
+                            <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
+                                ${starsHtml} <span style="font-size:0.85rem; opacity:0.6;">(${p.rating})</span>
                             </div>
-                            <div style="font-size:1.3rem; color: #6366F1; font-weight:900; margin: 12px 0;">${p.price}</div>
-                            <div style="background: rgba(99, 102, 241, 0.08); padding: 15px; border-radius: 15px; font-size: 0.9rem; line-height: 1.5; margin-bottom: 15px;">
-                                <strong>Findly:</strong> ${p.reason}
-                            </div>
-                            <a href="${p.link}" target="_blank" class="btn-amazon">
-                                ${currentLang === 'ar' ? 'تسوق الآن 🚀' : 'Shop Now 🚀'}
-                            </a>
-                        </div>`;
-                });
-            } catch (e) { document.getElementById('advisor-text').innerText = "Server Error"; }
-        }
+                        </div>
+                        <div style="background: #fff; padding: 8px; border-radius: 15px; flex-shrink:0; border: 1px solid #f0f0f0;">
+                            <img src="${p.thumbnail}" style="width:75px; height:75px; object-fit:contain;">
+                        </div>
+                    </div>
+
+                    <div style="font-size:1.3rem; color: #6366F1; font-weight:900; margin: 15px 0;">${p.price}</div>
+
+                    <div style="background: rgba(99, 102, 241, 0.08); padding: 15px; border-radius: 15px; font-size: 0.9rem; line-height: 1.6; border-right: 4px solid #6366F1;">
+                        <strong style="color: #6366F1;">Findly Analysis:</strong> ${p.reason}
+                    </div>
+
+                    <a href="${p.link}" target="_blank" style="display: block; text-align: center; background: var(--primary-gradient); color: white; padding: 14px; border-radius: 15px; text-decoration: none; font-weight: bold; margin-top: 15px;">
+                        ${currentLang === 'ar' ? 'تسوق الآن 🚀' : 'Shop Now 🚀'}
+                    </a>
+                </div>`;
+        });
+
+    } catch (error) {
+        console.error("Search Error:", error);
+        document.getElementById('advisor-text').innerText = "حدث خطأ في الاتصال بالعقل المدبر.";
+    }
+}
 
         // Functions
         function toggleTheme() {

@@ -256,12 +256,7 @@ function saveProfile() {
             document.getElementById('advisor-text').innerHTML = dictionary[currentLang].analyzing;
             document.getElementById('products-list').innerHTML = '';
 
-            try {
-                const res = await fetch(`${API_URL}/get-ai-advice`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query, lang: currentLang })
-               // داخل دالة handleSearch
+             {
 const res = await fetch(`${API_URL}/get-ai-advice`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -271,9 +266,8 @@ const res = await fetch(`${API_URL}/get-ai-advice`, {
         // 🟢 تأكد من إضافة هذا السطر الصغير هنا:
         budget: localStorage.getItem('findly_budget') 
     })
-
-               });
-                 const data = await res.json();
+ });
+ const data = await res.json();
 
                 attempts--;
                 localStorage.setItem('findly_attempts', attempts);

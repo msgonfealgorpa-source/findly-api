@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Findly – مستشارك الذكي للتسوق</title>
+    <title>Findly – مستشارك الذكي</title>
     <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -11,21 +11,21 @@
         :root {
             --primary-gradient: linear-gradient(135deg, #6366F1, #A855F7);
             --secondary-gradient: linear-gradient(135deg, #3B82F6, #06B6D4);
-            --bg: #F3F4F6;
-            --text: #1F2937;
+            --bg: #F8FAFC;
+            --text: #1E293B;
             --card-bg: #FFFFFF;
-            --border: #E5E7EB;
+            --border: #E2E8F0;
         }
 
         .dark-mode {
-            --bg: #111827;
-            --text: #F9FAFB;
-            --card-bg: #1F2937;
-            --border: #374151;
+            --bg: #0F172A;
+            --text: #F1F5F9;
+            --card-bg: #1E293B;
+            --border: #334155;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Readex+Pro', sans-serif; transition: all 0.3s ease; }
-        body { background-color: var(--bg); color: var(--text); min-height: 100vh; }
+        body { background-color: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
 
         header { 
             display: flex; justify-content: space-between; align-items: center; 
@@ -34,101 +34,120 @@
         }
         .logo { font-size: 1.6rem; font-weight: 900; background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-        .hero { text-align: center; padding: 3rem 1rem; max-width: 800px; margin: 0 auto; }
-        h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 10px; }
-        .sub-text { opacity: 0.8; font-size: 1.1rem; margin-bottom: 25px; }
+        .hero { text-align: center; padding: 2.5rem 1rem; max-width: 900px; margin: 0 auto; }
+        h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 10px; }
+        .sub-text { opacity: 0.8; font-size: 1rem; margin-bottom: 20px; }
 
         #limit-badge {
             display: inline-block; padding: 8px 20px; border-radius: 50px;
             background: var(--primary-gradient); color: white;
-            font-size: 0.9rem; font-weight: 600; margin-bottom: 25px;
+            font-size: 0.85rem; font-weight: 600; margin-bottom: 25px;
             box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
         }
 
-        .search-container { position: relative; width: 100%; max-width: 600px; margin: 0 auto 3rem; }
+        .search-container { position: relative; width: 100%; max-width: 600px; margin: 0 auto 2.5rem; }
         .search-box { 
-            width: 100%; padding: 20px 65px; border-radius: 25px; 
+            width: 100%; padding: 18px 60px; border-radius: 20px; 
             border: 2px solid var(--border); background: var(--card-bg); color: var(--text);
-            font-size: 1.1rem; outline: none; box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            font-size: 1rem; outline: none; box-shadow: 0 10px 25px rgba(0,0,0,0.05);
         }
 
         .search-btn {
-            position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+            position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
             background: var(--primary-gradient); color: white; border: none;
-            width: 45px; height: 45px; border-radius: 18px; cursor: pointer;
+            width: 42px; height: 42px; border-radius: 15px; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
         }
         #voice-btn {
             position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
-            background: none; border: none; color: #6366F1; font-size: 1.5rem; cursor: pointer;
+            background: none; border: none; color: #6366F1; font-size: 1.4rem; cursor: pointer;
         }
 
-        .categories { display: flex; justify-content: center; gap: 25px; margin-bottom: 3rem; flex-wrap: wrap; }
-        .cat-item { cursor: pointer; text-align: center; width: 85px; }
-        .cat-icon {
-            width: 70px; height: 70px; background: var(--card-bg); border-radius: 22px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.8rem; color: #6366F1; box-shadow: 0 8px 20px rgba(0,0,0,0.06); margin: 0 auto 10px;
+        /* القات الستة - الـ 6 تصنيفات الكاملة */
+        .categories { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 15px; 
+            margin-bottom: 3rem; 
+            max-width: 500px; 
+            margin-left: auto; 
+            margin-right: auto;
         }
-        .cat-item:hover .cat-icon { background: var(--primary-gradient); color: white; transform: translateY(-8px); }
-        .cat-item span { font-weight: 600; font-size: 0.95rem; }
+        @media (min-width: 600px) { .categories { grid-template-columns: repeat(6, 1fr); max-width: 800px; } }
+
+        .cat-item { cursor: pointer; text-align: center; }
+        .cat-icon {
+            width: 65px; height: 65px; background: var(--card-bg); border-radius: 20px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.6rem; color: #6366F1; box-shadow: 0 8px 20px rgba(0,0,0,0.06); margin: 0 auto 8px;
+            border: 1px solid var(--border);
+        }
+        .cat-item:hover .cat-icon { background: var(--primary-gradient); color: white; transform: translateY(-5px); }
+        .cat-item span { font-weight: 600; font-size: 0.85rem; display: block; }
 
         .advisor-card {
             background: var(--secondary-gradient); color: white; 
-            padding: 25px; border-radius: 25px; margin-bottom: 25px; display: none;
-            box-shadow: 0 15px 30px rgba(6, 182, 212, 0.2);
+            padding: 20px; border-radius: 20px; margin-bottom: 20px; display: none; text-align: right;
         }
         .product-card {
-            background: var(--card-bg); border-radius: 25px; padding: 20px; margin-bottom: 20px;
-            border: 1px solid var(--border); box-shadow: 0 10px 20px rgba(0,0,0,0.02);
+            background: var(--card-bg); border-radius: 20px; padding: 15px; margin-bottom: 15px;
+            border: 1px solid var(--border); display: flex; flex-direction: column; gap: 10px;
         }
         .btn-amazon {
             background: var(--primary-gradient); color: white; text-decoration: none;
-            display: block; width: 100%; padding: 15px; border-radius: 15px;
-            text-align: center; font-weight: 700; margin-top: 15px;
+            display: block; width: 100%; padding: 12px; border-radius: 12px;
+            text-align: center; font-weight: 700;
         }
 
         .loader { animation: spin 1s infinite linear; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="dark-mode"> <header>
+<body class="dark-mode">
+
+    <header>
         <div class="logo"><i class="fa-solid fa-robot"></i> Findly</div>
-        <button onclick="toggleTheme()" style="background:none; border:none; color:var(--text); font-size:1.4rem; cursor:pointer;">
+        <button onclick="toggleTheme()" style="background:none; border:none; color:var(--text); font-size:1.3rem; cursor:pointer;">
             <i class="fa-solid fa-sun" id="theme-icon"></i>
         </button>
     </header>
 
     <main class="hero">
         <h1>خيارك المثالي مدروس بذكاء</h1>
-        <p class="sub-text">أخبرني بما تحتاجه، وسأحلل لك السوق لاستخراج أفضل خياراتك بدقة.</p>
+        <p class="sub-text">مستشارك التقني لتحليل السوق وإيجاد أفضل الصفقات.</p>
 
         <div id="limit-badge">المحاولات المتبقية: <span id="remaining-count">3</span></div>
 
         <div class="search-container">
             <button id="voice-btn" onclick="startVoice()"><i class="fa-solid fa-microphone"></i></button>
-            <input type="text" class="search-box" id="search-input" placeholder="مثال: أفضل لابتوب للدراسة...">
+            <input type="text" class="search-box" id="search-input" placeholder="عن ماذا نبحث اليوم؟">
             <button class="search-btn" onclick="handleSearch()"><i class="fa-solid fa-magnifying-glass"></i></button>
         </div>
 
         <div class="categories">
-            <div class="cat-item" onclick="quickSearch('هواتف')">
-                <div class="cat-icon"><i class="fa-solid fa-mobile-screen"></i></div><span>هواتف</span>
+            <div class="cat-item" onclick="quickSearch('هواتف ذكية')">
+                <div class="cat-icon"><i class="fa-solid fa-mobile-screen-button"></i></div><span>هواتف</span>
             </div>
-            <div class="cat-item" onclick="quickSearch('لابتوبات')">
+            <div class="cat-item" onclick="quickSearch('أجهزة لابتوب')">
                 <div class="cat-icon"><i class="fa-solid fa-laptop"></i></div><span>لابتوبات</span>
             </div>
-            <div class="cat-item" onclick="quickSearch('سماعات')">
+            <div class="cat-item" onclick="quickSearch('سماعات لاسلكية')">
                 <div class="cat-icon"><i class="fa-solid fa-headphones"></i></div><span>سماعات</span>
             </div>
-            <div class="cat-item" onclick="quickSearch('ساعات')">
-                <div class="cat-icon"><i class="fa-solid fa-clock"></i></div><span>ساعات</span>
+            <div class="cat-item" onclick="quickSearch('ساعات ذكية')">
+                <div class="cat-icon"><i class="fa-solid fa-stopwatch"></i></div><span>ساعات</span>
+            </div>
+            <div class="cat-item" onclick="quickSearch('إكسسوارات')">
+                <div class="cat-icon"><i class="fa-solid fa-plug"></i></div><span>إكسسوارات</span>
+            </div>
+            <div class="cat-item" onclick="quickSearch('أجهزة منزلية')">
+                <div class="cat-icon"><i class="fa-solid fa-house-laptop"></i></div><span>منزلية</span>
             </div>
         </div>
 
         <div id="advisor-card" class="advisor-card">
             <strong><i class="fas fa-brain"></i> تحليل Findly الخبير:</strong>
-            <div id="advisor-text" style="margin-top: 15px;"></div>
+            <div id="advisor-text" style="margin-top: 10px;"></div>
         </div>
         <div id="products-list"></div>
     </main>
@@ -148,7 +167,7 @@
 
         function startVoice() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) return alert("المتصفح لا يدعم البحث الصوتي");
+            if (!SpeechRecognition) return alert("المتصفح لا يدعم الصوت");
             const recognition = new SpeechRecognition();
             recognition.lang = 'ar-SA';
             recognition.onstart = () => { document.getElementById('voice-btn').style.color = 'red'; };
@@ -165,17 +184,14 @@
             if (!query) return;
 
             let count = parseInt(localStorage.getItem('findly_usage') || 0);
-            if (count >= 3) {
-                document.getElementById('paywall-modal').style.display = 'flex';
-                return;
-            }
+            if (count >= 3) { document.getElementById('paywall-modal').style.display = 'flex'; return; }
 
             const advisorCard = document.getElementById('advisor-card');
             const advisorText = document.getElementById('advisor-text');
             const list = document.getElementById('products-list');
 
             advisorCard.style.display = 'block';
-            advisorText.innerHTML = '<i class="fa-solid fa-circle-notch loader"></i> جاري استشارة الذكاء الاصطناعي...';
+            advisorText.innerHTML = '<i class="fa-solid fa-circle-notch loader"></i> جاري التحليل...';
             list.innerHTML = '';
 
             try {
@@ -184,37 +200,32 @@
                     body: JSON.stringify({ query, lang: 'ar' })
                 });
                 const data = await res.json();
-                
                 advisorText.innerHTML = data.explanation;
                 data.products.forEach(p => {
                     list.innerHTML += `
                         <div class="product-card">
-                            <div style="display:flex; gap:15px; align-items:center;">
-                                <img src="${p.thumbnail}" style="width:80px; height:80px; object-fit:contain; border-radius:12px;">
-                                <div>
-                                    <h4 style="font-size:1.1rem; margin-bottom:5px;">${p.name}</h4>
-                                    <span style="background:#D1FAE5; color:#065F46; padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">💡 خيار ذكي</span>
-                                </div>
+                            <div style="display:flex; gap:12px; align-items:center;">
+                                <img src="${p.thumbnail}" style="width:60px; height:60px; object-fit:contain;">
+                                <h4 style="font-size:1rem;">${p.name}</h4>
                             </div>
-                            <div style="margin:15px 0; font-weight:600; color:#6366F1;">${p.features}</div>
-                            <a href="${p.link}" target="_blank" class="btn-amazon">شراء الآن 🚀</a>
+                            <p style="font-size:0.9rem; color:#6366F1;">${p.features}</p>
+                            <a href="${p.link}" target="_blank" class="btn-amazon">تسوق الآن 🚀</a>
                         </div>`;
                 });
-
                 localStorage.setItem('findly_usage', count + 1);
                 document.getElementById('remaining-count').innerText = 3 - (count + 1);
-            } catch (e) { advisorText.innerText = "حدث خطأ في الاتصال بالسيرفر"; }
+            } catch (e) { advisorText.innerText = "خطأ في الشبكة"; }
         }
 
         function quickSearch(t) { document.getElementById('search-input').value = t; handleSearch(); }
     </script>
 
-    <div id="paywall-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; align-items: center; justify-content: center; padding: 20px;">
-        <div style="background: white; padding: 40px; border-radius: 30px; text-align: center; max-width: 400px; color: black;">
-            <i class="fa-solid fa-crown" style="font-size: 3.5rem; color: #F59E0B; margin-bottom: 20px;"></i>
-            <h2 style="font-size: 1.8rem;">انتهت المحاولات!</h2>
-            <p style="margin: 15px 0; color: #64748B;">اشترك الآن لفتح ميزة البحث اللانهائي والتحليل العميق.</p>
-            <button onclick="location.reload()" style="background: var(--primary-gradient); color: white; border: none; padding: 15px 30px; border-radius: 12px; font-weight: bold; cursor: pointer; width: 100%;">الاشتراك في الخطة المميزة</button>
+    <div id="paywall-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 30px; border-radius: 20px; text-align: center; color: black; max-width: 350px;">
+            <i class="fa-solid fa-crown" style="font-size: 2.5rem; color: gold;"></i>
+            <h2 style="margin-top:15px;">انتهت المحاولات</h2>
+            <p>اشترك للاستمرار في استخدام Findly</p>
+            <button onclick="location.reload()" style="margin-top:20px; width:100%; padding:12px; background:#6366F1; color:white; border:none; border-radius:10px; font-weight:bold;">ترقية الحساب</button>
         </div>
     </div>
 </body>

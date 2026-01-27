@@ -218,43 +218,48 @@ async function handleSearch() {
         document.getElementById('remaining-count').innerText = attempts;
 
         document.getElementById('advisor-text').innerHTML = data.explanation;
+data.products.forEach(p => {
+    // نظام النجوم الديناميكي
+    const fullStars = Math.floor(p.rating || 4);
+    let stars = '';
+    for(let i=0; i<5; i++) {
+        stars += `<i class="fa-solid fa-star" style="color:${i < fullStars ? '#FFD700' : '#4b5563'}"></i>`;
+    }
 
-        data.products.forEach(p => {
-            // رسم النجوم
-            const starRating = Math.floor(p.rating || 4);
-            let starsHTML = '';
-            for(let i=0; i<5; i++) {
-                starsHTML += `<i class="fa-solid fa-star" style="color:${i < starRating ? '#FFD700' : '#E2E8F0'}; font-size:0.8rem;"></i>`;
-            }
-
-            document.getElementById('products-list').innerHTML += `
-                <div class="product-card" style="background: var(--card-bg); padding: 20px; border-radius: 20px; margin-bottom: 20px; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                        <div style="flex:1;">
-                            <h4 style="font-size:1rem; color:var(--text); margin-bottom:5px;">${p.name}</h4>
-                            <div style="display:flex; align-items:center; gap:5px;">
-                                ${starsHTML} <span style="font-size:0.8rem; opacity:0.7;">(${p.rating})</span>
-                            </div>
-                        </div>
-                        <img src="${p.thumbnail}" style="width:65px; height:65px; object-fit:contain; border-radius:10px; background:#fff; padding:5px;">
+    // بناء البطاقة باستخدام متغيرات الـ CSS لضمان استجابة اللون
+    document.getElementById('products-list').innerHTML += `
+        <div class="product-card" style="background: var(--card-bg); border: 1px solid var(--border); padding: 18px; border-radius: 20px; margin-bottom: 20px;">
+            <div style="display:flex; justify-content:space-between; align-items:start; gap:10px;">
+                <div style="flex:1;">
+                    <h4 style="font-size:0.95rem; color: var(--text); margin-bottom:5px;">${p.name}</h4>
+                    <div style="display:flex; align-items:center; gap:6px; margin-bottom:10px;">
+                        ${stars} <span style="font-size:0.8rem; color: var(--text); opacity:0.6;">(${p.rating})</span>
                     </div>
+                </div>
+                <div style="background: #fff; padding: 5px; border-radius: 12px; border: 1px solid #eee;">
+                    <img src="${p.thumbnail}" style="width:65px; height:65px; object-fit:contain;">
+                </div>
+            </div>
 
-                    <div style="margin:15px 0; color:#6366F1; font-weight:bold; font-size:1.1rem;">
-                        السعر: ${p.price}
-                    </div>
+            <div style="font-size:1.1rem; color: #6366F1; font-weight:bold; margin: 12px 0;">
+                السعر: ${p.price}
+            </div>
 
-                    <div style="background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: 12px; border-right: 4px solid #6366F1;">
-                        <small style="color:#6366F1; font-weight:bold; display:block; margin-bottom:5px;">
-                            <i class="fa-solid fa-lightbulb"></i> لماذا نرشحه:
-                        </small>
-                        <p style="font-size:0.85rem; color:var(--text); line-height:1.4; margin:0;">${p.reason}</p>
-                    </div>
+            <div style="background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: 15px; border-inline-start: 4px solid #6366F1;">
+                <div style="color: #6366F1; font-weight: bold; font-size: 0.85rem; margin-bottom: 5px;">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> تحليل Findly:
+                </div>
+                <p style="color: var(--text); font-size: 0.85rem; line-height: 1.5; margin: 0; opacity: 0.9;">
+                    ${p.reason}
+                </p>
+            </div>
 
-                    <a href="${p.link}" target="_blank" class="btn-amazon" style="margin-top:15px; display:block; text-align:center; background:var(--primary-gradient); color:white; padding:12px; border-radius:12px; text-decoration:none; font-weight:bold;">
-                        تسوق الآن 🚀
-                    </a>
-                </div>`;
-        });
+            <a href="${p.link}" target="_blank" class="btn-amazon" style="margin-top: 15px; display: block; text-align: center; background: var(--primary-gradient); color: white; padding: 12px; border-radius: 12px; text-decoration: none; font-weight: bold;">
+                تسوق الآن 🚀
+            </a>
+        </div>`;
+});
+        
     } catch (e) {
         document.getElementById('advisor-text').innerText = "خطأ في الاتصال بالسيرفر";
     }

@@ -98,17 +98,106 @@
         const API = "https://findly-api.onrender.com";
         let lang = localStorage.getItem('findly_lang') || 'ar';
         let attempts = localStorage.getItem('findly_attempts') || 3;
-
-        const dict = {
-            ar: { title: "مستشارك الحكيم", energy: "طاقة العقل", cat1: "هواتف", cat2: "لابتوب", cat4: "ساعات", catGame: "ألعاب", catBeauty: "جمال", catHome: "بيت ذكي", status: "الحكيم يحلل...", vision: "رؤية الحكيم", welcome: "مرحباً،", sub: "دليلك الذكي للتسوق المثالي", p_title: "إعدادات الهوية", p_name: "الاسم المستعار", p_budget: "الميزانية المخططة", p_save: "تحديث ⚡" },
-            en: { title: "Sage Advisor", energy: "Sage Energy", cat1: "Phones", cat2: "Laptops", cat4: "Watches", catGame: "Gaming", catBeauty: "Beauty", catHome: "Smart Home", status: "Analyzing...", vision: "Sage Vision", welcome: "Welcome,", sub: "Your smart guide", p_title: "Settings", p_name: "Nickname", p_budget: "Budget", p_save: "Update ⚡" },
-            fr: { title: "Conseiller Sage", energy: "Énergie Sage", cat1: "Phones", cat2: "Laptops", cat4: "Montres", catGame: "Jeux", catBeauty: "Beauté", catHome: "Maison", status: "Analyse...", vision: "Vision du Sage", welcome: "Bienvenue,", sub: "Votre guide intelligent", p_title: "Paramètres", p_name: "Nom", p_budget: "Budget", p_save: "Actualiser ⚡" },
-            de: { title: "Weiser Berater", energy: "Weise Energie", cat1: "Handys", cat2: "Laptops", cat4: "Uhren", catGame: "Gaming", catBeauty: "Beauty", catHome: "Smart Home", status: "Analysieren...", vision: "Weise Vision", welcome: "Willkommen,", sub: "Ihr smarter Führer", p_title: "Einstellungen", p_name: "Name", p_budget: "Budget", p_save: "Update ⚡" },
-            es: { title: "Asesor Sabio", energy: "Energía Sabia", cat1: "Teléfonos", cat2: "Laptops", cat4: "Relojes", catGame: "Juegos", catBeauty: "Belleza", catHome: "Casa Inteligente", status: "Analizando...", vision: "Visión Sabia", welcome: "Bienvenido,", sub: "Tu guía inteligente", p_title: "Ajustes", p_name: "Nombre", p_budget: "Presupuesto", p_save: "Actualizar ⚡" },
-            tr: { title: "Bilge Danışman", energy: "Bilge Enerji", cat1: "Telefonlar", cat2: "Laptoplar", cat4: "Saatler", catGame: "Oyun", catBeauty: "Güzellik", catHome: "Akıllı Ev", status: "Analiz ediliyor...", vision: "Bilge Vizyon", welcome: "Hoş geldiniz,", sub: "Akıllı rehberiniz", p_title: "Ayarlar", p_name: "Takma Ad", p_budget: "Bütçe", p_save: "Güncelle ⚡" }
-        };
-
-        function update() {
+const dict = {
+    ar: { 
+        title: "مستشارك الحكيم", 
+        energy: "طاقة العقل", 
+        cat1: "هواتف", 
+        cat2: "لابتوب", 
+        cat3: "سماعات", 
+        cat4: "ساعات", 
+        catGame: "ألعاب", 
+        catBeauty: "جمال", 
+        catHome: "منزل ذكي", 
+        watch: "راقب السعر",
+        welcome: "مرحباً،",
+        sub: "دليلك الذكي للتسوق المثالي",
+        status: "الحكيم يحلل...",
+        vision: "رؤية الحكيم"
+    },
+    en: { 
+        title: "Sage Advisor", 
+        energy: "Sage Energy", 
+        cat1: "Phones", 
+        cat2: "Laptops", 
+        cat3: "Audio", 
+        cat4: "Watches", 
+        catGame: "Gaming", 
+        catBeauty: "Beauty", 
+        catHome: "Smart Home", 
+        watch: "Watch Price",
+        welcome: "Welcome,",
+        sub: "Your smart shopping guide",
+        status: "Analyzing...",
+        vision: "Sage Vision"
+    },
+    fr: { 
+        title: "Conseiller Sage", 
+        energy: "Énergie Sage", 
+        cat1: "Phones", 
+        cat2: "Laptops", 
+        cat3: "Audio", 
+        cat4: "Montres", 
+        catGame: "Jeux", 
+        catBeauty: "Beauté", 
+        catHome: "Maison", 
+        watch: "Surveiller le prix",
+        welcome: "Bienvenue,",
+        sub: "Votre guide intelligent",
+        status: "Analyse...",
+        vision: "Vision du Sage"
+    },
+    de: { 
+        title: "Weiser Berater", 
+        energy: "Weise Energie", 
+        cat1: "Handys", 
+        cat2: "Laptops", 
+        cat3: "Audio", 
+        cat4: "Uhren", 
+        catGame: "Gaming", 
+        catBeauty: "Beauty", 
+        catHome: "Smart Home", 
+        watch: "Preis überwachen",
+        welcome: "Willkommen,",
+        sub: "Ihr smarter Führer",
+        status: "Analysieren...",
+        vision: "Weise Vision"
+    },
+    es: { 
+        title: "Asesor Sabio", 
+        energy: "Energía Sabia", 
+        cat1: "Teléfonos", 
+        cat2: "Laptops", 
+        cat3: "Audio", 
+        cat4: "Relojes", 
+        catGame: "Juegos", 
+        catBeauty: "Belleza", 
+        catHome: "Casa Inteligente", 
+        watch: "Vigilar precio",
+        welcome: "Bienvenido,",
+        sub: "Tu guía inteligente",
+        status: "Analizando...",
+        vision: "Visión Sabia"
+    },
+    tr: { 
+        title: "Bilge Danışman", 
+        energy: "Bilge Enerji", 
+        cat1: "Telefonlar", 
+        cat2: "Laptoplar", 
+        cat3: "Ses", 
+        cat4: "Saatler", 
+        catGame: "Oyun", 
+        catBeauty: "Güzellik", 
+        catHome: "Akıllı Ev", 
+        watch: "Fiyatı İzle",
+        welcome: "Hoş geldiniz,",
+        sub: "Akıllı rehberiniz",
+        status: "Analiz ediliyor...",
+        vision: "Bilge Vizyon"
+    }
+};
+        
+    function update() {
             const d = dict[lang] || dict['ar'];
             const isAr = lang === 'ar';
             

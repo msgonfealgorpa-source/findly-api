@@ -3,11 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Findly – World Edition</title>
-    
+    <title>Findly – Cyber Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <style>
         :root {
             --primary-gradient: linear-gradient(135deg, #6366F1, #A855F7);
@@ -21,60 +19,52 @@
             color: var(--text); min-height: 100vh; font-family: 'Readex+Pro', sans-serif;
             margin: 0; transition: 0.5s; overflow-x: hidden;
         }
-        * { box-sizing: border-box; transition: all 0.3s ease; }
-
         header {
             display: flex; justify-content: space-between; align-items: center;
             padding: 1rem 5%; background: var(--card-bg); backdrop-filter: blur(15px);
             border-bottom: 1px solid var(--glass-border); position: sticky; top: 0; z-index: 1000;
         }
         .logo { font-size: 1.8rem; font-weight: 900; background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        .limit-badge {
+            background: var(--primary-gradient); color: white; padding: 8px 20px;
+            border-radius: 50px; font-size: 0.9rem; font-weight: bold; margin: 10px auto; display: inline-block;
+        }
 
-        /* البحث الصوتي والمستقبلي */
-        .search-container { position: relative; width: 90%; max-width: 600px; margin: 2rem auto; }
+        .search-container { position: relative; width: 90%; max-width: 600px; margin: 1.5rem auto 1rem; }
         .search-box {
             width: 100%; padding: 20px 70px; border-radius: 40px; border: 1px solid var(--glass-border);
             background: var(--card-bg); color: var(--text); font-size: 1.1rem; outline: none;
         }
-        .voice-btn { position: absolute; right: 25px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #6366F1; font-size: 1.6rem; cursor: pointer; z-index: 10; }
+        .voice-btn { position: absolute; right: 25px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #6366F1; font-size: 1.6rem; cursor: pointer; }
         .search-btn { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); background: var(--primary-gradient); color: white; border: none; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; }
 
-        /* قائمة اللغات المنسدلة الخرافية */
-        .lang-dropdown {
-            display: none; position: absolute; top: 110%; left: 0; background: #1e293b; 
-            border: 1px solid var(--glass-border); border-radius: 15px; flex-direction: column;
-            min-width: 150px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 2000;
-        }
-        .lang-dropdown div { padding: 12px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem; text-align: center; }
-        .lang-dropdown div:hover { background: var(--primary-gradient); }
+        .categories-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; width: 90%; max-width: 600px; margin: 1.5rem auto; }
+        .cat-item { cursor: pointer; text-align: center; }
+        .cat-icon { width: 55px; height: 55px; background: var(--card-bg); border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: #6366F1; margin: 0 auto 5px; border: 1px solid var(--glass-border); }
+        .cat-item:hover .cat-icon { background: var(--primary-gradient); color: white; transform: translateY(-3px); }
 
-        .product-card {
-            background: var(--card-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border);
-            border-radius: 30px; padding: 20px; margin: 15px auto; width: 90%; max-width: 500px;
-            animation: fadeIn 0.5s ease;
-        }
-        @keyframes fadeIn { from {opacity:0; transform: translateY(20px);} to {opacity:1; transform: translateY(0);} }
+        .lang-dropdown { display: none; position: absolute; top: 110%; left: 0; background: #1e293b; border: 1px solid var(--glass-border); border-radius: 15px; flex-direction: column; min-width: 130px; z-index: 2000; }
+        .lang-dropdown div { padding: 10px; cursor: pointer; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
 
-        .analysis-box { background: rgba(99, 102, 241, 0.1); padding: 15px; border-radius: 15px; border-right: 4px solid #6366F1; margin-top: 10px; font-size: 0.9rem; text-align: start; }
+        .product-card { background: var(--card-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 30px; padding: 20px; margin: 15px auto; width: 90%; max-width: 500px; text-align: right; }
+        .analysis-box { background: rgba(168, 85, 247, 0.1); padding: 15px; border-radius: 15px; border-right: 4px solid #A855F7; margin-top: 10px; font-size: 0.85rem; }
         
-        #profile-modal {
-            display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7);
-            backdrop-filter: blur(10px); z-index:9999; align-items:center; justify-content:center;
-        }
-        .modal-content { background: #1e293b; padding: 30px; border-radius: 30px; width: 90%; max-width: 400px; border: 1px solid var(--glass-border); }
+        #profile-modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index:9999; align-items:center; justify-content:center; }
+        .modal-content { background: #111827; padding: 30px; border-radius: 30px; width: 90%; max-width: 400px; border: 1px solid var(--glass-border); }
         
         .fa-beat { animation: pulse 1s infinite; color: #ef4444 !important; }
         @keyframes pulse { 0% {transform: translateY(-50%) scale(1);} 50% {transform: translateY(-50%) scale(1.2);} 100% {transform: translateY(-50%) scale(1);} }
     </style>
 </head>
-<body class="dark-mode">
+<body>
 
     <header>
-        <div class="logo">Findly <i class="fa-solid fa-earth-americas"></i></div>
-        <div style="display: flex; gap: 15px; align-items: center;">
+        <div class="logo">Findly <i class="fa-solid fa-atom"></i></div>
+        <div style="display: flex; gap: 10px; align-items: center;">
             <div style="position: relative;">
-                <button onclick="toggleLang()" style="background:var(--card-bg); color:white; border:1px solid var(--glass-border); padding:8px 15px; border-radius:12px; cursor:pointer;">
-                    <i class="fa-solid fa-language"></i> <span id="lang-label">AR</span>
+                <button onclick="toggleLang()" style="background:var(--card-bg); color:white; border:1px solid var(--glass-border); padding:8px 12px; border-radius:10px; cursor:pointer;">
+                    <i class="fa-solid fa-globe"></i> <span id="lang-label">AR</span>
                 </button>
                 <div class="lang-dropdown" id="lang-box">
                     <div onclick="setLang('ar')">العربية</div>
@@ -85,63 +75,90 @@
                     <div onclick="setLang('tr')">Türkçe</div>
                 </div>
             </div>
-            <button onclick="openProfile()" style="background:none; border:none; color:white; font-size:1.5rem; cursor:pointer;"><i class="fa-solid fa-user-gear"></i></button>
+            <button onclick="openProfile()" style="background:none; border:none; color:white; font-size:1.4rem; cursor:pointer;"><i class="fa-solid fa-id-card-clip"></i></button>
         </div>
     </header>
 
-    <main style="text-align:center; padding: 2rem 1rem;">
+    <main style="text-align:center; padding: 1.5rem 1rem;">
+        <div id="greeting" style="color:#6366F1; font-weight:bold; margin-bottom:5px;"></div>
         <h1 id="txt-title" style="font-size: 2.2rem; margin-bottom: 10px;"></h1>
-        <p id="txt-sub" style="opacity:0.7; margin-bottom:30px;"></p>
+        <p id="txt-sub" style="opacity:0.7; margin-bottom:15px; font-size:0.9rem;"></p>
+
+        <div class="limit-badge">
+            <span id="txt-energy"></span>: <span id="remaining-count">3</span>
+        </div>
 
         <div class="search-container">
             <button class="voice-btn" id="v-btn" onclick="startVoice()"><i class="fa-solid fa-microphone"></i></button>
             <input type="text" class="search-box" id="s-input">
-            <button class="search-btn" onclick="runSearch()"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
+            <button class="search-btn" onclick="runSearch()"><i class="fa-solid fa-bolt-lightning"></i></button>
         </div>
 
-        <div id="ai-status" style="display:none; background:var(--primary-gradient); padding:15px; border-radius:20px; margin: 20px auto; width: 80%; max-width: 500px;"></div>
+        <div class="categories-grid" id="cat-grid"></div>
+
+        <div id="ai-status" style="display:none; background:var(--primary-gradient); padding:15px; border-radius:20px; margin: 20px auto; width: 90%; max-width: 500px; text-align:start;"></div>
         <div id="results"></div>
     </main>
 
     <div id="profile-modal">
         <div class="modal-content">
-            <h3 id="txt-modal" style="margin-bottom:20px;"></h3>
-            <input type="text" id="in-name" placeholder="Name" style="width:100%; padding:12px; margin-bottom:15px; border-radius:10px; border:none; background:#0f172a; color:white;">
-            <input type="number" id="in-budget" placeholder="Budget" style="width:100%; padding:12px; margin-bottom:20px; border-radius:10px; border:none; background:#0f172a; color:white;">
-            <button onclick="saveSet()" style="width:100%; padding:15px; border-radius:15px; border:none; background:var(--primary-gradient); color:white; font-weight:bold; cursor:pointer;">Save ✨</button>
+            <h3 id="txt-modal" style="margin-bottom:20px; color:white;"></h3>
+            <input type="text" id="in-name" placeholder="Name" style="width:100%; padding:12px; margin-bottom:15px; border-radius:12px; border:none; background:#1f2937; color:white;">
+            <input type="number" id="in-budget" placeholder="Budget" style="width:100%; padding:12px; margin-bottom:20px; border-radius:12px; border:none; background:#1f2937; color:white;">
+            <button onclick="saveSet()" style="width:100%; padding:15px; border-radius:15px; border:none; background:var(--primary-gradient); color:white; font-weight:bold; cursor:pointer;">تحديث الهوية ⚡</button>
         </div>
     </div>
 
     <script>
         const API = "https://findly-api.onrender.com";
         let lang = 'ar';
+        let attempts = localStorage.getItem('findly_attempts') ? parseInt(localStorage.getItem('findly_attempts')) : 3;
+
         const dict = {
-            ar: { title: "البحث الذكي العالمي", sub: "مستشارك بـ 6 لغات عالمية", status: "جاري تحليل البيانات...", modal: "إعدادات الهوية", voice: "ar-SA" },
-            en: { title: "Global Smart Search", sub: "Your AI advisor in 6 languages", status: "Analyzing data...", modal: "Profile Settings", voice: "en-US" },
-            fr: { title: "Recherche Intelligente", sub: "Votre conseiller IA en 6 langues", status: "Analyse en cours...", modal: "Paramètres", voice: "fr-FR" },
-            de: { title: "Intelligente Suche", sub: "Ihr KI-Berater in 6 Sprachen", status: "Daten werden analysiert...", modal: "Einstellungen", voice: "de-DE" },
-            es: { title: "Búsqueda Inteligente", sub: "Su asesor de IA en 6 idiomas", status: "Analizando datos...", modal: "Ajustes", voice: "es-ES" },
-            tr: { title: "Akıllı Arama", sub: "6 dilde yapay zeka danışmanınız", status: "Veriler analiz ediliyor...", modal: "Ayarlar", voice: "tr-TR" }
+            ar: { 
+                title: "اكتشف ذكاء التسوق", sub: "مستشارك السيبراني لتحليل السوق بأحدث تقنيات الذكاء الاصطناعي", 
+                status: "جاري اختراق البيانات لجلب أفضل الصفقات...", modal: "الهوية الرقمية", energy: "الطاقة المتبقية",
+                morning: "صباح الخير، ", evening: "مساء الخير، ", voice: "ar-SA",
+                cats: [{n:'هواتف', q:'هواتف', i:'fa-mobile'}, {n:'لابتوب', q:'لابتوب', i:'fa-laptop'}, {n:'سماعات', q:'سماعات', i:'fa-headphones'}, {n:'ساعات', q:'ساعات', i:'fa-clock'}, {n:'ألعاب', q:'ألعاب', i:'fa-gamepad'}, {n:'كاميرا', q:'كاميرا', i:'fa-camera'}, {n:'منزل', q:'منزل ذكي', i:'fa-microchip'}, {n:'شاشات', q:'شاشات', i:'fa-tv'}]
+            },
+            en: { 
+                title: "Cyber Shopping AI", sub: "Futuristic advisor for market analysis and smart deals", 
+                status: "Decrypting market data...", modal: "Digital Profile", energy: "Core Energy",
+                morning: "Good morning, ", evening: "Good evening, ", voice: "en-US",
+                cats: [{n:'Phones', q:'Phones', i:'fa-mobile'}, {n:'Laptops', q:'Laptops', i:'fa-laptop'}, {n:'Audio', q:'Audio', i:'fa-headphones'}, {n:'Watches', q:'Watches', i:'fa-clock'}, {n:'Gaming', q:'Gaming', i:'fa-gamepad'}, {n:'Cameras', q:'Cameras', i:'fa-camera'}, {n:'Home', q:'Home', i:'fa-microchip'}, {n:'TVs', q:'TVs', i:'fa-tv'}]
+            }
         };
 
         function update() {
-            const d = dict[lang];
+            const d = dict[lang] || dict['en'];
+            const name = localStorage.getItem('fn') || "User";
             document.getElementById('main-html').dir = lang === 'ar' ? 'rtl' : 'ltr';
             document.getElementById('txt-title').innerText = d.title;
             document.getElementById('txt-sub').innerText = d.sub;
             document.getElementById('txt-modal').innerText = d.modal;
+            document.getElementById('txt-energy').innerText = d.energy;
+            document.getElementById('remaining-count').innerText = attempts;
             document.getElementById('lang-label').innerText = lang.toUpperCase();
+            
+            const hr = new Date().getHours();
+            document.getElementById('greeting').innerText = (hr < 12 ? d.morning : d.evening) + name;
+
+            document.getElementById('cat-grid').innerHTML = d.cats.map(c => `
+                <div class="cat-item" onclick="quickS('${c.q}')">
+                    <div class="cat-icon"><i class="fa-solid ${c.i}"></i></div>
+                    <span style="font-size:0.7rem;">${c.n}</span>
+                </div>`).join('');
         }
 
         function toggleLang() { const b = document.getElementById('lang-box'); b.style.display = b.style.display === 'flex' ? 'none' : 'flex'; }
-        
         function setLang(l) { lang = l; toggleLang(); update(); }
+        function quickS(q) { document.getElementById('s-input').value = q; runSearch(); }
 
         function startVoice() {
             const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if(!Speech) return alert("Not supported");
+            if(!Speech) return alert("Browser not supported");
             const rec = new Speech();
-            rec.lang = dict[lang].voice;
+            rec.lang = (dict[lang] || dict['en']).voice;
             const btn = document.getElementById('v-btn');
             btn.classList.add('fa-beat');
             rec.start();
@@ -155,9 +172,9 @@
 
         async function runSearch() {
             const q = document.getElementById('s-input').value;
-            if(!q) return;
+            if(!q || attempts <= 0) return alert("No Energy!");
             document.getElementById('ai-status').style.display = 'block';
-            document.getElementById('ai-status').innerText = dict[lang].status;
+            document.getElementById('ai-status').innerText = (dict[lang] || dict['en']).status;
             document.getElementById('results').innerHTML = '';
 
             try {
@@ -167,20 +184,24 @@
                     body: JSON.stringify({ query: q, lang: lang, budget: localStorage.getItem('fb') || 0 })
                 });
                 const data = await res.json();
+                attempts--; localStorage.setItem('findly_attempts', attempts);
+                update();
                 document.getElementById('ai-status').innerText = data.explanation;
                 data.products.forEach(p => {
                     document.getElementById('results').innerHTML += `
                         <div class="product-card">
-                            <div style="display:flex; justify-content:space-between;">
-                                <h4 style="margin:0;">${p.name}</h4>
-                                <img src="${p.thumbnail}" style="width:50px; height:50px; border-radius:10px; background:white;">
+                            <div style="display:flex; justify-content:space-between; align-items:start;">
+                                <div style="flex:1; text-align:start;">
+                                    <h4 style="margin:0; font-size:1rem;">${p.name}</h4>
+                                    <div style="color:#6366F1; font-weight:900; margin:8px 0;">${p.price}</div>
+                                </div>
+                                <img src="${p.thumbnail}" style="width:60px; height:60px; border-radius:12px; background:white; padding:5px; object-fit:contain;">
                             </div>
-                            <div style="color:#6366F1; font-weight:900; margin:10px 0;">${p.price}</div>
-                            <div class="analysis-box"><strong>AI Analysis:</strong> ${p.reason}</div>
-                            <a href="${p.link}" target="_blank" style="display:block; text-align:center; background:var(--primary-gradient); color:white; padding:12px; border-radius:15px; margin-top:15px; text-decoration:none;">Shop Now</a>
+                            <div class="analysis-box"><strong>تحليل العقل:</strong> ${p.reason}</div>
+                            <a href="${p.link}" target="_blank" style="display:block; text-align:center; background:var(--primary-gradient); color:white; padding:12px; border-radius:15px; margin-top:15px; text-decoration:none; font-weight:bold;">تسوق الآن 🚀</a>
                         </div>`;
                 });
-            } catch (e) { document.getElementById('ai-status').innerText = "Error!"; }
+            } catch (e) { document.getElementById('ai-status').innerText = "Connection Error!"; }
         }
 
         function openProfile() { document.getElementById('profile-modal').style.display = 'flex'; }
@@ -188,8 +209,8 @@
             localStorage.setItem('fn', document.getElementById('in-name').value);
             localStorage.setItem('fb', document.getElementById('in-budget').value);
             document.getElementById('profile-modal').style.display = 'none';
+            update();
         }
-        window.onclick = (e) => { if(e.target == document.getElementById('profile-modal')) document.getElementById('profile-modal').style.display='none'; }
         update();
     </script>
 </body>

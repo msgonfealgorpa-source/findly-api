@@ -96,7 +96,9 @@ function generateReason(p, intent, category, rank) {
 // ==============================
 // 🚀 SMART SEARCH API
 // ==============================
-
+app.get('/', (req, res) => {
+  res.send('Findly API is running...');
+});
 app.post('/smart-search', async (req, res) => {
   try {
     const { query, lang } = req.body;

@@ -3,74 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Findly Sage - Final Edition</title>
+    <title>Findly Sage – النسخة المستقرة</title>
     <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary-gradient: linear-gradient(135deg, #6366F1, #A855F7);
-            --bg: #030712; --text: #F1F5F9; --card-bg: rgba(30, 41, 59, 0.4);
-            --glass-border: rgba(255, 255, 255, 0.1);
+            --primary: linear-gradient(135deg, #6366F1, #A855F7);
+            --bg: #030712; --card: rgba(30, 41, 59, 0.6);
+            --border: rgba(255, 255, 255, 0.1);
         }
         body {
-            background: var(--bg); color: var(--text); font-family: 'Readex+Pro', sans-serif;
-            margin: 0; min-height: 100vh; transition: 0.5s;
+            background: var(--bg); color: #fff; font-family: 'Readex+Pro', sans-serif;
+            margin: 0; padding: 0; min-height: 100vh; transition: 0.3s;
         }
+
+        /* هيدر متجاوب ومستقر */
         header {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 1rem 5%; background: var(--card-bg); backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--glass-border); position: sticky; top: 0; z-index: 1000;
+            padding: 15px 5%; background: var(--card); backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 1000;
         }
-        .logo { font-size: 1.6rem; font-weight: 900; background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        
-        /* شريط البحث المطور والمثبت */
-        .search-container { 
-            position: relative; width: 92%; max-width: 600px; margin: 2rem auto; 
-            display: flex; align-items: center; justify-content: center;
+        .logo { font-size: 1.4rem; font-weight: 900; background: var(--primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        /* حاوية الأزرار في الهيدر */
+        .header-tools { display: flex; gap: 10px; align-items: center; }
+        .tool-btn { background: var(--card); border: 1px solid var(--border); color: #fff; width: 40px; height: 40px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; position: relative; }
+
+        /* منطقة البحث - الحل الجذري للتداخل */
+        .search-section { padding: 20px 5%; text-align: center; }
+        .search-wrapper {
+            position: relative; max-width: 600px; margin: 20px auto;
+            display: flex; align-items: center;
         }
-        .search-box {
-            width: 100%; padding: 18px 65px; border-radius: 50px; border: 1px solid var(--glass-border);
-            background: var(--card-bg); color: #fff; font-size: 1rem; outline: none; box-sizing: border-box;
+        .search-input {
+            width: 100%; padding: 18px 55px; border-radius: 50px;
+            border: 1px solid var(--border); background: var(--card);
+            color: #fff; font-size: 1rem; outline: none; box-sizing: border-box;
         }
-        .voice-btn { position: absolute; right: 20px; background: none; border: none; color: #6366F1; font-size: 1.5rem; cursor: pointer; z-index: 5; }
-        .search-btn { 
-            position: absolute; left: 10px; background: var(--primary-gradient); color: white; 
-            border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; 
-            display: flex; align-items: center; justify-content: center; z-index: 5;
+        .mic-icon { position: absolute; right: 18px; color: #6366F1; font-size: 1.3rem; cursor: pointer; z-index: 5; }
+        .send-btn { 
+            position: absolute; left: 8px; background: var(--primary); 
+            border: none; width: 42px; height: 42px; border-radius: 50%; 
+            color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 5;
         }
 
-        .categories-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; width: 92%; max-width: 600px; margin: 1.5rem auto; }
-        .cat-item { cursor: pointer; text-align: center; }
-        .cat-icon { width: 55px; height: 55px; background: var(--card-bg); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; color: #6366F1; margin: 0 auto 5px; border: 1px solid var(--glass-border); }
+        /* شبكة التصنيفات */
+        .cat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; max-width: 600px; margin: 20px auto; padding: 0 10px; }
+        .cat-card { background: var(--card); border: 1px solid var(--border); padding: 10px; border-radius: 15px; text-align: center; cursor: pointer; }
+        .cat-card i { font-size: 1.2rem; color: #6366F1; display: block; margin-bottom: 5px; }
+        .cat-card span { font-size: 0.7rem; font-weight: bold; }
+
+        /* قائمة اللغات المنسدلة */
+        .lang-menu { 
+            display: none; position: absolute; top: 50px; left: 0; 
+            background: #1e293b; border-radius: 12px; width: 120px; 
+            border: 1px solid var(--border); z-index: 2000; overflow: hidden;
+        }
+        .lang-menu div { padding: 10px; font-size: 0.9rem; border-bottom: 1px solid var(--border); cursor: pointer; }
+        .lang-menu div:hover { background: var(--primary); }
 
         /* مودال الملف الشخصي */
-        #profile-modal { 
-            display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); 
-            backdrop-filter: blur(10px); z-index:9999; align-items:center; justify-content:center; 
-        }
-        .modal-content { background: #0f172a; padding: 30px; border-radius: 30px; width: 85%; max-width: 400px; border: 1px solid var(--glass-border); text-align: center; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
+        .modal-box { background: #0f172a; padding: 30px; border-radius: 25px; width: 85%; max-width: 380px; border: 1px solid var(--border); text-align: center; }
+        .modal-box input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: none; background: #1e293b; color: #fff; box-sizing: border-box; }
         
-        /* قائمة اللغات */
-        .lang-dropdown { 
-            display:none; position:absolute; top:110%; right:0; background:#1e293b; 
-            border-radius:15px; width:130px; border:1px solid var(--glass-border); z-index:2000; overflow: hidden;
-        }
-        .lang-dropdown div { padding: 12px; cursor: pointer; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
-        .lang-dropdown div:hover { background: var(--primary-gradient); }
-
-        .product-card { background: var(--card-bg); border-radius: 30px; padding: 20px; margin: 15px auto; width: 92%; max-width: 500px; border: 1px solid var(--glass-border); text-align: right; }
-        .sage-badge { background: linear-gradient(135deg, #FFD700, #FFA500); color: #00; padding: 4px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 900; display: inline-block; margin-bottom: 10px; }
+        /* البطاقات */
+        .result-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 15px; margin: 15px auto; width: 90%; max-width: 500px; }
     </style>
 </head>
 <body>
 
     <header>
         <div class="logo">Findly <i class="fa-solid fa-scroll"></i></div>
-        <div style="display: flex; gap: 10px; align-items: center;">
-            <button onclick="toggleLight()" style="background:var(--card-bg); color:white; border:1px solid var(--glass-border); width:42px; height:42px; border-radius:12px; cursor:pointer;"><i class="fa-solid fa-circle-half-stroke"></i></button>
+        <div class="header-tools">
+            <button class="tool-btn" onclick="toggleLight()"><i class="fa-solid fa-circle-half-stroke"></i></button>
             <div style="position: relative;">
-                <button onclick="toggleLang()" style="background:var(--card-bg); color:white; border:1px solid var(--glass-border); padding:10px 15px; border-radius:12px; cursor:pointer;"><i class="fa-solid fa-earth-africa"></i> <span id="lang-label">AR</span></button>
-                <div class="lang-dropdown" id="lang-box">
+                <button class="tool-btn" onclick="toggleLang()"><i class="fa-solid fa-earth-africa"></i>&nbsp;<small id="l-label">AR</small></button>
+                <div class="lang-menu" id="l-menu">
                     <div onclick="setLang('ar')">العربية</div>
                     <div onclick="setLang('en')">English</div>
                     <div onclick="setLang('fr')">Français</div>
@@ -79,42 +88,48 @@
                     <div onclick="setLang('tr')">Türkçe</div>
                 </div>
             </div>
-            <button onclick="openProfile()" style="background:none; border:none; color:white; font-size:1.6rem; cursor:pointer;"><i class="fa-solid fa-user-tie"></i></button>
+            <button class="tool-btn" onclick="openProfile()"><i class="fa-solid fa-user-tie"></i></button>
         </div>
     </header>
 
-    <main style="text-align:center;">
-        <div id="greeting" style="margin-top: 2rem; color: #A855F7; font-weight: bold;"></div>
-        <h1 id="txt-title" style="font-size: 2rem; margin: 10px 0;"></h1>
-        <p id="txt-sub" style="opacity: 0.7; font-size: 0.9rem;"></p>
+    <main class="search-section">
+        <div id="greeting" style="color: #A855F7; font-weight: bold; margin-bottom: 5px;"></div>
+        <h1 id="txt-title" style="margin: 0; font-size: 1.8rem;">مستشارك الحكيم</h1>
+        <p id="txt-sub" style="opacity: 0.7; font-size: 0.8rem; margin-bottom: 15px;">تحليل سيبراني عميق</p>
 
-        <div style="background: rgba(99, 102, 241, 0.2); padding: 6px 18px; border-radius: 50px; display: inline-block; margin: 10px 0; font-size: 0.85rem; font-weight: bold; border: 1px solid rgba(99, 102, 241, 0.3);">
-            ⚡ <span id="txt-energy"></span>: <span id="remaining-count">3</span>
+        <div style="background: rgba(99, 102, 241, 0.2); padding: 5px 15px; border-radius: 20px; font-size: 0.8rem; display: inline-block;">
+            ⚡ <span id="txt-energy">طاقة العقل</span>: <span id="r-count">3</span>
         </div>
 
-        <div class="search-container">
-            <button class="voice-btn" id="v-btn" onclick="startVoice()"><i class="fa-solid fa-microphone-lines"></i></button>
-            <input type="text" id="s-input" class="search-box" placeholder="...">
-            <button class="search-btn" onclick="runSearch()"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
+        <div class="search-wrapper">
+            <i class="fa-solid fa-microphone-lines mic-icon" id="v-btn" onclick="startVoice()"></i>
+            <input type="text" id="s-input" class="search-input" placeholder="...">
+            <button class="send-btn" onclick="runSearch()"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
         </div>
 
-        <div class="categories-grid" id="cat-grid"></div>
-        <div id="ai-status" style="display:none; background:var(--primary-gradient); padding:15px; border-radius:20px; width:92%; max-width:500px; margin: 1rem auto;"></div>
+        <div class="cat-grid" id="cat-grid">
+            <div class="cat-card" onclick="qS('Smartphone')"><i class="fa-solid fa-mobile"></i><span>هواتف</span></div>
+            <div class="cat-card" onclick="qS('Laptop')"><i class="fa-solid fa-laptop"></i><span>لابتوب</span></div>
+            <div class="cat-card" onclick="qS('Audio')"><i class="fa-solid fa-headphones"></i><span>سماعات</span></div>
+            <div class="cat-card" onclick="qS('Watch')"><i class="fa-solid fa-clock"></i><span>ساعات</span></div>
+        </div>
+
+        <div id="status" style="display:none; background:var(--primary); padding:15px; border-radius:15px; margin-top:20px;"></div>
         <div id="results"></div>
     </main>
 
-    <div id="profile-modal">
-        <div class="modal-content">
-            <h3 id="txt-modal" style="color:#fff; margin-bottom:20px;">إعدادات الهوية</h3>
-            <input type="text" id="in-name" placeholder="الاسم" style="width:100%; padding:15px; margin-bottom:12px; border-radius:12px; border:none; background:#1e293b; color:#fff; box-sizing: border-box;">
-            <input type="number" id="in-budget" placeholder="الميزانية" style="width:100%; padding:15px; margin-bottom:25px; border-radius:12px; border:none; background:#1e293b; color:#fff; box-sizing: border-box;">
-            <button onclick="saveSet()" style="width:100%; padding:18px; border-radius:15px; border:none; background:var(--primary-gradient); color:#fff; font-weight:bold; cursor:pointer;">تحديث ⚡</button>
-            <button onclick="document.getElementById('profile-modal').style.display='none'" style="margin-top:15px; background:none; border:none; color:gray; cursor:pointer;">إغلاق</button>
+    <div class="modal" id="p-modal">
+        <div class="modal-box">
+            <h3 id="txt-modal">إعدادات الهوية</h3>
+            <input type="text" id="in-name" placeholder="الاسم المستعار">
+            <input type="number" id="in-budget" placeholder="الميزانية">
+            <button onclick="saveSet()" style="width:100%; padding:15px; border:none; border-radius:12px; background:var(--primary); color:#fff; font-weight:bold;">حفظ ⚡</button>
+            <button onclick="closeProfile()" style="margin-top:15px; background:none; border:none; color:gray;">إغلاق</button>
         </div>
     </div>
 
     <script>
-        // دمج العقل في الجسد لضمان العمل 100%
+        // العقل المدمج (اللغات الست + الوظائف)
         let lang = 'ar';
         let attempts = 3;
         const dict = {
@@ -128,38 +143,52 @@
 
         function update() {
             const d = dict[lang];
-            const name = localStorage.getItem('fn') || "User";
             document.getElementById('main-html').dir = lang === 'ar' ? 'rtl' : 'ltr';
             document.getElementById('txt-title').innerText = d.title;
             document.getElementById('txt-sub').innerText = d.sub;
             document.getElementById('txt-modal').innerText = d.modal;
             document.getElementById('txt-energy').innerText = d.energy;
-            document.getElementById('lang-label').innerText = lang.toUpperCase();
-            document.getElementById('remaining-count').innerText = attempts;
+            document.getElementById('l-label').innerText = lang.toUpperCase();
+            document.getElementById('r-count').innerText = attempts;
             const hr = new Date().getHours();
+            const name = localStorage.getItem('fn') || "User";
             document.getElementById('greeting').innerText = (hr < 12 ? d.morning : d.evening) + name;
         }
 
         function toggleLang() { 
-            const box = document.getElementById('lang-box');
-            box.style.display = box.style.display === 'block' ? 'none' : 'block';
+            const m = document.getElementById('l-menu');
+            m.style.display = m.style.display === 'block' ? 'none' : 'block';
         }
-
         function setLang(l) { lang = l; toggleLang(); update(); }
-        function openProfile() { document.getElementById('profile-modal').style.display = 'flex'; }
+        function openProfile() { document.getElementById('p-modal').style.display = 'flex'; }
+        function closeProfile() { document.getElementById('p-modal').style.display = 'none'; }
         function saveSet() {
             localStorage.setItem('fn', document.getElementById('in-name').value);
-            document.getElementById('profile-modal').style.display = 'none';
+            closeProfile();
             update();
         }
-        function toggleLight() { document.body.style.filter = document.body.style.filter === 'invert(1)' ? 'invert(0)' : 'invert(1)'; }
-        
+        function toggleLight() {
+            document.body.style.filter = document.body.style.filter === 'invert(1)' ? 'invert(0)' : 'invert(1)';
+        }
+        function startVoice() {
+            const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if(!Recognition) return alert("Not Supported");
+            const rec = new Recognition();
+            rec.lang = dict[lang].voice;
+            document.getElementById('v-btn').style.color = "red";
+            rec.start();
+            rec.onresult = (e) => {
+                document.getElementById('s-input').value = e.results[0][0].transcript;
+                document.getElementById('v-btn').style.color = "#6366F1";
+                runSearch();
+            }
+        }
         function runSearch() {
-            const val = document.getElementById('s-input').value;
-            if(!val) return;
-            document.getElementById('ai-status').style.display = 'block';
-            document.getElementById('ai-status').innerText = "جاري البحث عن الحكمة...";
-            // هنا تضع كود الـ API الخاص بك
+            if(attempts <= 0) return alert("لا توجد طاقة!");
+            document.getElementById('status').style.display = "block";
+            document.getElementById('status').innerText = "الحكيم يحلل...";
+            attempts--;
+            update();
         }
 
         update();

@@ -212,6 +212,13 @@
             rec.onresult = (e) => { document.getElementById('s-input').value = e.results[0][0].transcript; runSearch(); }
         }
         window.onload = update;
+    <div class="modal" id="w-modal">
+    <div class="modal-box" style="max-width: 400px; max-height: 80vh; overflow-y: auto;">
+        <h3 id="txt-watch-title" style="color:#A855F7;">قائمة المراقبة 🔔</h3>
+        <div id="watch-items-container" style="margin-top:20px;"></div>
+        <button onclick="closeWatchList()" style="margin-top:20px; background:var(--primary); color:#fff; border:none; width:100%; padding:12px; border-radius:12px; font-weight:bold; cursor:pointer;">إغلاق</button>
+    </div>
+</div>
     </script>
 </body>
 </html>

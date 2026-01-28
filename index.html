@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Findly Sage – Final</title>
+    <title>Findly Sage – Final Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -30,8 +30,7 @@
         .lang-menu div { padding: 10px; font-size: 0.9rem; border-bottom: 1px solid var(--border); cursor: pointer; text-align: center; }
         .product-card { background: var(--card); border: 1px solid var(--border); border-radius: 25px; padding: 20px; margin: 15px auto; width: 92%; max-width: 500px; text-align: right; animation: slideUp 0.4s ease; }
         @keyframes slideUp { from {opacity: 0; transform: translateY(20px);} to {opacity: 1; transform: translateY(0);} }
-        .sage-badge { background: linear-gradient(135deg, #FFD700, #FFA500); color: #000; padding: 3px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 900; margin-bottom: 10px; display: inline-block; }
-        .analysis-box { background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: 15px; border-right: 4px solid #6366F1; margin-top: 10px; font-size: 0.85rem; }
+        .sage-vision-card { text-align: inherit; }
     </style>
 </head>
 <body>
@@ -42,7 +41,12 @@
             <div style="position: relative;">
                 <button class="tool-btn" onclick="toggleLang()"><i class="fa-solid fa-earth-africa"></i>&nbsp;<small id="l-label">AR</small></button>
                 <div class="lang-menu" id="l-menu">
-                    <div onclick="setLang('ar')">العربية</div><div onclick="setLang('en')">English</div><div onclick="setLang('fr')">Français</div><div onclick="setLang('de')">Deutsch</div><div onclick="setLang('es')">Español</div><div onclick="setLang('tr')">Türkçe</div>
+                    <div onclick="setLang('ar')">العربية</div>
+                    <div onclick="setLang('en')">English</div>
+                    <div onclick="setLang('fr')">Français</div>
+                    <div onclick="setLang('de')">Deutsch</div>
+                    <div onclick="setLang('es')">Español</div>
+                    <div onclick="setLang('tr')">Türkçe</div>
                 </div>
             </div>
             <button class="tool-btn" onclick="openProfile()"><i class="fa-solid fa-user-tie"></i></button>
@@ -53,196 +57,168 @@
         <div id="greeting" style="color: #A855F7; font-weight: bold; font-size: 0.9rem;"></div>
         <h1 id="txt-title" style="margin: 5px 0; font-size: 1.8rem;"></h1>
         <p id="txt-sub" style="opacity: 0.7; font-size: 0.85rem; margin-bottom: 10px;"></p>
-        <div style="background: rgba(168, 85, 247, 0.15); padding: 5px 15px; border-radius: 20px; font-size: 0.8rem; display: inline-block; border: 1px solid #A855F7;">⚡ <span id="txt-energy"></span>: <span id="r-count"></span></div>
+        
+        <div style="background: rgba(168, 85, 247, 0.15); padding: 5px 15px; border-radius: 20px; font-size: 0.8rem; display: inline-block; border: 1px solid #A855F7;">
+            ⚡ <span id="txt-energy"></span>: <span id="r-count"></span>
+        </div>
 
         <div class="search-wrapper">
             <i class="fa-solid fa-microphone-lines mic-icon" id="v-btn" onclick="startVoice()"></i>
             <input type="text" id="s-input" class="search-input" placeholder="...">
             <button class="send-btn" onclick="runSearch()"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
         </div>
-<div class="cat-grid">
-    <div class="cat-card" onclick="quickSearch('هواتف')">
-        <i class="fa-solid fa-mobile"></i><br>
-        <span id="cat-1">هواتف</span> </div>
 
-    <div class="cat-card" onclick="quickSearch('لابتوب')">
-        <i class="fa-solid fa-laptop"></i><br>
-        <span id="cat-2">لابتوب</span> </div>
-
-    <div class="cat-card" onclick="quickSearch('سماعات')">
-        <i class="fa-solid fa-headphones"></i><br>
-        <span id="cat-3">سماعات</span> </div>
-
-    <div class="cat-card" onclick="quickSearch('ساعات')">
-        <i class="fa-solid fa-clock"></i><br>
-        <span id="cat-4">ساعات</span> </div>
-</div>
-  
+        <div class="cat-grid">
+            <div class="cat-card" onclick="quickSearch('هواتف')"><i class="fa-solid fa-mobile"></i><br><span id="cat-1">هواتف</span></div>
+            <div class="cat-card" onclick="quickSearch('لابتوب')"><i class="fa-solid fa-laptop"></i><br><span id="cat-2">لابتوب</span></div>
+            <div class="cat-card" onclick="quickSearch('سماعات')"><i class="fa-solid fa-headphones"></i><br><span id="cat-3">سماعات</span></div>
+            <div class="cat-card" onclick="quickSearch('ساعات')"><i class="fa-solid fa-clock"></i><br><span id="cat-4">ساعات</span></div>
+        </div>
 
         <div id="status" style="display:none; background:var(--primary); padding:15px; border-radius:15px; margin-top:20px; font-weight:bold;"></div>
         <div id="results"></div>
     </main>
-<div class="modal" id="p-modal">
-    <div class="modal-box">
-        <h3 id="txt-modal">إعدادات الهوية</h3>
 
-        <input type="text" id="in-name" placeholder="الاسم المستعار">
-
-        <input type="number" id="in-budget" placeholder="الميزانية">
-
-        <button id="p-btn" onclick="saveSet()" style="width:100%; padding:15px; border-radius:15px; background:var(--primary); color:#fff; border:none; font-weight:bold;">تحديث ⚡</button>
-        
-        <button onclick="closeProfile()" style="margin-top:10px; background:none; color:#fff; opacity:0.6; border:none; width:100%;">إلغاء</button>
+    <div class="modal" id="p-modal">
+        <div class="modal-box">
+            <h3 id="txt-modal">إعدادات الهوية</h3>
+            <input type="text" id="in-name" placeholder="الاسم المستعار">
+            <input type="number" id="in-budget" placeholder="الميزانية">
+            <button id="p-btn" onclick="saveSet()" style="width:100%; padding:15px; border-radius:15px; background:var(--primary); color:#fff; border:none; font-weight:bold;">تحديث ⚡</button>
+            <button onclick="closeProfile()" style="margin-top:10px; background:none; color:#fff; opacity:0.6; border:none; width:100%; cursor:pointer;">إلغاء</button>
+        </div>
     </div>
-</div>
 
     <script>
         const API = "https://findly-api.onrender.com";
-        let lang = 'ar';
+        let lang = localStorage.getItem('findly_lang') || 'ar';
         let attempts = localStorage.getItem('findly_attempts') || 3;
+
         const dict = {
-    ar: { title: "مستشارك الحكيم", energy: "طاقة العقل", cat1: "هواتف", cat2: "لابتوب", cat3: "سماعات", cat4: "ساعات", status: "الحكيم يحلل...", vision: "رؤية الحكيم" },
-    en: { title: "Sage Advisor", energy: "Sage Energy", cat1: "Phones", cat2: "Laptops", cat3: "Audio", cat4: "Watches", status: "Analyzing...", vision: "Sage Vision" },
-    fr: { title: "Conseiller Sage", energy: "Énergie Sage", cat1: "Téléphones", cat2: "Laptops", cat3: "Audio", cat4: "Montres", status: "Analyse...", vision: "Vision du Sage" },
-    de: { title: "Weiser Berater", energy: "Weise Energie", cat1: "Handys", cat2: "Laptops", cat3: "Audio", cat4: "Uhren", status: "Analysieren...", vision: "Weise Vision" },
-    es: { title: "Asesor Sabio", energy: "Energía Sabia", cat1: "Teléfonos", cat2: "Laptops", cat3: "Audio", cat4: "Relojes", status: "Analizando...", vision: "Visión Sabia" },
-    tr: { title: "Bilge Danışman", energy: "Bilge Enerji", cat1: "Telefonlar", cat2: "Laptoplar", cat3: "Ses", cat4: "Saatler", status: "Analiz ediliyor...", vision: "Bilge Vizyon" }
-};
+            ar: { title: "مستشارك الحكيم", energy: "طاقة العقل", cat1: "هواتف", cat2: "لابتوب", cat3: "سماعات", cat4: "ساعات", status: "الحكيم يحلل...", vision: "رؤية الحكيم", welcome: "مرحباً،", sub: "دليلك الذكي للتسوق المثالي", p_title: "إعدادات الهوية", p_name: "الاسم المستعار", p_budget: "الميزانية المخططة", p_save: "تحديث ⚡" },
+            en: { title: "Sage Advisor", energy: "Sage Energy", cat1: "Phones", cat2: "Laptops", cat3: "Audio", cat4: "Watches", status: "Analyzing...", vision: "Sage Vision", welcome: "Welcome,", sub: "Your smart guide for perfect shopping", p_title: "Identity Settings", p_name: "Nickname", p_budget: "Budget", p_save: "Update ⚡" },
+            fr: { title: "Conseiller Sage", energy: "Énergie Sage", cat1: "Téléphones", cat2: "Laptops", cat3: "Audio", cat4: "Montres", status: "Analyse...", vision: "Vision du Sage", welcome: "Bienvenue,", sub: "Votre guide intelligent", p_title: "Paramètres", p_name: "Nom", p_budget: "Budget", p_save: "Actualiser ⚡" },
+            de: { title: "Weiser Berater", energy: "Weise Energie", cat1: "Handys", cat2: "Laptops", cat3: "Audio", cat4: "Uhren", status: "Analysieren...", vision: "Weise Vision", welcome: "Willkommen,", sub: "Ihr smarter Einkaufsführer", p_title: "Einstellungen", p_name: "Name", p_budget: "Budget", p_save: "Update ⚡" },
+            es: { title: "Asesor Sabio", energy: "Energía Sabia", cat1: "Teléfonos", cat2: "Laptops", cat3: "Audio", cat4: "Relojes", status: "Analizando...", vision: "Visión Sabia", welcome: "Bienvenido,", sub: "Tu guía inteligente", p_title: "Ajustes", p_name: "Nombre", p_budget: "Presupuesto", p_save: "Actualizar ⚡" },
+            tr: { title: "Bilge Danışman", energy: "Bilge Enerji", cat1: "Telefonlar", cat2: "Laptoplar", cat3: "Ses", cat4: "Saatler", status: "Analiz ediliyor...", vision: "Bilge Vizyon", welcome: "Hoş geldiniz,", sub: "Akıllı alışveriş rehberiniz", p_title: "Kimlik Ayarları", p_name: "Takma Ad", p_budget: "Bütçe", p_save: "Güncelle ⚡" }
+        };
 
         function update() {
-    const d = dict[lang] || dict['ar'];
-    const isAr = lang === 'ar';
-    
-    // تغيير اتجاه الصفحة
-    document.getElementById('main-html').dir = isAr ? 'rtl' : 'ltr';
-    
-    // تحديث النصوص الرئيسية
-    document.getElementById('txt-title').innerText = d.title;
-    
-    // تحديث الأيقونات الأربعة (هذه صحيحة في صورتك)
-    document.getElementById('cat-1').innerText = d.cat1;
-    document.getElementById('cat-2').innerText = d.cat2;
-    document.getElementById('cat-3').innerText = d.cat3;
-    document.getElementById('cat-4').innerText = d.cat4;
+            const d = dict[lang] || dict['ar'];
+            const isAr = lang === 'ar';
+            
+            // 1. الاتجاه واللغة
+            document.getElementById('main-html').dir = isAr ? 'rtl' : 'ltr';
+            document.getElementById('l-label').innerText = lang.toUpperCase();
+            
+            // 2. النصوص الرئيسية والترحيب
+            document.getElementById('txt-title').innerText = d.title;
+            document.getElementById('txt-sub').innerText = d.sub;
+            const userName = localStorage.getItem('fn') || (isAr ? "أحمد" : "User");
+            document.getElementById('greeting').innerText = `${d.welcome} ${userName}`;
+            
+            // 3. الطاقة
+            document.getElementById('txt-energy').innerText = d.energy;
+            document.getElementById('r-count').innerText = attempts;
 
-    // --- تحديث الملف الشخصي بناءً على id الصورة الأخيرة ---
-    if(document.getElementById('txt-modal')) {
-        document.getElementById('txt-modal').innerText = d.p_title;
-    }
-    if(document.getElementById('in-name')) {
-        document.getElementById('in-name').placeholder = d.p_name;
-    }
-    if(document.getElementById('in-budget')) {
-        document.getElementById('in-budget').placeholder = d.p_budget;
-   if(document.getElementById('p-btn')) document.getElementById('p-btn').innerText = d.p_save;
-    }
-}
+            // 4. الأيقونات الأربعة
+            document.getElementById('cat-1').innerText = d.cat1;
+            document.getElementById('cat-2').innerText = d.cat2;
+            document.getElementById('cat-3').innerText = d.cat3;
+            document.getElementById('cat-4').innerText = d.cat4;
 
-        function toggleLang() { const m = document.getElementById('l-menu'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
-        function setLang(l) { lang = l; toggleLang(); update(); }
-        function openProfile() { document.getElementById('p-modal').style.display = 'flex'; }
-        function closeProfile() { document.getElementById('p-modal').style.display = 'none'; }
-        function saveSet() { localStorage.setItem('fn', document.getElementById('in-name').value); closeProfile(); update(); }
-        function toggleLight() { document.body.style.filter = document.body.style.filter === 'invert(1)' ? 'invert(0)' : 'invert(1)'; }
-
-        function quickSearch(q) { document.getElementById('s-input').value = q; runSearch(); }
-
-async function runSearch() {
-    const q = document.getElementById('s-input').value;
-    if (!q || attempts <= 0) return;
-
-    const d = dict[lang] || dict['ar'];
-    const resultsContainer = document.getElementById('results');
-    const statusBox = document.getElementById('status') || document.getElementById('ai-status');
-    
-    // جلب الميزانية وتحويلها لرقم صافي
-    const userBudget = parseFloat(localStorage.getItem('fb')) || 5000;
-
-    statusBox.style.display = "block";
-    statusBox.innerText = d.status;
-    resultsContainer.innerHTML = '';
-
-    try {
-        const res = await fetch(`${API}/get-ai-advice`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                query: q, 
-                lang: lang, 
-                budget: userBudget 
-            })
-        });
-
-        const data = await res.json();
-        statusBox.style.display = "none";
-
-        // 1. عرض رؤية الحكيم التحليلية
-        if (data.sage_advice) {
-            resultsContainer.innerHTML += `
-                <div class="sage-vision-card" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2)); border: 1px solid #6366F1; border-radius: 20px; padding: 20px; margin: 15px; text-align: inherit;">
-                    <h4 style="margin: 0 0 10px 0; color: #A855F7;"><i class="fa-solid fa-brain"></i> ${d.vision || 'رؤية الحكيم'}</h4>
-                    <p style="font-size: 0.9rem; line-height: 1.6; margin: 0;">${data.sage_advice}</p>
-                </div>`;
+            // 5. الملف الشخصي
+            document.getElementById('txt-modal').innerText = d.p_title;
+            document.getElementById('in-name').placeholder = d.p_name;
+            document.getElementById('in-budget').placeholder = d.p_budget;
+            document.getElementById('p-btn').innerText = d.p_save;
         }
 
-        // 2. عرض المنتجات مع معالج الأرقام العالمي
-        data.products.forEach((p, idx) => {
-            // --- ميكانيكية العقل العالمي الجديدة ---
-            // تحويل الأرقام العربية الشرقية (١٢٣) إلى دولية (123)
-            let standardNumbers = p.price.replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
-            
-            // إزالة كل الرموز والكسور والعملات (ر.س، $, الفواصل) للبقاء على الرقم الصافي فقط
-            let cleanPriceString = standardNumbers.replace(/[^\d]/g, ''); 
-            let priceValue = parseFloat(cleanPriceString) || 0;
+        function toggleLang() { const m = document.getElementById('l-menu'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
+        function setLang(l) { lang = l; localStorage.setItem('findly_lang', l); toggleLang(); update(); }
+        function openProfile() { document.getElementById('p-modal').style.display = 'flex'; }
+        function closeProfile() { document.getElementById('p-modal').style.display = 'none'; }
+        
+        function saveSet() { 
+            const name = document.getElementById('in-name').value;
+            const budget = document.getElementById('in-budget').value;
+            if(name) localStorage.setItem('fn', name); 
+            if(budget) localStorage.setItem('fb', budget);
+            closeProfile(); 
+            update(); 
+        }
 
-            // إذا كان السعر يحتوي على فواصل عشرية (مثل 99.50)، نعدل المنطق قليلاً
-            if (standardNumbers.includes('.')) {
-                 cleanPriceString = standardNumbers.replace(/[^\d.]/g, '');
-                 priceValue = parseFloat(cleanPriceString) || 0;
+        function toggleLight() { document.body.style.filter = document.body.style.filter === 'invert(1)' ? 'invert(0)' : 'invert(1)'; }
+        function quickSearch(q) { document.getElementById('s-input').value = q; runSearch(); }
+
+        async function runSearch() {
+            const q = document.getElementById('s-input').value;
+            if (!q || attempts <= 0) return;
+
+            const d = dict[lang] || dict['ar'];
+            const resultsContainer = document.getElementById('results');
+            const statusBox = document.getElementById('status');
+            const userBudget = parseFloat(localStorage.getItem('fb')) || 5000;
+
+            statusBox.style.display = "block";
+            statusBox.innerText = d.status;
+            resultsContainer.innerHTML = '';
+
+            try {
+                const res = await fetch(`${API}/get-ai-advice`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: q, lang: lang, budget: userBudget })
+                });
+
+                const data = await res.json();
+                statusBox.style.display = "none";
+
+                if (data.sage_advice) {
+                    resultsContainer.innerHTML += `
+                        <div class="sage-vision-card" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2)); border: 1px solid #6366F1; border-radius: 20px; padding: 20px; margin: 15px;">
+                            <h4 style="margin: 0 0 10px 0; color: #A855F7;"><i class="fa-solid fa-brain"></i> ${d.vision}</h4>
+                            <p style="font-size: 0.9rem; line-height: 1.6; margin: 0;">${data.sage_advice}</p>
+                        </div>`;
+                }
+
+                data.products.forEach((p, idx) => {
+                    let standardNumbers = p.price.replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
+                    let cleanPriceString = standardNumbers.replace(/[^\d.]/g, '');
+                    let priceValue = parseFloat(cleanPriceString) || 0;
+                    const isOverBudget = priceValue > userBudget;
+
+                    resultsContainer.innerHTML += `
+                        <div class="product-card" style="border: 2px solid ${isOverBudget ? '#ff4444' : 'transparent'};">
+                            ${idx === 0 ? `<div style="background:#FFD700; color:#000; padding:2px 8px; border-radius:5px; font-size:0.7rem; font-weight:bold; display:inline-block; margin-bottom:10px;">🏆 الأفضل</div>` : ''}
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div style="flex: 1;">
+                                    <h4 style="margin: 0;">${p.name}</h4>
+                                    <div style="color: ${isOverBudget ? '#ff4444' : '#6366F1'}; font-weight: 900; font-size: 1.2rem; margin: 5px 0;">${p.price}</div>
+                                </div>
+                                <img src="${p.thumbnail}" style="width: 70px; height: 70px; border-radius: 12px; object-fit: cover;">
+                            </div>
+                            ${isOverBudget ? `<div style="background: rgba(255, 68, 68, 0.1); color: #ff4444; padding: 8px; border-radius: 10px; font-size: 0.8rem; margin-top: 10px; font-weight: bold; border: 1px dashed #ff4444;">⚠️ يتجاوز ميزانيتك (${userBudget})</div>` : ''}
+                            <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 12px; margin-top: 10px; border-right: 4px solid #6366F1; font-size: 0.85rem;">
+                                <strong>التحليل:</strong> ${p.reason}
+                            </div>
+                            <a href="${p.link}" target="_blank" style="display: block; text-align: center; background: var(--primary); color: #fff; text-decoration: none; padding: 12px; border-radius: 12px; margin-top: 15px; font-weight: bold;">شراء الآن</a>
+                        </div>`;
+                });
+
+                attempts--;
+                localStorage.setItem('findly_attempts', attempts);
+                update();
+            } catch (e) {
+                statusBox.innerText = "Error Connecting to Sage!";
             }
+        }
 
-            const isOverBudget = priceValue > userBudget;
-            // ---------------------------------------
-
-            resultsContainer.innerHTML += `
-                <div class="product-card" style="border: 2px solid ${isOverBudget ? '#ff4444' : 'transparent'}; position: relative; overflow: hidden;">
-                    ${idx === 0 ? `<div style="background:#FFD700; color:#000; padding:2px 8px; border-radius:5px; font-size:0.7rem; font-weight:bold; display:inline-block; margin-bottom:10px;">🏆 الأفضل</div>` : ''}
-                    
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div style="flex: 1;">
-                            <h4 style="margin: 0;">${p.name}</h4>
-                            <div style="color: ${isOverBudget ? '#ff4444' : '#6366F1'}; font-weight: 900; font-size: 1.2rem; margin: 5px 0;">${p.price}</div>
-                        </div>
-                        <img src="${p.thumbnail}" style="width: 70px; height: 70px; border-radius: 12px; object-fit: cover;">
-                    </div>
-
-                    ${isOverBudget ? `
-                        <div style="background: rgba(255, 68, 68, 0.1); color: #ff4444; padding: 8px; border-radius: 10px; font-size: 0.8rem; margin-top: 10px; font-weight: bold; border: 1px dashed #ff4444;">
-                            ⚠️ يتجاوز ميزانيتك (${userBudget})
-                        </div>` : ''}
-
-                    <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 12px; margin-top: 10px; border-right: 4px solid #6366F1; font-size: 0.85rem;">
-                        <strong>التحليل:</strong> ${p.reason}
-                    </div>
-                    <a href="${p.link}" target="_blank" style="display: block; text-align: center; background: var(--primary); color: #fff; text-decoration: none; padding: 12px; border-radius: 12px; margin-top: 15px; font-weight: bold;">شراء الآن</a>
-                </div>
-            `;
-        });
-
-        attempts--;
-        localStorage.setItem('findly_attempts', attempts);
-        update();
-
-    } catch (e) {
-        statusBox.innerText = "Error Connecting to Sage!";
-    }
-}
-            
         function startVoice() {
             const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             if(!Recognition) return alert("المتصفح لا يدعم البحث الصوتي");
             const rec = new Recognition();
-            rec.lang = dict[lang].voice;
+            rec.lang = lang === 'ar' ? 'ar-SA' : 'en-US';
             document.getElementById('v-btn').style.color = "red";
             rec.start();
             rec.onresult = (e) => {
@@ -251,7 +227,9 @@ async function runSearch() {
                 runSearch();
             }
         }
-        update();
+        
+        // تشغيل التحديث عند تحميل الصفحة لأول مرة
+        window.onload = update;
     </script>
 </body>
 </html>

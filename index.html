@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Findly Sage - Strategic Edition</title>
+    <title>Findly Sage – Final</title>
     <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { --primary: linear-gradient(135deg, #6366F1, #A855F7); --bg: #030712; --card: rgba(30, 41, 59, 0.6); --border: rgba(255, 255, 255, 0.1); }
-        body { background: var(--bg); color: #fff; font-family: 'Readex+Pro', sans-serif; margin: 0; padding: 0; min-height: 100vh; overflow-x: hidden; }
-        header { display: flex; justify-content: space-between; align-items: center; padding: 12px 5%; background: var(--card); backdrop-filter: blur(15px); border-bottom: 1px solid var(--border); sticky; top: 0; z-index: 1000; }
+        body { background: var(--bg); color: #fff; font-family: 'Readex+Pro', sans-serif; margin: 0; padding: 0; min-height: 100vh; }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; background: var(--card); backdrop-filter: blur(15px); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 1000; }
         .logo { font-size: 1.4rem; font-weight: 900; background: var(--primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .header-tools { display: flex; gap: 8px; }
         .tool-btn { background: var(--card); border: 1px solid var(--border); color: #fff; width: 38px; height: 38px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
@@ -19,14 +19,19 @@
         .mic-icon { position: absolute; right: 18px; color: #6366F1; cursor: pointer; z-index: 5; font-size: 1.2rem; }
         .send-btn { position: absolute; left: 8px; background: var(--primary); border: none; width: 40px; height: 40px; border-radius: 50%; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 5; }
         .cat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; max-width: 600px; margin: 15px auto; }
-        .cat-card { background: var(--card); border: 1px solid var(--border); padding: 12px 5px; border-radius: 15px; cursor: pointer; text-align: center; }
+        .cat-card { background: var(--card); border: 1px solid var(--border); padding: 12px 5px; border-radius: 15px; cursor: pointer; text-align: center; transition: 0.3s; }
+        .cat-card:active { transform: scale(0.9); background: var(--primary); }
         .cat-card i { font-size: 1.2rem; color: #6366F1; display: block; margin-bottom: 5px; }
         .cat-card span { font-size: 0.75rem; }
-        .product-card { background: var(--card); border: 1px solid var(--border); border-radius: 25px; padding: 20px; margin: 15px auto; width: 92%; max-width: 500px; text-align: right; }
-        .sage-vision-card { background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(99, 102, 241, 0.2)); border: 2px solid #A855F7; border-radius: 25px; padding: 20px; margin: 15px auto; width: 92%; max-width: 500px; text-align: right; }
-        .analysis-box { background: rgba(255,255,255,0.03); padding: 12px; border-radius: 15px; margin-top: 10px; border-right: 4px solid #6366F1; font-size: 0.85rem; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
+        .modal-box { background: #0f172a; padding: 25px; border-radius: 25px; width: 85%; max-width: 350px; border: 1px solid var(--border); text-align: center; }
+        .modal-box input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: none; background: #1e293b; color: #fff; box-sizing: border-box; }
         .lang-menu { display: none; position: absolute; top: 50px; left: 0; background: #1e293b; border-radius: 12px; width: 120px; border: 1px solid var(--border); z-index: 2000; }
         .lang-menu div { padding: 10px; font-size: 0.9rem; border-bottom: 1px solid var(--border); cursor: pointer; text-align: center; }
+        .product-card { background: var(--card); border: 1px solid var(--border); border-radius: 25px; padding: 20px; margin: 15px auto; width: 92%; max-width: 500px; text-align: right; animation: slideUp 0.4s ease; }
+        @keyframes slideUp { from {opacity: 0; transform: translateY(20px);} to {opacity: 1; transform: translateY(0);} }
+        .sage-badge { background: linear-gradient(135deg, #FFD700, #FFA500); color: #000; padding: 3px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 900; margin-bottom: 10px; display: inline-block; }
+        .analysis-box { background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: 15px; border-right: 4px solid #6366F1; margin-top: 10px; font-size: 0.85rem; }
     </style>
 </head>
 <body>
@@ -47,10 +52,8 @@
     <main class="search-area">
         <div id="greeting" style="color: #A855F7; font-weight: bold; font-size: 0.9rem;"></div>
         <h1 id="txt-title" style="margin: 5px 0; font-size: 1.8rem;"></h1>
-        <p id="txt-sub" style="opacity: 0.7; font-size: 0.85rem;"></p>
-        <div style="background: rgba(168, 85, 247, 0.15); padding: 5px 15px; border-radius: 20px; font-size: 0.8rem; display: inline-block; border: 1px solid #A855F7;">
-            ⚡ <span id="txt-energy"></span>: <span id="remaining-count"></span>
-        </div>
+        <p id="txt-sub" style="opacity: 0.7; font-size: 0.85rem; margin-bottom: 10px;"></p>
+        <div style="background: rgba(168, 85, 247, 0.15); padding: 5px 15px; border-radius: 20px; font-size: 0.8rem; display: inline-block; border: 1px solid #A855F7;">⚡ <span id="txt-energy"></span>: <span id="r-count"></span></div>
 
         <div class="search-wrapper">
             <i class="fa-solid fa-microphone-lines mic-icon" id="v-btn" onclick="startVoice()"></i>
@@ -59,78 +62,117 @@
         </div>
 
         <div class="cat-grid">
-            <div class="cat-card" onclick="quickSearch('هواتف')"><i class="fa-solid fa-mobile-screen"></i><span>هواتف</span></div>
-            <div class="cat-card" onclick="quickSearch('لابتوب')"><i class="fa-solid fa-laptop"></i><span>لابتوب</span></div>
-            <div class="cat-card" onclick="quickSearch('سماعات')"><i class="fa-solid fa-headphones"></i><span>سماعات</span></div>
-            <div class="cat-card" onclick="quickSearch('ساعات')"><i class="fa-solid fa-clock"></i><span>ساعات</span></div>
+            <div class="cat-card" onclick="quickSearch('Smartphone')"><i class="fa-solid fa-mobile-screen"></i><span>هواتف</span></div>
+            <div class="cat-card" onclick="quickSearch('Laptop')"><i class="fa-solid fa-laptop"></i><span>لابتوب</span></div>
+            <div class="cat-card" onclick="quickSearch('Headphones')"><i class="fa-solid fa-headphones"></i><span>سماعات</span></div>
+            <div class="cat-card" onclick="quickSearch('Smartwatch')"><i class="fa-solid fa-clock"></i><span>ساعات</span></div>
         </div>
 
-        <div id="ai-status" style="display:none; background:var(--primary); padding:15px; border-radius:15px; margin-top:20px; font-weight:bold;"></div>
+        <div id="status" style="display:none; background:var(--primary); padding:15px; border-radius:15px; margin-top:20px; font-weight:bold;"></div>
         <div id="results"></div>
     </main>
+
+    <div class="modal" id="p-modal">
+        <div class="modal-box">
+            <h3 id="txt-modal"></h3>
+            <input type="text" id="in-name" placeholder="الاسم">
+            <input type="number" id="in-budget" placeholder="الميزانية">
+            <button onclick="saveSet()" style="width:100%; padding:15px; border:none; border-radius:12px; background:var(--primary); color:#fff; font-weight:bold; cursor:pointer;">تحديث ⚡</button>
+            <button onclick="closeProfile()" style="margin-top:10px; background:none; border:none; color:gray;">إلغاء</button>
+        </div>
+    </div>
 
     <script>
         const API = "https://findly-api.onrender.com";
         let lang = 'ar';
         let attempts = localStorage.getItem('findly_attempts') || 3;
-
         const dict = {
-            ar: { title: "مستشارك الحكيم", sub: "تحليل سيبراني عميق", energy: "طاقة العقل", status: "الحكيم يحلل...", vision: "رؤية الحكيم الاستراتيجية", morning: "صباح الخير، ", evening: "مساء الخير، " },
-            en: { title: "Sage Advisor", sub: "Deep Cyber Analysis", energy: "Sage Energy", status: "Analyzing...", vision: "Sage Strategic Insight", morning: "Good morning, ", evening: "Good evening, " }
+            ar: { title: "مستشارك الحكيم", sub: "تحليل سيبراني عميق", modal: "إعدادات الهوية", energy: "طاقة العقل", morning: "صباح الخير، ", evening: "مساء الخير، ", voice: "ar-SA", status: "الحكيم يحلل...", sage: "اختيار الحكيم", analysis: "التحليل الذكي" },
+            en: { title: "The Sage Advisor", sub: "Deep cyber analysis", modal: "Profile Settings", energy: "Sage Energy", morning: "Good morning, ", evening: "Good evening, ", voice: "en-US", status: "Sage Analyzing...", sage: "Sage Pick", analysis: "Smart Analysis" },
+            fr: { title: "Le Conseiller Sage", sub: "Analyse profonde", modal: "Paramètres", energy: "Énergie Sage", morning: "Bonjour, ", evening: "Bonsoir, ", voice: "fr-FR", status: "Analyse en cours...", sage: "Choix du Sage", analysis: "Analyse Smart" },
+            de: { title: "Der Weise Berater", sub: "Tiefe Analyse", modal: "Einstellungen", energy: "Weise Energie", morning: "Guten Morgen, ", evening: "Guten Abend, ", voice: "de-DE", status: "Weise Analyse...", sage: "Wahl des Weisen", analysis: "Smarte Analyse" },
+            es: { title: "El Asesor Sabio", sub: "Análisis profundo", modal: "Ajustes", energy: "Energía Sabia", morning: "Buenos días, ", evening: "Buenas noches, ", voice: "es-ES", status: "Sabio analizando...", sage: "Elección Sabia", analysis: "Análisis Inteligente" },
+            tr: { title: "Bilge Danışman", sub: "Derin analiz", modal: "Ayarlar", energy: "Bilge Enerjisi", morning: "Günaydın, ", evening: "İyi akşamlar, ", voice: "tr-TR", status: "Bilge Analiz Ediyor...", sage: "Bilge Seçimi", analysis: "Akıllı Analiz" }
         };
 
         function update() {
-            const d = dict[lang] || dict['ar'];
+            const d = dict[lang];
             document.getElementById('main-html').dir = lang === 'ar' ? 'rtl' : 'ltr';
             document.getElementById('txt-title').innerText = d.title;
             document.getElementById('txt-sub').innerText = d.sub;
+            document.getElementById('txt-modal').innerText = d.modal;
             document.getElementById('txt-energy').innerText = d.energy;
             document.getElementById('l-label').innerText = lang.toUpperCase();
-            document.getElementById('remaining-count').innerText = attempts;
-            const name = localStorage.getItem('fn') || "أحمد";
+            document.getElementById('r-count').innerText = attempts;
             const hr = new Date().getHours();
+            const name = localStorage.getItem('fn') || "User";
             document.getElementById('greeting').innerText = (hr < 12 ? d.morning : d.evening) + name;
         }
 
-        async function runSearch() {
-            const q = document.getElementById('s-input').value;
-            if (!q || attempts <= 0) return;
-            const d = dict[lang] || dict['ar'];
-            const resBox = document.getElementById('results');
-            const statBox = document.getElementById('ai-status');
-            statBox.style.display = 'block'; statBox.innerText = d.status; resBox.innerHTML = '';
-
-            try {
-                const response = await fetch(`${API}/get-ai-advice`, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query: q, lang: lang, budget: 5000 })
-                });
-                const data = await response.json();
-                statBox.style.display = 'none';
-
-                // إضافة رؤية الحكيم
-                if (data.sage_advice) {
-                    resBox.innerHTML += `<div class="sage-vision-card"><h4 style="color:#A855F7;margin:0 0 10px 0;"><i class="fa-solid fa-wand-magic-sparkles"></i> ${d.vision}</h4><p style="font-size:0.9rem;line-height:1.6;margin:0;">${data.sage_advice}</p></div>`;
-                }
-
-                data.products.forEach((p, i) => {
-                    resBox.innerHTML += `<div class="product-card">
-                        <div style="display:flex;justify-content:space-between;align-items:center;">
-                            <div style="flex:1;"><h4 style="margin:0;">${p.name}</h4><div style="color:#6366F1;font-weight:900;margin:5px 0;">${p.price}</div></div>
-                            <img src="${p.thumbnail}" style="width:75px;height:75px;border-radius:15px;object-fit:cover;">
-                        </div>
-                        <div class="analysis-box"><strong>التحليل:</strong> ${p.reason}</div>
-                        <a href="${p.link}" target="_blank" style="display:block;text-align:center;background:var(--primary);color:#fff;text-decoration:none;padding:12px;border-radius:15px;margin-top:15px;font-weight:bold;">شراء الآن</a>
-                    </div>`;
-                });
-                attempts--; localStorage.setItem('findly_attempts', attempts); update();
-            } catch (e) { statBox.innerText = "خطأ في الاتصال!"; }
-        }
+        function toggleLang() { const m = document.getElementById('l-menu'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
+        function setLang(l) { lang = l; toggleLang(); update(); }
+        function openProfile() { document.getElementById('p-modal').style.display = 'flex'; }
+        function closeProfile() { document.getElementById('p-modal').style.display = 'none'; }
+        function saveSet() { localStorage.setItem('fn', document.getElementById('in-name').value); closeProfile(); update(); }
+        function toggleLight() { document.body.style.filter = document.body.style.filter === 'invert(1)' ? 'invert(0)' : 'invert(1)'; }
 
         function quickSearch(q) { document.getElementById('s-input').value = q; runSearch(); }
-        function toggleLang() { const m = document.getElementById('l-menu'); m.style.display = (m.style.display==='block'?'none':'block'); }
-        function setLang(l) { lang = l; toggleLang(); update(); }
-        function toggleLight() { document.body.style.filter = (document.body.style.filter==='invert(1)'?'invert(0)':'invert(1)'); }
+
+        async function runSearch() {
+            const q = document.getElementById('s-input').value;
+            if(!q || attempts <= 0) return;
+            const d = dict[lang];
+            document.getElementById('status').style.display = "block";
+            document.getElementById('status').innerText = d.status;
+            document.getElementById('results').innerHTML = '';
+
+            try {
+                const res = await fetch(`${API}/get-ai-advice`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: q, lang: lang, budget: localStorage.getItem('fb') || 5000 })
+                });
+                const data = await res.json();
+                attempts--;
+                localStorage.setItem('findly_attempts', attempts);
+                update();
+                document.getElementById('status').style.display = "none";
+                
+                data.products.forEach((p, idx) => {
+                    const isSage = idx === 0;
+                    document.getElementById('results').innerHTML += `
+                        <div class="product-card">
+                            ${isSage ? `<div class="sage-badge">${d.sage}</div>` : ''}
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <div style="flex:1;">
+                                    <h3 style="margin:0; font-size:1.1rem;">${p.name}</h3>
+                                    <div style="color:#6366F1; font-weight:900; margin:5px 0;">${p.price}</div>
+                                </div>
+                                <img src="${p.thumbnail}" style="width:70px; height:70px; border-radius:15px; object-fit:cover; margin-left:15px;">
+                            </div>
+                            <div class="analysis-box"><strong>${d.analysis}:</strong> ${p.reason}</div>
+                            <a href="${p.link}" target="_blank" style="display:block; text-align:center; background:var(--primary); color:#fff; text-decoration:none; padding:12px; border-radius:12px; margin-top:15px; font-weight:bold;">شراء الآن</a>
+                        </div>
+                    `;
+                });
+            } catch (e) {
+                document.getElementById('status').innerText = "خطأ في الاتصال!";
+            }
+        }
+
+        function startVoice() {
+            const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if(!Recognition) return alert("المتصفح لا يدعم البحث الصوتي");
+            const rec = new Recognition();
+            rec.lang = dict[lang].voice;
+            document.getElementById('v-btn').style.color = "red";
+            rec.start();
+            rec.onresult = (e) => {
+                document.getElementById('s-input').value = e.results[0][0].transcript;
+                document.getElementById('v-btn').style.color = "#6366F1";
+                runSearch();
+            }
+        }
         update();
     </script>
 </body>

@@ -9,130 +9,142 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
 
-// ================== 🧠 Smart Brain ==================
+// ==============================
+// 🧠 SMART AI CORE
+// ==============================
 
-function analyzeSmartQuery(query) {
-  const q = query.toLowerCase();
+function analyzeIntent(query) {
+  query = query.toLowerCase();
 
-  const intent = {
-    wantsCheap: /cheap|رخيص|اقتصادي|budget|low price/.test(q),
-    wantsBest: /best|أفضل|top|ممتاز/.test(q),
-    wantsGaming: /gaming|ألعاب|game/.test(q),
-    wantsCamera: /camera|كاميرا|تصوير/.test(q),
-    wantsBattery: /battery|بطارية|عمر/.test(q),
-    wantsPerformance: /performance|أداء|سريع/.test(q),
-    wantsPremium: /premium|احترافي|فخم|pro/.test(q)
+  if (/gaming|game|fps|play/.test(query)) return { type: "gaming", focus: ["gpu","cpu","refresh","cooling"] };
+  if (/camera|photo|تصوير|كاميرا/.test(query)) return { type: "camera", focus: ["camera","sensor","stabilization"] };
+  if (/battery|بطارية/.test(query)) return { type: "battery", focus: ["battery","charging"] };
+  if (/cheap|budget|رخيص|اقتصادي/.test(query)) return { type: "budget", focus: ["price","value"] };
+  if (/luxury|best|افضل|اقوى/.test(query)) return { type: "premium", focus: ["performance","quality"] };
+
+  return { type: "balanced", focus: ["price","rating","performance"] };
+}
+
+// ==============================
+// 🎯 CATEGORY BRAIN
+// ==============================
+
+function detectCategory(query) {
+  if (/phone|iphone|samsung|هاتف|جوال/.test(query)) return "phone";
+  if (/laptop|macbook|pc|لابتوب/.test(query)) return "laptop";
+  if (/watch|ساعة/.test(query)) return "watch";
+  if (/tablet|ipad|تابلت/.test(query)) return "tablet";
+  return "general";
+}
+
+// ==============================
+// ⚖️ SMART SCORING
+// ==============================
+
+function smartScore(p, intent, category) {
+  let score = 0;
+
+  const price = parseFloat(p.price?.replace(/[^\d.]/g, "")) || 99999;
+  const rating = p.rating || 4;
+
+  if (intent.type === "budget") score += (100000 - price) * 0.6;
+  if (intent.type === "premium") score += rating * 120;
+
+  score += rating * 50;
+  score += (100000 - price) * 0.2;
+
+  return score;
+}
+
+// ==============================
+// 🧠 AI REASON GENERATOR
+// ==============================
+
+function generateReason(p, intent, category, rank) {
+  const price = p.price;
+  const rating = p.rating;
+
+  const categoryText = {
+    phone: "هاتف",
+    laptop: "لابتوب",
+    watch: "ساعة ذكية",
+    tablet: "تابلت",
+    general: "منتج"
   };
 
-  const budgetMatch = q.match(/(\d+)\s*(\$|usd|دولار)/i);
-  const budget = budgetMatch ? parseInt(budgetMatch[1]) : null;
+  let reason = "";
 
-  let category = "general";
-  if (/phone|هاتف|mobile/.test(q)) category = "phone";
-  else if (/laptop|لابتوب/.test(q)) category = "laptop";
-  else if (/watch|ساعة/.test(q)) category = "watch";
-  else if (/tv|شاشة|television/.test(q)) category = "tv";
-  else if (/headphone|سماعة/.test(q)) category = "audio";
-
-  return { rawQuery: query, searchQuery: query, intent, budget, category };
-}
-
-// ================== ⚙️ Smart Ranking ==================
-
-function smartRank(products, brain) {
-  return products.map(p => {
-    let score = 0;
-    const priceValue = parseFloat(p.price.replace(/[^\d.]/g, '')) || 999999;
-
-    if (brain.intent.wantsCheap) score += 1000 / priceValue;
-    if (brain.intent.wantsBest) score += p.rating * 3;
-    if (brain.intent.wantsPremium) score += p.rating * 4;
-
-    if (brain.intent.wantsGaming && /gaming|rtx|ryzen|i7|i9|m1|m2/i.test(p.name)) score += 6;
-    if (brain.intent.wantsCamera && /camera|108mp|sony|canon/i.test(p.name)) score += 6;
-    if (brain.intent.wantsBattery && /battery|5000|6000mah/i.test(p.name)) score += 5;
-
-    if (brain.budget && priceValue <= brain.budget) score += 8;
-
-    return { ...p, score };
-  }).sort((a, b) => b.score - a.score);
-}
-
-// ================== 🧾 AI Reasoning ==================
-
-function generateSmartExplanation(brain, product, lang = "ar") {
-  let reasons = [];
-
-  if (brain.intent.wantsCheap) reasons.push(lang === "ar" ? "سعر اقتصادي ممتاز" : "Great budget value");
-  if (brain.intent.wantsBest) reasons.push(lang === "ar" ? "أعلى تقييم في فئته" : "Top rated in its class");
-  if (brain.intent.wantsGaming) reasons.push(lang === "ar" ? "أداء قوي للألعاب" : "Strong gaming performance");
-  if (brain.intent.wantsCamera) reasons.push(lang === "ar" ? "كاميرا احترافية" : "Professional-grade camera");
-  if (brain.intent.wantsBattery) reasons.push(lang === "ar" ? "بطارية طويلة العمر" : "Long battery life");
-
-  if (brain.budget) {
-    const priceValue = parseFloat(product.price.replace(/[^\d.]/g, '')) || 0;
-    if (priceValue <= brain.budget) {
-      reasons.push(lang === "ar" ? "ضمن ميزانيتك" : "Within your budget");
+  if (rank === 1) {
+    if (intent.type === "budget") {
+      reason = `أفضل خيار اقتصادي: يقدم هذا ${categoryText[category]} أفضل سعر مقابل الأداء مع تقييم ${rating}.`;
+    } else if (intent.type === "gaming") {
+      reason = `أفضل أداء للألعاب: يوفر تجربة لعب سلسة بفضل مواصفاته القوية وتقييم ${rating}.`;
+    } else if (intent.type === "camera") {
+      reason = `أفضل اختيار للتصوير: يتميز بكاميرات قوية ودقة ممتازة بتقييم ${rating}.`;
+    } else {
+      reason = `الخيار المتوازن: يجمع بين سعر مناسب وجودة عالية وتقييم ${rating}.`;
     }
+  } else if (rank === 2) {
+    reason = `بديل قوي: أداء ممتاز وسعر منافس يجعله خيارًا موثوقًا.`;
+  } else {
+    reason = `خيار جيد: مناسب لمن يبحث عن جودة مستقرة بسعر مناسب.`;
   }
 
-  return reasons.join(" + ");
+  return reason;
 }
 
-// ================== 🚀 API ==================
+// ==============================
+// 🚀 SMART SEARCH API
+// ==============================
 
-app.get('/', (req, res) => {
-  res.send('Findly AI Engine v4 — Global Intelligence Active 🚀');
-});
-
-app.post('/get-ai-advice', async (req, res) => {
+app.post('/smart-search', async (req, res) => {
   try {
     const { query, lang } = req.body;
-    const currentLang = lang || "ar";
-
-    const brain = analyzeSmartQuery(query);
-    const SERPAPI_KEY = process.env.SERPAPI_KEY;
+    const intent = analyzeIntent(query);
+    const category = detectCategory(query);
 
     const response = await axios.get('https://serpapi.com/search.json', {
       params: {
         engine: "google_shopping",
-        q: brain.searchQuery,
-        api_key: SERPAPI_KEY,
-        hl: currentLang,
-        gl: currentLang === "ar" ? "sa" : "us"
+        q: query,
+        api_key: process.env.SERPAPI_KEY,
+        hl: lang || "en"
       }
     });
 
-    const shoppingResults = response.data.shopping_results || [];
+    const results = response.data.shopping_results || [];
 
-    const rawProducts = shoppingResults.map(item => ({
-      name: item.title,
-      thumbnail: item.thumbnail,
-      link: item.product_link || item.link,
-      price: item.price || (currentLang === "ar" ? "اتصل للسعر" : "Check Price"),
-      rating: item.rating || 4.2,
-      source: item.source
+    let products = results.map(p => ({
+      name: p.title,
+      thumbnail: p.thumbnail,
+      link: p.product_link || p.link,
+      price: p.price || "Check price",
+      rating: p.rating || 4.1,
+      source: p.source
     }));
 
-    let rankedData = smartRank(rawProducts, brain);
-
-    const finalProducts = rankedData.slice(0, 3).map(p => ({
+    products = products.map(p => ({
       ...p,
-      reason: generateSmartExplanation(brain, p, currentLang)
+      score: smartScore(p, intent, category)
     }));
 
-    const explanation = currentLang === "ar"
-      ? `حللت ${rankedData.length} منتجاً واخترت أفضل 3 نتائج بدقة عالية.`
-      : `I analyzed ${rankedData.length} products and selected the top 3 for you.`;
+    products.sort((a,b) => b.score - a.score);
 
-    res.json({ explanation, products: finalProducts });
+    const final = products.slice(0,3).map((p,i)=>({
+      ...p,
+      reason: generateReason(p, intent, category, i+1)
+    }));
 
-  } catch (error) {
-    console.error("🚨 Server Error:", error.message);
-    res.status(500).json({ explanation: "Server error", products: [] });
+    res.json({
+      intent,
+      category,
+      products: final
+    });
+
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ products: [] });
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Findly Server v4 running on port ${PORT}`);
-});
+app.listen(PORT, ()=> console.log(`🔥 Findly AI Engine running on ${PORT}`));

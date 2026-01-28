@@ -45,7 +45,6 @@
         .cat-card i { font-size: 1.3rem; color: #6366F1; display: block; margin-bottom: 5px; }
         .cat-card span { font-size: 0.7rem; font-weight: bold; }
 
-        /* تعديل البطاقة لتشمل "العقل التحليلي" */
         .product-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 15px; margin-top: 15px; text-align: right; max-width: 600px; margin-left: auto; margin-right: auto; position: relative; }
         .product-card img { width: 100%; height: 160px; object-fit: contain; background: #fff; border-radius: 12px; margin-bottom: 10px; }
         
@@ -138,15 +137,28 @@
         let attempts = parseInt(localStorage.getItem('findly_attempts')) || 3;
         let watchList = JSON.parse(localStorage.getItem('findly_watch')) || [];
 
+        // هنا كان النقص: تمت إضافة كافة اللغات لتعمل القائمة
         const dict = {
             ar: { title: "مستشارك الحكيم", sub: "دليلك الذكي للتسوق المثالي", energy: "طاقة العقل", welcome: "مرحباً،", game: "ألعاب", beauty: "جمال", home: "منزل ذكي", c1: "هواتف", c2: "لابتوب", c4: "ساعات", p_head: "الملف الشخصي", buy: "شراء الآن 🛒", watch: "راقب السعر 🔔", over: "⚠️ يتجاوز ميزانيتك!", tagCheap: "اقتصادي", tagTop: "الأعلى تقييماً", tagNew: "حديث جداً", deep: "وضع التحليل الذكي", watchTitle: "قائمة المراقبة", why: "لماذا اخترنا هذا؟" },
-            en: { title: "Sage Advisor", sub: "Your shopping guide", energy: "Sage Energy", welcome: "Welcome,", game: "Gaming", beauty: "Beauty", home: "Smart Home", c1: "Phones", c2: "Laptops", c4: "Watches", p_head: "Profile", buy: "Buy Now 🛒", watch: "Watch Price 🔔", over: "⚠️ Over Budget!", tagCheap: "Budget", tagTop: "Top Rated", tagNew: "Newest", deep: "AI Deep Mode", watchTitle: "Watch List", why: "Why this choice?" }
-            // ... (باقي اللغات موجودة بنفس النمط)
+            
+            en: { title: "Sage Advisor", sub: "Your smart shopping guide", energy: "Sage Energy", welcome: "Welcome,", game: "Gaming", beauty: "Beauty", home: "Smart Home", c1: "Phones", c2: "Laptops", c4: "Watches", p_head: "Profile", buy: "Buy Now 🛒", watch: "Watch Price 🔔", over: "⚠️ Over Budget!", tagCheap: "Budget", tagTop: "Top Rated", tagNew: "Newest", deep: "AI Deep Mode", watchTitle: "Watch List", why: "Why this choice?" },
+            
+            fr: { title: "Conseiller Sage", sub: "Votre guide d'achat intelligent", energy: "Énergie Sage", welcome: "Bienvenue,", game: "Jeux", beauty: "Beauté", home: "Maison Intel.", c1: "Téléphones", c2: "Portables", c4: "Montres", p_head: "Profil", buy: "Acheter 🛒", watch: "Suivre Prix 🔔", over: "⚠️ Hors budget!", tagCheap: "Économique", tagTop: "Mieux noté", tagNew: "Nouveau", deep: "Mode IA", watchTitle: "Liste de suivi", why: "Pourquoi ce choix?" },
+            
+            de: { title: "Weiser Berater", sub: "Ihr intelligenter Einkaufsführer", energy: "Weise Energie", welcome: "Willkommen,", game: "Spiele", beauty: "Schönheit", home: "Smart Home", c1: "Handys", c2: "Laptops", c4: "Uhren", p_head: "Profil", buy: "Jetzt Kaufen 🛒", watch: "Preis beobachten 🔔", over: "⚠️ Über Budget!", tagCheap: "Günstig", tagTop: "Bestbewertet", tagNew: "Neuheit", deep: "KI-Modus", watchTitle: "Beobachtungsliste", why: "Warum diese Wahl?" },
+            
+            es: { title: "Consejero Sabio", sub: "Tu guía de compras inteligente", energy: "Energía Sabia", welcome: "Hola,", game: "Juegos", beauty: "Belleza", home: "Casa Intel.", c1: "Móviles", c2: "Portátiles", c4: "Relojes", p_head: "Perfil", buy: "Comprar 🛒", watch: "Seguir Precio 🔔", over: "⚠️ ¡Sobre presupuesto!", tagCheap: "Económico", tagTop: "Top Valorados", tagNew: "Nuevo", deep: "Modo IA", watchTitle: "Lista de seguimiento", why: "¿Por qué esta elección?" },
+            
+            tr: { title: "Bilge Danışman", sub: "Akıllı alışveriş rehberiniz", energy: "Bilge Enerjisi", welcome: "Hoş geldin,", game: "Oyun", beauty: "Güzellik", home: "Akıllı Ev", c1: "Telefonlar", c2: "Laptoplar", c4: "Saatler", p_head: "Profil", buy: "Satın Al 🛒", watch: "Fiyatı İzle 🔔", over: "⚠️ Bütçeyi Aşıyor!", tagCheap: "Ucuz", tagTop: "En İyi", tagNew: "Yeni", deep: "Yapay Zeka", watchTitle: "İzleme Listesi", why: "Neden bu seçim?" }
         };
 
         function update() {
+            // استخدام اللغة المختارة أو العودة للعربية إذا حدث خطأ
             const d = dict[lang] || dict['ar'];
+            
+            // تغيير اتجاه الصفحة بناءً على اللغة (العربية فقط يمين ليسار)
             document.getElementById('main-html').dir = lang === 'ar' ? 'rtl' : 'ltr';
+            
             document.getElementById('txt-title').innerText = d.title;
             document.getElementById('txt-sub').innerText = d.sub;
             document.getElementById('txt-energy').innerText = d.energy;
@@ -224,7 +236,6 @@
             } catch (e) { status.innerText = "خطأ في الاتصال بالعقل"; }
         }
 
-        // Functions for voice, watchlist, profile remain exactly as provided in your code
         function startVoice() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SpeechRecognition) return;

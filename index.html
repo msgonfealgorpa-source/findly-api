@@ -32,12 +32,14 @@
 
         .search-wrapper { position: relative; max-width: 600px; margin: 0 auto; }
         .search-input { width: 100%; padding: 16px 50px; border-radius: 50px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: 1rem; outline: none; box-sizing: border-box; text-align: center; }
-        .mic-icon { position: absolute; right: 18px; top: 50%; transform: translateY(-50%); color: #6366F1; cursor: pointer; font-size: 1.2rem; }
+        .mic-icon { position: absolute; right: 18px; top: 50%; transform: translateY(-50%); color: #6366F1; cursor: pointer; font-size: 1.2rem; transition: 0.3s; }
+        .mic-active { color: #ef4444; animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
         .send-btn { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); background: var(--primary); border: none; width: 40px; height: 40px; border-radius: 50%; color: #fff; cursor: pointer; }
 
         .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 600px; margin: 20px auto; }
         .cat-card { background: var(--card); border: 1px solid var(--border); padding: 12px 5px; border-radius: 18px; cursor: pointer; transition: 0.2s; }
-        .cat-card:hover { border-color: #6366F1; transform: translateY(-2px); }
         .cat-card i { font-size: 1.3rem; color: #6366F1; display: block; margin-bottom: 5px; }
         .cat-card span { font-size: 0.7rem; font-weight: bold; }
 
@@ -54,7 +56,8 @@
         .modal-box { background: #0f172a; padding: 25px; border-radius: 25px; width: 85%; max-width: 380px; border: 1px solid var(--border); text-align: center; }
         .modal-box input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; background: #1e293b; color: #fff; border: 1px solid var(--border); text-align: center; box-sizing: border-box; }
         
-        .watch-item { background: #1e293b; padding: 10px; border-radius: 10px; margin-bottom: 8px; font-size: 0.8rem; border-right: 4px solid #A855F7; display: flex; justify-content: space-between; align-items: center; }
+        #watch-list-content { max-height: 300px; overflow-y: auto; }
+        .watch-item { background: #1e293b; padding: 10px; border-radius: 10px; margin-bottom: 8px; font-size: 0.8rem; border-right: 4px solid #A855F7; display: flex; justify-content: space-between; align-items: center; text-align: right; }
     </style>
 </head>
 <body>
@@ -96,11 +99,11 @@
         <div class="ai-toggle">
             <i class="fa-solid fa-brain"></i>
             <span id="txt-deep"></span>
-            <input type="checkbox" id="ai-deep-mode" style="accent-color: #A855F7; width:16px; height:16px;">
+            <input type="checkbox" id="ai-deep-mode" style="accent-color: #A855F7;">
         </div>
 
         <div class="search-wrapper">
-            <i class="fa-solid fa-microphone-lines mic-icon" onclick="startVoice()"></i>
+            <i id="mic-btn" class="fa-solid fa-microphone-lines mic-icon" onclick="startVoice()"></i>
             <input type="text" id="s-input" class="search-input">
             <button class="send-btn" onclick="runSearch()"><i class="fa-solid fa-magnifying-glass"></i></button>
         </div>
@@ -134,12 +137,12 @@
         let watchList = JSON.parse(localStorage.getItem('findly_watch')) || [];
 
         const dict = {
-            ar: { title: "مستشارك الحكيم", sub: "دليلك الذكي للتسوق المثالي", energy: "طاقة العقل", welcome: "مرحباً،", game: "ألعاب", beauty: "جمال", home: "منزل ذكي", c1: "هواتف", c2: "لابتوب", c4: "ساعات", p_head: "الملف الشخصي", p_name: "الاسم المستعار", p_budget: "الميزانية", buy: "شراء الآن 🛒", watch: "راقب السعر 🔔", over: "⚠️ يتجاوز ميزانيتك!", tagCheap: "اقتصادي", tagTop: "الأعلى تقييماً", tagNew: "حديث جداً", deep: "وضع التحليل الذكي", watchTitle: "قائمة المراقبة الذكية", priceSame: "السعر تحت المراقبة" },
-            en: { title: "Sage Advisor", sub: "Your smart shopping guide", energy: "Sage Energy", welcome: "Welcome,", game: "Gaming", beauty: "Beauty", home: "Smart Home", c1: "Phones", c2: "Laptops", c4: "Watches", p_head: "Profile", p_name: "Nickname", p_budget: "Budget", buy: "Buy Now 🛒", watch: "Watch Price 🔔", over: "⚠️ Over Budget!", tagCheap: "Budget", tagTop: "Top Rated", tagNew: "Newest", deep: "AI Deep Mode", watchTitle: "Smart Watch List", priceSame: "Price under watch" },
-            fr: { title: "Conseiller Sage", sub: "Guide d'achat", energy: "Énergie", welcome: "Bienvenue,", game: "Jeux", beauty: "Beauté", home: "Maison", c1: "Mobiles", c2: "Laptops", c4: "Montres", p_head: "Profil", p_name: "Nom", p_budget: "Budget", buy: "Acheter 🛒", watch: "Surveiller 🔔", over: "⚠️ Hors budget!", tagCheap: "Économe", tagTop: "Mieux notés", tagNew: "Nouveau", deep: "Mode IA Profond", watchTitle: "Liste de surveillance", priceSame: "Prix surveillé" },
-            de: { title: "Weiser Berater", sub: "Einkaufsführer", energy: "Energie", welcome: "Willkommen,", game: "Spiele", beauty: "Schönheit", home: "Heim", c1: "Handys", c2: "Laptops", c4: "Uhren", p_head: "Profil", p_name: "Name", p_budget: "Budget", buy: "Kaufen 🛒", watch: "Beobachten 🔔", over: "⚠️ Über Budget!", tagCheap: "Günstig", tagTop: "Top-Bewertung", tagNew: "Neu", deep: "KI-Tiefenmodus", watchTitle: "Beobachtungsliste", priceSame: "Preis wird überwacht" },
-            es: { title: "Asesor Sabio", sub: "Guía de compras", energy: "Energía", welcome: "Bienvenido,", game: "Juegos", beauty: "Belleza", home: "Hogar", c1: "Móviles", c2: "Laptops", c4: "Relojes", p_head: "Profil", p_name: "Nombre", p_budget: "Presupuesto", buy: "Comprar 🛒", watch: "Vigilar 🔔", over: "⚠️ Fuera de presupuesto!", tagCheap: "Económico", tagTop: "Mejor valorado", tagNew: "Nuevo", deep: "Modo IA Profundo", watchTitle: "Lista de seguimiento", priceSame: "Precio bajo vigilancia" },
-            tr: { title: "Bilge Danışman", sub: "Alışveriş Rehberi", energy: "Enerji", welcome: "Hoş geldiniz,", game: "Oyun", beauty: "Güzellik", home: "Ev", c1: "Telefonlar", c2: "Laptoplar", c4: "Saatler", p_head: "Profil", p_name: "İsim", p_budget: "Bütçe", buy: "Satın Al 🛒", watch: "Takip Et 🔔", over: "⚠️ Bütçeyi Aşıyor!", tagCheap: "Ekonomik", tagTop: "En İyi", tagNew: "Yeni", deep: "Yapay Zeka Modu", watchTitle: "Takip Listesi", priceSame: "Fiyat takip ediliyor" }
+            ar: { title: "مستشارك الحكيم", sub: "دليلك الذكي للتسوق المثالي", energy: "طاقة العقل", welcome: "مرحباً،", game: "ألعاب", beauty: "جمال", home: "منزل ذكي", c1: "هواتف", c2: "لابتوب", c4: "ساعات", p_head: "الملف الشخصي", p_name: "الاسم المستعار", p_budget: "الميزانية", buy: "شراء الآن 🛒", watch: "راقب السعر 🔔", over: "⚠️ يتجاوز ميزانيتك!", tagCheap: "اقتصادي", tagTop: "الأعلى تقييماً", tagNew: "حديث جداً", deep: "وضع التحليل الذكي", watchTitle: "قائمة المراقبة الذكية" },
+            en: { title: "Sage Advisor", sub: "Your smart shopping guide", energy: "Sage Energy", welcome: "Welcome,", game: "Gaming", beauty: "Beauty", home: "Smart Home", c1: "Phones", c2: "Laptops", c4: "Watches", p_head: "Profile", p_name: "Nickname", p_budget: "Budget", buy: "Buy Now 🛒", watch: "Watch Price 🔔", over: "⚠️ Over Budget!", tagCheap: "Budget", tagTop: "Top Rated", tagNew: "Newest", deep: "AI Deep Mode", watchTitle: "Smart Watch List" },
+            fr: { title: "Conseiller Sage", sub: "Guide d'achat", energy: "Énergie", welcome: "Bienvenue,", game: "Jeux", beauty: "Beauté", home: "Maison", c1: "Mobiles", c2: "Laptops", c4: "Montres", p_head: "Profil", p_name: "Nom", p_budget: "Budget", buy: "Acheter 🛒", watch: "Surveiller 🔔", over: "⚠️ Hors budget!", tagCheap: "Économe", tagTop: "Mieux notés", tagNew: "Nouveau", deep: "Mode IA Profond", watchTitle: "Liste de surveillance" },
+            de: { title: "Weiser Berater", sub: "Einkaufsführer", energy: "Energie", welcome: "Willkommen,", game: "Spiele", beauty: "Schönheit", home: "Heim", c1: "Handys", c2: "Laptops", c4: "Uhren", p_head: "Profil", p_name: "Name", p_budget: "Budget", buy: "Kaufen 🛒", watch: "Beobachten 🔔", over: "⚠️ Über Budget!", tagCheap: "Günstig", tagTop: "Top-Bewertung", tagNew: "Neu", deep: "KI-Tiefenmodus", watchTitle: "Beobachtungsliste" },
+            es: { title: "Asesor Sabio", sub: "Guía de compras", energy: "Energía", welcome: "Bienvenido,", game: "Juegos", beauty: "Belleza", home: "Hogar", c1: "Móviles", c2: "Laptops", c4: "Relojes", p_head: "Profil", p_name: "Nombre", p_budget: "Presupuesto", buy: "Comprar 🛒", watch: "Vigilar 🔔", over: "⚠️ Fuera de presupuesto!", tagCheap: "Económico", tagTop: "Mejor valorado", tagNew: "Nuevo", deep: "Modo IA Profundo", watchTitle: "Lista de seguimiento" },
+            tr: { title: "Bilge Danışman", sub: "Alışveriş Rehberi", energy: "Enerji", welcome: "Hoş geldiniz,", game: "Oyun", beauty: "Güzellik", home: "Ev", c1: "Telefonlar", c2: "Laptoplar", c4: "Saatler", p_head: "Profil", p_name: "İsim", p_budget: "Bütçe", buy: "Satın Al 🛒", watch: "Takip Et 🔔", over: "⚠️ Bütçeyi Aşıyor!", tagCheap: "Ekonomik", tagTop: "En İyi", tagNew: "Yeni", deep: "Yapay Zeka Modu", watchTitle: "Takip Listesi" }
         };
 
         function update() {
@@ -171,6 +174,25 @@
             wBtn.style.display = watchList.length > 0 ? 'block' : 'none';
         }
 
+        // خاصية البحث الصوتي الحقيقية
+        function startVoice() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) { alert("متصفحك لا يدعم البحث الصوتي"); return; }
+            
+            const recognition = new SpeechRecognition();
+            recognition.lang = lang === 'ar' ? 'ar-SA' : 'en-US';
+            const micIcon = document.getElementById('mic-btn');
+
+            recognition.onstart = () => { micIcon.classList.add('mic-active'); };
+            recognition.onresult = (event) => {
+                const text = event.results[0][0].transcript;
+                document.getElementById('s-input').value = text;
+                runSearch();
+            };
+            recognition.onend = () => { micIcon.classList.remove('mic-active'); };
+            recognition.start();
+        }
+
         async function runSearch() {
             let q = document.getElementById('s-input').value;
             if (!q || attempts <= 0) { if(attempts <= 0) alert("انتهت طاقة العقل!"); return; }
@@ -178,7 +200,8 @@
             const resCon = document.getElementById('results');
             const status = document.getElementById('status');
             status.style.display = "block"; status.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-            
+            resCon.innerHTML = "";
+
             try {
                 const res = await fetch(`${API}/get-ai-advice`, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -198,17 +221,20 @@
             } catch (e) { status.innerText = "Error"; }
         }
 
-        function addToWatch(name, price) { watchList.push({ name, price }); localStorage.setItem('findly_watch', JSON.stringify(watchList)); update(); alert("تتم مراقبة السعر... 🔔"); }
+        function addToWatch(name, price) { watchList.push({ name, price }); localStorage.setItem('findly_watch', JSON.stringify(watchList)); update(); }
         function toggleWatchList() { const m = document.getElementById('w-modal'); const content = document.getElementById('watch-list-content'); content.innerHTML = watchList.length === 0 ? "Empty" : ""; watchList.forEach((item, i) => { content.innerHTML += `<div class="watch-item"><span>${item.name}<br><small>${item.price}</small></span><i class="fa-solid fa-trash" onclick="removeFromWatch(${i})" style="color:red; cursor:pointer;"></i></div>`; }); m.style.display = m.style.display === 'flex' ? 'none' : 'flex'; }
         function removeFromWatch(i) { watchList.splice(i, 1); localStorage.setItem('findly_watch', JSON.stringify(watchList)); toggleWatchList(); update(); }
         function toggleLMenu() { const m = document.getElementById('l-menu'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
         function setLang(l) { lang = l; localStorage.setItem('findly_lang', l); toggleLMenu(); update(); }
-        function quickFilter(type) { document.getElementById('s-input').value += " " + dict[lang][type === 'cheap' ? 'tagCheap' : type === 'top' ? 'tagTop' : 'tagNew']; }
+        function quickFilter(type) { 
+            const d = dict[lang];
+            let val = type === 'cheap' ? d.tagCheap : type === 'top' ? d.tagTop : d.tagNew;
+            document.getElementById('s-input').value += " " + val; 
+        }
         function toggleMode() { document.body.classList.toggle('light-mode'); }
         function openProfile() { const m = document.getElementById('p-modal'); m.style.display = m.style.display === 'flex' ? 'none' : 'flex'; }
         function saveSet() { localStorage.setItem('fn', document.getElementById('in-name').value); localStorage.setItem('fb', document.getElementById('in-budget').value); openProfile(); update(); }
         function quickSearch(q) { document.getElementById('s-input').value = q; runSearch(); }
-        function startVoice() { alert("Voice feature active"); }
         window.onload = update;
     </script>
 </body>

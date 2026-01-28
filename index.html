@@ -3,233 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Findly Sage – Pro Edition</title>
+    <title>Findly Sage – Final Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: linear-gradient(135deg, #6366F1, #A855F7); --bg: #030712; --card: rgba(30, 41, 59, 0.6); --border: rgba(255, 255, 255, 0.1); }
+        :root { --primary: linear-gradient(135deg, #6366F1, #A855F7); --bg: #030712; --card: rgba(30, 41, 59, 0.7); --border: rgba(255, 255, 255, 0.1); }
         body { background: var(--bg); color: #fff; font-family: 'Readex+Pro', sans-serif; margin: 0; padding: 0; min-height: 100vh; overflow-x: hidden; }
         
-        @keyframes pulse-bell { 0% { transform: scale(1); } 50% { transform: scale(1.4); color: #A855F7; } 100% { transform: scale(1); } }
-        .pulse-act { animation: pulse-bell 0.5s ease-in-out; }
-        
-        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-item { animation: slideIn 0.4s ease-out forwards; }
+        /* تأثيرات الحركة */
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate { animation: slideUp 0.4s ease-out forwards; }
 
-        header { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; background: var(--card); backdrop-filter: blur(15px); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 1000; }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(15px); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 1000; }
         .logo { font-size: 1.4rem; font-weight: 900; background: var(--primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .header-tools { display: flex; gap: 8px; }
-        .tool-btn { background: var(--card); border: 1px solid var(--border); color: #fff; width: 38px; height: 38px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
-        
-        .search-area { padding: 20px 5%; text-align: center; }
-        .search-wrapper { position: relative; max-width: 600px; margin: 15px auto; display: flex; align-items: center; }
-        .search-input { width: 100%; padding: 16px 55px; border-radius: 50px; border: 1px solid var(--border); background: var(--card); color: #fff; font-size: 1rem; outline: none; box-sizing: border-box; transition: 0.3s; }
-        .search-input:focus { border-color: #6366F1; box-shadow: 0 0 15px rgba(99,102,241,0.3); }
-        
-        .mic-icon { position: absolute; right: 18px; color: #6366F1; cursor: pointer; z-index: 5; font-size: 1.2rem; }
-        .send-btn { position: absolute; left: 8px; background: var(--primary); border: none; width: 40px; height: 40px; border-radius: 50%; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 5; }
-        
-        .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 600px; margin: 15px auto; }
-        .cat-card { background: var(--card); border: 1px solid var(--border); padding: 15px 5px; border-radius: 15px; cursor: pointer; text-align: center; transition: 0.3s; }
-        .cat-card:hover { border-color: #A855F7; transform: translateY(-3px); background: rgba(168, 85, 247, 0.1); }
-        .cat-card i { font-size: 1.4rem; color: #6366F1; display: block; margin-bottom: 8px; }
-        .cat-card span { font-size: 0.75rem; font-weight: bold; }
-        
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
-        .modal-box { background: #0f172a; padding: 25px; border-radius: 25px; width: 85%; max-width: 350px; border: 1px solid var(--border); text-align: center; animation: slideIn 0.3s ease-out; }
-        
-        /* تحسين مدخلات الملف الشخصي */
-        .modal-box input { width: 100%; padding: 14px; margin: 10px 0; border-radius: 12px; border: 1px solid var(--border); background: rgba(30, 41, 59, 0.8); color: #fff; box-sizing: border-box; outline: none; transition: 0.3s; text-align: center; }
-        .modal-box input:focus { border-color: #A855F7; box-shadow: 0 0 10px rgba(168, 85, 247, 0.3); }
+        .header-tools { display: flex; gap: 10px; }
+        .tool-btn { background: var(--card); border: 1px solid var(--border); color: #fff; width: 42px; height: 42px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
+        .tool-btn:hover { background: #6366F1; transform: scale(1.05); }
 
-        .product-card { background: var(--card); border: 1px solid var(--border); border-radius: 25px; padding: 20px; margin: 15px auto; width: 92%; max-width: 500px; text-align: right; transition: 0.3s; animation: slideIn 0.5s ease-out; }
+        /* منطقة البحث */
+        .search-area { padding: 30px 5%; text-align: center; }
+        .search-wrapper { position: relative; max-width: 600px; margin: 20px auto; display: flex; align-items: center; }
+        .search-input { width: 100%; padding: 18px 60px; border-radius: 50px; border: 1px solid var(--border); background: var(--card); color: #fff; font-size: 1rem; outline: none; transition: 0.3s; }
+        .search-input:focus { border-color: #A855F7; box-shadow: 0 0 20px rgba(168, 85, 247, 0.2); }
+        .mic-icon { position: absolute; right: 20px; color: #6366F1; cursor: pointer; font-size: 1.3rem; }
+        .send-btn { position: absolute; left: 10px; background: var(--primary); border: none; width: 45px; height: 45px; border-radius: 50%; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+        /* شبكة الفئات المصلحة */
+        .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 600px; margin: 20px auto; }
+        .cat-card { background: var(--card); border: 1px solid var(--border); padding: 20px 10px; border-radius: 20px; cursor: pointer; text-align: center; transition: 0.3s; }
+        .cat-card:hover { border-color: #A855F7; background: rgba(168, 85, 247, 0.1); transform: translateY(-5px); }
+        .cat-card i { font-size: 1.6rem; color: #6366F1; display: block; margin-bottom: 10px; }
+        .cat-card span { font-size: 0.85rem; font-weight: 600; display: block; }
+
+        /* الملف الشخصي المطور */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
+        .modal-box { background: #0f172a; padding: 30px; border-radius: 30px; width: 85%; max-width: 380px; border: 1px solid var(--border); text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .modal-box h3 { color: #A855F7; margin-bottom: 20px; font-size: 1.4rem; }
+        .modal-box input { width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 15px; border: 1px solid var(--border); background: rgba(255,255,255,0.05); color: #fff; outline: none; text-align: center; font-size: 1rem; }
+        .modal-box input:focus { border-color: #6366F1; background: rgba(255,255,255,0.1); }
+        .save-btn { width: 100%; padding: 15px; border-radius: 15px; background: var(--primary); color: #fff; border: none; font-weight: 700; cursor: pointer; transition: 0.3s; }
+        .save-btn:hover { opacity: 0.9; transform: scale(1.02); }
     </style>
 </head>
 <body>
     <header>
-        <div class="logo">Findly <i class="fa-solid fa-scroll"></i></div>
+        <div class="logo">Findly <i class="fa-solid fa-wand-magic-sparkles"></i></div>
         <div class="header-tools">
-            <button class="tool-btn" onclick="toggleLight()"><i class="fa-solid fa-circle-half-stroke"></i></button>
-            <div style="position: relative;">
-                <button class="tool-btn" onclick="toggleLang()"><i class="fa-solid fa-earth-africa"></i>&nbsp;<small id="l-label">AR</small></button>
-                <div id="l-menu" style="display:none; position:absolute; top:45px; left:0; background:#1e293b; border-radius:10px; padding:5px; border:1px solid var(--border); z-index:100;">
-                    <div onclick="setLang('ar')" style="padding:8px; cursor:pointer; font-size:0.9rem;">العربية</div>
-                    <div onclick="setLang('en')" style="padding:8px; cursor:pointer; font-size:0.9rem;">English</div>
-                </div>
-            </div>
-            <button class="tool-btn" id="bell-icon" onclick="toggleWatchList()"><i class="fa-solid fa-bell"></i></button>
-            <button class="tool-btn" onclick="openProfile()"><i class="fa-solid fa-user-tie"></i></button>
+            <button class="tool-btn" onclick="toggleLang()"><i class="fa-solid fa-globe"></i></button>
+            <button class="tool-btn" onclick="openProfile()"><i class="fa-solid fa-user-gear"></i></button>
         </div>
     </header>
 
-    <main class="search-area">
-        <div id="greeting" style="color: #A855F7; font-weight: bold; font-size: 0.9rem; margin-bottom: 5px;"></div>
-        <h1 id="txt-title" style="margin: 5px 0; font-size: 1.8rem;"></h1>
-        <p id="txt-sub" style="opacity: 0.7; font-size: 0.85rem; margin-bottom: 15px;"></p>
+    <main class="search-area animate">
+        <div id="greeting" style="color: #A855F7; font-weight: bold; margin-bottom: 5px;"></div>
+        <h1 id="txt-title"></h1>
+        <p id="txt-sub"></p>
         
         <div class="search-wrapper">
-            <i class="fa-solid fa-microphone-lines mic-icon" id="v-btn" onclick="startVoice()"></i>
+            <i class="fa-solid fa-microphone-lines mic-icon" onclick="startVoice()"></i>
             <input type="text" id="s-input" class="search-input" placeholder="...">
-            <button class="send-btn" onclick="runSearch()"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
+            <button class="send-btn" onclick="runSearch()"><i class="fa-solid fa-magnifying-glass"></i></button>
         </div>
 
         <div class="cat-grid">
-            <div class="cat-card" onclick="quickSearch('ألعاب')"><i class="fa-solid fa-gamepad"></i><span id="cat-game"></span></div>
-            <div class="cat-card" onclick="quickSearch('جمال')"><i class="fa-solid fa-sparkles"></i><span id="cat-beauty"></span></div>
-            <div class="cat-card" onclick="quickSearch('منزل ذكي')"><i class="fa-solid fa-house-laptop"></i><span id="cat-home"></span></div>
-            <div class="cat-card" onclick="quickSearch('هواتف')"><i class="fa-solid fa-mobile-screen"></i><span id="cat-1"></span></div>
-            <div class="cat-card" onclick="quickSearch('لابتوب')"><i class="fa-solid fa-laptop"></i><span id="cat-2"></span></div>
-            <div class="cat-card" onclick="quickSearch('ساعات')"><i class="fa-solid fa-clock"></i><span id="cat-4"></span></div>
+            <div class="cat-card" onclick="quickSearch('gaming')"><i class="fa-solid fa-gamepad"></i><span id="cat-game"></span></div>
+            <div class="cat-card" onclick="quickSearch('beauty')"><i class="fa-solid fa-sparkles"></i><span id="cat-beauty"></span></div>
+            <div class="cat-card" onclick="quickSearch('smart home')"><i class="fa-solid fa-house-laptop"></i><span id="cat-home"></span></div>
+            <div class="cat-card" onclick="quickSearch('phones')"><i class="fa-solid fa-mobile-screen"></i><span id="cat-phones"></span></div>
+            <div class="cat-card" onclick="quickSearch('laptops')"><i class="fa-solid fa-laptop"></i><span id="cat-laptops"></span></div>
+            <div class="cat-card" onclick="quickSearch('watches')"><i class="fa-solid fa-clock"></i><span id="cat-watches"></span></div>
         </div>
-
-        <div id="status" style="display:none; background:var(--primary); padding:15px; border-radius:15px; margin-top:20px; font-weight:bold;"></div>
         <div id="results"></div>
     </main>
 
-    <div class="modal" id="w-modal">
-        <div class="modal-box">
-            <h3 id="txt-watch-title" style="color:#A855F7;">قائمة المراقبة 🔔</h3>
-            <div id="watch-items-container" style="max-height: 300px; overflow-y: auto; margin: 15px 0;"></div>
-            <button onclick="closeWatchList()" style="width:100%; padding:12px; border-radius:12px; background:var(--primary); color:#fff; border:none; font-weight:bold; cursor:pointer;">إغلاق</button>
-        </div>
-    </div>
-
     <div class="modal" id="p-modal">
         <div class="modal-box">
-            <h3 id="txt-modal-head" style="color:#A855F7; margin-bottom:15px;"></h3>
-            <input type="text" id="in-name">
-            <input type="number" id="in-budget">
-            <button id="p-save-btn" onclick="saveSet()" style="width:100%; padding:14px; border-radius:12px; background:var(--primary); color:#fff; border:none; font-weight:bold; cursor:pointer; margin-top:10px;">حفظ ✅</button>
-            <button onclick="closeProfile()" style="background:none; color:#fff; border:none; margin-top:15px; cursor:pointer; opacity:0.6; font-size:0.9rem;">إلغاء</button>
+            <h3 id="p-head"></h3>
+            <input type="text" id="in-name" placeholder="الاسم">
+            <input type="number" id="in-budget" placeholder="الميزانية">
+            <button class="save-btn" onclick="saveSet()" id="p-save"></button>
+            <button onclick="closeProfile()" style="background:none; color:rgba(255,255,255,0.5); border:none; margin-top:15px; cursor:pointer;">إلغاء</button>
         </div>
     </div>
 
     <script>
-        const API = "https://findly-api.onrender.com";
         let lang = localStorage.getItem('findly_lang') || 'ar';
-
         const dict = {
-            ar: { title: "مستشارك الحكيم", cat1: "هواتف", cat2: "لابتوب", cat4: "ساعات", catGame: "ألعاب", catBeauty: "جمال", catHome: "منزل ذكي", watch: "راقب السعر", welcome: "مرحباً،", sub: "دليلك الذكي للتسوق المثالي", p_head: "الملف الشخصي", p_name: "الاسم المستعار", p_budget: "الميزانية (SAR)", p_save: "حفظ الإعدادات ✅" },
-            en: { title: "Sage Advisor", cat1: "Phones", cat2: "Laptops", cat4: "Watches", catGame: "Gaming", catBeauty: "Beauty", catHome: "Smart Home", watch: "Watch Price", welcome: "Welcome,", sub: "Your smart guide to shopping", p_head: "Personal Profile", p_name: "Nickname", p_budget: "Budget (USD)", p_save: "Save Settings ✅" }
+            ar: { 
+                title: "مستشارك الحكيم", sub: "دليلك الذكي للتسوق المثالي", welcome: "مرحباً،",
+                game: "ألعاب", beauty: "جمال", home: "منزل ذكي", phones: "هواتف", laptops: "لابتوب", watches: "ساعات",
+                p_head: "إعدادات الهوية", p_save: "حفظ التغييرات ✅"
+            },
+            en: { 
+                title: "Sage Advisor", sub: "Your smart guide to shopping", welcome: "Welcome,",
+                game: "Gaming", beauty: "Beauty", home: "Smart Home", phones: "Phones", laptops: "Laptops", watches: "Watches",
+                p_head: "Profile Settings", p_save: "Save Changes ✅"
+            }
         };
 
         function update() {
-            const d = dict[lang] || dict['ar'];
+            const d = dict[lang];
             document.getElementById('main-html').dir = lang === 'ar' ? 'rtl' : 'ltr';
-            document.getElementById('l-label').innerText = lang.toUpperCase();
             document.getElementById('txt-title').innerText = d.title;
             document.getElementById('txt-sub').innerText = d.sub;
-            document.getElementById('cat-1').innerText = d.cat1;
-            document.getElementById('cat-2').innerText = d.cat2;
-            document.getElementById('cat-4').innerText = d.cat4;
-            document.getElementById('cat-game').innerText = d.catGame;
-            document.getElementById('cat-beauty').innerText = d.catBeauty;
-            document.getElementById('cat-home').innerText = d.catHome;
             
-            // تحديث نصوص الملف الشخصي
-            document.getElementById('txt-modal-head').innerText = d.p_head;
-            document.getElementById('in-name').placeholder = d.p_name;
-            document.getElementById('in-budget').placeholder = d.p_budget;
-            document.getElementById('p-save-btn').innerText = d.p_save;
+            // تحديث الفئات
+            document.getElementById('cat-game').innerText = d.game;
+            document.getElementById('cat-beauty').innerText = d.beauty;
+            document.getElementById('cat-home').innerText = d.home;
+            document.getElementById('cat-phones').innerText = d.phones;
+            document.getElementById('cat-laptops').innerText = d.laptops;
+            document.getElementById('cat-watches').innerText = d.watches;
 
-            const userName = localStorage.getItem('fn') || (lang === 'ar' ? "أحمد" : "User");
-            document.getElementById('greeting').innerText = `${d.welcome} ${userName}`;
+            // تحديث الملف الشخصي
+            document.getElementById('p-head').innerText = d.p_head;
+            document.getElementById('p-save').innerText = d.p_save;
+
+            const name = localStorage.getItem('fn') || (lang === 'ar' ? "أحمد" : "User");
+            document.getElementById('greeting').innerText = `${d.welcome} ${name}`;
         }
 
-        async function runSearch() {
-            const q = document.getElementById('s-input').value;
-            if (!q) return;
-            const d = dict[lang] || dict['ar'];
-            const resCon = document.getElementById('results');
-            document.getElementById('status').style.display = "block";
-            document.getElementById('status').innerText = lang === 'ar' ? "جاري التحليل..." : "Analyzing...";
-            resCon.innerHTML = "";
-
-            try {
-                const res = await fetch(`${API}/get-ai-advice`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query: q, lang: lang })
-                });
-                const data = await res.json();
-                document.getElementById('status').style.display = "none";
-                
-                data.products.forEach(p => {
-                    resCon.innerHTML += `
-                        <div class="product-card">
-                            <div style="display:flex; justify-content:space-between; align-items:center;">
-                                <img src="${p.thumbnail}" style="width:70px; height:70px; border-radius:12px; object-fit:cover;">
-                                <div style="flex:1; margin:0 15px;">
-                                    <h4 style="margin:0; font-size:0.95rem;">${p.name}</h4>
-                                    <div style="color:#A855F7; font-weight:bold; margin-top:5px;">${p.price}</div>
-                                </div>
-                            </div>
-                            <p style="font-size:0.8rem; opacity:0.8; line-height:1.4; background:rgba(255,255,255,0.05); padding:10px; border-radius:10px; margin:12px 0;">${p.reason}</p>
-                            <a href="${p.link}" target="_blank" style="display:block; text-align:center; background:var(--primary); color:#fff; padding:12px; border-radius:12px; text-decoration:none; font-weight:bold; margin-bottom:8px;">شراء الآن</a>
-                            <button onclick="addToWatch('${p.name}', '${p.price}', '${p.thumbnail}', '${p.link}')" style="width:100%; background:none; border:1px solid #6366F1; color:#fff; padding:10px; border-radius:12px; cursor:pointer; font-size:0.8rem;">🔔 ${d.watch}</button>
-                        </div>`;
-                });
-            } catch (e) { document.getElementById('status').innerText = "Error!"; }
-        }
-
-        function addToWatch(name, price, img, link) {
-            let list = JSON.parse(localStorage.getItem('findly_watch') || '[]');
-            if (!list.some(i => i.name === name)) {
-                list.push({ name, price, img, link });
-                localStorage.setItem('findly_watch', JSON.stringify(list));
-                const bell = document.getElementById('bell-icon');
-                bell.classList.add('pulse-act');
-                setTimeout(() => bell.classList.remove('pulse-act'), 500);
-            }
-        }
-
-        function renderWatchList() {
-            const container = document.getElementById('watch-items-container');
-            const list = JSON.parse(localStorage.getItem('findly_watch') || '[]');
-            container.innerHTML = list.length ? list.map((item, idx) => `
-                <div class="animate-item" style="display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.05); padding:10px; border-radius:12px; margin-bottom:10px; border:1px solid var(--border);">
-                    <img src="${item.img}" style="width:45px; height:45px; border-radius:8px; object-fit:cover;">
-                    <div style="flex:1; font-size:0.75rem; text-align:right;"><b>${item.name}</b><br><span style="color:#A855F7;">${item.price}</span></div>
-                    <i class="fa-solid fa-trash" onclick="removeFromWatch(${idx})" style="color:#ff4444; cursor:pointer; padding:5px;"></i>
-                </div>`).join('') : (lang === 'ar' ? "القائمة فارغة" : "Empty list");
-        }
-
-        function removeFromWatch(idx) {
-            let list = JSON.parse(localStorage.getItem('findly_watch') || '[]');
-            list.splice(idx, 1);
-            localStorage.setItem('findly_watch', JSON.stringify(list));
-            renderWatchList();
-        }
-
-        function toggleWatchList() { document.getElementById('w-modal').style.display = 'flex'; renderWatchList(); }
-        function closeWatchList() { document.getElementById('w-modal').style.display = 'none'; }
-        function openProfile() { 
+        function openProfile() {
             document.getElementById('in-name').value = localStorage.getItem('fn') || "";
             document.getElementById('in-budget').value = localStorage.getItem('fb') || "";
-            document.getElementById('p-modal').style.display = 'flex'; 
+            document.getElementById('p-modal').style.display = 'flex';
         }
-        function closeProfile() { document.getElementById('p-modal').style.display = 'none'; }
+
         function saveSet() {
-            const name = document.getElementById('in-name').value;
-            const budget = document.getElementById('in-budget').value;
-            if(name) localStorage.setItem('fn', name);
-            if(budget) localStorage.setItem('fb', budget);
-            closeProfile(); 
+            localStorage.setItem('fn', document.getElementById('in-name').value);
+            localStorage.setItem('fb', document.getElementById('in-budget').value);
+            document.getElementById('p-modal').style.display = 'none';
             update();
         }
-        function toggleLang() { const m = document.getElementById('l-menu'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
-        function setLang(l) { lang = l; localStorage.setItem('findly_lang', l); toggleLang(); update(); }
-        function toggleLight() { document.body.style.filter = document.body.style.filter === 'invert(1)' ? 'invert(0)' : 'invert(1)'; }
-        function quickSearch(q) { document.getElementById('s-input').value = q; runSearch(); }
-        function startVoice() { 
-            const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if(!Rec) return;
-            const rec = new Rec();
-            rec.lang = lang === 'ar' ? 'ar-SA' : 'en-US';
-            rec.start();
-            rec.onresult = (e) => { document.getElementById('s-input').value = e.results[0][0].transcript; runSearch(); }
+
+        function toggleLang() {
+            lang = lang === 'ar' ? 'en' : 'ar';
+            localStorage.setItem('findly_lang', lang);
+            update();
         }
-        
+
+        function closeProfile() { document.getElementById('p-modal').style.display = 'none'; }
+        function quickSearch(q) { document.getElementById('s-input').value = q; runSearch(); }
+        function runSearch() { alert(lang === 'ar' ? "جاري البحث عن: " : "Searching for: " + document.getElementById('s-input').value); }
+
         window.onload = update;
     </script>
 </body>

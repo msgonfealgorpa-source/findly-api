@@ -3,63 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Findly Sage – Final Pro</title>
+    <title>Findly Sage – Final Version</title>
     <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { --primary: linear-gradient(135deg, #6366F1, #A855F7); --bg: #030712; --card: rgba(30, 41, 59, 0.7); --border: rgba(255, 255, 255, 0.1); }
-        body { background: var(--bg); color: #fff; font-family: 'Readex+Pro', sans-serif; margin: 0; padding: 0; min-height: 100vh; }
+        body { background: var(--bg); color: #fff; font-family: 'Readex+Pro', sans-serif; margin: 0; padding: 0; min-height: 100vh; overflow-x: hidden; }
         
-        @keyframes pulse-bell { 0% { transform: scale(1); } 50% { transform: scale(1.4); color: #A855F7; } 100% { transform: scale(1); } }
+        @keyframes pulse-bell { 0% { transform: scale(1); } 50% { transform: scale(1.3); color: #A855F7; } 100% { transform: scale(1); } }
         .pulse-act { animation: pulse-bell 0.5s ease-in-out; }
 
         header { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(15px); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 1000; }
-        .logo { font-size: 1.4rem; font-weight: 900; background: var(--primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .header-tools { display: flex; gap: 8px; }
-        .tool-btn { background: var(--card); border: 1px solid var(--border); color: #fff; width: 40px; height: 40px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .logo { font-size: 1.5rem; font-weight: 900; background: var(--primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: flex; align-items: center; gap: 8px; }
+        .header-tools { display: flex; gap: 10px; }
+        .tool-btn { background: var(--card); border: 1px solid var(--border); color: #fff; width: 42px; height: 42px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
 
-        .search-area { padding: 25px 5%; text-align: center; }
+        .search-area { padding: 30px 5%; text-align: center; }
         .search-wrapper { position: relative; max-width: 600px; margin: 20px auto; display: flex; align-items: center; }
-        .search-input { width: 100%; padding: 16px 55px; border-radius: 50px; border: 1px solid var(--border); background: var(--card); color: #fff; font-size: 1rem; outline: none; }
-        .mic-icon { position: absolute; right: 18px; color: #6366F1; cursor: pointer; }
-        .send-btn { position: absolute; left: 8px; background: var(--primary); border: none; width: 40px; height: 40px; border-radius: 50%; color: #fff; cursor: pointer; }
+        .search-input { width: 100%; padding: 18px 55px; border-radius: 50px; border: 1px solid var(--border); background: var(--card); color: #fff; font-size: 1rem; outline: none; transition: 0.3s; text-align: center; }
+        .mic-icon { position: absolute; right: 18px; color: #6366F1; cursor: pointer; font-size: 1.3rem; z-index: 10; }
+        .send-btn { position: absolute; left: 8px; background: var(--primary); border: none; width: 45px; height: 45px; border-radius: 50%; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; }
 
         .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 600px; margin: 20px auto; }
-        .cat-card { background: var(--card); border: 1px solid var(--border); padding: 15px 5px; border-radius: 20px; cursor: pointer; text-align: center; transition: 0.3s; }
-        .cat-card i { font-size: 1.5rem; color: #6366F1; display: block; margin-bottom: 8px; }
-        .cat-card span { font-size: 0.8rem; font-weight: bold; }
+        .cat-card { background: var(--card); border: 1px solid var(--border); padding: 20px 5px; border-radius: 20px; cursor: pointer; text-align: center; transition: 0.3s; }
+        .cat-card i { font-size: 1.6rem; color: #6366F1; display: block; margin-bottom: 8px; }
+        .cat-card span { font-size: 0.85rem; font-weight: bold; }
 
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
-        .modal-box { background: #0f172a; padding: 25px; border-radius: 25px; width: 85%; max-width: 360px; border: 1px solid var(--border); text-align: center; }
-        .modal-box input { width: 100%; padding: 14px; margin: 10px 0; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.05); color: #fff; box-sizing: border-box; text-align: center; }
-        .save-btn { width: 100%; padding: 14px; border-radius: 12px; background: var(--primary); color: #fff; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(12px); }
+        .modal-box { background: #0f172a; padding: 30px; border-radius: 30px; width: 85%; max-width: 380px; border: 1px solid var(--border); text-align: center; }
+        .modal-box input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.05); color: #fff; box-sizing: border-box; text-align: center; font-size: 1rem; }
+        .save-btn { width: 100%; padding: 15px; border-radius: 15px; background: var(--primary); color: #fff; border: none; font-weight: bold; cursor: pointer; margin-top: 15px; font-size: 1.1rem; }
         
-        .product-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 15px; margin: 15px auto; width: 90%; text-align: right; }
+        #results { margin-top: 25px; }
+        .product-card { background: var(--card); border: 1px solid var(--border); border-radius: 25px; padding: 20px; margin-bottom: 15px; text-align: right; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
+
     <header>
         <div class="logo">Findly <i class="fa-solid fa-wand-magic-sparkles"></i></div>
         <div class="header-tools">
-            <button class="tool-btn" onclick="toggleLangMenu()"><i class="fa-solid fa-globe"></i></button>
+            <div style="position: relative;">
+                <button class="tool-btn" onclick="toggleLangMenu()"><i class="fa-solid fa-globe"></i></button>
+                <div id="lang-dropdown" style="display:none; position:absolute; top:50px; left:0; background:#1e293b; border-radius:12px; border:1px solid var(--border); z-index:3000; width:100px;">
+                    <div onclick="setLang('ar')" style="padding:12px; cursor:pointer; border-bottom:1px solid var(--border)">العربية</div>
+                    <div onclick="setLang('en')" style="padding:12px; cursor:pointer;">English</div>
+                </div>
+            </div>
             <button class="tool-btn" id="bell-icon" onclick="toggleWatchList()"><i class="fa-solid fa-bell"></i></button>
             <button class="tool-btn" onclick="openProfile()"><i class="fa-solid fa-user-gear"></i></button>
         </div>
     </header>
 
-    <div id="lang-modal" class="modal" onclick="this.style.display='none'">
-        <div class="modal-box" onclick="event.stopPropagation()">
-            <div onclick="setLang('ar')" style="padding:15px; cursor:pointer; border-bottom:1px solid var(--border)">العربية</div>
-            <div onclick="setLang('en')" style="padding:15px; cursor:pointer; border-bottom:1px solid var(--border)">English</div>
-            <div onclick="setLang('fr')" style="padding:15px; cursor:pointer; border-bottom:1px solid var(--border)">Français</div>
-            <div onclick="setLang('tr')" style="padding:15px; cursor:pointer;">Türkçe</div>
-        </div>
-    </div>
-
     <main class="search-area">
-        <div id="greeting" style="color: #A855F7; font-weight: bold; font-size: 0.9rem;"></div>
-        <h1 id="txt-title" style="margin: 10px 0;"></h1>
-        <p id="txt-sub" style="opacity: 0.7; font-size: 0.8rem;"></p>
+        <div id="greeting" style="color: #A855F7; font-weight: bold; margin-bottom: 5px;"></div>
+        <h1 id="txt-title" style="font-size: 2rem; margin: 10px 0;"></h1>
+        <p id="txt-sub" style="opacity: 0.7; margin-bottom: 25px;"></p>
         
         <div class="search-wrapper">
             <i class="fa-solid fa-microphone-lines mic-icon" onclick="startVoice()"></i>
@@ -75,8 +75,17 @@
             <div class="cat-card" onclick="quickSearch('laptops')"><i class="fa-solid fa-laptop"></i><span id="cat-laptops"></span></div>
             <div class="cat-card" onclick="quickSearch('watches')"><i class="fa-solid fa-clock"></i><span id="cat-watches"></span></div>
         </div>
+        <div id="status" style="display:none; margin:20px; font-weight:bold; color:#A855F7;"></div>
         <div id="results"></div>
     </main>
+
+    <div class="modal" id="w-modal">
+        <div class="modal-box">
+            <h3 style="color:#A855F7">قائمة المراقبة 🔔</h3>
+            <div id="watch-items" style="max-height:300px; overflow-y:auto; margin:15px 0;"></div>
+            <button onclick="toggleWatchList()" class="save-btn">إغلاق</button>
+        </div>
+    </div>
 
     <div class="modal" id="p-modal">
         <div class="modal-box">
@@ -84,21 +93,21 @@
             <input type="text" id="in-name">
             <input type="number" id="in-budget">
             <button class="save-btn" onclick="saveSet()" id="p-save"></button>
-            <button onclick="closeProfile()" style="background:none; color:#fff; border:none; margin-top:15px; cursor:pointer; opacity:0.5;">إلغاء</button>
+            <button onclick="openProfile()" style="background:none; color:#fff; border:none; margin-top:15px; cursor:pointer; opacity:0.5;">إلغاء</button>
         </div>
     </div>
 
     <script>
+        const API = "https://findly-api.onrender.com";
         let lang = localStorage.getItem('findly_lang') || 'ar';
+
         const dict = {
-            ar: { title: "مستشارك الحكيم", sub: "دليلك للتسوق الذكي", welcome: "مرحباً،", game: "ألعاب", beauty: "جمال", home: "منزل ذكي", phones: "هواتف", laptops: "لابتوب", watches: "ساعات", p_head: "الملف الشخصي", p_name: "الاسم", p_budget: "الميزانية", p_save: "حفظ ✅" },
-            en: { title: "Sage Advisor", sub: "Smart Shopping Guide", welcome: "Welcome,", game: "Gaming", beauty: "Beauty", home: "Smart Home", phones: "Phones", laptops: "Laptops", watches: "Watches", p_head: "Profile", p_name: "Name", p_budget: "Budget", p_save: "Save ✅" },
-            fr: { title: "Conseiller Sage", sub: "Guide d'achat", welcome: "Bonjour,", game: "Jeux", beauty: "Beauté", home: "Maison", phones: "Mobiles", laptops: "Laptops", watches: "Montres", p_head: "Profil", p_name: "Nom", p_budget: "Budget", p_save: "Enregistrer ✅" },
-            tr: { title: "Bilge Danışman", sub: "Akıllı Rehber", welcome: "Merhaba,", game: "Oyun", beauty: "Güzellik", home: "Akıllı Ev", phones: "Telefonlar", laptops: "Dizüstü", watches: "Saatler", p_head: "Profil", p_name: "İsim", p_budget: "Bütçe", p_save: "Kaydet ✅" }
+            ar: { title: "مستشارك الحكيم", sub: "دليلك الذكي للتسوق المثالي", welcome: "مرحباً،", game: "ألعاب", beauty: "جمال", home: "منزل ذكي", phones: "هواتف", laptops: "لابتوب", watches: "ساعات", p_head: "الملف الشخصي", p_name: "الاسم", p_budget: "الميزانية", p_save: "حفظ ✅", watch_btn: "راقب السعر" },
+            en: { title: "Sage Advisor", sub: "Your Smart Shopping Guide", welcome: "Welcome,", game: "Gaming", beauty: "Beauty", home: "Smart Home", phones: "Phones", laptops: "Laptops", watches: "Watches", p_head: "Profile Settings", p_name: "Name", p_budget: "Budget", p_save: "Save ✅", watch_btn: "Watch Price" }
         };
 
         function update() {
-            const d = dict[lang] || dict['ar'];
+            const d = dict[lang];
             document.getElementById('main-html').dir = lang === 'ar' ? 'rtl' : 'ltr';
             document.getElementById('txt-title').innerText = d.title;
             document.getElementById('txt-sub').innerText = d.sub;
@@ -116,13 +125,60 @@
             document.getElementById('greeting').innerText = `${d.welcome} ${name}`;
         }
 
-        function toggleLangMenu() { document.getElementById('lang-modal').style.display = 'flex'; }
-        function setLang(l) { lang = l; localStorage.setItem('findly_lang', l); document.getElementById('lang-modal').style.display = 'none'; update(); }
-        function openProfile() { document.getElementById('in-name').value = localStorage.getItem('fn') || ""; document.getElementById('in-budget').value = localStorage.getItem('fb') || ""; document.getElementById('p-modal').style.display = 'flex'; }
-        function closeProfile() { document.getElementById('p-modal').style.display = 'none'; }
-        function saveSet() { localStorage.setItem('fn', document.getElementById('in-name').value); localStorage.setItem('fb', document.getElementById('in-budget').value); closeProfile(); update(); }
+        async function runSearch() {
+            const q = document.getElementById('s-input').value;
+            if (!q) return;
+            const resCon = document.getElementById('results');
+            const status = document.getElementById('status');
+            status.style.display = "block"; status.innerText = lang === 'ar' ? "جاري البحث..." : "Searching...";
+            resCon.innerHTML = "";
+            try {
+                const res = await fetch(`${API}/get-ai-advice`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: q, lang: lang })
+                });
+                const data = await res.json();
+                status.style.display = "none";
+                data.products.forEach(p => {
+                    resCon.innerHTML += `<div class="product-card">
+                        <h4>${p.name}</h4>
+                        <p style="color:#A855F7; font-weight:bold;">${p.price}</p>
+                        <p style="font-size:0.85rem; opacity:0.8;">${p.reason}</p>
+                        <button onclick="addToWatch('${p.name}')" style="width:100%; padding:10px; border-radius:10px; background:none; border:1px solid #6366F1; color:#fff; cursor:pointer;">🔔 ${dict[lang].watch_btn}</button>
+                    </div>`;
+                });
+            } catch (e) { status.innerText = "Error!"; }
+        }
+
+        function addToWatch(name) {
+            const bell = document.getElementById('bell-icon');
+            bell.classList.add('pulse-act');
+            setTimeout(() => bell.classList.remove('pulse-act'), 500);
+            let list = JSON.parse(localStorage.getItem('f_watch') || '[]');
+            if(!list.includes(name)) list.push(name);
+            localStorage.setItem('f_watch', JSON.stringify(list));
+        }
+
+        function startVoice() {
+            const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!Speech) return alert("متصفحك لا يدعم البحث الصوتي");
+            const rec = new Speech();
+            rec.lang = lang === 'ar' ? 'ar-SA' : 'en-US';
+            rec.start();
+            rec.onresult = (e) => {
+                document.getElementById('s-input').value = e.results[0][0].transcript;
+                runSearch();
+            };
+        }
+
+        function toggleLangMenu() { const d = document.getElementById('lang-dropdown'); d.style.display = d.style.display === 'none' ? 'block' : 'none'; }
+        function setLang(l) { lang = l; localStorage.setItem('findly_lang', l); toggleLangMenu(); update(); }
+        function openProfile() { document.getElementById('p-modal').style.display = document.getElementById('p-modal').style.display === 'flex' ? 'none' : 'flex'; }
+        function saveSet() { localStorage.setItem('fn', document.getElementById('in-name').value); localStorage.setItem('fb', document.getElementById('in-budget').value); openProfile(); update(); }
+        function toggleWatchList() { document.getElementById('w-modal').style.display = document.getElementById('w-modal').style.display === 'flex' ? 'none' : 'flex'; }
         function quickSearch(q) { document.getElementById('s-input').value = q; runSearch(); }
-        function runSearch() { alert(lang === 'ar' ? "جاري البحث..." : "Searching..."); }
+        
         window.onload = update;
     </script>
 </body>

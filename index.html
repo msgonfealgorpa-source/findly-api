@@ -199,7 +199,7 @@
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ query: q, lang: lang })
-});
+})
 
                 data.products.forEach((p, index) => {
                     const pNum = parseFloat(p.price.replace(/[^0-9.]/g, '')) || 0;

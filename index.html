@@ -196,6 +196,11 @@
                             <p style="font-size:0.8rem; background:rgba(255,255,255,0.05); padding:10px; border-radius:10px; margin-top:10px;">${p.reason}</p>
                             <a href="${p.link}" target="_blank" style="display:block; text-align:center; background:var(--primary); color:#fff; padding:10px; border-radius:10px; text-decoration:none; font-weight:bold;">شراء الآن</a>
                         </div>`;
+             // أضف هذا السطر في تصميم الكارت الخاص بالمنتج
+<button onclick="addToWatch('${p.name}', '${p.price}', '${p.thumbnail}', '${p.link}')" 
+        style="width:100%; margin-top:10px; background:none; border:1px solid #6366F1; color:#fff; padding:8px; border-radius:10px; font-size:0.75rem; cursor:pointer;">
+    🔔 ${d.watch}
+</button>
                 });
                 attempts--;
                 localStorage.setItem('findly_attempts', attempts);
@@ -219,6 +224,36 @@
         <button onclick="closeWatchList()" style="margin-top:20px; background:var(--primary); color:#fff; border:none; width:100%; padding:12px; border-radius:12px; font-weight:bold; cursor:pointer;">إغلاق</button>
     </div>
 </div>
+  
+    function toggleWatchList() { document.getElementById('w-modal').style.display = 'flex'; renderWatchList(); }
+function closeWatchList() { document.getElementById('w-modal').style.display = 'none'; }
+
+function addToWatch(name, price, img, link) {
+    let list = JSON.parse(localStorage.getItem('findly_watch') || '[]');
+    if (!list.some(i => i.name === name)) {
+        list.push({ name, price, img, link });
+        localStorage.setItem('findly_watch', JSON.stringify(list));
+        alert("تمت الإضافة للقائمة! 🔔");
+    }
+}
+
+function renderWatchList() {
+    const container = document.getElementById('watch-items-container');
+    const list = JSON.parse(localStorage.getItem('findly_watch') || '[]');
+    container.innerHTML = list.length ? list.map((item, idx) => `
+        <div style="display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.05); padding:10px; border-radius:12px; margin-bottom:10px;">
+            <img src="${item.img}" style="width:40px; height:40px; border-radius:8px;">
+            <div style="flex:1; font-size:0.8rem;"><b>${item.name}</b><br><small>${item.price}</small></div>
+            <i class="fa-solid fa-trash" onclick="removeFromWatch(${idx})" style="color:#ff4444; cursor:pointer;"></i>
+        </div>`).join('') : "<p>القائمة فارغة</p>";
+}
+
+function removeFromWatch(idx) {
+    let list = JSON.parse(localStorage.getItem('findly_watch') || '[]');
+    list.splice(idx, 1);
+    localStorage.setItem('findly_watch', JSON.stringify(list));
+    renderWatchList();
+}
     </script>
 </body>
 </html>

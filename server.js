@@ -9,10 +9,6 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
 
-// ==============================
-// 🧠 SMART AI CORE
-// ==============================
-
 function analyzeIntent(query) {
   query = query.toLowerCase();
 
@@ -25,10 +21,6 @@ function analyzeIntent(query) {
   return { type: "balanced", focus: ["price","rating","performance"] };
 }
 
-// ==============================
-// 🎯 CATEGORY BRAIN
-// ==============================
-
 function detectCategory(query) {
   if (/phone|iphone|samsung|هاتف|جوال/.test(query)) return "phone";
   if (/laptop|macbook|pc|لابتوب/.test(query)) return "laptop";
@@ -37,14 +29,10 @@ function detectCategory(query) {
   return "general";
 }
 
-// ==============================
-// ⚖️ SMART SCORING
-// ==============================
-
 function smartScore(p, intent, category) {
   let score = 0;
 
-  const price = parseFloat(p.price?.replace(/[^\d.]/g, "")) || 99999;
+  const price = parseFloat((p.price || '').replace(/[^\d.]/g, "")) || 99999;
   const rating = p.rating || 4;
 
   if (intent.type === "budget") score += (100000 - price) * 0.6;
@@ -56,13 +44,8 @@ function smartScore(p, intent, category) {
   return score;
 }
 
-// ==============================
-// 🧠 AI REASON GENERATOR
-// ==============================
-
 function generateReason(p, intent, category, rank) {
-  const price = p.price;
-  const rating = p.rating;
+  const rating = p.rating || 4;
 
   const categoryText = {
     phone: "هاتف",
@@ -72,36 +55,21 @@ function generateReason(p, intent, category, rank) {
     general: "منتج"
   };
 
-  let reason = "";
-
-  if (rank === 1) {
-    if (intent.type === "budget") {
-      reason = `أفضل خيار اقتصادي: يقدم هذا ${categoryText[category]} أفضل سعر مقابل الأداء مع تقييم ${rating}.`;
-    } else if (intent.type === "gaming") {
-      reason = `أفضل أداء للألعاب: يوفر تجربة لعب سلسة بفضل مواصفاته القوية وتقييم ${rating}.`;
-    } else if (intent.type === "camera") {
-      reason = `أفضل اختيار للتصوير: يتميز بكاميرات قوية ودقة ممتازة بتقييم ${rating}.`;
-    } else {
-      reason = `الخيار المتوازن: يجمع بين سعر مناسب وجودة عالية وتقييم ${rating}.`;
-    }
-  } else if (rank === 2) {
-    reason = `بديل قوي: أداء ممتاز وسعر منافس يجعله خيارًا موثوقًا.`;
-  } else {
-    reason = `خيار جيد: مناسب لمن يبحث عن جودة مستقرة بسعر مناسب.`;
-  }
-
-  return reason;
+  if (rank === 1) return `الخيار الأفضل: أداء قوي وسعر مناسب وتقييم ${rating}.`;
+  if (rank === 2) return `بديل ممتاز: توازن جيد بين السعر والأداء.`;
+  return `خيار جيد: مناسب للاستخدام اليومي.`;
 }
 
-// ==============================
-// 🚀 SMART SEARCH API
-// ==============================
 app.get('/', (req, res) => {
   res.send('Findly API is running...');
 });
+
 app.post('/smart-search', async (req, res) => {
   try {
     const { query, lang } = req.body;
+
+    if (!query) return res.json({ products: [] });
+
     const intent = analyzeIntent(query);
     const category = detectCategory(query);
 
@@ -120,33 +88,27 @@ app.post('/smart-search', async (req, res) => {
       name: p.title,
       thumbnail: p.thumbnail,
       link: p.product_link || p.link,
-      price: p.price || "Check price",
-      rating: p.rating || 4.1,
+      price: p.price || "N/A",
+      rating: p.rating || 4,
       source: p.source
     }));
 
     products = products.map(p => ({
       ...p,
       score: smartScore(p, intent, category)
-    }));
+    })).sort((a,b) => b.score - a.score);
 
-    products.sort((a,b) => b.score - a.score);
-
-    const final = products.slice(0,3).map((p,i)=>({
+    const final = products.slice(0,3).map((p,i)=> ({
       ...p,
       reason: generateReason(p, intent, category, i+1)
     }));
 
-    res.json({
-      intent,
-      category,
-      products: final
-    });
+    res.json({ intent, category, products: final });
 
   } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ products: [] });
+    console.error("SERVER ERROR:", err.message);
+    res.status(500).json({ error: "AI Engine Error" });
   }
 });
 
-app.listen(PORT, ()=> console.log(`🔥 Findly AI Engine running on ${PORT}`));
+app.listen(PORT, () => console.log(`🔥 Findly running on ${PORT}`));

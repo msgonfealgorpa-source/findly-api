@@ -81,25 +81,23 @@
                     <div onclick="setLang('tr')" style="padding:10px; cursor:pointer; text-align:center;">Türkçe</div>
                 </div>
             </div>
-            <button onclick="openProfile()" style="background:none; border:none; color:white; font-size:1.6rem; cursor:pointer;"><i class="fa-solid fa-user-tie"></i></button>
-        </div>
-    </header>
-
-    <main style="text-align:center; padding: 2rem 1rem;">
+            </div>
+            <button onclick="openProfile()" style="background:none; border:none; color:white; font-size:1.6rem; cursor:pointer;">
+    <i class="fa-solid fa-user-tie"></i>
+</button>
+<div class="search-container">
+    <button class="voice-btn" id="v-btn" onclick="startVoice()"><i class="fa-solid fa-microphone-lines"></i></button>
+    <input type="text" class="search-box" id="s-input" placeholder="اسأل الحكيم...">
+    <button class="search-btn" onclick="runSearch()"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
+</div>
+ <main style="text-align:center; padding: 2rem 1rem;">
         <div id="greeting" style="background:rgba(168, 85, 247, 0.1); display:inline-block; padding:5px 20px; border-radius:50px; color:#A855F7; font-weight:bold; margin-bottom:10px;"></div>
         <h1 id="txt-title" style="font-size: 2.2rem;"></h1>
         <p id="txt-sub" style="opacity:0.8;"></p>
 
-        <div class="limit-badge">
-            <i class="fa-solid fa-bolt"></i> <span id="txt-energy"></span>: <span id="remaining-count">3</span>
+ </div> class="limit-badge">
+             class="fa-solid fa-bolt"></i> <span id="txt-energy"></span>: <span id="remaining-count">3</span>
         </div>
-
-        <div class="search-container">
-            <button class="voice-btn" id="v-btn" onclick="startVoice()"><i class="fa-solid fa-microphone-lines"></i></button>
-            <input type="text" class="search-box" id="s-input">
-            <button class="search-btn" onclick="runSearch()"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
-        </div>
-
         <div class="categories-grid" id="cat-grid"></div>
         <div id="ai-status" style="display:none; background:var(--primary-gradient); padding:20px; border-radius:25px; margin: 25px auto; width: 92%; max-width: 550px;"></div>
         <div id="results"></div>

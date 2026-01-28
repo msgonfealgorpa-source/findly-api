@@ -196,17 +196,24 @@
 
             try {
                 const res = await fetch(`${API}/smart-search`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query: q, lang: lang })
-});
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: q, lang: lang })
+                });
+
+                const data = await res.json(); // تأكد من إضافة هذا السطر لتخزين البيانات القادمة
+
+                status.style.display = "none";
+                
+                if (!data.products || data.products.length === 0) {
+                    resCon.innerHTML = "لم يتم العثور على نتائج.";
+                    return;
+                }
 
                 data.products.forEach((p, index) => {
                     const pNum = parseFloat(p.price.replace(/[^0-9.]/g, '')) || 0;
                     const isOver = budget > 0 && pNum > budget;
                     
-                    // --- العقل العملي: توليد التحليل ---
-                    let analysis = p.reason || "Smart analysis in progress...";
                     resCon.innerHTML += `
                         <div class="product-card">
                             <img src="${p.thumbnail}">
@@ -215,7 +222,7 @@
                             
                             <div class="analysis-engine">
                                 <span class="analysis-label"><i class="fa-solid fa-brain"></i> ${d.why}</span>
-                                ${analysis}
+                                ${p.reason}
                             </div>
 
                             ${isOver ? `<div style="color:#ef4444; font-size:0.75rem; font-weight:bold; margin-bottom:10px;">${d.over}</div>` : ''}
@@ -226,8 +233,17 @@
                             </div>
                         </div>`;
                 });
-            } catch (e) { status.innerText = "خطأ في الاتصال بالعقل"; }
-        }
+                
+                // تقليل المحاولات بعد نجاح البحث
+                attempts--; 
+                localStorage.setItem('findly_attempts', attempts); 
+                update();
+
+            } catch (e) { 
+                status.innerText = "خطأ في الاتصال بالعقل"; 
+                console.error(e);
+            }
+                
 
         function startVoice() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;

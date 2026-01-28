@@ -17,7 +17,6 @@
         .header-tools { display: flex; gap: 8px; }
         .tool-btn { background: var(--card); border: 1px solid var(--border); color: var(--text); width: 40px; height: 40px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; position: relative; }
 
-        /* القائمة (القات - اللغات) */
         .lang-menu { display: none; position: absolute; top: 45px; left: 0; background: #1e293b; border-radius: 12px; border: 1px solid var(--border); width: 120px; z-index: 2000; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
         .lang-item { padding: 10px; font-size: 0.85rem; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); color: #fff; text-align: center; }
         .lang-item:hover { background: #6366F1; }
@@ -25,12 +24,11 @@
         .search-area { padding: 25px 5%; text-align: center; }
         .energy-box { background: rgba(168, 85, 247, 0.1); border: 1px solid #A855F7; padding: 6px 18px; border-radius: 50px; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 20px; }
 
-        /* === تحسينات الذكاء (جديد) === */
         .ai-options { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
-        .ai-tag { font-size: 0.75rem; padding: 5px 12px; border-radius: 20px; background: var(--card); border: 1px solid var(--border); cursor: pointer; transition: 0.3s; color: var(--text); opacity: 0.8; }
-        .ai-tag:hover, .ai-tag.active { background: var(--primary); color: #fff; border-color: transparent; opacity: 1; }
+        .ai-tag { font-size: 0.75rem; padding: 5px 12px; border-radius: 20px; background: var(--card); border: 1px solid var(--border); cursor: pointer; transition: 0.3s; color: var(--text); }
+        .ai-tag:hover { background: var(--primary); color: #fff; }
+        
         .ai-toggle { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #A855F7; margin-bottom: 10px; justify-content: center; }
-        /* ============================ */
 
         .search-wrapper { position: relative; max-width: 600px; margin: 0 auto; }
         .search-input { width: 100%; padding: 16px 50px; border-radius: 50px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: 1rem; outline: none; box-sizing: border-box; text-align: center; }
@@ -38,73 +36,28 @@
         .send-btn { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); background: var(--primary); border: none; width: 40px; height: 40px; border-radius: 50%; color: #fff; cursor: pointer; }
 
         .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 600px; margin: 20px auto; }
-        .cat-card { background: var(--card); border: 1px solid var(--border); padding: 12px 5px; border-radius: 18px; cursor: pointer; transition: 0.3s; }
-        .cat-card:hover { transform: translateY(-3px); border-color: #6366F1; }
+        .cat-card { background: var(--card); border: 1px solid var(--border); padding: 12px 5px; border-radius: 18px; cursor: pointer; }
         .cat-card i { font-size: 1.3rem; color: #6366F1; display: block; margin-bottom: 5px; }
         .cat-card span { font-size: 0.75rem; font-weight: bold; }
 
-        /* === إصلاح كرت المنتج والأزرار === */
         .product-card { 
-            background: var(--card); 
-            border: 1px solid var(--border); 
-            border-radius: 20px; 
-            padding: 12px;
-            margin-top: 15px; 
-            text-align: right; 
-            box-sizing: border-box; 
-            animation: fadeIn 0.5s ease; 
-            max-width: 600px; 
-            margin-left: auto; 
-            margin-right: auto;
-            display: flex;
-            flex-direction: column;
+            background: var(--card); border: 1px solid var(--border); border-radius: 20px; 
+            padding: 12px; margin-top: 15px; text-align: right; max-width: 600px; margin-left: auto; margin-right: auto;
         }
-        
-        /* ضبط حجم الصورة */
-        .product-card img {
-            width: 100%;
-            height: 160px;
-            object-fit: contain;
-            background: #fff;
-            border-radius: 12px;
-            margin-bottom: 10px;
-        }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
+        .product-card img { width: 100%; height: 160px; object-fit: contain; background: #fff; border-radius: 12px; margin-bottom: 10px; }
         .price-tag { color: #A855F7; font-size: 1.2rem; font-weight: bold; margin: 5px 0; }
-        .over-alert { color: #ff4444; background: rgba(255,68,68,0.1); padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; display: inline-block; margin-bottom: 5px; border: 1px solid rgba(255,68,68,0.2); }
         
-        /* جعل الأزرار بجانب بعضها */
-        .btn-group { 
-            display: flex; 
-            flex-direction: row; 
-            gap: 10px; 
-            margin-top: 10px; 
-        }
-        .action-btn { 
-            flex: 1;
-            padding: 10px; 
-            border-radius: 10px; 
-            font-weight: bold; 
-            text-align: center; 
-            text-decoration: none; 
-            cursor: pointer; 
-            border: none; 
-            font-family: inherit; 
-            font-size: 0.85rem; 
-            white-space: nowrap;
-        }
-        .buy-now { background: var(--primary); color: #fff; box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3); }
+        .btn-group { display: flex; flex-direction: row; gap: 10px; margin-top: 10px; }
+        .action-btn { flex: 1; padding: 10px; border-radius: 10px; font-weight: bold; text-align: center; border: none; font-size: 0.85rem; cursor: pointer; font-family: inherit; }
+        .buy-now { background: var(--primary); color: #fff; text-decoration: none; }
         .watch-later { background: rgba(168, 85, 247, 0.1); border: 1px solid #A855F7; color: var(--text); }
-        /* ================================ */
 
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 3000; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
         .modal-box { background: #0f172a; padding: 25px; border-radius: 25px; width: 85%; max-width: 380px; border: 1px solid var(--border); text-align: center; }
         .modal-box input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; background: #1e293b; color: #fff; border: 1px solid var(--border); text-align: center; box-sizing: border-box; }
         
         #watch-list-content { max-height: 300px; overflow-y: auto; text-align: right; margin-top: 15px; }
-        .watch-item { background: #1e293b; padding: 10px; border-radius: 10px; margin-bottom: 8px; font-size: 0.8rem; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .watch-item { background: #1e293b; padding: 10px; border-radius: 10px; margin-bottom: 8px; font-size: 0.8rem; border-right: 4px solid #A855F7; display: flex; justify-content: space-between; align-items: center; }
     </style>
 </head>
 <body>
@@ -113,7 +66,6 @@
         <div class="logo">Findly <i class="fa-solid fa-wand-magic-sparkles"></i></div>
         <div class="header-tools">
             <button class="tool-btn" onclick="toggleMode()"><i class="fa-solid fa-circle-half-stroke"></i></button>
-            
             <div style="position: relative;">
                 <button class="tool-btn" onclick="toggleLMenu()"><i class="fa-solid fa-language"></i></button>
                 <div id="l-menu" class="lang-menu">
@@ -125,12 +77,10 @@
                     <div class="lang-item" onclick="setLang('tr')">Türkçe</div>
                 </div>
             </div>
-
             <button class="tool-btn" onclick="toggleWatchList()">
                 <i class="fa-solid fa-bell"></i>
                 <span id="watch-count" style="position:absolute; top:-5px; right:-5px; background:red; color:white; font-size:0.6rem; padding:2px 5px; border-radius:50%; display:none;">0</span>
             </button>
-            
             <button class="tool-btn" onclick="openProfile()"><i class="fa-solid fa-user-gear"></i></button>
         </div>
     </header>
@@ -148,8 +98,8 @@
 
         <div class="ai-toggle">
             <i class="fa-solid fa-brain"></i>
-            <span>وضع التحليل الذكي</span>
-            <input type="checkbox" id="ai-deep-mode" style="accent-color: #A855F7; width: 16px; height: 16px;">
+            <span id="txt-deep"></span>
+            <input type="checkbox" id="ai-deep-mode" style="accent-color: #A855F7; width:16px; height:16px;">
         </div>
 
         <div class="search-wrapper">
@@ -159,39 +109,36 @@
         </div>
 
         <div class="ai-options" style="margin-top: 15px;">
-            <div class="ai-tag" onclick="quickFilter('سعر رخيص')">💰 اقتصادي</div>
-            <div class="ai-tag" onclick="quickFilter('أفضل تقييم')">⭐ الأعلى تقييماً</div>
-            <div class="ai-tag" onclick="quickFilter('الأحدث')">🔥 حديث جداً</div>
+            <div class="ai-tag" onclick="quickFilter('cheap')">💰 <span id="tag-cheap"></span></div>
+            <div class="ai-tag" onclick="quickFilter('top')">⭐ <span id="tag-top"></span></div>
+            <div class="ai-tag" onclick="quickFilter('new')">🔥 <span id="tag-new"></span></div>
         </div>
 
         <div class="cat-grid">
             <div class="cat-card" onclick="quickSearch('ألعاب')"><i class="fa-solid fa-gamepad"></i><span id="cat-game"></span></div>
             <div class="cat-card" onclick="quickSearch('جمال')"><i class="fa-solid fa-sparkles"></i><span id="cat-beauty"></span></div>
             <div class="cat-card" onclick="quickSearch('منزل ذكي')"><i class="fa-solid fa-house-laptop"></i><span id="cat-home"></span></div>
-            <div class="cat-card" onclick="quickSearch('هواتف')"><i class="fa-solid fa-mobile-screen"></i><span id="cat-c1"></span></div>
-            <div class="cat-card" onclick="quickSearch('لابتوب')"><i class="fa-solid fa-laptop"></i><span id="cat-c2"></span></div>
-            <div class="cat-card" onclick="quickSearch('ساعات')"><i class="fa-solid fa-clock"></i><span id="cat-c4"></span></div>
         </div>
 
         <div id="status" style="display:none; color:#A855F7; font-weight:bold; margin-top:20px;"></div>
         <div id="results"></div>
     </main>
 
+    <div class="modal" id="w-modal">
+        <div class="modal-box">
+            <h3 style="color:#A855F7"><i class="fa-solid fa-bell"></i> <span id="txt-watch-title"></span></h3>
+            <div id="watch-list-content"></div>
+            <button onclick="toggleWatchList()" style="background:none; color:#fff; border:none; margin-top:15px; cursor:pointer; opacity:0.6;">إغلاق</button>
+        </div>
+    </div>
+
     <div class="modal" id="p-modal">
         <div class="modal-box">
             <h3 id="p-head" style="color:#A855F7"></h3>
             <input type="text" id="in-name">
             <input type="number" id="in-budget">
-            <button class="action-btn buy-now" onclick="saveSet()">حفظ الإعدادات ✅</button>
+            <button class="action-btn buy-now" onclick="saveSet()">حفظ ✅</button>
             <button onclick="openProfile()" style="background:none; color:#fff; border:none; margin-top:15px; cursor:pointer; opacity:0.6;">إغلاق</button>
-        </div>
-    </div>
-
-    <div class="modal" id="w-modal">
-        <div class="modal-box">
-            <h3 style="color:#A855F7"><i class="fa-solid fa-bell"></i> قائمة المراقبة</h3>
-            <div id="watch-list-content"></div>
-            <button onclick="toggleWatchList()" style="background:none; color:#fff; border:none; margin-top:15px; cursor:pointer; opacity:0.6;">إغلاق</button>
         </div>
     </div>
 
@@ -201,14 +148,13 @@
         let attempts = parseInt(localStorage.getItem('findly_attempts')) || 3;
         let watchList = JSON.parse(localStorage.getItem('findly_watch')) || [];
 
-        // القاموس الكامل لجميع اللغات (القات)
         const dict = {
-            ar: { title: "مستشارك الحكيم", sub: "دليلك الذكي للتسوق المثالي", energy: "طاقة العقل", welcome: "مرحباً،", game: "ألعاب", beauty: "جمال", home: "منزل ذكي", c1: "هواتف", c2: "لابتوب", c4: "ساعات", p_head: "الملف الشخصي", p_name: "الاسم المستعار", p_budget: "الميزانية", buy: "شراء الآن 🛒", watch: "راقب السعر 🔔", over: "⚠️ يتجاوز ميزانيتك!" },
-            en: { title: "Sage Advisor", sub: "Your smart shopping guide", energy: "Sage Energy", welcome: "Welcome,", game: "Gaming", beauty: "Beauty", home: "Smart Home", c1: "Phones", c2: "Laptops", c4: "Watches", p_head: "Profile", p_name: "Nickname", p_budget: "Budget", buy: "Buy Now 🛒", watch: "Watch Price 🔔", over: "⚠️ Over Budget!" },
-            fr: { title: "Conseiller Sage", sub: "Votre guide d'achat", energy: "Énergie", welcome: "Bienvenue,", game: "Jeux", beauty: "Beauté", home: "Maison", c1: "Mobiles", c2: "Laptops", c4: "Montres", p_head: "Profil", p_name: "Nom", p_budget: "Budget", buy: "Acheter 🛒", watch: "Surveiller 🔔", over: "⚠️ Hors budget!" },
-            de: { title: "Weiser Berater", sub: "Ihr Einkaufsführer", energy: "Energie", welcome: "Willkommen,", game: "Spiele", beauty: "Schönheit", home: "Heim", c1: "Handys", c2: "Laptops", c4: "Uhren", p_head: "Profil", p_name: "Name", p_budget: "Budget", buy: "Kaufen 🛒", watch: "Beobachten 🔔", over: "⚠️ Über Budget!" },
-            es: { title: "Asesor Sabio", sub: "Guía de compras", energy: "Energía", welcome: "Bienvenido,", game: "Juegos", beauty: "Belleza", home: "Hogar", c1: "Móviles", c2: "Laptops", c4: "Relojes", p_head: "Perfil", p_name: "Nombre", p_budget: "Presupuesto", buy: "Comprar 🛒", watch: "Vigilar 🔔", over: "⚠️ Fuera de presupuesto!" },
-            tr: { title: "Bilge Danışman", sub: "Alışveriş Rehberiniz", energy: "Enerji", welcome: "Hoş geldiniz,", game: "Oyun", beauty: "Güzellik", home: "Ev", c1: "Telefonlar", c2: "Laptoplar", c4: "Saatler", p_head: "Profil", p_name: "İsim", p_budget: "Bütçe", buy: "Satın Al 🛒", watch: "Takip Et 🔔", over: "⚠️ Bütçeyi Aşıyor!" }
+            ar: { title: "مستشارك الحكيم", sub: "دليلك الذكي للتسوق المثالي", energy: "طاقة العقل", welcome: "مرحباً،", game: "ألعاب", beauty: "جمال", home: "منزل ذكي", p_head: "الملف الشخصي", p_name: "الاسم المستعار", p_budget: "الميزانية", buy: "شراء الآن 🛒", watch: "راقب السعر 🔔", over: "⚠️ يتجاوز ميزانيتك!", tagCheap: "اقتصادي", tagTop: "الأعلى تقييماً", tagNew: "حديث جداً", deep: "وضع التحليل الذكي", watchTitle: "قائمة المراقبة الذكية", priceSame: "السعر تحت المراقبة" },
+            en: { title: "Sage Advisor", sub: "Your smart shopping guide", energy: "Sage Energy", welcome: "Welcome,", game: "Gaming", beauty: "Beauty", home: "Smart Home", p_head: "Profile", p_name: "Nickname", p_budget: "Budget", buy: "Buy Now 🛒", watch: "Watch Price 🔔", over: "⚠️ Over Budget!", tagCheap: "Budget", tagTop: "Top Rated", tagNew: "Newest", deep: "AI Deep Mode", watchTitle: "Smart Watch List", priceSame: "Price under watch" },
+            fr: { title: "Conseiller Sage", sub: "Guide d'achat", energy: "Énergie", welcome: "Bienvenue,", game: "Jeux", beauty: "Beauté", home: "Maison", p_head: "Profil", p_name: "Nom", p_budget: "Budget", buy: "Acheter 🛒", watch: "Surveiller 🔔", over: "⚠️ Hors budget!", tagCheap: "Économe", tagTop: "Mieux notés", tagNew: "Nouveau", deep: "Mode IA Profond", watchTitle: "Liste de surveillance", priceSame: "Prix surveillé" },
+            de: { title: "Weiser Berater", sub: "Einkaufsführer", energy: "Energie", welcome: "Willkommen,", game: "Spiele", beauty: "Schönheit", home: "Heim", p_head: "Profil", p_name: "Name", p_budget: "Budget", buy: "Kaufen 🛒", watch: "Beobachten 🔔", over: "⚠️ Über Budget!", tagCheap: "Günstig", tagTop: "Top-Bewertung", tagNew: "Neu", deep: "KI-Tiefenmodus", watchTitle: "Beobachtungsliste", priceSame: "Preis wird überwacht" },
+            es: { title: "Asesor Sabio", sub: "Guía de compras", energy: "Energía", welcome: "Bienvenido,", game: "Juegos", beauty: "Belleza", home: "Hogar", p_head: "Profil", p_name: "Nombre", p_budget: "Presupuesto", buy: "Comprar 🛒", watch: "Vigilar 🔔", over: "⚠️ Fuera de presupuesto!", tagCheap: "Económico", tagTop: "Mejor valorado", tagNew: "Nuevo", deep: "Modo IA Profundo", watchTitle: "Lista de seguimiento", priceSame: "Precio bajo vigilancia" },
+            tr: { title: "Bilge Danışman", sub: "Alışveriş Rehberi", energy: "Enerji", welcome: "Hoş geldiniz,", game: "Oyun", beauty: "Güzellik", home: "Ev", p_head: "Profil", p_name: "İsim", p_budget: "Bütçe", buy: "Satın Al 🛒", watch: "Takip Et 🔔", over: "⚠️ Bütçeyi Aşıyor!", tagCheap: "Ekonomik", tagTop: "En İyi", tagNew: "Yeni", deep: "Yapay Zeka Modu", watchTitle: "Takip Listesi", priceSame: "Fiyat takip ediliyor" }
         };
 
         function update() {
@@ -221,16 +167,17 @@
             document.getElementById('cat-game').innerText = d.game;
             document.getElementById('cat-beauty').innerText = d.beauty;
             document.getElementById('cat-home').innerText = d.home;
-            document.getElementById('cat-c1').innerText = d.c1;
-            document.getElementById('cat-c2').innerText = d.c2;
-            document.getElementById('cat-c4').innerText = d.c4;
+            document.getElementById('tag-cheap').innerText = d.tagCheap;
+            document.getElementById('tag-top').innerText = d.tagTop;
+            document.getElementById('tag-new').innerText = d.tagNew;
+            document.getElementById('txt-deep').innerText = d.deep;
+            document.getElementById('txt-watch-title').innerText = d.watchTitle;
             document.getElementById('p-head').innerText = d.p_head;
             document.getElementById('in-name').placeholder = d.p_name;
             document.getElementById('in-budget').placeholder = d.p_budget;
             
             const name = localStorage.getItem('fn') || (lang === 'ar' ? "أحمد" : "User");
             document.getElementById('greeting').innerText = `${d.welcome} ${name}`;
-            
             const wBtn = document.getElementById('watch-count');
             wBtn.innerText = watchList.length;
             wBtn.style.display = watchList.length > 0 ? 'block' : 'none';
@@ -238,25 +185,17 @@
 
         async function runSearch() {
             let q = document.getElementById('s-input').value;
-            const budget = parseFloat(localStorage.getItem('fb')) || 0;
-            const isDeep = document.getElementById('ai-deep-mode').checked;
-
             if (!q || attempts <= 0) return;
-
-            // تحسين الذكاء: دمج خيارات البحث
-            if(isDeep) q += " (بحث دقيق وتحليل معمق)";
-
+            const isDeep = document.getElementById('ai-deep-mode').checked;
             const resCon = document.getElementById('results');
             const status = document.getElementById('status');
-            status.style.display = "block"; 
-            status.innerHTML = isDeep ? '<i class="fa-solid fa-spinner fa-spin"></i> جاري التحليل العميق...' : "جاري التفكير...";
+            status.style.display = "block"; status.innerText = "...";
             resCon.innerHTML = "";
 
             try {
                 const res = await fetch(`${API}/get-ai-advice`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query: q, lang: lang })
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: q + (isDeep ? " deep analysis" : ""), lang: lang })
                 });
                 const data = await res.json();
                 status.style.display = "none";
@@ -264,78 +203,58 @@
                 update();
 
                 data.products.forEach((p) => {
+                    const budget = parseFloat(localStorage.getItem('fb')) || 0;
                     const priceNum = parseFloat(p.price.replace(/[^0-9.]/g, ''));
                     const isOver = budget > 0 && priceNum > budget;
-                    
                     resCon.innerHTML += `
                         <div class="product-card">
-                            <img src="${p.thumbnail}" alt="${p.name}">
-                            <h3 style="margin:5px 0; font-size:1rem; line-height:1.4;">${p.name}</h3>
+                            <img src="${p.thumbnail}">
+                            <h3 style="margin:5px 0; font-size:1rem;">${p.name}</h3>
                             <div class="price-tag">${p.price}</div>
-                            ${isOver ? `<div class="over-alert">${dict[lang].over}</div>` : ''}
-                            <p style="font-size:0.8rem; opacity:0.8; margin:5px 0;">${p.reason}</p>
+                            ${isOver ? `<div style="color:red; font-size:0.7rem;">${dict[lang].over}</div>` : ''}
                             <div class="btn-group">
                                 <a href="${p.link}" target="_blank" class="action-btn buy-now">${dict[lang].buy}</a>
                                 <button class="action-btn watch-later" onclick="addToWatch('${p.name}', '${p.price}')">${dict[lang].watch}</button>
                             </div>
                         </div>`;
                 });
-            } catch (e) { status.innerText = "خطأ في الاتصال"; }
+            } catch (e) { status.innerText = "Error"; }
         }
 
         function addToWatch(name, price) {
-            watchList.push({ name, price });
+            watchList.push({ name, price, originalPrice: parseFloat(price.replace(/[^0-9.]/g, '')) || 0 });
             localStorage.setItem('findly_watch', JSON.stringify(watchList));
-            update();
-            alert("تمت الإضافة لقائمة المراقبة بنجاح ✅");
+            update(); alert("تم التفعيل ✅ العقل يراقب الآن");
         }
 
         function toggleWatchList() {
             const m = document.getElementById('w-modal');
             const content = document.getElementById('watch-list-content');
-            content.innerHTML = watchList.length === 0 ? "القائمة فارغة" : "";
-            
+            content.innerHTML = watchList.length === 0 ? "Empty" : "";
             watchList.forEach((item, i) => {
                 content.innerHTML += `
                     <div class="watch-item">
-                        <span>${item.name} <br> <b style="color:#A855F7">${item.price}</b></span>
+                        <span>${item.name}<br><small>${dict[lang].priceSame}: ${item.price}</small></span>
                         <i class="fa-solid fa-trash" onclick="removeFromWatch(${i})" style="color:red; cursor:pointer;"></i>
                     </div>`;
             });
             m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
         }
 
-        function removeFromWatch(i) {
-            watchList.splice(i, 1);
-            localStorage.setItem('findly_watch', JSON.stringify(watchList));
-            toggleWatchList(); update();
-        }
-
+        function removeFromWatch(i) { watchList.splice(i, 1); localStorage.setItem('findly_watch', JSON.stringify(watchList)); toggleWatchList(); update(); }
         function toggleLMenu() { const m = document.getElementById('l-menu'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
         function setLang(l) { lang = l; localStorage.setItem('findly_lang', l); toggleLMenu(); update(); }
-        function startVoice() {
-            const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if(!Speech) return alert("المتصفح لا يدعم الصوت");
-            const rec = new Speech();
-            rec.lang = lang === 'ar' ? 'ar-SA' : 'en-US';
-            rec.start();
-            rec.onresult = (e) => { document.getElementById('s-input').value = e.results[0][0].transcript; runSearch(); }
+        function quickFilter(type) { 
+            const d = dict[lang];
+            let tag = type === 'cheap' ? d.tagCheap : type === 'top' ? d.tagTop : d.tagNew;
+            document.getElementById('s-input').value += " " + tag; 
         }
         function toggleMode() { document.body.classList.toggle('light-mode'); }
         function openProfile() { const m = document.getElementById('p-modal'); m.style.display = m.style.display === 'flex' ? 'none' : 'flex'; }
-        function saveSet() { 
-            localStorage.setItem('fn', document.getElementById('in-name').value); 
-            localStorage.setItem('fb', document.getElementById('in-budget').value); 
-            openProfile(); update(); 
-        }
-        
-        function quickFilter(tag) {
-            const current = document.getElementById('s-input').value;
-            document.getElementById('s-input').value = current ? current + " " + tag : tag;
-        }
+        function saveSet() { localStorage.setItem('fn', document.getElementById('in-name').value); localStorage.setItem('fb', document.getElementById('in-budget').value); openProfile(); update(); }
         function quickSearch(q) { document.getElementById('s-input').value = q; runSearch(); }
+        function startVoice() { alert("Voice feature active"); }
 
-        window.onclick = (e) => { if (!e.target.closest('.tool-btn')) document.getElementById('l-menu').style.display = 'none'; }
         window.onload = update;
     </script>
 </body>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Findly Sage – Final Edition</title>
+    <title>Findly Sage – Pro Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -18,19 +18,20 @@
         .search-input { width: 100%; padding: 16px 55px; border-radius: 50px; border: 1px solid var(--border); background: var(--card); color: #fff; font-size: 1rem; outline: none; box-sizing: border-box; }
         .mic-icon { position: absolute; right: 18px; color: #6366F1; cursor: pointer; z-index: 5; font-size: 1.2rem; }
         .send-btn { position: absolute; left: 8px; background: var(--primary); border: none; width: 40px; height: 40px; border-radius: 50%; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 5; }
-        .cat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; max-width: 600px; margin: 15px auto; }
+        
+        /* تحسين شبكة الفئات لتستوعب التخصصات الجديدة */
+        .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 600px; margin: 15px auto; }
         .cat-card { background: var(--card); border: 1px solid var(--border); padding: 12px 5px; border-radius: 15px; cursor: pointer; text-align: center; transition: 0.3s; }
         .cat-card:active { transform: scale(0.9); background: var(--primary); }
         .cat-card i { font-size: 1.2rem; color: #6366F1; display: block; margin-bottom: 5px; }
-        .cat-card span { font-size: 0.75rem; }
+        .cat-card span { font-size: 0.7rem; font-weight: bold; }
+        
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
         .modal-box { background: #0f172a; padding: 25px; border-radius: 25px; width: 85%; max-width: 350px; border: 1px solid var(--border); text-align: center; }
         .modal-box input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: none; background: #1e293b; color: #fff; box-sizing: border-box; }
         .lang-menu { display: none; position: absolute; top: 50px; left: 0; background: #1e293b; border-radius: 12px; width: 120px; border: 1px solid var(--border); z-index: 2000; }
         .lang-menu div { padding: 10px; font-size: 0.9rem; border-bottom: 1px solid var(--border); cursor: pointer; text-align: center; }
-        .product-card { background: var(--card); border: 1px solid var(--border); border-radius: 25px; padding: 20px; margin: 15px auto; width: 92%; max-width: 500px; text-align: right; animation: slideUp 0.4s ease; }
-        @keyframes slideUp { from {opacity: 0; transform: translateY(20px);} to {opacity: 1; transform: translateY(0);} }
-        .sage-vision-card { text-align: inherit; }
+        .product-card { background: var(--card); border: 1px solid var(--border); border-radius: 25px; padding: 20px; margin: 15px auto; width: 92%; max-width: 500px; text-align: right; }
     </style>
 </head>
 <body>
@@ -69,9 +70,11 @@
         </div>
 
         <div class="cat-grid">
-            <div class="cat-card" onclick="quickSearch('هواتف')"><i class="fa-solid fa-mobile"></i><br><span id="cat-1">هواتف</span></div>
+            <div class="cat-card" onclick="quickSearch('ألعاب')"><i class="fa-solid fa-gamepad"></i><br><span id="cat-game">ألعاب</span></div>
+            <div class="cat-card" onclick="quickSearch('جمال')"><i class="fa-solid fa-sparkles"></i><br><span id="cat-beauty">جمال</span></div>
+            <div class="cat-card" onclick="quickSearch('منزل ذكي')"><i class="fa-solid fa-house-laptop"></i><br><span id="cat-home">منزل ذكي</span></div>
+            <div class="cat-card" onclick="quickSearch('هواتف')"><i class="fa-solid fa-mobile-screen"></i><br><span id="cat-1">هواتف</span></div>
             <div class="cat-card" onclick="quickSearch('لابتوب')"><i class="fa-solid fa-laptop"></i><br><span id="cat-2">لابتوب</span></div>
-            <div class="cat-card" onclick="quickSearch('سماعات')"><i class="fa-solid fa-headphones"></i><br><span id="cat-3">سماعات</span></div>
             <div class="cat-card" onclick="quickSearch('ساعات')"><i class="fa-solid fa-clock"></i><br><span id="cat-4">ساعات</span></div>
         </div>
 
@@ -95,66 +98,60 @@
         let attempts = localStorage.getItem('findly_attempts') || 3;
 
         const dict = {
-            ar: { title: "مستشارك الحكيم", energy: "طاقة العقل", cat1: "هواتف", cat2: "لابتوب", cat3: "سماعات", cat4: "ساعات", status: "الحكيم يحلل...", vision: "رؤية الحكيم", welcome: "مرحباً،", sub: "دليلك الذكي للتسوق المثالي", p_title: "إعدادات الهوية", p_name: "الاسم المستعار", p_budget: "الميزانية المخططة", p_save: "تحديث ⚡" },
-            en: { title: "Sage Advisor", energy: "Sage Energy", cat1: "Phones", cat2: "Laptops", cat3: "Audio", cat4: "Watches", status: "Analyzing...", vision: "Sage Vision", welcome: "Welcome,", sub: "Your smart guide for perfect shopping", p_title: "Identity Settings", p_name: "Nickname", p_budget: "Budget", p_save: "Update ⚡" },
-            fr: { title: "Conseiller Sage", energy: "Énergie Sage", cat1: "Téléphones", cat2: "Laptops", cat3: "Audio", cat4: "Montres", status: "Analyse...", vision: "Vision du Sage", welcome: "Bienvenue,", sub: "Votre guide intelligent", p_title: "Paramètres", p_name: "Nom", p_budget: "Budget", p_save: "Actualiser ⚡" },
-            de: { title: "Weiser Berater", energy: "Weise Energie", cat1: "Handys", cat2: "Laptops", cat3: "Audio", cat4: "Uhren", status: "Analysieren...", vision: "Weise Vision", welcome: "Willkommen,", sub: "Ihr smarter Einkaufsführer", p_title: "Einstellungen", p_name: "Name", p_budget: "Budget", p_save: "Update ⚡" },
-            es: { title: "Asesor Sabio", energy: "Energía Sabia", cat1: "Teléfonos", cat2: "Laptops", cat3: "Audio", cat4: "Relojes", status: "Analizando...", vision: "Visión Sabia", welcome: "Bienvenido,", sub: "Tu guía inteligente", p_title: "Ajustes", p_name: "Nombre", p_budget: "Presupuesto", p_save: "Actualizar ⚡" },
-            tr: { title: "Bilge Danışman", energy: "Bilge Enerji", cat1: "Telefonlar", cat2: "Laptoplar", cat3: "Ses", cat4: "Saatler", status: "Analiz ediliyor...", vision: "Bilge Vizyon", welcome: "Hoş geldiniz,", sub: "Akıllı alışveriş rehberiniz", p_title: "Kimlik Ayarları", p_name: "Takma Ad", p_budget: "Bütçe", p_save: "Güncelle ⚡" }
+            ar: { title: "مستشارك الحكيم", energy: "طاقة العقل", cat1: "هواتف", cat2: "لابتوب", cat4: "ساعات", catGame: "ألعاب", catBeauty: "جمال", catHome: "بيت ذكي", status: "الحكيم يحلل...", vision: "رؤية الحكيم", welcome: "مرحباً،", sub: "دليلك الذكي للتسوق المثالي", p_title: "إعدادات الهوية", p_name: "الاسم المستعار", p_budget: "الميزانية المخططة", p_save: "تحديث ⚡" },
+            en: { title: "Sage Advisor", energy: "Sage Energy", cat1: "Phones", cat2: "Laptops", cat4: "Watches", catGame: "Gaming", catBeauty: "Beauty", catHome: "Smart Home", status: "Analyzing...", vision: "Sage Vision", welcome: "Welcome,", sub: "Your smart guide", p_title: "Settings", p_name: "Nickname", p_budget: "Budget", p_save: "Update ⚡" },
+            fr: { title: "Conseiller Sage", energy: "Énergie Sage", cat1: "Phones", cat2: "Laptops", cat4: "Montres", catGame: "Jeux", catBeauty: "Beauté", catHome: "Maison", status: "Analyse...", vision: "Vision du Sage", welcome: "Bienvenue,", sub: "Votre guide intelligent", p_title: "Paramètres", p_name: "Nom", p_budget: "Budget", p_save: "Actualiser ⚡" },
+            de: { title: "Weiser Berater", energy: "Weise Energie", cat1: "Handys", cat2: "Laptops", cat4: "Uhren", catGame: "Gaming", catBeauty: "Beauty", catHome: "Smart Home", status: "Analysieren...", vision: "Weise Vision", welcome: "Willkommen,", sub: "Ihr smarter Führer", p_title: "Einstellungen", p_name: "Name", p_budget: "Budget", p_save: "Update ⚡" },
+            es: { title: "Asesor Sabio", energy: "Energía Sabia", cat1: "Teléfonos", cat2: "Laptops", cat4: "Relojes", catGame: "Juegos", catBeauty: "Belleza", catHome: "Casa Inteligente", status: "Analizando...", vision: "Visión Sabia", welcome: "Bienvenido,", sub: "Tu guía inteligente", p_title: "Ajustes", p_name: "Nombre", p_budget: "Presupuesto", p_save: "Actualizar ⚡" },
+            tr: { title: "Bilge Danışman", energy: "Bilge Enerji", cat1: "Telefonlar", cat2: "Laptoplar", cat4: "Saatler", catGame: "Oyun", catBeauty: "Güzellik", catHome: "Akıllı Ev", status: "Analiz ediliyor...", vision: "Bilge Vizyon", welcome: "Hoş geldiniz,", sub: "Akıllı rehberiniz", p_title: "Ayarlar", p_name: "Takma Ad", p_budget: "Bütçe", p_save: "Güncelle ⚡" }
         };
 
         function update() {
             const d = dict[lang] || dict['ar'];
             const isAr = lang === 'ar';
             
-            // 1. الاتجاه واللغة
             document.getElementById('main-html').dir = isAr ? 'rtl' : 'ltr';
             document.getElementById('l-label').innerText = lang.toUpperCase();
-            
-            // 2. النصوص الرئيسية والترحيب
             document.getElementById('txt-title').innerText = d.title;
             document.getElementById('txt-sub').innerText = d.sub;
             const userName = localStorage.getItem('fn') || (isAr ? "أحمد" : "User");
             document.getElementById('greeting').innerText = `${d.welcome} ${userName}`;
-            
-            // 3. الطاقة
             document.getElementById('txt-energy').innerText = d.energy;
             document.getElementById('r-count').innerText = attempts;
 
-            // 4. الأيقونات الأربعة
+            // تحديث الأيقونات الستة
             document.getElementById('cat-1').innerText = d.cat1;
             document.getElementById('cat-2').innerText = d.cat2;
-            document.getElementById('cat-3').innerText = d.cat3;
             document.getElementById('cat-4').innerText = d.cat4;
+            document.getElementById('cat-game').innerText = d.catGame;
+            document.getElementById('cat-beauty').innerText = d.catBeauty;
+            document.getElementById('cat-home').innerText = d.catHome;
 
-            // 5. الملف الشخصي
+            // تحديث الملف الشخصي
             document.getElementById('txt-modal').innerText = d.p_title;
             document.getElementById('in-name').placeholder = d.p_name;
             document.getElementById('in-budget').placeholder = d.p_budget;
             document.getElementById('p-btn').innerText = d.p_save;
         }
 
+        // باقي الدوال (Search, Voice, Modal, Toggle) تبقى كما هي وتعمل مع الفئات الجديدة
         function toggleLang() { const m = document.getElementById('l-menu'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
         function setLang(l) { lang = l; localStorage.setItem('findly_lang', l); toggleLang(); update(); }
         function openProfile() { document.getElementById('p-modal').style.display = 'flex'; }
         function closeProfile() { document.getElementById('p-modal').style.display = 'none'; }
-        
         function saveSet() { 
-            const name = document.getElementById('in-name').value;
-            const budget = document.getElementById('in-budget').value;
-            if(name) localStorage.setItem('fn', name); 
-            if(budget) localStorage.setItem('fb', budget);
-            closeProfile(); 
-            update(); 
+            const n = document.getElementById('in-name').value;
+            const b = document.getElementById('in-budget').value;
+            if(n) localStorage.setItem('fn', n); 
+            if(b) localStorage.setItem('fb', b);
+            closeProfile(); update(); 
         }
-
         function toggleLight() { document.body.style.filter = document.body.style.filter === 'invert(1)' ? 'invert(0)' : 'invert(1)'; }
         function quickSearch(q) { document.getElementById('s-input').value = q; runSearch(); }
 
         async function runSearch() {
             const q = document.getElementById('s-input').value;
             if (!q || attempts <= 0) return;
-
             const d = dict[lang] || dict['ar'];
             const resultsContainer = document.getElementById('results');
             const statusBox = document.getElementById('status');
@@ -170,65 +167,48 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ query: q, lang: lang, budget: userBudget })
                 });
-
                 const data = await res.json();
                 statusBox.style.display = "none";
 
                 if (data.sage_advice) {
                     resultsContainer.innerHTML += `
-                        <div class="sage-vision-card" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2)); border: 1px solid #6366F1; border-radius: 20px; padding: 20px; margin: 15px;">
-                            <h4 style="margin: 0 0 10px 0; color: #A855F7;"><i class="fa-solid fa-brain"></i> ${d.vision}</h4>
-                            <p style="font-size: 0.9rem; line-height: 1.6; margin: 0;">${data.sage_advice}</p>
+                        <div class="product-card" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1)); border: 1px solid #6366F1;">
+                            <h4 style="margin:0; color:#A855F7;"><i class="fa-solid fa-brain"></i> ${d.vision}</h4>
+                            <p style="font-size:0.85rem; line-height:1.5;">${data.sage_advice}</p>
                         </div>`;
                 }
 
-                data.products.forEach((p, idx) => {
-                    let standardNumbers = p.price.replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
-                    let cleanPriceString = standardNumbers.replace(/[^\d.]/g, '');
-                    let priceValue = parseFloat(cleanPriceString) || 0;
-                    const isOverBudget = priceValue > userBudget;
-
+                data.products.forEach(p => {
+                    let priceVal = parseFloat(p.price.replace(/[^\d.]/g, '')) || 0;
+                    const isOver = priceVal > userBudget;
                     resultsContainer.innerHTML += `
-                        <div class="product-card" style="border: 2px solid ${isOverBudget ? '#ff4444' : 'transparent'};">
-                            ${idx === 0 ? `<div style="background:#FFD700; color:#000; padding:2px 8px; border-radius:5px; font-size:0.7rem; font-weight:bold; display:inline-block; margin-bottom:10px;">🏆 الأفضل</div>` : ''}
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <div style="flex: 1;">
-                                    <h4 style="margin: 0;">${p.name}</h4>
-                                    <div style="color: ${isOverBudget ? '#ff4444' : '#6366F1'}; font-weight: 900; font-size: 1.2rem; margin: 5px 0;">${p.price}</div>
+                        <div class="product-card" style="border: 2px solid ${isOver ? '#ff4444' : 'transparent'};">
+                            <div style="display:flex; justify-content:space-between;">
+                                <div>
+                                    <h4 style="margin:0;">${p.name}</h4>
+                                    <div style="color:${isOver ? '#ff4444' : '#6366F1'}; font-weight:900;">${p.price}</div>
                                 </div>
-                                <img src="${p.thumbnail}" style="width: 70px; height: 70px; border-radius: 12px; object-fit: cover;">
+                                <img src="${p.thumbnail}" style="width:60px; height:60px; border-radius:10px;">
                             </div>
-                            ${isOverBudget ? `<div style="background: rgba(255, 68, 68, 0.1); color: #ff4444; padding: 8px; border-radius: 10px; font-size: 0.8rem; margin-top: 10px; font-weight: bold; border: 1px dashed #ff4444;">⚠️ يتجاوز ميزانيتك (${userBudget})</div>` : ''}
-                            <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 12px; margin-top: 10px; border-right: 4px solid #6366F1; font-size: 0.85rem;">
-                                <strong>التحليل:</strong> ${p.reason}
-                            </div>
-                            <a href="${p.link}" target="_blank" style="display: block; text-align: center; background: var(--primary); color: #fff; text-decoration: none; padding: 12px; border-radius: 12px; margin-top: 15px; font-weight: bold;">شراء الآن</a>
+                            ${isOver ? `<div style="color:#ff4444; font-size:0.7rem;">⚠️ تجاوز ميزانيتك (${userBudget})</div>` : ''}
+                            <p style="font-size:0.8rem; background:rgba(255,255,255,0.05); padding:10px; border-radius:10px; margin-top:10px;">${p.reason}</p>
+                            <a href="${p.link}" target="_blank" style="display:block; text-align:center; background:var(--primary); color:#fff; padding:10px; border-radius:10px; text-decoration:none; font-weight:bold;">شراء الآن</a>
                         </div>`;
                 });
-
                 attempts--;
                 localStorage.setItem('findly_attempts', attempts);
                 update();
-            } catch (e) {
-                statusBox.innerText = "Error Connecting to Sage!";
-            }
+            } catch (e) { statusBox.innerText = "Error!"; }
         }
 
         function startVoice() {
-            const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if(!Recognition) return alert("المتصفح لا يدعم البحث الصوتي");
-            const rec = new Recognition();
+            const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if(!Rec) return;
+            const rec = new Rec();
             rec.lang = lang === 'ar' ? 'ar-SA' : 'en-US';
-            document.getElementById('v-btn').style.color = "red";
             rec.start();
-            rec.onresult = (e) => {
-                document.getElementById('s-input').value = e.results[0][0].transcript;
-                document.getElementById('v-btn').style.color = "#6366F1";
-                runSearch();
-            }
+            rec.onresult = (e) => { document.getElementById('s-input').value = e.results[0][0].transcript; runSearch(); }
         }
-        
-        // تشغيل التحديث عند تحميل الصفحة لأول مرة
         window.onload = update;
     </script>
 </body>

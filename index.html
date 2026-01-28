@@ -137,8 +137,21 @@
                 localStorage.setItem('findly_attempts', attempts);
                 update();
                 document.getElementById('status').style.display = "none";
-                
-                data.products.forEach((p, idx) => {
+                // إضافة بطاقة "رؤية الحكيم" العامة في البداية
+if (data.sage_advice) {
+    resultsBox.innerHTML += `
+        <div style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2)); 
+                    border: 1px solid #6366F1; border-radius: 20px; padding: 20px; margin-bottom: 20px; text-align: right;">
+            <h4 style="margin: 0 0 10px 0; color: #A855F7;"><i class="fa-solid fa-brain"></i> رؤية الحكيم التحليلية</h4>
+            <p style="font-size: 0.9rem; line-height: 1.6; margin: 0;">${data.sage_advice}</p>
+        </div>
+    `;
+}
+
+// ثم عرض المنتجات كالمعتاد
+data.products.forEach((p, idx) => {
+    // الكود السابق لعرض البطاقات...
+});
                     const isSage = idx === 0;
                     document.getElementById('results').innerHTML += `
                         <div class="product-card">

@@ -3,68 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Findly Sage Ultimate</title>
+    <title>Findly Sage - The Ultimate Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: linear-gradient(135deg, #6366F1, #A855F7); --bg: #030712; --card: #1e293b; --border: rgba(255, 255, 255, 0.1); --text: #fff; }
+        :root { --primary: linear-gradient(135deg, #6366F1, #A855F7); --bg: #030712; --card: #1e293b; --border: rgba(255, 255, 255, 0.1); --text: #fff; --accent: #10b981; }
         .light-mode { --bg: #f3f4f6; --card: #ffffff; --border: #d1d5db; --text: #1f2937; }
         body { background: var(--bg); color: var(--text); font-family: 'Readex+Pro', sans-serif; margin: 0; transition: 0.3s; overflow-x: hidden; }
         
         header { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 1000; }
         .logo { font-size: 1.4rem; font-weight: 900; background: var(--primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         
-        .header-tools { display: flex; gap: 8px; }
-        .tool-btn { background: var(--card); border: 1px solid var(--border); color: var(--text); width: 40px; height: 40px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; position: relative; }
+        .tool-btn { background: var(--card); border: 1px solid var(--border); color: var(--text); width: 40px; height: 40px; border-radius: 12px; cursor: pointer; transition: 0.2s; }
+        .tool-btn:hover { border-color: #6366F1; transform: scale(1.05); }
 
         .lang-menu { display: none; position: absolute; top: 45px; left: 0; background: #1e293b; border-radius: 12px; border: 1px solid var(--border); width: 120px; z-index: 2000; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
         .lang-item { padding: 10px; font-size: 0.85rem; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); color: #fff; text-align: center; }
         .lang-item:hover { background: #6366F1; }
 
-        .search-area { padding: 25px 5%; text-align: center; }
+        .search-area { padding: 25px 5%; text-align: center; max-width: 800px; margin: 0 auto; }
         .energy-box { background: rgba(168, 85, 247, 0.1); border: 1px solid #A855F7; padding: 6px 18px; border-radius: 50px; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 20px; }
 
-        .ai-options { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
-        .ai-tag { font-size: 0.75rem; padding: 5px 12px; border-radius: 20px; background: var(--card); border: 1px solid var(--border); cursor: pointer; transition: 0.3s; color: var(--text); display: flex; align-items: center; gap: 5px; }
-        .ai-tag:hover { background: var(--primary); color: #fff; }
-        
-        .ai-toggle { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #A855F7; margin-bottom: 10px; justify-content: center; }
-
-        .search-wrapper { position: relative; max-width: 600px; margin: 0 auto; }
-        .search-input { width: 100%; padding: 16px 50px; border-radius: 50px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: 1rem; outline: none; box-sizing: border-box; text-align: center; }
-        .mic-icon { position: absolute; right: 18px; top: 50%; transform: translateY(-50%); color: #6366F1; cursor: pointer; font-size: 1.2rem; transition: 0.3s; }
+        .search-wrapper { position: relative; margin: 20px 0; }
+        .search-input { width: 100%; padding: 16px 50px; border-radius: 50px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: 1rem; outline: none; transition: 0.3s; box-sizing: border-box; }
+        .mic-icon { position: absolute; right: 18px; top: 50%; transform: translateY(-50%); color: #6366F1; cursor: pointer; font-size: 1.2rem; }
         .mic-active { color: #ef4444; animation: pulse 1s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-
         .send-btn { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); background: var(--primary); border: none; width: 40px; height: 40px; border-radius: 50%; color: #fff; cursor: pointer; }
 
-        .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 600px; margin: 20px auto; }
-        .cat-card { background: var(--card); border: 1px solid var(--border); padding: 12px 5px; border-radius: 18px; cursor: pointer; transition: 0.2s; }
-        .cat-card i { font-size: 1.3rem; color: #6366F1; display: block; margin-bottom: 5px; }
-        .cat-card span { font-size: 0.7rem; font-weight: bold; }
+        .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 20px 0; }
+        .cat-card { background: var(--card); border: 1px solid var(--border); padding: 15px 5px; border-radius: 18px; cursor: pointer; transition: 0.2s; text-align: center; }
+        .cat-card:hover { border-color: #6366F1; transform: translateY(-3px); }
+        .cat-card i { font-size: 1.4rem; color: #6366F1; margin-bottom: 8px; display: block; }
+        .cat-card span { font-size: 0.75rem; font-weight: bold; }
 
-        .product-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 12px; margin-top: 15px; text-align: right; max-width: 600px; margin-left: auto; margin-right: auto; }
-        .product-card img { width: 100%; height: 160px; object-fit: contain; background: #fff; border-radius: 12px; margin-bottom: 10px; }
-        .price-tag { color: #A855F7; font-size: 1.2rem; font-weight: bold; }
+        /* بطاقة المنتج المتقدمة مع التحليل */
+        .product-card { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 20px; margin-bottom: 25px; text-align: right; position: relative; transition: 0.3s; }
+        .rank-badge { position: absolute; top: 15px; left: 15px; background: var(--primary); color: #fff; padding: 4px 12px; border-radius: 10px; font-size: 0.75rem; font-weight: bold; z-index: 10; }
+        .product-img { width: 100%; height: 200px; object-fit: contain; background: #fff; border-radius: 15px; margin-bottom: 15px; }
+        .price-tag { font-size: 1.5rem; font-weight: 900; color: var(--accent); margin: 10px 0; }
         
-        .btn-group { display: flex; gap: 10px; margin-top: 10px; }
-        .action-btn { flex: 1; padding: 10px; border-radius: 10px; font-weight: bold; text-align: center; border: none; font-size: 0.85rem; cursor: pointer; font-family: inherit; }
-        .buy-now { background: var(--primary); color: #fff; text-decoration: none; }
-        .watch-later { background: rgba(168, 85, 247, 0.1); border: 1px solid #A855F7; color: var(--text); }
+        .analysis-box { background: rgba(99, 102, 241, 0.08); border-right: 4px solid #6366F1; padding: 15px; border-radius: 12px; margin: 15px 0; }
+        .analysis-title { font-size: 0.9rem; color: #A855F7; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+        .analysis-text { font-size: 0.85rem; line-height: 1.6; opacity: 0.9; }
 
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 3000; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
-        .modal-box { background: #0f172a; padding: 25px; border-radius: 25px; width: 85%; max-width: 380px; border: 1px solid var(--border); text-align: center; }
-        .modal-box input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; background: #1e293b; color: #fff; border: 1px solid var(--border); text-align: center; box-sizing: border-box; }
-        
-        #watch-list-content { max-height: 300px; overflow-y: auto; }
-        .watch-item { background: #1e293b; padding: 10px; border-radius: 10px; margin-bottom: 8px; font-size: 0.8rem; border-right: 4px solid #A855F7; display: flex; justify-content: space-between; align-items: center; text-align: right; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 3000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .modal-box { background: #0f172a; padding: 30px; border-radius: 25px; width: 85%; max-width: 400px; text-align: center; border: 1px solid var(--border); }
+        .modal-box input { width: 100%; padding: 14px; margin: 10px 0; border-radius: 12px; background: #1e293b; color: #fff; border: 1px solid var(--border); box-sizing: border-box; }
+
+        @keyframes pulse { 50% { opacity: 0.3; } }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="logo">Findly <i class="fa-solid fa-wand-magic-sparkles"></i></div>
-        <div class="header-tools">
+        <div class="logo">Findly Sage <i class="fa-solid fa-brain"></i></div>
+        <div style="display: flex; gap: 8px;">
             <button class="tool-btn" onclick="toggleMode()"><i class="fa-solid fa-circle-half-stroke"></i></button>
             <div style="position: relative;">
                 <button class="tool-btn" onclick="toggleLMenu()"><i class="fa-solid fa-language"></i></button>
@@ -77,10 +70,6 @@
                     <div class="lang-item" onclick="setLang('tr')">Türkçe</div>
                 </div>
             </div>
-            <button class="tool-btn" onclick="toggleWatchList()">
-                <i class="fa-solid fa-bell"></i>
-                <span id="watch-count" style="position:absolute; top:-5px; right:-5px; background:red; color:white; font-size:0.6rem; padding:2px 5px; border-radius:50%; display:none;">0</span>
-            </button>
             <button class="tool-btn" onclick="openProfile()"><i class="fa-solid fa-user-gear"></i></button>
         </div>
     </header>
@@ -88,19 +77,12 @@
     <main class="search-area">
         <div class="energy-box">
             <span id="txt-energy"></span>
-            <span id="r-count" style="background:#A855F7; color:#fff; padding:2px 10px; border-radius:20px; font-weight:900;">3</span>
+            <span id="r-count" style="background:#A855F7; color:#fff; padding:2px 12px; border-radius:20px; font-weight:900;">3</span>
             <i class="fa-solid fa-bolt" style="color:#FFD700;"></i>
         </div>
 
-        <h2 id="greeting" style="color: #A855F7; font-size: 1rem; margin-bottom: 5px;"></h2>
-        <h1 id="txt-title" style="margin: 5px 0; font-size: 2rem;"></h1>
-        <p id="txt-sub" style="opacity: 0.7; font-size: 0.85rem; margin-bottom: 20px;"></p>
-
-        <div class="ai-toggle">
-            <i class="fa-solid fa-brain"></i>
-            <span id="txt-deep"></span>
-            <input type="checkbox" id="ai-deep-mode" style="accent-color: #A855F7;">
-        </div>
+        <h1 id="txt-title" style="font-size: 2.2rem; margin-bottom: 10px;"></h1>
+        <p id="txt-sub" style="opacity: 0.7; margin-bottom: 25px;"></p>
 
         <div class="search-wrapper">
             <i id="mic-btn" class="fa-solid fa-microphone-lines mic-icon" onclick="startVoice()"></i>
@@ -108,132 +90,127 @@
             <button class="send-btn" onclick="runSearch()"><i class="fa-solid fa-magnifying-glass"></i></button>
         </div>
 
-        <div class="ai-options" style="margin-top: 15px;">
-            <div class="ai-tag" onclick="quickFilter('cheap')"><i class="fa-solid fa-sack-dollar"></i> <span id="tag-cheap"></span></div>
-            <div class="ai-tag" onclick="quickFilter('top')"><i class="fa-solid fa-star"></i> <span id="tag-top"></span></div>
-            <div class="ai-tag" onclick="quickFilter('new')"><i class="fa-solid fa-fire"></i> <span id="tag-new"></span></div>
-        </div>
-
         <div class="cat-grid">
-            <div class="cat-card" onclick="quickSearch('ألعاب')"><i class="fa-solid fa-gamepad"></i><span id="cat-game"></span></div>
-            <div class="cat-card" onclick="quickSearch('جمال')"><i class="fa-solid fa-sparkles"></i><span id="cat-beauty"></span></div>
-            <div class="cat-card" onclick="quickSearch('منزل ذكي')"><i class="fa-solid fa-house-laptop"></i><span id="cat-home"></span></div>
-            <div class="cat-card" onclick="quickSearch('هواتف')"><i class="fa-solid fa-mobile-screen-button"></i><span id="cat-c1"></span></div>
+            <div class="cat-card" onclick="quickSearch('هواتف')"><i class="fa-solid fa-mobile-screen"></i><span id="cat-c1"></span></div>
             <div class="cat-card" onclick="quickSearch('لابتوب')"><i class="fa-solid fa-laptop"></i><span id="cat-c2"></span></div>
-            <div class="cat-card" onclick="quickSearch('ساعات')"><i class="fa-solid fa-stopwatch"></i><span id="cat-c4"></span></div>
+            <div class="cat-card" onclick="quickSearch('ساعات')"><i class="fa-solid fa-stopwatch"></i><span id="cat-c3"></span></div>
+            <div class="cat-card" onclick="quickSearch('ألعاب')"><i class="fa-solid fa-gamepad"></i><span id="cat-c4"></span></div>
+            <div class="cat-card" onclick="quickSearch('جمال')"><i class="fa-solid fa-sparkles"></i><span id="cat-c5"></span></div>
+            <div class="cat-card" onclick="quickSearch('منزل')"><i class="fa-solid fa-house-laptop"></i><span id="cat-c6"></span></div>
         </div>
 
-        <div id="status" style="display:none; color:#A855F7; font-weight:bold; margin-top:20px;"></div>
+        <div id="status" style="display:none; font-weight:bold; color:#A855F7; margin:20px;"><i class="fa-solid fa-spinner fa-spin"></i> جارِ التحليل الذكي...</div>
         <div id="results"></div>
     </main>
 
-    <div class="modal" id="w-modal"><div class="modal-box"><h3 style="color:#A855F7"><i class="fa-solid fa-bell"></i> <span id="txt-watch-title"></span></h3><div id="watch-list-content"></div><button onclick="toggleWatchList()" style="background:none; color:#fff; border:none; margin-top:15px; cursor:pointer; opacity:0.6;">إغلاق</button></div></div>
-    <div class="modal" id="p-modal"><div class="modal-box"><h3 id="p-head" style="color:#A855F7"></h3><input type="text" id="in-name"><input type="number" id="in-budget"><button class="action-btn buy-now" onclick="saveSet()">حفظ ✅</button><button onclick="openProfile()" style="background:none; color:#fff; border:none; margin-top:15px; cursor:pointer; opacity:0.6;">إغلاق</button></div></div>
+    <div class="modal" id="p-modal">
+        <div class="modal-box">
+            <h3 id="txt-p-head" style="color:#A855F7"></h3>
+            <input type="text" id="in-name" placeholder="Name">
+            <input type="number" id="in-budget" placeholder="Budget">
+            <button onclick="saveSet()" style="background:var(--primary); color:#fff; border:none; padding:15px; border-radius:12px; width:100%; cursor:pointer; font-weight:bold;">حفظ ✅</button>
+        </div>
+    </div>
 
     <script>
         const API = "https://findly-api.onrender.com";
         let lang = localStorage.getItem('findly_lang') || 'ar';
         let attempts = parseInt(localStorage.getItem('findly_attempts')) || 3;
-        let watchList = JSON.parse(localStorage.getItem('findly_watch')) || [];
 
         const dict = {
-            ar: { title: "مستشارك الحكيم", sub: "دليلك الذكي للتسوق المثالي", energy: "طاقة العقل", welcome: "مرحباً،", game: "ألعاب", beauty: "جمال", home: "منزل ذكي", c1: "هواتف", c2: "لابتوب", c4: "ساعات", p_head: "الملف الشخصي", p_name: "الاسم المستعار", p_budget: "الميزانية", buy: "شراء الآن 🛒", watch: "راقب السعر 🔔", over: "⚠️ يتجاوز ميزانيتك!", tagCheap: "اقتصادي", tagTop: "الأعلى تقييماً", tagNew: "حديث جداً", deep: "وضع التحليل الذكي", watchTitle: "قائمة المراقبة الذكية" },
-            en: { title: "Sage Advisor", sub: "Your smart shopping guide", energy: "Sage Energy", welcome: "Welcome,", game: "Gaming", beauty: "Beauty", home: "Smart Home", c1: "Phones", c2: "Laptops", c4: "Watches", p_head: "Profile", p_name: "Nickname", p_budget: "Budget", buy: "Buy Now 🛒", watch: "Watch Price 🔔", over: "⚠️ Over Budget!", tagCheap: "Budget", tagTop: "Top Rated", tagNew: "Newest", deep: "AI Deep Mode", watchTitle: "Smart Watch List" },
-            fr: { title: "Conseiller Sage", sub: "Guide d'achat", energy: "Énergie", welcome: "Bienvenue,", game: "Jeux", beauty: "Beauté", home: "Maison", c1: "Mobiles", c2: "Laptops", c4: "Montres", p_head: "Profil", p_name: "Nom", p_budget: "Budget", buy: "Acheter 🛒", watch: "Surveiller 🔔", over: "⚠️ Hors budget!", tagCheap: "Économe", tagTop: "Mieux notés", tagNew: "Nouveau", deep: "Mode IA Profond", watchTitle: "Liste de surveillance" },
-            de: { title: "Weiser Berater", sub: "Einkaufsführer", energy: "Energie", welcome: "Willkommen,", game: "Spiele", beauty: "Schönheit", home: "Heim", c1: "Handys", c2: "Laptops", c4: "Uhren", p_head: "Profil", p_name: "Name", p_budget: "Budget", buy: "Kaufen 🛒", watch: "Beobachten 🔔", over: "⚠️ Über Budget!", tagCheap: "Günstig", tagTop: "Top-Bewertung", tagNew: "Neu", deep: "KI-Tiefenmodus", watchTitle: "Beobachtungsliste" },
-            es: { title: "Asesor Sabio", sub: "Guía de compras", energy: "Energía", welcome: "Bienvenido,", game: "Juegos", beauty: "Belleza", home: "Hogar", c1: "Móviles", c2: "Laptops", c4: "Relojes", p_head: "Profil", p_name: "Nombre", p_budget: "Presupuesto", buy: "Comprar 🛒", watch: "Vigilar 🔔", over: "⚠️ Fuera de presupuesto!", tagCheap: "Económico", tagTop: "Mejor valorado", tagNew: "Nuevo", deep: "Modo IA Profundo", watchTitle: "Lista de seguimiento" },
-            tr: { title: "Bilge Danışman", sub: "Alışveriş Rehberi", energy: "Enerji", welcome: "Hoş geldiniz,", game: "Oyun", beauty: "Güzellik", home: "Ev", c1: "Telefonlar", c2: "Laptoplar", c4: "Saatler", p_head: "Profil", p_name: "İsim", p_budget: "Bütçe", buy: "Satın Al 🛒", watch: "Takip Et 🔔", over: "⚠️ Bütçeyi Aşıyor!", tagCheap: "Ekonomik", tagTop: "En İyi", tagNew: "Yeni", deep: "Yapay Zeka Modu", watchTitle: "Takip Listesi" }
+            ar: { title: "مستشارك الحكيم", sub: "دليلك الذكي للتسوق المثالي", energy: "طاقة العقل", c1:"هواتف", c2:"لابتوب", c3:"ساعات", c4:"ألعاب", c5:"جمال", c6:"منزل", p_head: "الملف الشخصي", why: "لماذا رشحنا لك هذا؟", best: "الأفضل قيمة", budget_msg: "مثالي لميزانيتك", over_msg: "يتجاوز الميزانية لكنه الأقوى", buy: "اقتنِ الآن 🛒" },
+            en: { title: "Sage Advisor", sub: "Your AI Shopping Guide", energy: "Sage Energy", c1:"Phones", c2:"Laptops", c3:"Watches", c4:"Gaming", c5:"Beauty", c6:"Home", p_head: "Profile", why: "Why we recommend this?", best: "Best Value", budget_msg: "Perfect for your budget", over_msg: "Over budget but superior", buy: "Get It Now 🛒" },
+            fr: { title: "Conseiller Sage", sub: "Votre guide d'achat IA", energy: "Énergie", c1:"Mobiles", c2:"Laptops", c3:"Montres", c4:"Jeux", c5:"Beauté", c6:"Maison", p_head: "Profil", why: "Pourquoi ce choix ?", best: "Meilleure Valeur", budget_msg: "Parfait pour votre budget", over_msg: "Hors budget mais puissant", buy: "Acheter 🛒" },
+            de: { title: "Weiser Berater", sub: "Ihr KI-Einkaufsführer", energy: "Energie", c1:"Handys", c2:"Laptops", c3:"Uhren", c4:"Spiele", c5:"Schönheit", c6:"Heim", p_head: "Profil", why: "Warum dieses Produkt?", best: "Bester Wert", budget_msg: "Ideal für Ihr Budget", over_msg: "Über Budget, aber top", buy: "Jetzt Kaufen 🛒" },
+            es: { title: "Asesor Sabio", sub: "Guía de Compras IA", energy: "Energía", c1:"Móviles", c2:"Portátiles", c3:"Relojes", c4:"Juegos", c5:"Belleza", c6:"Hogar", p_head: "Perfil", why: "¿Por qué recomendamos esto?", best: "Mejor Valor", budget_msg: "Ideal para tu presupuesto", over_msg: "Fuera de presupuesto pero superior", buy: "Comprar 🛒" },
+            tr: { title: "Bilge Danışman", sub: "Yapay Zeka Alışveriş Rehberi", energy: "Enerji", c1:"Telefonlar", c2:"Dizüstü", c3:"Saatler", c4:"Oyun", c5:"Güzellik", c6:"Ev", p_head: "Profil", why: "Neden bunu öneriyoruz?", best: "En İyi Değer", budget_msg: "Bütçenize uygun", over_msg: "Bütçeyi aşıyor ama üstün", buy: "Satın Al 🛒" }
         };
 
         function update() {
-            const d = dict[lang] || dict['ar'];
+            const d = dict[lang];
             document.getElementById('main-html').dir = lang === 'ar' ? 'rtl' : 'ltr';
             document.getElementById('txt-title').innerText = d.title;
             document.getElementById('txt-sub').innerText = d.sub;
             document.getElementById('txt-energy').innerText = d.energy;
             document.getElementById('r-count').innerText = attempts;
-            document.getElementById('cat-game').innerText = d.game;
-            document.getElementById('cat-beauty').innerText = d.beauty;
-            document.getElementById('cat-home').innerText = d.home;
             document.getElementById('cat-c1').innerText = d.c1;
             document.getElementById('cat-c2').innerText = d.c2;
+            document.getElementById('cat-c3').innerText = d.c3;
             document.getElementById('cat-c4').innerText = d.c4;
-            document.getElementById('tag-cheap').innerText = d.tagCheap;
-            document.getElementById('tag-top').innerText = d.tagTop;
-            document.getElementById('tag-new').innerText = d.tagNew;
-            document.getElementById('txt-deep').innerText = d.deep;
-            document.getElementById('txt-watch-title').innerText = d.watchTitle;
-            document.getElementById('p-head').innerText = d.p_head;
-            document.getElementById('in-name').placeholder = d.p_name;
-            document.getElementById('in-budget').placeholder = d.p_budget;
-            
-            const name = localStorage.getItem('fn') || (lang === 'ar' ? "أحمد" : "User");
-            document.getElementById('greeting').innerText = `${d.welcome} ${name}`;
-            const wBtn = document.getElementById('watch-count');
-            wBtn.innerText = watchList.length;
-            wBtn.style.display = watchList.length > 0 ? 'block' : 'none';
-        }
-
-        // خاصية البحث الصوتي الحقيقية
-        function startVoice() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) { alert("متصفحك لا يدعم البحث الصوتي"); return; }
-            
-            const recognition = new SpeechRecognition();
-            recognition.lang = lang === 'ar' ? 'ar-SA' : 'en-US';
-            const micIcon = document.getElementById('mic-btn');
-
-            recognition.onstart = () => { micIcon.classList.add('mic-active'); };
-            recognition.onresult = (event) => {
-                const text = event.results[0][0].transcript;
-                document.getElementById('s-input').value = text;
-                runSearch();
-            };
-            recognition.onend = () => { micIcon.classList.remove('mic-active'); };
-            recognition.start();
+            document.getElementById('cat-c5').innerText = d.c5;
+            document.getElementById('cat-c6').innerText = d.c6;
+            document.getElementById('txt-p-head').innerText = d.p_head;
+            document.getElementById('s-input').placeholder = lang === 'ar' ? "ابحث عن أي منتج..." : "Search for any product...";
         }
 
         async function runSearch() {
             let q = document.getElementById('s-input').value;
-            if (!q || attempts <= 0) { if(attempts <= 0) alert("انتهت طاقة العقل!"); return; }
-            const isDeep = document.getElementById('ai-deep-mode').checked;
+            if (!q || attempts <= 0) { if(attempts <= 0) alert("انتهت الطاقة!"); return; }
+            
             const resCon = document.getElementById('results');
             const status = document.getElementById('status');
-            status.style.display = "block"; status.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+            const budget = parseFloat(localStorage.getItem('fb')) || 0;
+            const d = dict[lang];
+
+            status.style.display = "block";
             resCon.innerHTML = "";
 
             try {
                 const res = await fetch(`${API}/get-ai-advice`, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query: q + (isDeep ? " deep analysis" : ""), lang: lang })
+                    body: JSON.stringify({ query: q, lang: lang })
                 });
                 const data = await res.json();
                 status.style.display = "none";
                 attempts--; localStorage.setItem('findly_attempts', attempts);
                 update();
 
-                data.products.forEach((p) => {
-                    const budget = parseFloat(localStorage.getItem('fb')) || 0;
+                data.products.forEach((p, i) => {
                     const priceNum = parseFloat(p.price.replace(/[^0-9.]/g, '')) || 0;
-                    const isOver = budget > 0 && priceNum > budget;
-                    resCon.innerHTML += `<div class="product-card"><img src="${p.thumbnail}"><h3 style="font-size:1rem;">${p.name}</h3><div class="price-tag">${p.price}</div>${isOver ? `<div style="color:red; font-size:0.7rem;">${dict[lang].over}</div>` : ''}<div class="btn-group"><a href="${p.link}" target="_blank" class="action-btn buy-now">${dict[lang].buy}</a><button class="action-btn watch-later" onclick="addToWatch('${p.name}', '${p.price}')">${dict[lang].watch}</button></div></div>`;
+                    let analysisText = priceNum <= budget ? d.budget_msg : d.over_msg;
+                    if (budget === 0) analysisText = d.why + " بناءً على الجودة والتقييم العالمي.";
+
+                    resCon.innerHTML += `
+                        <div class="product-card">
+                            <div class="rank-badge">${i === 0 ? d.best : "#"+(i+1)}</div>
+                            <img src="${p.thumbnail}" class="product-img">
+                            <h3 style="margin:0;">${p.name}</h3>
+                            <div class="price-tag">${p.price}</div>
+                            
+                            <div class="analysis-box">
+                                <div class="analysis-title"><i class="fa-solid fa-wand-magic-sparkles"></i> ${d.why}</div>
+                                <div class="analysis-text">${analysisText}</div>
+                            </div>
+
+                            <a href="${p.link}" target="_blank" style="text-decoration:none;">
+                                <button class="tool-btn" style="width:100%; height:50px; background:var(--primary); color:#fff; font-weight:bold; border:none; border-radius:12px;">${d.buy}</button>
+                            </a>
+                        </div>
+                    `;
                 });
-            } catch (e) { status.innerText = "Error"; }
+            } catch (e) { status.innerText = "Error!"; }
         }
 
-        function addToWatch(name, price) { watchList.push({ name, price }); localStorage.setItem('findly_watch', JSON.stringify(watchList)); update(); }
-        function toggleWatchList() { const m = document.getElementById('w-modal'); const content = document.getElementById('watch-list-content'); content.innerHTML = watchList.length === 0 ? "Empty" : ""; watchList.forEach((item, i) => { content.innerHTML += `<div class="watch-item"><span>${item.name}<br><small>${item.price}</small></span><i class="fa-solid fa-trash" onclick="removeFromWatch(${i})" style="color:red; cursor:pointer;"></i></div>`; }); m.style.display = m.style.display === 'flex' ? 'none' : 'flex'; }
-        function removeFromWatch(i) { watchList.splice(i, 1); localStorage.setItem('findly_watch', JSON.stringify(watchList)); toggleWatchList(); update(); }
+        function startVoice() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) return alert("Not supported");
+            const rec = new SpeechRecognition();
+            rec.lang = lang === 'ar' ? 'ar-SA' : 'en-US';
+            rec.onstart = () => document.getElementById('mic-btn').classList.add('mic-active');
+            rec.onresult = (e) => { document.getElementById('s-input').value = e.results[0][0].transcript; runSearch(); };
+            rec.onend = () => document.getElementById('mic-btn').classList.remove('mic-active');
+            rec.start();
+        }
+
+        function toggleMode() { document.body.classList.toggle('light-mode'); }
         function toggleLMenu() { const m = document.getElementById('l-menu'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
         function setLang(l) { lang = l; localStorage.setItem('findly_lang', l); toggleLMenu(); update(); }
-        function quickFilter(type) { 
-            const d = dict[lang];
-            let val = type === 'cheap' ? d.tagCheap : type === 'top' ? d.tagTop : d.tagNew;
-            document.getElementById('s-input').value += " " + val; 
+        function openProfile() { document.getElementById('p-modal').style.display = 'flex'; }
+        function saveSet() { 
+            localStorage.setItem('fn', document.getElementById('in-name').value); 
+            localStorage.setItem('fb', document.getElementById('in-budget').value); 
+            document.getElementById('p-modal').style.display = 'none';
         }
-        function toggleMode() { document.body.classList.toggle('light-mode'); }
-        function openProfile() { const m = document.getElementById('p-modal'); m.style.display = m.style.display === 'flex' ? 'none' : 'flex'; }
-        function saveSet() { localStorage.setItem('fn', document.getElementById('in-name').value); localStorage.setItem('fb', document.getElementById('in-budget').value); openProfile(); update(); }
         function quickSearch(q) { document.getElementById('s-input').value = q; runSearch(); }
         window.onload = update;
     </script>

@@ -110,24 +110,28 @@
     const d = dict[lang] || dict['ar'];
     const isAr = lang === 'ar';
     
-    // تغيير اتجاه الصفحة (يمين لليسار أو العكس)
+    // تغيير اتجاه الصفحة
     document.getElementById('main-html').dir = isAr ? 'rtl' : 'ltr';
     
-    // تحديث العناوين الرئيسية
+    // تحديث النصوص الرئيسية
     document.getElementById('txt-title').innerText = d.title;
-    document.getElementById('l-label').innerText = lang.toUpperCase();
     
-    // تحديث نصوص الأيقونات الأربعة باللغة الجديدة
+    // تحديث الأيقونات الأربعة (هذه صحيحة في صورتك)
     document.getElementById('cat-1').innerText = d.cat1;
     document.getElementById('cat-2').innerText = d.cat2;
     document.getElementById('cat-3').innerText = d.cat3;
     document.getElementById('cat-4').innerText = d.cat4;
 
-    // تحديث عداد الطاقة
-    const energyLabel = document.getElementById('txt-energy');
-    if(energyLabel) energyLabel.innerText = d.energy;
-    
-    document.getElementById('remaining-count').innerText = attempts;
+    // --- تحديث الملف الشخصي بناءً على id الصورة الأخيرة ---
+    if(document.getElementById('txt-modal')) {
+        document.getElementById('txt-modal').innerText = d.p_title;
+    }
+    if(document.getElementById('in-name')) {
+        document.getElementById('in-name').placeholder = d.p_name;
+    }
+    if(document.getElementById('in-budget')) {
+        document.getElementById('in-budget').placeholder = d.p_budget;
+    }
 }
 
         function toggleLang() { const m = document.getElementById('l-menu'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }

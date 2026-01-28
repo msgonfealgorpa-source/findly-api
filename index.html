@@ -195,14 +195,11 @@
             resCon.innerHTML = "";
 
             try {
-                const res = await fetch(`${API}/smart-search` {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query: q, lang: lang })
-                });
-                const data = await res.json();
-                status.style.display = "none";
-                attempts--; localStorage.setItem('findly_attempts', attempts);
-                update();
+                const res = await fetch(`${API}/smart-search`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query: q, lang: lang })
+});
 
                 data.products.forEach((p, index) => {
                     const pNum = parseFloat(p.price.replace(/[^0-9.]/g, '')) || 0;

@@ -60,13 +60,24 @@
             <input type="text" id="s-input" class="search-input" placeholder="...">
             <button class="send-btn" onclick="runSearch()"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
         </div>
+<div class="cat-grid">
+    <div class="cat-card" onclick="quickSearch('هواتف')">
+        <i class="fa-solid fa-mobile"></i><br>
+        <span id="cat-1">هواتف</span> </div>
 
-        <div class="cat-grid">
-            <div class="cat-card" onclick="quickSearch('Smartphone')"><i class="fa-solid fa-mobile-screen"></i><span>هواتف</span></div>
-            <div class="cat-card" onclick="quickSearch('Laptop')"><i class="fa-solid fa-laptop"></i><span>لابتوب</span></div>
-            <div class="cat-card" onclick="quickSearch('Headphones')"><i class="fa-solid fa-headphones"></i><span>سماعات</span></div>
-            <div class="cat-card" onclick="quickSearch('Smartwatch')"><i class="fa-solid fa-clock"></i><span>ساعات</span></div>
-        </div>
+    <div class="cat-card" onclick="quickSearch('لابتوب')">
+        <i class="fa-solid fa-laptop"></i><br>
+        <span id="cat-2">لابتوب</span> </div>
+
+    <div class="cat-card" onclick="quickSearch('سماعات')">
+        <i class="fa-solid fa-headphones"></i><br>
+        <span id="cat-3">سماعات</span> </div>
+
+    <div class="cat-card" onclick="quickSearch('ساعات')">
+        <i class="fa-solid fa-clock"></i><br>
+        <span id="cat-4">ساعات</span> </div>
+</div>
+  
 
         <div id="status" style="display:none; background:var(--primary); padding:15px; border-radius:15px; margin-top:20px; font-weight:bold;"></div>
         <div id="results"></div>
@@ -87,27 +98,37 @@
         let lang = 'ar';
         let attempts = localStorage.getItem('findly_attempts') || 3;
         const dict = {
-            ar: { title: "مستشارك الحكيم", sub: "تحليل سيبراني عميق", modal: "إعدادات الهوية", energy: "طاقة العقل", morning: "صباح الخير، ", evening: "مساء الخير، ", voice: "ar-SA", status: "الحكيم يحلل...", sage: "اختيار الحكيم", analysis: "التحليل الذكي" },
-            en: { title: "The Sage Advisor", sub: "Deep cyber analysis", modal: "Profile Settings", energy: "Sage Energy", morning: "Good morning, ", evening: "Good evening, ", voice: "en-US", status: "Sage Analyzing...", sage: "Sage Pick", analysis: "Smart Analysis" },
-            fr: { title: "Le Conseiller Sage", sub: "Analyse profonde", modal: "Paramètres", energy: "Énergie Sage", morning: "Bonjour, ", evening: "Bonsoir, ", voice: "fr-FR", status: "Analyse en cours...", sage: "Choix du Sage", analysis: "Analyse Smart" },
-            de: { title: "Der Weise Berater", sub: "Tiefe Analyse", modal: "Einstellungen", energy: "Weise Energie", morning: "Guten Morgen, ", evening: "Guten Abend, ", voice: "de-DE", status: "Weise Analyse...", sage: "Wahl des Weisen", analysis: "Smarte Analyse" },
-            es: { title: "El Asesor Sabio", sub: "Análisis profundo", modal: "Ajustes", energy: "Energía Sabia", morning: "Buenos días, ", evening: "Buenas noches, ", voice: "es-ES", status: "Sabio analizando...", sage: "Elección Sabia", analysis: "Análisis Inteligente" },
-            tr: { title: "Bilge Danışman", sub: "Derin analiz", modal: "Ayarlar", energy: "Bilge Enerjisi", morning: "Günaydın, ", evening: "İyi akşamlar, ", voice: "tr-TR", status: "Bilge Analiz Ediyor...", sage: "Bilge Seçimi", analysis: "Akıllı Analiz" }
-        };
+    ar: { title: "مستشارك الحكيم", energy: "طاقة العقل", cat1: "هواتف", cat2: "لابتوب", cat3: "سماعات", cat4: "ساعات", status: "الحكيم يحلل...", vision: "رؤية الحكيم" },
+    en: { title: "Sage Advisor", energy: "Sage Energy", cat1: "Phones", cat2: "Laptops", cat3: "Audio", cat4: "Watches", status: "Analyzing...", vision: "Sage Vision" },
+    fr: { title: "Conseiller Sage", energy: "Énergie Sage", cat1: "Téléphones", cat2: "Laptops", cat3: "Audio", cat4: "Montres", status: "Analyse...", vision: "Vision du Sage" },
+    de: { title: "Weiser Berater", energy: "Weise Energie", cat1: "Handys", cat2: "Laptops", cat3: "Audio", cat4: "Uhren", status: "Analysieren...", vision: "Weise Vision" },
+    es: { title: "Asesor Sabio", energy: "Energía Sabia", cat1: "Teléfonos", cat2: "Laptops", cat3: "Audio", cat4: "Relojes", status: "Analizando...", vision: "Visión Sabia" },
+    tr: { title: "Bilge Danışman", energy: "Bilge Enerji", cat1: "Telefonlar", cat2: "Laptoplar", cat3: "Ses", cat4: "Saatler", status: "Analiz ediliyor...", vision: "Bilge Vizyon" }
+};
 
         function update() {
-            const d = dict[lang];
-            document.getElementById('main-html').dir = lang === 'ar' ? 'rtl' : 'ltr';
-            document.getElementById('txt-title').innerText = d.title;
-            document.getElementById('txt-sub').innerText = d.sub;
-            document.getElementById('txt-modal').innerText = d.modal;
-            document.getElementById('txt-energy').innerText = d.energy;
-            document.getElementById('l-label').innerText = lang.toUpperCase();
-            document.getElementById('r-count').innerText = attempts;
-            const hr = new Date().getHours();
-            const name = localStorage.getItem('fn') || "User";
-            document.getElementById('greeting').innerText = (hr < 12 ? d.morning : d.evening) + name;
-        }
+    const d = dict[lang] || dict['ar'];
+    const isAr = lang === 'ar';
+    
+    // تغيير اتجاه الصفحة (يمين لليسار أو العكس)
+    document.getElementById('main-html').dir = isAr ? 'rtl' : 'ltr';
+    
+    // تحديث العناوين الرئيسية
+    document.getElementById('txt-title').innerText = d.title;
+    document.getElementById('l-label').innerText = lang.toUpperCase();
+    
+    // تحديث نصوص الأيقونات الأربعة باللغة الجديدة
+    document.getElementById('cat-1').innerText = d.cat1;
+    document.getElementById('cat-2').innerText = d.cat2;
+    document.getElementById('cat-3').innerText = d.cat3;
+    document.getElementById('cat-4').innerText = d.cat4;
+
+    // تحديث عداد الطاقة
+    const energyLabel = document.getElementById('txt-energy');
+    if(energyLabel) energyLabel.innerText = d.energy;
+    
+    document.getElementById('remaining-count').innerText = attempts;
+}
 
         function toggleLang() { const m = document.getElementById('l-menu'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
         function setLang(l) { lang = l; toggleLang(); update(); }

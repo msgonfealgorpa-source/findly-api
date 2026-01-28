@@ -84,103 +84,92 @@
 
     <script>
         <script>
-    const API = "https://findly-api.onrender.com";
-    let lang = 'ar';
-    let attempts = localStorage.getItem('findly_attempts') || 3;
+    
+            <script>
+        const API = "https://findly-api.onrender.com";
+        let lang = 'ar';
+        let attempts = localStorage.getItem('findly_attempts') || 3;
 
-    const dict = {
-        ar: { title: "مستشارك الحكيم", sub: "مرحلة الحوكمة: تحليل سيبراني عميق", energy: "طاقة العقل", status: "الحكيم يستحضر البيانات...", sage_vision: "رؤية الحكيم الاستراتيجية", morning: "صباح الخير، ", evening: "مساء الخير، " },
-        en: { title: "The Sage Advisor", sub: "Governance: Deep Analysis", energy: "Sage Energy", status: "Sage Fetching Data...", sage_vision: "Sage Strategic Vision", morning: "Good morning, ", evening: "Good evening, " }
-    };
+        const dict = {
+            ar: { title: "مستشارك الحكيم", sub: "تحليل سيبراني عميق", energy: "طاقة العقل", status: "الحكيم يحلل...", vision: "رؤية الحكيم الاستراتيجية", morning: "صباح الخير، ", evening: "مساء الخير، " },
+            en: { title: "Sage Advisor", sub: "Deep Cyber Analysis", energy: "Sage Energy", status: "Analyzing...", vision: "Sage Strategic Insight", morning: "Good morning, ", evening: "Good evening, " }
+        };
 
-    async function runSearch() {
-        const inputField = document.getElementById('s-input');
-        const q = inputField.value;
-        if (!q || attempts <= 0) return;
-
-        const d = dict[lang] || dict['ar'];
-        const resultsBox = document.getElementById('results');
-        const statusBox = document.getElementById('ai-status');
-
-        // تجهيز الواجهة للبحث
-        statusBox.style.display = 'block';
-        statusBox.innerText = d.status;
-        resultsBox.innerHTML = '';
-
-        try {
-            const res = await fetch(`${API}/get-ai-advice`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    query: q, 
-                    lang: lang, 
-                    budget: localStorage.getItem('fb') || 5000 
-                })
-            });
-
-            const data = await res.json();
-            statusBox.style.display = 'none';
-
-            // 🌟 [تطوير 1]: إضافة "رؤية الحكيم" (الشيء الجديد)
-            // هذا الجزء يقرأ التحليل العام الذي يرسله السيرفر ويضعه في بطاقة مميزة
-            const generalAdvice = data.sage_advice || data.analysis || "تحليل السوق يشير إلى توفر خيارات جيدة حالياً.";
-            
-            resultsBox.innerHTML += `
-                <div style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(99, 102, 241, 0.2)); 
-                            border: 2px solid #A855F7; border-radius: 25px; padding: 20px; margin: 15px auto; 
-                            width: 92%; max-width: 550px; text-align: right; box-shadow: 0 10px 20px rgba(0,0,0,0.3);">
-                    <h4 style="margin: 0 0 10px 0; color: #A855F7; display: flex; align-items: center; gap: 10px;">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i> ${d.sage_vision}
-                    </h4>
-                    <p style="font-size: 0.9rem; line-height: 1.7; margin: 0; color: #e2e8f0;">${generalAdvice}</p>
-                </div>
-            `;
-
-            // 📦 [تطوير 2]: عرض المنتجات مع نظام "التقييم الذكي"
-            data.products.forEach((p, index) => {
-                resultsBox.innerHTML += `
-                    <div class="product-card" style="animation-delay: ${index * 0.1}s">
-                        ${index === 0 ? `<div class="sage-badge" style="background:#FFD700; color:#000;">🏆 الأفضل قيمة</div>` : ''}
-                        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap: 15px;">
-                            <div style="flex:1;">
-                                <h4 style="margin:0; font-size: 1.1rem; color: #fff;">${p.name}</h4>
-                                <div style="color:#6366F1; font-weight:900; font-size: 1.2rem; margin:8px 0;">${p.price}</div>
-                            </div>
-                            <img src="${p.thumbnail}" style="width:85px; height:85px; border-radius:18px; object-fit:cover; border: 1px solid var(--border);">
-                        </div>
-                        <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 15px; margin-top: 10px; border-right: 4px solid #6366F1;">
-                            <small style="color: #94a3b8; display:block; margin-bottom: 5px;">لماذا رشحناه لك؟</small>
-                            <span style="font-size: 0.85rem; color: #cbd5e1;">${p.reason}</span>
-                        </div>
-                        <a href="${p.link}" target="_blank" style="display:block; text-align:center; background: linear-gradient(135deg, #6366F1, #A855F7); color:#fff; text-decoration:none; padding:15px; border-radius:15px; margin-top:15px; font-weight:bold; font-size: 1rem;">شراء الآن <i class="fa-solid fa-cart-shopping"></i></a>
-                    </div>
-                `;
-            });
-
-            // تحديث الطاقة
-            attempts--;
-            localStorage.setItem('findly_attempts', attempts);
-            update();
-
-        } catch (e) {
-            statusBox.innerText = "تعذر الوصول للعقل السيبراني.. تأكد من اتصالك.";
+        function update() {
+            const d = dict[lang] || dict['ar'];
+            document.getElementById('main-html').dir = lang === 'ar' ? 'rtl' : 'ltr';
+            document.getElementById('txt-title').innerText = d.title;
+            document.getElementById('txt-sub').innerText = d.sub;
+            document.getElementById('txt-energy').innerText = d.energy;
+            document.getElementById('l-label').innerText = lang.toUpperCase();
+            document.getElementById('remaining-count').innerText = attempts;
+            const name = localStorage.getItem('fn') || "أحمد";
+            const hr = new Date().getHours();
+            document.getElementById('greeting').innerText = (hr < 12 ? d.morning : d.evening) + name;
         }
-    }
 
-    // دوال المساعدة
-    function quickSearch(q) { document.getElementById('s-input').value = q; runSearch(); }
-    function update() {
-        const d = dict[lang] || dict['ar'];
-        document.getElementById('main-html').dir = lang === 'ar' ? 'rtl' : 'ltr';
-        document.getElementById('txt-title').innerText = d.title;
-        document.getElementById('txt-sub').innerText = d.sub;
-        document.getElementById('l-label').innerText = lang.toUpperCase();
-        document.getElementById('remaining-count').innerText = attempts;
-        const name = localStorage.getItem('fn') || "أحمد";
-        const hr = new Date().getHours();
-        document.getElementById('greeting').innerText = (hr < 12 ? d.morning : d.evening) + name;
-    }
-    update();
-</script>
+        async function runSearch() {
+            const q = document.getElementById('s-input').value;
+            if (!q || attempts <= 0) return;
+            const d = dict[lang] || dict['ar'];
+            const resBox = document.getElementById('results');
+            const statBox = document.getElementById('ai-status');
+            
+            statBox.style.display = 'block'; 
+            statBox.innerText = d.status; 
+            resBox.innerHTML = '';
+
+            try {
+                const response = await fetch(`${API}/get-ai-advice`, {
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: q, lang: lang, budget: 5000 })
+                });
+                const data = await response.json();
+                statBox.style.display = 'none';
+
+                // إضافة "رؤية الحكيم" الجديدة
+                if (data.sage_advice) {
+                    resBox.innerHTML += `
+                        <div class="sage-vision-card">
+                            <h4 style="color:#A855F7;margin:0 0 10px 0;">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> ${d.vision}
+                            </h4>
+                            <p style="font-size:0.9rem;line-height:1.6;margin:0;">${data.sage_advice}</p>
+                        </div>`;
+                }
+
+                // عرض بطاقات المنتجات
+                data.products.forEach((p, i) => {
+                    resBox.innerHTML += `
+                    <div class="product-card">
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <div style="flex:1;">
+                                <h4 style="margin:0;">${p.name}</h4>
+                                <div style="color:#6366F1;font-weight:900;margin:5px 0;">${p.price}</div>
+                            </div>
+                            <img src="${p.thumbnail}" style="width:75px;height:75px;border-radius:15px;object-fit:cover;">
+                        </div>
+                        <div class="analysis-box"><strong>التحليل:</strong> ${p.reason}</div>
+                        <a href="${p.link}" target="_blank" style="display:block;text-align:center;background:var(--primary);color:#fff;text-decoration:none;padding:12px;border-radius:15px;margin-top:15px;font-weight:bold;">شراء الآن</a>
+                    </div>`;
+                });
+                
+                attempts--; 
+                localStorage.setItem('findly_attempts', attempts); 
+                update();
+            } catch (e) { 
+                statBox.innerText = "عذراً، المحرك لا يستجيب!"; 
+            }
+        }
+
+        function quickSearch(q) { document.getElementById('s-input').value = q; runSearch(); }
+        function toggleLang() { const m = document.getElementById('l-menu'); m.style.display = (m.style.display==='block'?'none':'block'); }
+        function setLang(l) { lang = l; toggleLang(); update(); }
+        function toggleLight() { document.body.style.filter = (document.body.style.filter==='invert(1)'?'invert(0)':'invert(1)'); }
+        
+        // تشغيل التحديث الأولي عند تحميل الصفحة
+        update();
+    </script>
 </body>
 </html>

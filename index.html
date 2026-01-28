@@ -195,7 +195,7 @@
             resCon.innerHTML = "";
 
             try {
-                const res = await fetch(`${API}/get-ai-advice`, {
+                const res = await fetch(`${API}/smart-search` {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ query: q, lang: lang })
                 });
@@ -209,11 +209,7 @@
                     const isOver = budget > 0 && pNum > budget;
                     
                     // --- العقل العملي: توليد التحليل ---
-                    let analysis = "";
-                    if (index === 0) analysis = `يعتبر هذا الخيار الأفضل حالياً في فئة ${q} نظراً لتوازن سعره مع مواصفاته التقنية.`;
-                    else if (isOver) analysis = `هذا المنتج يقدم ميزات احترافية تبرر ارتفاع سعره عن ميزانيتك بـ ${(pNum - budget).toFixed(0)}.`;
-                    else analysis = `بديل ممتاز يتميز بمتانة التصميم وتقييمات المستخدمين العالية في عام 2026.`;
-
+                    let analysis = p.reason || "Smart analysis in progress...";
                     resCon.innerHTML += `
                         <div class="product-card">
                             <img src="${p.thumbnail}">

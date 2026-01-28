@@ -82,16 +82,19 @@
         <div id="status" style="display:none; background:var(--primary); padding:15px; border-radius:15px; margin-top:20px; font-weight:bold;"></div>
         <div id="results"></div>
     </main>
+<div class="modal" id="p-modal">
+    <div class="modal-box">
+        <h3 id="txt-modal">إعدادات الهوية</h3>
 
-    <div class="modal" id="p-modal">
-        <div class="modal-box">
-            <h3 id="txt-modal"></h3>
-            <input type="text" id="in-name" placeholder="الاسم">
-            <input type="number" id="in-budget" placeholder="الميزانية">
-            <button onclick="saveSet()" style="width:100%; padding:15px; border:none; border-radius:12px; background:var(--primary); color:#fff; font-weight:bold; cursor:pointer;">تحديث ⚡</button>
-            <button onclick="closeProfile()" style="margin-top:10px; background:none; border:none; color:gray;">إلغاء</button>
-        </div>
+        <input type="text" id="in-name" placeholder="الاسم المستعار">
+
+        <input type="number" id="in-budget" placeholder="الميزانية">
+
+        <button id="p-btn" onclick="saveSet()" style="width:100%; padding:15px; border-radius:15px; background:var(--primary); color:#fff; border:none; font-weight:bold;">تحديث ⚡</button>
+        
+        <button onclick="closeProfile()" style="margin-top:10px; background:none; color:#fff; opacity:0.6; border:none; width:100%;">إلغاء</button>
     </div>
+</div>
 
     <script>
         const API = "https://findly-api.onrender.com";

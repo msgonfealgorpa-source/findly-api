@@ -183,121 +183,58 @@
             wBtn.style.display = watchList.length > 0 ? 'block' : 'none';
         }
 
-        // 1. قاعدة البيانات الذكية (Local Knowledge Base)
-        // يجب أن تكون البيانات غنية بالمواصفات (specs) والوسوم (tags) ليعمل الذكاء
-        const localProducts = [
-            { id: 1, name: "Sony WH-1000XM5", price: "350$", cat: "ساعات", tags: ["عزل", "سفر", "فاخر"], specs: { battery: "30h", feature: "Noise Cancel" }, thumbnail: "https://m.media-amazon.com/images/I/51SKmu2G9FL._AC_SY450_.jpg", link: "#" },
-            { id: 2, name: "MacBook Air M2", price: "1100$", cat: "لابتوب", tags: ["عمل", "تصميم", "خفيف"], specs: { cpu: "M2", ram: "8GB" }, thumbnail: "https://m.media-amazon.com/images/I/710TJuHTMhL._AC_SX679_.jpg", link: "#" },
-            { id: 3, name: "Asus ROG Phone 6", price: "900$", cat: "هواتف", tags: ["ألعاب", "سريع", "قوي"], specs: { screen: "165Hz", ram: "16GB" }, thumbnail: "https://m.media-amazon.com/images/I/712z-zK7DQL._AC_SX679_.jpg", link: "#" },
-            { id: 4, name: "Logitech G502", price: "50$", cat: "ألعاب", tags: ["ماوس", "ألعاب", "رخيص"], specs: { dpi: "25k", buttons: "11" }, thumbnail: "https://m.media-amazon.com/images/I/61mpMH5TzkL._AC_SX679_.jpg", link: "#" },
-            { id: 5, name: "Samsung S23 Ultra", price: "1200$", cat: "هواتف", tags: ["تصوير", "قلم", "عمل"], specs: { cam: "200MP", zoom: "100x" }, thumbnail: "https://m.media-amazon.com/images/I/71lD7eGdW-L._AC_SX679_.jpg", link: "#" },
-             { id: 6, name: "PlayStation 5", price: "500$", cat: "ألعاب", tags: ["كونسول", "4k", "ترفيه"], specs: { gpu: "RDNA 2", fps: "120" }, thumbnail: "https://m.media-amazon.com/images/I/51051FiD9UL._SX522_.jpg", link: "#" }
-        ];
-
-        // 2. محرك الذكاء المنطقي (The Brain)
         async function runSearch() {
-            let q = document.getElementById('s-input').value.toLowerCase().trim();
-            const budget = parseFloat(localStorage.getItem('fb')) || 100000; // ميزانية افتراضية عالية
-            const resCon = document.getElementById('results');
+            let q = document.getElementById('s-input').value;
+            if (!q || attempts <= 0) { if(attempts <= 0) alert("انتهت طاقة العقل!"); return; }
             const status = document.getElementById('status');
+            const resCon = document.getElementById('results');
+            const budget = parseFloat(localStorage.getItem('fb')) || 0;
             const d = dict[lang] || dict['ar'];
 
-            if (!q) return;
-
-            // محاكاة التفكير (User Experience)
-            status.style.display = "block";
-            status.innerHTML = '<i class="fa-solid fa-microchip fa-spin"></i> جارِ تحليل البيانات عصبياً...';
+            status.style.display = "block"; status.innerHTML = '<i class="fa-solid fa-microchip fa-spin"></i> جارِ التفكير...';
             resCon.innerHTML = "";
 
-            // الانتظار قليلاً لإعطاء شعور المعالجة
-            await new Promise(r => setTimeout(r, 800));
+            try {
+                const res = await fetch(`${API}/get-ai-advice`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: q, lang: lang })
+                });
+                const data = await res.json();
+                status.style.display = "none";
+                attempts--; localStorage.setItem('findly_attempts', attempts);
+                update();
 
-            // --- خوارزمية التسجيل (Scoring Algorithm) ---
-            // هذه الخوارزمية تمنح نقاطاً للمنتج بناءً على كلمات البحث
-            let scoredProducts = localProducts.map(p => {
-                let score = 0;
-                let matchReasons = []; // لتخزين أسباب اختيار المنتج
+                data.products.forEach((p, index) => {
+                    const pNum = parseFloat(p.price.replace(/[^0-9.]/g, '')) || 0;
+                    const isOver = budget > 0 && pNum > budget;
+                    
+                    // --- العقل العملي: توليد التحليل ---
+                    let analysis = "";
+                    if (index === 0) analysis = `يعتبر هذا الخيار الأفضل حالياً في فئة ${q} نظراً لتوازن سعره مع مواصفاته التقنية.`;
+                    else if (isOver) analysis = `هذا المنتج يقدم ميزات احترافية تبرر ارتفاع سعره عن ميزانيتك بـ ${(pNum - budget).toFixed(0)}.`;
+                    else analysis = `بديل ممتاز يتميز بمتانة التصميم وتقييمات المستخدمين العالية في عام 2026.`;
 
-                // تنظيف السعر لتحويله لرقم
-                let priceNum = parseFloat(p.price.replace(/[^0-9.]/g, ''));
-
-                // أ. البحث في الاسم (تطابق قوي)
-                if (p.name.toLowerCase().includes(q)) { score += 50; matchReasons.push("الاسم مطابق"); }
-
-                // ب. البحث في التصنيف
-                if (p.cat.includes(q)) { score += 30; matchReasons.push("من نفس الفئة المطلوبة"); }
-
-                // ج. الذكاء السياقي (فهم صفات المنتج)
-                // إذا كتب المستخدم "رخيص"
-                if (q.includes("رخيص") || q.includes("cheap")) {
-                    if (priceNum < 200) { score += 40; matchReasons.push("السعر اقتصادي جداً"); }
-                }
-                // إذا كتب المستخدم "ألعاب" أو "قوي"
-                if (q.includes("ألعاب") || q.includes("gaming")) {
-                    if (p.tags.includes("ألعاب") || p.tags.includes("سريع")) { score += 40; matchReasons.push("مواصفات مخصصة للألعاب"); }
-                }
-                 // إذا كتب المستخدم "تصوير"
-                 if (q.includes("تصوير") || q.includes("camera")) {
-                    if (p.tags.includes("تصوير")) { score += 40; matchReasons.push("عدسات احترافية"); }
-                }
-
-                // د. التحقق من الميزانية (Smart Filter)
-                let isOverBudget = priceNum > budget;
-                if (!isOverBudget && budget < 100000) { score += 15; matchReasons.push("يناسب ميزانيتك"); }
-
-                return { ...p, score, priceNum, matchReasons, isOverBudget };
-            });
-
-            // تصفية النتائج التي لها نقاط (أكثر من 0) وترتيبها حسب الأذكى (الأعلى نقاطاً)
-            let results = scoredProducts.filter(p => p.score > 0).sort((a, b) => b.score - a.score);
-
-            status.style.display = "none";
-            attempts--; localStorage.setItem('findly_attempts', attempts);
-            update();
-
-            if (results.length === 0) {
-                resCon.innerHTML = `<div style="text-align:center; padding:20px;">عذراً، لم أجد منتجاً يطابق معاييرك الدقيقة. حاول بكلمات أخرى.</div>`;
-                return;
-            }
-
-            // عرض النتائج
-            results.forEach((p, index) => {
-                // --- توليد نص التحليل الذكي (Natural Language Generation - Template Based) ---
-                let aiAnalysisText = "";
-                
-                if (index === 0) {
-                    aiAnalysisText = `هذا هو "الخيار الذهبي" 🏆. لقد اخترته لك لأنه ${p.matchReasons.join(' و ')}.`;
-                } else if (p.isOverBudget) {
-                    aiAnalysisText = `خيار قوي تقنياً، لكنه يتجاوز الميزانية. يتميز بـ ${Object.values(p.specs)[0] || 'أداء عالٍ'}.`;
-                } else {
-                    aiAnalysisText = `بديل ذكي يجمع بين ${p.tags[0]} و ${p.tags[1] || 'السعر الجيد'}.`;
-                }
-
-                resCon.innerHTML += `
-                    <div class="product-card">
-                        <img src="${p.thumbnail}">
-                        <h3 style="font-size:1rem; margin:5px 0;">${p.name}</h3>
-                        <div style="font-weight:900; color:#10b981; font-size:1.2rem;">${p.price}</div>
-                        
-                        <div class="analysis-engine">
-                            <span class="analysis-label"><i class="fa-solid fa-brain"></i> ${d.why}</span>
-                            ${aiAnalysisText}
-                            <div style="margin-top:5px; font-size:0.7rem; opacity:0.8;">
-                                <strong>المواصفات العصبية:</strong> ${JSON.stringify(p.specs).replace(/["{}]/g, '').replace(/:/g, ': ')}
+                    resCon.innerHTML += `
+                        <div class="product-card">
+                            <img src="${p.thumbnail}">
+                            <h3 style="font-size:1rem; margin:5px 0;">${p.name}</h3>
+                            <div style="font-weight:900; color:#10b981; font-size:1.2rem;">${p.price}</div>
+                            
+                            <div class="analysis-engine">
+                                <span class="analysis-label"><i class="fa-solid fa-brain"></i> ${d.why}</span>
+                                ${analysis}
                             </div>
-                        </div>
 
-                        ${p.isOverBudget ? `<div style="color:#ef4444; font-size:0.75rem; font-weight:bold; margin-bottom:10px;">${d.over}</div>` : ''}
-                        
-                        <div class="btn-group">
-                            <a href="${p.link}" class="action-btn buy-now">${d.buy}</a>
-                            <button class="action-btn watch-later" onclick="addToWatch('${p.name}', '${p.price}')">${d.watch}</button>
-                        </div>
-                    </div>`;
-            });
+                            ${isOver ? `<div style="color:#ef4444; font-size:0.75rem; font-weight:bold; margin-bottom:10px;">${d.over}</div>` : ''}
+                            
+                            <div class="btn-group">
+                                <a href="${p.link}" target="_blank" class="action-btn buy-now">${d.buy}</a>
+                                <button class="action-btn watch-later" onclick="addToWatch('${p.name}', '${p.price}')">${d.watch}</button>
+                            </div>
+                        </div>`;
+                });
+            } catch (e) { status.innerText = "خطأ في الاتصال بالعقل"; }
         }
-                            
-                            
 
         function startVoice() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;

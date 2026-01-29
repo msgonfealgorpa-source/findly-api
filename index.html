@@ -190,77 +190,89 @@
             wBtn.style.display = watchList.length > 0 ? 'block' : 'none';
         }
 
-        async function runSearch() {
-            let q = document.getElementById('s-input').value;
-            if (!q || attempts <= 0) return;
-
-            const status = document.getElementById('status');
-            const resCon = document.getElementById('results');
-            const d = dict[lang] || dict['ar'];
-            
-            // جلب الميزانية المحفوظة
-            const userBudget = parseFloat(localStorage.getItem('fb')) || 0;
-
-            status.style.display = "block";
-            status.innerHTML = '<i class="fa-solid fa-microchip fa-spin"></i> ...';
-            resCon.innerHTML = "";
-
-            try {
-                const res = await fetch(`${API}/smart-search`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query: q, lang: lang })
-                });
-
-                const data = await res.json();
-                status.style.display = "none";
-
-                data.products.forEach((p) => {
-    // التحقق من السعر مقابل الميزانية
-    let budgetAlert = "";
-    let priceVal = parseFloat(p.price.toString().replace(/[^0-9.]/g, ''));
+async function runSearch() {
+    let q = document.getElementById('s-input').value;
     
-    if(userBudget > 0 && priceVal > userBudget) {
-        budgetAlert = `<div style="background:rgba(239, 68, 68, 0.2); border:1px solid #ef4444; color:#fca5a5; padding:8px; border-radius:10px; margin-bottom:10px; font-size:0.8rem; font-weight:bold; display:flex; align-items:center; gap:5px;">
-            <i class="fa-solid fa-triangle-exclamation"></i> ${d.over}
-        </div>`;
+    // 1. التحقق من المحاولات قبل البدء
+    if (attempts <= 0) {
+        alert("⚠️ عذراً، لقد استنفدت محاولات البحث المتاحة لك اليوم!");
+        return;
     }
 
-    resCon.innerHTML += `
-        <div class="product-card">
-            ${budgetAlert}
-            <img src="${p.thumbnail}">
-            <h3>${p.name}</h3>
-            <div style="font-weight:900; color:#10b981;">${p.price}</div>
-            <div class="analysis-engine">
-                <span class="analysis-label"><i class="fa-solid fa-brain"></i> ${d.why}</span>
-                ${p.reason}
-            </div>
-            <div class="btn-group">
-                <a href="${p.link}" target="_blank" class="action-btn buy-now">${d.buy}</a>
-                <button class="action-btn watch-later" onclick="addToWatch('${p.name.replace(/'/g, "\\'")}', '${p.price}', '${p.link}')">${d.watch}</button>
-            </div>
-        </div>`;
-});
+    if (!q) return;
 
-                attempts--;
-                localStorage.setItem('findly_attempts', attempts);
-                update();
+    const status = document.getElementById('status');
+    const resCon = document.getElementById('results');
+    const d = dict[lang] || dict['ar'];
+    
+    // 2. جلب الميزانية وضمان أنها رقم
+    const userBudget = parseFloat(localStorage.getItem('fb')) || 0;
 
-            } catch (e) {
-                status.innerText = "Error Connecting...";
+    status.style.display = "block";
+    status.innerHTML = '<i class="fa-solid fa-microchip fa-spin"></i> جاري التحليل...';
+    resCon.innerHTML = "";
+
+    try {
+        const res = await fetch(`${API}/smart-search`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query: q, lang: lang })
+        });
+
+        const data = await res.json();
+        status.style.display = "none";
+
+        data.products.forEach((p) => {
+            // 3. منطق التنبيه الأحمر: تحويل السعر (مثلاً $1,200) إلى رقم (1200)
+            let cleanPrice = p.price.toString().replace(/[^\d.]/g, ''); 
+            let priceVal = parseFloat(cleanPrice);
+            let budgetAlert = "";
+
+            // المقارنة الرياضية: $priceVal > userBudget$
+            if(userBudget > 0 && priceVal > userBudget) {
+                budgetAlert = `
+                <div style="background:rgba(239, 68, 68, 0.2); border:1px solid #ef4444; color:#fca5a5; padding:10px; border-radius:12px; margin-bottom:12px; font-size:0.85rem; font-weight:bold; display:flex; align-items:center; gap:8px;">
+                    <i class="fa-solid fa-circle-exclamation"></i> ${d.over} (${userBudget}$)
+                </div>`;
             }
-        }
+
+            resCon.innerHTML += `
+                <div class="product-card" style="${userBudget > 0 && priceVal > userBudget ? 'border: 1px solid #ef4444;' : ''}">
+                    ${budgetAlert}
+                    <img src="${p.thumbnail}">
+                    <h3>${p.name}</h3>
+                    <div style="font-weight:900; color:#10b981; font-size:1.2rem;">${p.price}</div>
+                    <div class="analysis-engine">
+                        <span class="analysis-label"><i class="fa-solid fa-brain"></i> ${d.why}</span>
+                        ${p.reason}
+                    </div>
+                    <div class="btn-group">
+                        <a href="${p.link}" target="_blank" class="action-btn buy-now">${d.buy}</a>
+                        <button class="action-btn watch-later" onclick="addToWatch('${p.name.replace(/'/g, "\\'")}', '${p.price}', '${p.link}')">${d.watch}</button>
+                    </div>
+                </div>`;
+        });
+
+        // 4. خصم محاولة وتحديث الواجهة
+        attempts--;
+        localStorage.setItem('findly_attempts', attempts);
+        update();
+
+    } catch (e) {
+        status.innerText = "خطأ في الاتصال بالسيرفر...";
+    }
+}
         
-        function startVoice() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) return;
-            const rec = new SpeechRecognition();
-            rec.lang = lang === 'ar' ? 'ar-SA' : 'en-US';
-            rec.onstart = () => document.getElementById('mic-btn').classList.add('mic-active');
-            rec.onresult = (e) => { document.getElementById('s-input').value = e.results[0][0].transcript; runSearch(); };
-            rec.onend = () => document.getElementById('mic-btn').classList.remove('mic-active');
-            rec.start();
+        function saveSet() { 
+    const nameVal = document.getElementById('in-name').value;
+    const budgetVal = document.getElementById('in-budget').value;
+
+    localStorage.setItem('fn', nameVal); 
+    localStorage.setItem('fb', budgetVal); // تخزين الميزانية
+    
+    document.getElementById('p-modal').style.display = 'none';
+    update(); 
+    alert(lang === 'ar' ? "✅ تم تحديث ملفك الشخصي بنجاح!" : "✅ Profile updated!");
         }
         
         function toggleMode() { document.body.classList.toggle('light-mode'); }

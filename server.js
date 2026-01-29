@@ -9,15 +9,17 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// --- 1. إعدادات الاتصال ---
-// ضع روابطك الخاصة هنا
-const MONGO_URI = 'رابط_قاعدة_بيانات_مونجو_الخاص_بك';
+// --- 1. إعدادات الاتصال المعدلة ---
+
+// ملاحظة: استبدل كلمة 'كلمة_المرور_الخاصة_بك' بكلمة المرور التي نسختها (Wgr4...)
+const MONGO_URI = 'mongodb+srv://msgonfealgorpa_db_user:كلمة_المرور_الخاصة_بك@cluster0.os2qrmb.mongodb.net/FindlyDB?retryWrites=true&w=majority&appName=Cluster0';
+
 const SERP_API_KEY = 'مفتاح_SERPAPI_الخاص_بك';
 
 // إعداد الاتصال بقاعدة البيانات
 mongoose.connect(MONGO_URI)
-    .then(() => console.log("✅ Connected to MongoDB"))
-    .catch(err => console.error("❌ MongoDB Error:", err));
+    .then(() => console.log("✅ تم الاتصال بنجاح بـ MongoDB Atlas"))
+    .catch(err => console.error("❌ خطأ في الاتصال بقاعدة البيانات:", err.message));
 
 // نموذج تنبيهات الأسعار
 const AlertSchema = new mongoose.Schema({
@@ -29,94 +31,53 @@ const AlertSchema = new mongoose.Schema({
 });
 const Alert = mongoose.model('Alert', AlertSchema);
 
-// إعداد البريد الإلكتروني (لتنبيهات الأسعار الحقيقية)
+// إعداد البريد الإلكتروني
 const transporter = nodemailer.createTransport({
-    service: 'gmail', // أو أي مزود آخر
-    auth: { user: 'your-email@gmail.com', pass: 'your-app-password' }
+    service: 'gmail',
+    auth: { 
+        user: 'your-email@gmail.com', 
+        pass: 'your-app-password' 
+    }
 });
 
 // --- 2. قاموس الذكاء المنطقي (Rule-Based Intelligence) ---
-// هذا هو "العقل" الذي يحدد سبب اختيار المنتج بناءً على اللغة
 const smartReasonsDict = {
-    high_rating: {
-        ar: "⭐ منتج ذو تقييم ممتاز (أعلى من 4.5)",
-        en: "⭐ Top Rated product (4.5+ stars)",
-        fr: "⭐ Très bien noté (4.5+)",
-        de: "⭐ Bestbewertet (4.5+)",
-        es: "⭐ Mejor valorado (4.5+)",
-        tr: "⭐ En İyi Puanlı (4.5+)"
-    },
-    popular: {
-        ar: "🔥 الأكثر شعبية (آلاف المراجعات)",
-        en: "🔥 Most Popular (Thousands of reviews)",
-        fr: "🔥 Le plus populaire",
-        de: "🔥 Beliebteste Wahl",
-        es: "🔥 Más popular",
-        tr: "🔥 En Popüler"
-    },
-    budget: {
-        ar: "💰 خيار اقتصادي ومناسب للميزانية",
-        en: "💰 Budget-friendly choice",
-        fr: "💰 Choix économique",
-        de: "💰 Günstige Wahl",
-        es: "💰 Opción económica",
-        tr: "💰 Bütçe Dostu"
-    },
-    default: {
-        ar: "✨ أفضل نتيجة تطابق بحثك",
-        en: "✨ Best match for your search",
-        fr: "✨ Meilleur résultat",
-        de: "✨ Bestes Ergebnis",
-        es: "✨ Mejor resultado",
-        tr: "✨ En İyi Eşleşme"
-    }
+    high_rating: { ar: "⭐ منتج ذو تقييم ممتاز (أعلى من 4.5)", en: "⭐ Top Rated product (4.5+ stars)" },
+    popular: { ar: "🔥 الأكثر شعبية (آلاف المراجعات)", en: "🔥 Most Popular (Thousands of reviews)" },
+    budget: { ar: "💰 خيار اقتصادي ومناسب للميزانية", en: "💰 Budget-friendly choice" },
+    default: { ar: "✨ أفضل نتيجة تطابق بحثك", en: "✨ Best match for your search" }
 };
 
-// دالة التحليل الذكي للمنتج
 function analyzeProduct(product, lang) {
     const l = lang || 'ar';
     const rating = product.rating || 0;
     const reviews = product.reviews || 0;
-    
-    // قواعد المنطق:
     if (rating >= 4.5) return smartReasonsDict.high_rating[l] || smartReasonsDict.high_rating['ar'];
     if (reviews > 1000) return smartReasonsDict.popular[l] || smartReasonsDict.popular['ar'];
-    
-    // الافتراضي
     return smartReasonsDict.default[l] || smartReasonsDict.default['ar'];
 }
 
-// --- 3. مسار البحث الذكي (Smart Search Endpoint) ---
+// --- 3. مسار البحث الذكي ---
 app.post('/smart-search', (req, res) => {
-    // نستقبل البيانات من الموقع
     const { query, lang, budget } = req.body; 
     const currentLang = lang || 'ar';
-
-    console.log(`🔍 Processing Smart Search: ${query} [${currentLang}]`);
 
     getJson({
         engine: "google_shopping",
         q: query,
         api_key: SERP_API_KEY,
-        hl: currentLang,      // تحديد لغة نتائج جوجل
-        gl: "sa",             // الدولة (السعودية كمثال، يمكنك تغييرها لـ us أو جعلها ديناميكية)
-        google_domain: "google.com",
-        num: 20               // نجلب 20 نتيجة لنقوم بفلترتها
+        hl: currentLang,
+        gl: "sa",
+        num: 20
     }, (data) => {
-        
-        if (!data.shopping_results) {
-            return res.json({ products: [] });
-        }
+        if (!data.shopping_results) return res.json({ products: [] });
 
-        // معالجة البيانات وتنظيفها
         let processedProducts = data.shopping_results.map(p => {
-            // استخراج الرقم من السعر (حذف رموز العملة والفواصل)
             const priceClean = p.price ? parseFloat(p.price.toString().replace(/[^0-9.]/g, '')) : 0;
-            
             return {
                 name: p.title,
-                price: p.price,       // السعر كنص للعرض (مثلاً: 100 ريال)
-                priceVal: priceClean, // السعر كرقم للعمليات الحسابية
+                price: p.price,
+                priceVal: priceClean,
                 thumbnail: p.thumbnail,
                 link: p.product_link || p.link,
                 rating: p.rating || 0,
@@ -124,47 +85,36 @@ app.post('/smart-search', (req, res) => {
             };
         });
 
-        // 1. ترتيب النتائج حسب التقييم الأفضل لضمان الجودة
         processedProducts.sort((a, b) => b.rating - a.rating);
 
-        // 2. إذا تم إرسال ميزانية من السيرفر، يمكننا فلترة النتائج هنا (اختياري)
-        // ملاحظة: الكود في الصفحة يقوم بوضع علامة حمراء، لكن هنا يمكننا استبعاد الغالي جداً تماماً لو أردت
-        if (budget) {
-             // نترك المنتجات التي تزيد عن الميزانية بنسبة بسيطة (20%) ونحذف الباقي
-             // processedProducts = processedProducts.filter(p => p.priceVal <= (budget * 1.2));
-        }
-
-        // 3. أخذ أفضل 8 نتائج فقط وإضافة "السبب الذكي"
         const finalResults = processedProducts.slice(0, 8).map(p => ({
             ...p,
-            reason: analyzeProduct(p, currentLang) // إضافة سبب الاختيار باللغة المناسبة
+            reason: analyzeProduct(p, currentLang)
         }));
 
         res.json({ products: finalResults });
     });
 });
 
-// --- 4. نظام مراقبة الأسعار الحقيقي (Backend Watchlist) ---
-// هذا المسار لحفظ التنبيه في قاعدة البيانات
+// --- 4. إصلاح نظام مراقبة الأسعار (تم إضافة معالجة أفضل للأخطاء) ---
 app.post('/set-alert', async (req, res) => {
     try {
+        console.log("📥 طلب مراقبة جديد لـ:", req.body.productName);
         const alert = new Alert(req.body);
-        await alert.save();
-        res.status(200).send({ message: "Alert Saved Successfully" });
+        await alert.save(); 
+        res.status(200).send({ message: "تم حفظ التنبيه بنجاح في قاعدة البيانات" });
     } catch (e) {
-        res.status(500).send({ error: "Error saving alert" });
+        console.error("❌ فشل حفظ التنبيه:", e.message);
+        res.status(500).send({ error: "خطأ في السيرفر عند الحفظ في المونجو" });
     }
 });
 
-// تشغيل الفحص الدوري (Cron Job) كل 6 ساعات
+// تشغيل الفحص الدوري
 cron.schedule('0 */6 * * *', async () => {
-    console.log("⏰ Running Scheduled Price Check...");
+    console.log("⏰ جاري فحص الأسعار...");
     const alerts = await Alert.find();
     
     for (let alert of alerts) {
-        // تأخير بسيط لتجنب حظر API
-        await new Promise(r => setTimeout(r, 2000)); 
-
         getJson({
             engine: "google_shopping",
             q: alert.productName,
@@ -172,22 +122,15 @@ cron.schedule('0 */6 * * *', async () => {
             hl: alert.lang || 'ar'
         }, async (data) => {
             if (data.shopping_results && data.shopping_results.length > 0) {
-                const bestResult = data.shopping_results[0]; 
-                const currentPrice = parseFloat(bestResult.price.replace(/[^0-9.]/g, ''));
-                
-                // إذا انخفض السعر عن السعر المستهدف
+                const currentPrice = parseFloat(data.shopping_results[0].price.replace(/[^0-9.]/g, ''));
                 if (currentPrice <= alert.targetPrice) {
-                    console.log(`✅ Price Drop Detected for ${alert.email}`);
-                    
                     const mailOptions = {
                         from: 'Findly AI',
                         to: alert.email,
                         subject: alert.lang === 'en' ? '🚨 Price Drop Alert!' : '🚨 تنبيه: انخفاض السعر!',
-                        text: `${alert.productName}\nNew Price: ${bestResult.price}\nLink: ${bestResult.product_link}`
+                        text: `${alert.productName}\nNew Price: ${data.shopping_results[0].price}\nLink: ${alert.link}`
                     };
-
                     await transporter.sendMail(mailOptions);
-                    // حذف التنبيه بعد إرساله لمرة واحدة
                     await Alert.findByIdAndDelete(alert._id);
                 }
             }
@@ -196,4 +139,4 @@ cron.schedule('0 */6 * * *', async () => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Findly Ultimate Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Findly Server running on port ${PORT}`));

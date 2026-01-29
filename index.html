@@ -161,40 +161,6 @@
             es: { title: "Asesor Sabio", sub: "Tu guía de compras inteligente", energy: "Energía Sabia", welcome: "Bienvenido,", game: "Juegos", beauty: "Belleza", home: "Hogar Intelig.", c1: "Móviles", c2: "Portátiles", c4: "Relojes", p_head: "Perfil", buy: "Comprar 🛒", watch: "Vigilar 🔔", over: "Fuera de presupuesto", cheap: "Económico", top: "Mejor valorado", new: "Nuevo", deep: "Modo de análisis IA", watchTitle: "Lista de vigilancia", why: "¿Por qué esta elección?", slow: "El servidor está despertando..", noAttempts: "⚠️ ¡No quedan intentos!" },
             tr: { title: "Bilge Danışman", sub: "Akıllı alışveriş rehberiniz", energy: "Bilge Enerji", welcome: "Hoş geldiniz,", game: "Oyunlar", beauty: "Güzellik", home: "Akıllı Ev", c1: "Telefonlar", c2: "Laptoplar", c4: "Saatler", p_head: "Profil", buy: "Satın Al 🛒", watch: "Fiyatı İzle 🔔", over: "Bütçe Aşıldı!", cheap: "Ekonomik", top: "En İyi", new: "Yeni", deep: "Yapay Zeka Analiz", watchTitle: "İzleme Listesi", why: "Neden bu seçim?", slow: "Sunucu uyanıyor.. bekleyin", noAttempts: "⚠️ Deneme kalmadı!" }
         };
-function addToWatch(name, price, link) {
-    const promptMsg = {
-        ar: "أدخل إيميلك للتنبيه:",
-        en: "Enter email for alerts:",
-        fr: "Entrez votre e-mail:",
-        de: "E-Mail eingeben:",
-        es: "Correo electrónico:",
-        tr: "E-posta girin:"
-    };
-
-    const userEmail = prompt(promptMsg[lang] || promptMsg['ar']);
-
-    if (userEmail && userEmail.includes("@")) {
-        watchList.push({
-            name: name,
-            price: price,
-            link: link,
-            email: userEmail
-        });
-
-        localStorage.setItem('findly_watch', JSON.stringify(watchList));
-        update();
-
-        const successMsg = {
-            ar: "تمت الإضافة بنجاح!",
-            en: "Added successfully!",
-            fr: "Ajouté avec succès!",
-            de: "Erfolgreich hinzugefügt!",
-            es: "¡Agregado con éxito!",
-            tr: "Başarıyla eklendi!"
-        };
-        alert(successMsg[lang] || successMsg['ar']);
-    }
-}
 
         async function runSearch() {
             let q = document.getElementById('s-input').value;
@@ -253,11 +219,39 @@ function addToWatch(name, price, link) {
         }
 
         function addToWatch(name, price, link) {
-            watchList.push({ name, price, link });
-            localStorage.setItem('findly_watch', JSON.stringify(watchList));
-            update();
-            alert(lang === 'ar' ? "تمت الإضافة!" : "Added!");
-        }
+    const promptMsg = {
+        ar: "أدخل إيميلك للتنبيه:",
+        en: "Enter email for alerts:",
+        fr: "Entrez votre e-mail:",
+        de: "E-Mail eingeben:",
+        es: "Correo electrónico:",
+        tr: "E-posta girin:"
+    };
+
+    const userEmail = prompt(promptMsg[lang] || promptMsg['ar']);
+
+    if (userEmail && userEmail.includes("@")) {
+        watchList.push({
+            name: name,
+            price: price,
+            link: link,
+            email: userEmail
+        });
+
+        localStorage.setItem('findly_watch', JSON.stringify(watchList));
+        update();
+
+        const successMsg = {
+            ar: "تمت الإضافة بنجاح!",
+            en: "Added successfully!",
+            fr: "Ajouté avec succès!",
+            de: "Erfolgreich hinzugefügt!",
+            es: "¡Agregado con éxito!",
+            tr: "Başarıyla eklendi!"
+        };
+        alert(successMsg[lang] || successMsg['ar']);
+    }
+}
 
         function startVoice() {
             const mic = document.getElementById('mic-btn');

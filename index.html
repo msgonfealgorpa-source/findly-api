@@ -183,69 +183,57 @@
             wBtn.style.display = watchList.length > 0 ? 'block' : 'none';
         }
 
-        async function runSearch() {
-    let q = document.getElementById('s-input').value;
-    if (!q) return;
+        async function runSearch() {
+            
+        try {
+                const res = await fetch(`${API}/smart-search`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: q, lang: lang })
+                });
 
-    // ... باقي الكود الخاص بـ fetch
-        return; 
-    let q = document.getElementById('s-input').value;
-    if (!q) return;
+                const data = await res.json(); // تأكد من إضافة هذا السطر لتخزين البيانات القادمة
 
-    // ... باقي الكود الخاص بـ fetch
-    let q = document.getElementById('s-input').value; // تصحيح الإملاء
-    if (!q || attempts <= 0) { if(attempts <= 0) alert("انتهت الطاقة!"); return; }
+                status.style.display = "none";
+                
+                if (!data.products || data.products.length === 0) {
+                    resCon.innerHTML = "لم يتم العثور على نتائج.";
+                    return;
+                }
 
-    const status = document.getElementById('status');
-    const resCon = document.getElementById('results');
-    const d = dict[lang] || dict['ar'];
+                data.products.forEach((p, index) => {
+                    const pNum = parseFloat(p.price.replace(/[^0-9.]/g, '')) || 0;
+                    const isOver = budget > 0 && pNum > budget;
+                    
+                    resCon.innerHTML += `
+                        <div class="product-card">
+                            <img src="${p.thumbnail}">
+                            <h3 style="font-size:1rem; margin:5px 0;">${p.name}</h3>
+                            <div style="font-weight:900; color:#10b981; font-size:1.2rem;">${p.price}</div>
+                            
+                            <div class="analysis-engine">
+                                <span class="analysis-label"><i class="fa-solid fa-brain"></i> ${d.why}</span>
+                                ${p.reason}
+                            </div>
 
-    status.style.display = "block";
-    status.innerHTML = '<i class="fa-solid fa-microchip fa-spin"></i> جارِ التفكير...';
-    resCon.innerHTML = "";
+                            ${isOver ? `<div style="color:#ef4444; font-size:0.75rem; font-weight:bold; margin-bottom:10px;">${d.over}</div>` : ''}
+                            
+                            <div class="btn-group">
+                                <a href="${p.link}" target="_blank" class="action-btn buy-now">${d.buy}</a>
+                                <button class="action-btn watch-later" onclick="addToWatch('${p.name}', '${p.price}')">${d.watch}</button>
+                            </div>
+                        </div>`;
+                });
+                
+                // تقليل المحاولات بعد نجاح البحث
+                attempts--; 
+                localStorage.setItem('findly_attempts', attempts); 
+                update();
 
-    try {
-        // تأكد من استخدام الـ Backticks ` هنا
-        const res = await fetch(`${API}/smart-search`, { 
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ query: q, lang: lang })
-        });
-
-        const data = await res.json();
-        status.style.display = "none";
-
-        if (!data.products || data.products.length === 0) {
-            resCon.innerHTML = "No results found.";
-            return;
-        }
-
-        data.products.forEach((p) => {
-            resCon.innerHTML += `
-                <div class="product-card">
-                    <img src="${p.thumbnail}">
-                    <h3>${p.name}</h3>
-                    <div style="font-weight:900; color:#10b981;">${p.price}</div>
-                    <div class="analysis-engine">
-                        <span class="analysis-label"><i class="fa-solid fa-brain"></i> ${d.why}</span>
-                        ${p.reason} 
-                    </div>
-                    <div class="btn-group">
-                        <a href="${p.link}" target="_blank" class="action-btn buy-now">${d.buy}</a>
-                        <button class="action-btn watch-later" onclick="addToWatch('${p.name}', '${p.price}')">${d.watch}</button>
-                    </div>
-                </div>`;
-        });
-
-        attempts--;
-        localStorage.setItem('findly_attempts', attempts);
-        update();
-
-    } catch (e) {
-        console.error(e);
-        status.innerText = "خطأ في الاتصال بالعقل";
-    }
-}
+            } catch (e) { 
+                status.innerText = "خطأ في الاتصال بالعقل"; 
+                console.error(e);
+            }
 
         function startVoice() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;

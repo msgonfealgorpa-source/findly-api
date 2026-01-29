@@ -171,12 +171,12 @@
         
         .ai-toggle input { width: 20px; height: 20px; accent-color: var(--primary); cursor: pointer; }
 
-        /* --- Search Input Styling --- */
+        /* --- Search Input Styling (FIXED) --- */
         .search-wrapper { position: relative; max-width: 600px; margin: 0 auto 20px; }
         
         .search-input {
             width: 100%;
-            padding: 18px 60px;
+            padding: 18px 60px; /* Padding for icons */
             border-radius: 24px;
             border: 2px solid var(--glass-border);
             background: var(--bg-card);
@@ -194,17 +194,36 @@
         }
 
         .mic-icon {
-            position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
-            color: var(--secondary); cursor: pointer; font-size: 1.4rem; transition: 0.3s;
+            position: absolute; 
+            right: 20px; 
+            top: 50%; 
+            transform: translateY(-50%);
+            color: var(--secondary); 
+            cursor: pointer; 
+            font-size: 1.4rem; 
+            transition: 0.3s;
+            z-index: 10; /* Ensure it stays on top */
         }
         
         .mic-active { color: #ef4444; text-shadow: 0 0 10px #ef4444; animation: pulse 1s infinite; }
         
         .send-btn {
-            position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
-            background: var(--gradient); border: none; width: 45px; height: 45px;
-            border-radius: 18px; color: #fff; cursor: pointer;
-            transition: 0.3s; display: flex; align-items: center; justify-content: center;
+            position: absolute; 
+            left: 10px; 
+            top: 50%; 
+            transform: translateY(-50%);
+            background: var(--gradient); 
+            border: none; 
+            width: 45px; 
+            height: 45px;
+            border-radius: 18px; 
+            color: #fff; 
+            cursor: pointer;
+            transition: 0.3s; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            z-index: 10; /* Ensure it stays on top */
         }
         
         .send-btn:hover { transform: translateY(-50%) scale(1.05); box-shadow: 0 0 15px var(--primary-glow); }
@@ -365,8 +384,8 @@
         </div>
 
         <div class="search-wrapper">
-            <i id="mic-btn" class="fa-solid fa-microphone-lines mic-icon" onclick="startVoice()"></i>
             <input type="text" id="s-input" class="search-input">
+            <i id="mic-btn" class="fa-solid fa-microphone-lines mic-icon" onclick="startVoice()"></i>
             <button class="send-btn" onclick="runSearch()"><i class="fa-solid fa-magnifying-glass"></i></button>
         </div>
 
@@ -497,7 +516,6 @@
                 console.error(e);
                 status.style.display = "block";
                 status.innerHTML = `<i class="fa-solid fa-clock-rotate-left"></i> ${d.slow}`;
-                // Auto-retry logic could be added here
             }
         }
 
@@ -548,7 +566,7 @@
         function startVoice() {
             const mic = document.getElementById('mic-btn');
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) { alert("Browser not supported"); return; }
+            if (!SpeechRecognition) return; // Restored original logic (removed alert)
             
             const recognition = new SpeechRecognition();
             recognition.lang = (lang==='ar'?'ar-SA':lang==='fr'?'fr-FR':lang==='de'?'de-DE':lang==='tr'?'tr-TR':lang==='es'?'es-ES':'en-US');
@@ -599,7 +617,7 @@
             }
         }
 
-        // --- The Missing Function (FIXED & INSIDE SCRIPT) ---
+        // --- Update Function ---
         function update() {
             const d = dict[lang] || dict['ar'];
             const userName = localStorage.getItem('fn') || (lang === 'ar' ? 'أيها الباحث' : 'Seeker');

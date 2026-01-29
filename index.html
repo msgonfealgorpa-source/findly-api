@@ -31,6 +31,7 @@
             margin: 0;
             padding-bottom: 90px;
             overflow-x: hidden;
+            transition: all 0.3s ease;
         }
 
         /* Header */
@@ -41,17 +42,18 @@
         .user-pill {
             background: var(--glass); border: 1px solid var(--glass-border); padding: 6px 12px;
             border-radius: 30px; display: flex; align-items: center; gap: 8px; font-size: 0.85rem;
+            cursor: pointer; transition: 0.3s;
         }
+        .user-pill:hover { background: rgba(255,255,255,0.1); }
         .energy-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 10px var(--accent); }
 
-        /* Language Switcher & Attempts */
+        /* Language Selector */
         .lang-select {
             background: var(--glass); color: white; border: 1px solid var(--glass-border);
-            border-radius: 10px; font-size: 0.8rem; padding: 5px; outline: none; margin-left: 5px;
+            border-radius: 20px; padding: 5px 10px; outline: none; font-family: inherit; font-size: 0.8rem;
+            margin-right: 5px; cursor: pointer;
         }
-        .attempts-pill {
-            font-size: 0.75rem; background: rgba(255, 0, 0, 0.2); padding: 4px 8px; border-radius: 10px; color: #ff9999; border: 1px solid rgba(255, 0, 0, 0.3);
-        }
+        option { background: #222; color: white; }
 
         /* Hero */
         .hero { padding: 20px; text-align: center; margin-top: 10px; transition: 0.3s; }
@@ -67,8 +69,16 @@
         }
         .magic-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 20px var(--accent-glow); }
         .mic-btn { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--accent); font-size: 1.2rem; cursor: pointer; }
+        html[dir="ltr"] .mic-btn { left: auto; right: 15px; } /* Adjust for LTR */
+        
         .mic-active { color: #ef4444; animation: pulse 1s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        /* Attempts Badge */
+        .attempts-badge {
+            text-align: center; font-size: 0.8rem; color: #888; margin-top: -10px; margin-bottom: 20px;
+        }
+        .attempts-count { color: var(--accent); font-weight: bold; }
 
         /* Bento Grid */
         .bento-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 20px; margin-bottom: 20px; }
@@ -92,11 +102,14 @@
         }
         .p-img { width: 90px; height: 90px; background: #fff; border-radius: 15px; object-fit: contain; padding: 5px; }
         .p-info { flex: 1; text-align: right; }
+        html[dir="ltr"] .p-info { text-align: left; }
+        
         .p-name { font-weight: bold; font-size: 0.95rem; margin-bottom: 5px; line-height: 1.4; }
         .ai-badge { background: linear-gradient(135deg, #6366F1, #A855F7); font-size: 0.6rem; padding: 3px 8px; border-radius: 10px; color: white; display: inline-block; margin-bottom: 5px; }
         .p-price { color: var(--accent); font-weight: 800; font-size: 1.1rem; margin-top: 5px; }
         .p-reason { font-size: 0.75rem; color: #aaa; margin-top: 4px; line-height: 1.3; border-right: 2px solid var(--accent); padding-right: 8px; }
-        
+        html[dir="ltr"] .p-reason { border-right: none; border-left: 2px solid var(--accent); padding-right: 0; padding-left: 8px; }
+
         .action-icon {
             width: 35px; height: 35px; border-radius: 50%; background: rgba(255,255,255,0.1);
             display: flex; align-items: center; justify-content: center; color: #fff; text-decoration: none;
@@ -115,23 +128,22 @@
         /* Loader */
         .loader { text-align: center; padding: 40px; color: var(--accent); display: none; }
         
-        /* Modal for User Profile */
+        /* Modal for Profile */
         .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); z-index: 2000; display: none;
-            justify-content: center; align-items: center; backdrop-filter: blur(5px);
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8);
+            z-index: 2000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px);
         }
         .modal-content {
-            background: #1a1a1a; padding: 25px; border-radius: 20px; width: 85%; max-width: 350px;
+            background: #1a1a1a; width: 85%; max-width: 400px; padding: 25px; border-radius: 25px;
             border: 1px solid var(--glass-border); text-align: center;
         }
         .modal-input {
-            width: 100%; padding: 12px; background: #000; border: 1px solid #333;
-            color: white; border-radius: 10px; margin-bottom: 10px; font-family: inherit;
+            width: 100%; padding: 12px; margin: 10px 0; background: #333; border: 1px solid #444;
+            border-radius: 12px; color: white;
         }
         .modal-btn {
-            background: var(--accent); color: #000; border: none; padding: 10px 20px;
-            border-radius: 10px; font-weight: bold; width: 100%; cursor: pointer;
+            background: var(--accent); color: #000; border: none; padding: 12px 30px; border-radius: 12px;
+            font-weight: bold; cursor: pointer; margin-top: 10px; width: 100%;
         }
 
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -140,25 +152,23 @@
 <body>
 
     <header>
-        <div style="display: flex; gap: 5px; align-items: center;">
-            <div class="user-pill">
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <div class="user-pill" onclick="openProfileModal()">
                 <div class="energy-dot"></div>
                 <span id="user-name">Guest</span>
             </div>
-            <div class="attempts-pill" id="attempts-display">
-                <i class="fa-solid fa-bolt"></i> <span id="attempts-count">3</span>
-            </div>
+            <select id="lang-switcher" class="lang-select" onchange="changeLanguage(this.value)">
+                <option value="ar">العربية</option>
+                <option value="en">English</option>
+                <option value="fr">Français</option>
+                <option value="es">Español</option>
+                <option value="de">Deutsch</option>
+                <option value="zh">中文</option>
+            </select>
         </div>
         
-        <select class="lang-select" id="lang-selector" onchange="changeLanguage(this.value)">
-            <option value="ar">العربية</option>
-            <option value="en">English</option>
-            <option value="fr">Français</option>
-            <option value="es">Español</option>
-            <option value="tr">Türkçe</option>
-            <option value="hi">हिन्दी</option>
-        </select>
-
+        <div style="font-weight: 900; font-size: 1.2rem;">Findly<span style="color:var(--accent)">.</span></div>
+        
         <div class="user-pill" style="padding: 6px;" onclick="toggleWatchList()">
             <i class="fa-solid fa-bell"></i>
             <span id="watch-badge" style="background:red; width:8px; height:8px; border-radius:50%; position:absolute; top:0; right:0; display:none;"></span>
@@ -167,8 +177,8 @@
 
     <main id="home-view">
         <div class="hero" id="hero-sec">
-            <h1><span id="txt-h1-1">ما الذي تبحث عنه</span><br><span style="color:var(--accent)" id="txt-h1-2">اليوم؟</span></h1>
-            <p id="txt-desc">سأبحث لك في الانترنت وأحلل النتائج بالذكاء الاصطناعي</p>
+            <h1 id="hero-title">ما الذي تبحث عنه<br><span style="color:var(--accent)">اليوم؟</span></h1>
+            <p id="hero-desc">سأبحث لك في الانترنت وأحلل النتائج بالذكاء الاصطناعي</p>
         </div>
 
         <div class="search-container">
@@ -176,43 +186,274 @@
             <i class="fa-solid fa-microphone-lines mic-btn" id="mic-icon" onclick="startVoice()"></i>
         </div>
 
+        <div class="attempts-badge">
+            <span id="attempts-label">المحاولات المتبقية:</span> <span id="attempts-val" class="attempts-count">3</span>
+        </div>
+
         <div class="bento-grid" id="cat-sec">
             <div class="bento-card large">
                 <div class="b-icon" style="background: rgba(99, 102, 241, 0.2); color: #6366F1;"><i class="fa-solid fa-brain"></i></div>
-                <div style="margin-right: 15px; flex:1;">
-                    <div class="b-title" id="txt-deep">بحث عميق</div>
-                    <div class="b-sub" id="txt-deep-sub">تحليل المواصفات والمراجعات</div>
+                <div style="margin-right: 15px; margin-left: 15px;">
+                    <div class="b-title" id="t-deep">بحث عميق</div>
+                    <div class="b-sub" id="d-deep">تحليل المواصفات</div>
                 </div>
             </div>
-            <div class="bento-card" onclick="quickSearch('Laptop')">
+            <div class="bento-card" onclick="quickSearch('لابتوب رخيص')">
                 <div class="b-icon"><i class="fa-solid fa-laptop"></i></div>
-                <div><div class="b-title" id="txt-laptop">لابتوبات</div><div class="b-sub">...</div></div>
+                <div><div class="b-title" id="t-laptop">لابتوبات</div><div class="b-sub">طلاب وعمل</div></div>
             </div>
-            <div class="bento-card" onclick="quickSearch('Mobile 2024')">
+            <div class="bento-card" onclick="quickSearch('أفضل جوال 2024')">
                 <div class="b-icon" style="color: var(--accent);"><i class="fa-solid fa-mobile-screen"></i></div>
-                <div><div class="b-title" id="txt-phone">جوالات</div><div class="b-sub">...</div></div>
+                <div><div class="b-title" id="t-mobile">جوالات</div><div class="b-sub">الأحدث</div></div>
             </div>
         </div>
 
         <div class="results-area">
             <div class="section-title">
-                <span id="txt-results">النتائج الحية</span>
+                <span id="res-title">النتائج الحية</span>
                 <span id="status-text" style="font-size: 0.8rem; color: var(--accent);"></span>
             </div>
             
             <div class="loader" id="loader">
                 <i class="fa-solid fa-circle-notch fa-spin fa-2x"></i>
-                <p style="margin-top:10px; font-size:0.9rem;" id="txt-loading">جاري الاتصال بالسيرفر...</p>
+                <p style="margin-top:10px; font-size:0.9rem;" id="loading-text">جاري الاتصال بالسيرفر...</p>
             </div>
 
             <div id="results-container"></div>
         </div>
     </main>
 
-    <div class="modal-overlay" id="user-modal">
+    <div class="modal-overlay" id="profile-modal">
         <div class="modal-content">
-            <h3 style="margin-top:0" id="txt-modal-title">إعدادات الملف الشخصي</h3>
+            <h3 style="margin-top:0" id="modal-title">الملف الشخصي</h3>
+            <div style="text-align: right; font-size: 0.9rem; color: #888; margin-bottom: 5px;" id="lbl-name">الاسم:</div>
             <input type="text" id="input-name" class="modal-input" placeholder="اسمك">
-            <input type="number" id="input-budget" class="modal-input" placeholder="ميزانيتك ($)">
-            <button class="modal-btn" onclick="saveUserProfile()" id="txt-save">حفظ البيانات</button>
-            <button class="modal-btn" style="background:transparent; color:#888; margin-top:5
+            
+            <div style="text-align: right; font-size: 0.9rem; color: #888; margin-bottom: 5px;" id="lbl-budget">الميزانية ($):</div>
+            <input type="number" id="input-budget" class="modal-input" placeholder="مثال: 500">
+            
+            <button class="modal-btn" onclick="saveProfile()" id="btn-save">حفظ البيانات</button>
+            <button class="modal-btn" style="background:transparent; color:#888; border:1px solid #444; margin-top:5px" onclick="closeProfileModal()" id="btn-cancel">إغلاق</button>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <div class="nav-item active" onclick="location.reload()"><i class="fa-solid fa-house"></i></div>
+        <div class="nav-item" onclick="document.getElementById('search-box').focus()"><i class="fa-solid fa-magnifying-glass"></i></div>
+        <div class="nav-item" style="background: var(--accent); color: #000; padding: 10px; border-radius: 50%; transform: translateY(-20px); box-shadow: 0 10px 20px var(--accent-glow);">
+            <i class="fa-solid fa-plus"></i>
+        </div>
+        <div class="nav-item" onclick="toggleWatchList()"><i class="fa-regular fa-heart"></i></div>
+    </nav>
+
+    <script>
+        // --- إعدادات السيرفر والمتغيرات ---
+        const API = "https://findly-api.onrender.com"; 
+        let lang = localStorage.getItem('findly_lang') || 'ar';
+        let watchList = JSON.parse(localStorage.getItem('findly_watch')) || [];
+        
+        // 3. Logic: Attempts Counter
+        let attempts = parseInt(localStorage.getItem('findly_attempts'));
+        if (isNaN(attempts)) { attempts = 3; } // Default for new user
+
+        // 1. Logic: Translations Database (6 Languages)
+        const translations = {
+            ar: { dir: 'rtl', title: "ما الذي تبحث عنه", subtitle: "اليوم؟", desc: "سأبحث لك في الانترنت وأحلل النتائج", ph: "اكتب هنا...", t_deep: "بحث عميق", d_deep: "تحليل المواصفات", t_lap: "لابتوبات", t_mob: "جوالات", res: "النتائج", m_title: "الملف الشخصي", m_name: "الاسم:", m_bud: "الميزانية:", m_save: "حفظ", m_close: "إغلاق", rem: "المحاولات المتبقية:" },
+            en: { dir: 'ltr', title: "What are you looking for", subtitle: "Today?", desc: "I will search the web and analyze results", ph: "Type here...", t_deep: "Deep Search", d_deep: "Spec Analysis", t_lap: "Laptops", t_mob: "Mobiles", res: "Live Results", m_title: "Profile", m_name: "Name:", m_bud: "Budget:", m_save: "Save", m_close: "Close", rem: "Attempts left:" },
+            fr: { dir: 'ltr', title: "Que cherchez-vous", subtitle: "Aujourd'hui?", desc: "Je vais chercher sur le web pour vous", ph: "Écrivez ici...", t_deep: "Recherche", d_deep: "Analyse", t_lap: "Pc Portables", t_mob: "Téléphones", res: "Résultats", m_title: "Profil", m_name: "Nom:", m_bud: "Budget:", m_save: "Enregistrer", m_close: "Fermer", rem: "Essais restants:" },
+            es: { dir: 'ltr', title: "¿Qué estás buscando", subtitle: "Hoy?", desc: "Buscaré en la web y analizaré", ph: "Escribe aquí...", t_deep: "Búsqueda", d_deep: "Análisis", t_lap: "Portátiles", t_mob: "Móviles", res: "Resultados", m_title: "Perfil", m_name: "Nombre:", m_bud: "Presupuesto:", m_save: "Guardar", m_close: "Cerrar", rem: "Intentos:" },
+            de: { dir: 'ltr', title: "Was suchen Sie", subtitle: "Heute?", desc: "Ich suche im Web und analysiere", ph: "Hier tippen...", t_deep: "Tiefensuche", d_deep: "Analyse", t_lap: "Laptops", t_mob: "Handys", res: "Ergebnisse", m_title: "Profil", m_name: "Name:", m_bud: "Budget:", m_save: "Speichern", m_close: "Schließen", rem: "Versuche übrig:" },
+            zh: { dir: 'ltr', title: "你今天在找", subtitle: "什么？", desc: "我也为你搜索并分析结果", ph: "在这里输入...", t_deep: "深度搜索", d_deep: "规格分析", t_lap: "笔记本", t_mob: "手机", res: "结果", m_title: "简介", m_name: "姓名:", m_bud: "预算:", m_save: "保存", m_close: "关闭", rem: "剩余次数:" }
+        };
+
+        function updateUI() {
+            // Update direction & Text
+            const t = translations[lang];
+            document.getElementById('main-html').setAttribute('dir', t.dir);
+            document.getElementById('lang-switcher').value = lang;
+            
+            // Text Replacements
+            document.getElementById('hero-title').innerHTML = `${t.title}<br><span style="color:var(--accent)">${t.subtitle}</span>`;
+            document.getElementById('hero-desc').innerText = t.desc;
+            document.getElementById('search-box').placeholder = t.ph;
+            document.getElementById('t-deep').innerText = t.t_deep;
+            document.getElementById('d-deep').innerText = t.d_deep;
+            document.getElementById('t-laptop').innerText = t.t_lap;
+            document.getElementById('t-mobile').innerText = t.t_mob;
+            document.getElementById('res-title').innerText = t.res;
+            document.getElementById('attempts-label').innerText = t.rem;
+            
+            // Modal Text
+            document.getElementById('modal-title').innerText = t.m_title;
+            document.getElementById('lbl-name').innerText = t.m_name;
+            document.getElementById('lbl-budget').innerText = t.m_bud;
+            document.getElementById('btn-save').innerText = t.m_save;
+            document.getElementById('btn-cancel').innerText = t.m_close;
+
+            // Alignments for LTR/RTL
+            const align = t.dir === 'rtl' ? 'right' : 'left';
+            document.getElementById('lbl-name').style.textAlign = align;
+            document.getElementById('lbl-budget').style.textAlign = align;
+        }
+
+        function changeLanguage(val) {
+            lang = val;
+            localStorage.setItem('findly_lang', lang);
+            updateUI();
+        }
+
+        // 2. Logic: Profile Functions
+        function openProfileModal() {
+            document.getElementById('profile-modal').style.display = 'flex';
+            document.getElementById('input-name').value = localStorage.getItem('fn') || '';
+            document.getElementById('input-budget').value = localStorage.getItem('fb') || '';
+        }
+        function closeProfileModal() {
+            document.getElementById('profile-modal').style.display = 'none';
+        }
+        function saveProfile() {
+            const name = document.getElementById('input-name').value;
+            const budget = document.getElementById('input-budget').value;
+            if(name) {
+                localStorage.setItem('fn', name);
+                document.getElementById('user-name').innerText = name;
+            }
+            if(budget) localStorage.setItem('fb', budget);
+            closeProfileModal();
+            alert("تم حفظ البيانات بنجاح | Saved");
+        }
+
+        // --- وظائف البحث ---
+        async function runSearch() {
+            const query = document.getElementById('search-box').value;
+            if (!query) return;
+
+            // 3. Logic: Check Attempts
+            if (attempts <= 0) {
+                alert("عذراً، لقد استنفدت عدد المحاولات المجانية (3). يرجى الترقية للمتابعة.\nSorry, you used all 3 free attempts.");
+                return;
+            }
+
+            // Decrement and Save
+            attempts--;
+            localStorage.setItem('findly_attempts', attempts);
+            document.getElementById('attempts-val').innerText = attempts;
+
+            // UI Updates
+            document.getElementById('hero-sec').style.display = 'none';
+            document.getElementById('cat-sec').style.display = 'none';
+            const container = document.getElementById('results-container');
+            const loader = document.getElementById('loader');
+            
+            container.innerHTML = "";
+            loader.style.display = "block";
+            document.getElementById('status-text').innerText = lang === 'ar' ? "جاري البحث..." : "Searching...";
+
+            try {
+                // Include budget in search if exists
+                const userBudget = localStorage.getItem('fb');
+                const finalQuery = userBudget ? `${query} (Budget: ${userBudget})` : query;
+
+                const res = await fetch(`${API}/smart-search`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: finalQuery, lang: lang })
+                });
+
+                const data = await res.json();
+                loader.style.display = "none";
+
+                if (data.products && data.products.length > 0) {
+                    document.getElementById('status-text').innerText = `${data.products.length}`;
+                    
+                    data.products.forEach((p, index) => {
+                        const card = `
+                            <div class="product-card" style="animation-delay: ${index * 0.1}s">
+                                <img src="${p.thumbnail}" class="p-img" alt="img" onerror="this.src='https://placehold.co/100x100?text=No+Img'">
+                                <div class="p-info">
+                                    <div class="ai-badge"><i class="fa-solid fa-wand-magic-sparkles"></i> AI</div>
+                                    <div class="p-name">${p.name}</div>
+                                    <div class="p-reason">${p.reason || '...'}</div>
+                                    <div class="p-price">${p.price || ''}</div>
+                                    <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:5px;">
+                                        <a href="${p.link}" target="_blank" class="action-icon" style="background:var(--accent); color:#000;">
+                                            <i class="fa-solid fa-cart-shopping"></i>
+                                        </a>
+                                        <div class="action-icon" onclick="addToWatch('${p.name.replace(/'/g, "")}', '${p.price}')">
+                                            <i class="fa-regular fa-heart"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        container.innerHTML += card;
+                    });
+                } else {
+                    container.innerHTML = `<div style="text-align:center; padding:20px;">No Results Found.</div>`;
+                }
+
+            } catch (e) {
+                loader.style.display = "none";
+                container.innerHTML = `<div style="text-align:center; color:red;">Error connecting.<br>${e.message}</div>`;
+            }
+        }
+
+        // --- الوظائف المساعدة ---
+        function startVoice() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) { alert("Browser not supported"); return; }
+            
+            const rec = new SpeechRecognition();
+            rec.lang = lang === 'ar' ? 'ar-SA' : 'en-US'; // Dynamic Lang
+            const micBtn = document.getElementById('mic-icon');
+            
+            rec.onstart = () => micBtn.classList.add('mic-active');
+            rec.onend = () => micBtn.classList.remove('mic-active');
+            
+            rec.onresult = (e) => {
+                const transcript = e.results[0][0].transcript;
+                document.getElementById('search-box').value = transcript;
+                runSearch();
+            };
+            rec.start();
+        }
+
+        function addToWatch(name, price) {
+            watchList.push({ name, price });
+            localStorage.setItem('findly_watch', JSON.stringify(watchList));
+            alert("Added to watchlist");
+            updateBadge();
+        }
+
+        function updateBadge() {
+            const b = document.getElementById('watch-badge');
+            if(watchList.length > 0) b.style.display = 'block';
+        }
+
+        function toggleWatchList() {
+            if(watchList.length === 0) { alert("Watchlist empty"); return; }
+            let list = "Watchlist:\n";
+            watchList.forEach(i => list += `- ${i.name} (${i.price})\n`);
+            alert(list);
+        }
+
+        function quickSearch(txt) {
+            document.getElementById('search-box').value = txt;
+            runSearch();
+        }
+
+        document.getElementById('search-box').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') runSearch();
+        });
+
+        // تشغيل عند البدء
+        window.onload = function() {
+            const user = localStorage.getItem('fn') || 'Guest';
+            document.getElementById('user-name').innerText = user;
+            document.getElementById('attempts-val').innerText = attempts;
+            updateBadge();
+            updateUI(); // Apply Language
+        };
+    </script>
+</body>
+</html>

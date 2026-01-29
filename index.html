@@ -161,31 +161,24 @@
             es: { title: "Asesor Sabio", sub: "Tu guía de compras inteligente", energy: "Energía Sabia", welcome: "Bienvenido,", game: "Juegos", beauty: "Belleza", home: "Hogar Intelig.", c1: "Móviles", c2: "Portátiles", c4: "Relojes", p_head: "Perfil", buy: "Comprar 🛒", watch: "Vigilar 🔔", over: "Fuera de presupuesto", cheap: "Económico", top: "Mejor valorado", new: "Nuevo", deep: "Modo de análisis IA", watchTitle: "Lista de vigilancia", why: "¿Por qué esta elección?", slow: "El servidor está despertando..", noAttempts: "⚠️ ¡No quedan intentos!" },
             tr: { title: "Bilge Danışman", sub: "Akıllı alışveriş rehberiniz", energy: "Bilge Enerji", welcome: "Hoş geldiniz,", game: "Oyunlar", beauty: "Güzellik", home: "Akıllı Ev", c1: "Telefonlar", c2: "Laptoplar", c4: "Saatler", p_head: "Profil", buy: "Satın Al 🛒", watch: "Fiyatı İzle 🔔", over: "Bütçe Aşıldı!", cheap: "Ekonomik", top: "En İyi", new: "Yeni", deep: "Yapay Zeka Analiz", watchTitle: "İzleme Listesi", why: "Neden bu seçim?", slow: "Sunucu uyanıyor.. bekleyin", noAttempts: "⚠️ Deneme kalmadı!" }
         };
-
-        function update() {
+function update() {
             const d = dict[lang] || dict['ar'];
-            document.getElementById('main-html').dir = (lang === 'ar') ? 'rtl' : 'ltr';
-            
-            // النصوص الأساسية
+            document.getElementById('main-html').dir = lang === 'ar' ? 'rtl' : 'ltr';
             document.getElementById('txt-title').innerText = d.title;
             document.getElementById('txt-sub').innerText = d.sub;
             document.getElementById('txt-energy').innerText = d.energy;
             document.getElementById('r-count').innerText = attempts;
-
-            // تحديث الأزرار (Categories)
-            const map = { 'cat-game':'game', 'cat-beauty':'beauty', 'cat-home':'home', 'cat-c1':'c1', 'cat-c2':'c2', 'cat-c4':'c4', 'tag-cheap':'cheap', 'tag-top':'top', 'tag-new':'new', 'txt-deep':'deep', 'txt-watch-title':'watchTitle', 'p-head':'p_head' };
-            for(let id in map) {
-                let el = document.getElementById(id);
-                if(el) el.innerText = d[map[id]];
-            }
+            
+            // تحديث التصنيفات
+            const cats = ['game', 'beauty', 'home', 'c1', 'c2', 'c4'];
+            cats.forEach(c => { if(document.getElementById('cat-'+c)) document.getElementById('cat-'+c).innerText = d[c]; });
 
             const name = localStorage.getItem('fn') || (lang === 'ar' ? "أحمد" : "User");
             document.getElementById('greeting').innerText = `${d.welcome} ${name}`;
-            
-            const wCount = document.getElementById('watch-count');
-            if (wCount) {
-                wCount.innerText = watchList.length;
-                wCount.style.display = watchList.length > 0 ? 'block' : 'none';
+            const wBtn = document.getElementById('watch-count');
+            if(wBtn) {
+                wBtn.innerText = watchList.length;
+                wBtn.style.display = watchList.length > 0 ? 'block' : 'none';
             }
         }
 

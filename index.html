@@ -189,11 +189,8 @@
             wBtn.innerText = watchList.length;
             wBtn.style.display = watchList.length > 0 ? 'block' : 'none';
         }
-
 async function runSearch() {
     let q = document.getElementById('s-input').value;
-    const isDeepMode = document.getElementById('ai-deep-mode').checked; // سحب حالة التحليل الذكي
-
     if (attempts <= 0) {
         alert("⚠️ عذراً، استنفدت محاولاتك!");
         return;
@@ -206,63 +203,54 @@ async function runSearch() {
     const userBudget = parseFloat(localStorage.getItem('fb')) || 0;
 
     status.style.display = "block";
-    status.innerHTML = '<i class="fa-solid fa-microchip fa-spin"></i> جاري التحليل...';
+    status.innerHTML = '<i class="fa-solid fa-microchip fa-spin"></i> جاري التحليل الذكي...';
     resCon.innerHTML = "";
 
     try {
         const res = await fetch(`${API}/smart-search`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                query: q, 
-                lang: lang,
-                deepMode: isDeepMode // إرسال حالة التحليل للسيرفر
-            })
+            body: JSON.stringify({ query: q, lang: lang })
         });
+
+        if (!res.ok) throw new Error("Server delay"); // إذا لم يرد السيرفر فوراً
 
         const data = await res.json();
         status.style.display = "none";
 
-        if (!data.products || data.products.length === 0) {
-            resCon.innerHTML = "<p>لم نجد نتائج مطابقة، جرب كلمات أخرى.</p>";
-            return;
+        if (data.products && data.products.length > 0) {
+            data.products.forEach((p) => {
+                let cleanPrice = p.price ? p.price.toString().replace(/[^\d.]/g, '') : "0"; 
+                let priceVal = parseFloat(cleanPrice);
+                let budgetAlert = "";
+
+                if(userBudget > 0 && priceVal > userBudget) {
+                    budgetAlert = `<div style="background:rgba(239, 68, 68, 0.2); border:1px solid #ef4444; color:#fca5a5; padding:10px; border-radius:12px; margin-bottom:12px; font-size:0.85rem; font-weight:bold;"><i class="fa-solid fa-circle-exclamation"></i> ${d.over} (${userBudget}$)</div>`;
+                }
+
+                resCon.innerHTML += `
+                    <div class="product-card" style="${userBudget > 0 && priceVal > userBudget ? 'border: 1px solid #ef4444;' : ''}">
+                        ${budgetAlert}
+                        <img src="${p.thumbnail}">
+                        <h3>${p.name}</h3>
+                        <div style="font-weight:900; color:#10b981; font-size:1.2rem;">${p.price}</div>
+                        <div class="analysis-engine"><span class="analysis-label"><i class="fa-solid fa-brain"></i> ${d.why}</span>${p.reason}</div>
+                        <div class="btn-group">
+                            <a href="${p.link}" target="_blank" class="action-btn buy-now">${d.buy}</a>
+                            <button class="action-btn watch-later" onclick="addToWatch('${p.name.replace(/'/g, "\\'")}', '${p.price}', '${p.link}')">${d.watch}</button>
+                        </div>
+                    </div>`;
+            });
+            attempts--;
+            localStorage.setItem('findly_attempts', attempts);
+            update();
         }
-
-        data.products.forEach((p) => {
-            let cleanPrice = p.price ? p.price.toString().replace(/[^\d.]/g, '') : "0"; 
-            let priceVal = parseFloat(cleanPrice);
-            let budgetAlert = "";
-
-            if(userBudget > 0 && priceVal > userBudget) {
-                budgetAlert = `
-                <div style="background:rgba(239, 68, 68, 0.2); border:1px solid #ef4444; color:#fca5a5; padding:10px; border-radius:12px; margin-bottom:12px; font-size:0.85rem; font-weight:bold; display:flex; align-items:center; gap:8px;">
-                    <i class="fa-solid fa-circle-exclamation"></i> ${d.over} (${userBudget}$)
-                </div>`;
-            }
-
-            resCon.innerHTML += `
-                <div class="product-card" style="${userBudget > 0 && priceVal > userBudget ? 'border: 1px solid #ef4444;' : ''}">
-                    ${budgetAlert}
-                    <img src="${p.thumbnail || 'https://via.placeholder.com/150'}">
-                    <h3>${p.name}</h3>
-                    <div style="font-weight:900; color:#10b981; font-size:1.2rem;">${p.price}</div>
-                    <div class="analysis-engine">
-                        <span class="analysis-label"><i class="fa-solid fa-brain"></i> ${d.why}</span>
-                        ${p.reason}
-                    </div>
-                    <div class="btn-group">
-                        <a href="${p.link}" target="_blank" class="action-btn buy-now">${d.buy}</a>
-                        <button class="action-btn watch-later" onclick="addToWatch('${p.name.replace(/'/g, "\\'")}', '${p.price}', '${p.link}')">${d.watch}</button>
-                    </div>
-                </div>`;
-        });
-
-        attempts--;
-        localStorage.setItem('findly_attempts', attempts);
-        update();
-
     } catch (e) {
-        status.innerText = "⚠️ تعذر الاتصال بالسيرفر. تأكد من تشغيل Render.";
+        // بدلاً من التنبيه (Alert) المزعج، نكتفي بتغيير نص الحالة
+        console.log("Connection slow, retrying...");
+        status.innerHTML = '<i class="fa-solid fa-clock-rotate-left"></i> السيرفر يستغرق وقتاً للاستيقاظ.. جاري المحاولة ثانية';
+        // محاولة البحث مرة أخرى تلقائياً بعد 3 ثوانٍ
+        setTimeout(runSearch, 3000);
     }
 }
         

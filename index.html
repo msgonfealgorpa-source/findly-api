@@ -146,58 +146,38 @@
         const API = "https://findly-api.onrender.com";
         let lang = localStorage.getItem('findly_lang') || 'ar';
         
-        // --- 1. نظام المحاولات (ثابت لا يتغير بالتحديث) ---
         let savedAttempts = localStorage.getItem('findly_attempts');
         let attempts = (savedAttempts !== null) ? parseInt(savedAttempts) : 3;
         if (savedAttempts === null) localStorage.setItem('findly_attempts', 3);
 
         let watchList = JSON.parse(localStorage.getItem('findly_watch')) || [];
 
+        // القاموس الشامل لكل اللغات الستة الموجودة في قائمتك
         const dict = {
-            ar: { 
-                title: "مستشارك الحكيم", sub: "دليلك الذكي للتسوق المثالي", energy: "طاقة العقل", welcome: "مرحباً،", 
-                game: "ألعاب", beauty: "جمال", home: "منزل ذكي", c1: "هواتف", c2: "لابتوب", c4: "ساعات", 
-                p_head: "الملف الشخصي", buy: "شراء الآن 🛒", watch: "راقب السعر 🔔", over: "يتجاوز ميزانيتك", 
-                cheap: "اقتصادي", top: "الأعلى تقييماً", new: "حديث جداً", deep: "وضع التحليل الذكي", 
-                watchTitle: "قائمة المراقبة", why: "لماذا اخترنا هذا؟", 
-                slow: "السيرفر يستيقظ.. انتظر ثوانٍ ستظهر النتائج تلقائياً", 
-                noAttempts: "⚠️ عذراً، لقد استنفدت محاولاتك لليوم!" 
-            },
-            en: { 
-                title: "Sage Advisor", sub: "Your smart shopping guide", energy: "Sage Energy", welcome: "Welcome,", 
-                game: "Gaming", beauty: "Beauty", home: "Smart Home", c1: "Phones", c2: "Laptops", c4: "Watches", 
-                p_head: "Profile", buy: "Buy Now 🛒", watch: "Watch Price 🔔", over: "Over Budget!", 
-                cheap: "Budget", top: "Top Rated", new: "Newest", deep: "AI Deep Mode", 
-                watchTitle: "Watch List", why: "Why this choice?", 
-                slow: "Server is waking up.. please wait", 
-                noAttempts: "⚠️ Sorry, no more attempts today!" 
-            }
+            ar: { title: "مستشارك الحكيم", sub: "دليلك الذكي للتسوق المثالي", energy: "طاقة العقل", welcome: "مرحباً،", game: "ألعاب", beauty: "جمال", home: "منزل ذكي", c1: "هواتف", c2: "لابتوب", c4: "ساعات", p_head: "الملف الشخصي", buy: "شراء الآن 🛒", watch: "راقب السعر 🔔", over: "يتجاوز ميزانيتك", cheap: "اقتصادي", top: "الأعلى تقييماً", new: "حديث جداً", deep: "وضع التحليل الذكي", watchTitle: "قائمة المراقبة", why: "لماذا اخترنا هذا؟", slow: "السيرفر يستيقظ.. انتظر ثوانٍ ستظهر النتائج تلقائياً", noAttempts: "⚠️ استنفدت محاولاتك!" },
+            en: { title: "Sage Advisor", sub: "Your smart shopping guide", energy: "Sage Energy", welcome: "Welcome,", game: "Gaming", beauty: "Beauty", home: "Smart Home", c1: "Phones", c2: "Laptops", c4: "Watches", p_head: "Profile", buy: "Buy Now 🛒", watch: "Watch Price 🔔", over: "Over Budget!", cheap: "Budget", top: "Top Rated", new: "Newest", deep: "AI Deep Mode", watchTitle: "Watch List", why: "Why this choice?", slow: "Server waking up.. please wait", noAttempts: "⚠️ No attempts left!" },
+            fr: { title: "Conseiller Sage", sub: "Votre guide d'achat intelligent", energy: "Énergie Sage", welcome: "Bienvenue,", game: "Jeux", beauty: "Beauté", home: "Maison Inte.", c1: "Mobiles", c2: "Laptops", c4: "Montres", p_head: "Profil", buy: "Acheter 🛒", watch: "Surveiller 🔔", over: "Hors budget!", cheap: "Éco", top: "Mieux notés", new: "Nouveau", deep: "Mode Analyse AI", watchTitle: "Liste de veille", why: "Pourquoi ce choix?", slow: "Le serveur se réveille.. attendez", noAttempts: "⚠️ Plus d'essais!" },
+            de: { title: "Weiser Berater", sub: "Ihr smarter Einkaufsführer", energy: "Weise Energie", welcome: "Willkommen,", game: "Spiele", beauty: "Schönheit", home: "Smart Home", c1: "Handys", c2: "Laptops", c4: "Uhren", p_head: "Profil", buy: "Kaufen 🛒", watch: "Beobachten 🔔", over: "Budget übersch.", cheap: "Günstig", top: "Bestbewertet", new: "Neu", deep: "KI-Analyse-Modus", watchTitle: "Beobachtungsliste", why: "Warum diese Wahl?", slow: "Server wacht auf.. bitte warten", noAttempts: "⚠️ Keine Versuche mehr!" },
+            es: { title: "Asesor Sabio", sub: "Tu guía de compras inteligente", energy: "Energía Sabia", welcome: "Bienvenido,", game: "Juegos", beauty: "Belleza", home: "Hogar Intelig.", c1: "Móviles", c2: "Portátiles", c4: "Relojes", p_head: "Perfil", buy: "Comprar 🛒", watch: "Vigilar 🔔", over: "Fuera de presupuesto", cheap: "Económico", top: "Mejor valorado", new: "Nuevo", deep: "Modo de análisis IA", watchTitle: "Lista de vigilancia", why: "¿Por qué esta elección?", slow: "El servidor está despertando..", noAttempts: "⚠️ ¡No quedan intentos!" },
+            tr: { title: "Bilge Danışman", sub: "Akıllı alışveriş rehberiniz", energy: "Bilge Enerji", welcome: "Hoş geldiniz,", game: "Oyunlar", beauty: "Güzellik", home: "Akıllı Ev", c1: "Telefonlar", c2: "Laptoplar", c4: "Saatler", p_head: "Profil", buy: "Satın Al 🛒", watch: "Fiyatı İzle 🔔", over: "Bütçe Aşıldı!", cheap: "Ekonomik", top: "En İyi", new: "Yeni", deep: "Yapay Zeka Analiz", watchTitle: "İzleme Listesi", why: "Neden bu seçim?", slow: "Sunucu uyanıyor.. bekleyin", noAttempts: "⚠️ Deneme kalmadı!" }
         };
 
-        // --- 2. دالة التحديث الكاملة (مربوطة يدوياً لضمان العمل) ---
         function update() {
             const d = dict[lang] || dict['ar'];
-            document.getElementById('main-html').dir = lang === 'ar' ? 'rtl' : 'ltr';
+            document.getElementById('main-html').dir = (lang === 'ar') ? 'rtl' : 'ltr';
             
-            // تحديث النصوص (تأكد أن الـ ID مطابق لما في الـ HTML)
+            // النصوص الأساسية
             document.getElementById('txt-title').innerText = d.title;
             document.getElementById('txt-sub').innerText = d.sub;
             document.getElementById('txt-energy').innerText = d.energy;
             document.getElementById('r-count').innerText = attempts;
 
-            if(document.getElementById('cat-game')) document.getElementById('cat-game').innerText = d.game;
-            if(document.getElementById('cat-beauty')) document.getElementById('cat-beauty').innerText = d.beauty;
-            if(document.getElementById('cat-home')) document.getElementById('cat-home').innerText = d.home;
-            if(document.getElementById('cat-c1')) document.getElementById('cat-c1').innerText = d.c1;
-            if(document.getElementById('cat-c2')) document.getElementById('cat-c2').innerText = d.c2;
-            if(document.getElementById('cat-c4')) document.getElementById('cat-c4').innerText = d.c4;
-            
-            if(document.getElementById('tag-cheap')) document.getElementById('tag-cheap').innerText = d.cheap;
-            if(document.getElementById('tag-top')) document.getElementById('tag-top').innerText = d.top;
-            if(document.getElementById('tag-new')) document.getElementById('tag-new').innerText = d.new;
-            if(document.getElementById('txt-deep')) document.getElementById('txt-deep').innerText = d.deep;
-            if(document.getElementById('txt-watch-title')) document.getElementById('txt-watch-title').innerText = d.watchTitle;
-            if(document.getElementById('p-head')) document.getElementById('p-head').innerText = d.p_head;
+            // تحديث الأزرار (Categories)
+            const map = { 'cat-game':'game', 'cat-beauty':'beauty', 'cat-home':'home', 'cat-c1':'c1', 'cat-c2':'c2', 'cat-c4':'c4', 'tag-cheap':'cheap', 'tag-top':'top', 'tag-new':'new', 'txt-deep':'deep', 'txt-watch-title':'watchTitle', 'p-head':'p_head' };
+            for(let id in map) {
+                let el = document.getElementById(id);
+                if(el) el.innerText = d[map[id]];
+            }
 
             const name = localStorage.getItem('fn') || (lang === 'ar' ? "أحمد" : "User");
             document.getElementById('greeting').innerText = `${d.welcome} ${name}`;
@@ -209,7 +189,6 @@
             }
         }
 
-        // --- 3. دالة البحث (إخفاء الـ Alert المزعج) ---
         async function runSearch() {
             let q = document.getElementById('s-input').value;
             const status = document.getElementById('status');
@@ -225,7 +204,7 @@
             if (!q) return;
 
             status.style.display = "block";
-            status.innerHTML = '<i class="fa-solid fa-microchip fa-spin"></i> جاري التحليل...';
+            status.innerHTML = '<i class="fa-solid fa-microchip fa-spin"></i> Analyzing...';
             resCon.innerHTML = "";
 
             try {
@@ -241,8 +220,7 @@
                     data.products.forEach((p) => {
                         let cleanPrice = p.price ? p.price.toString().replace(/[^\d.]/g, '') : "0"; 
                         let priceVal = parseFloat(cleanPrice);
-                        let budgetAlert = (userBudget > 0 && priceVal > userBudget) ? 
-                            `<div class="budget-error">⚠️ ${d.over} (${userBudget}$)</div>` : "";
+                        let budgetAlert = (userBudget > 0 && priceVal > userBudget) ? `<div class="budget-error">⚠️ ${d.over} (${userBudget}$)</div>` : "";
 
                         resCon.innerHTML += `
                             <div class="product-card">
@@ -271,7 +249,7 @@
             watchList.push({ name, price, link });
             localStorage.setItem('findly_watch', JSON.stringify(watchList));
             update();
-            alert(lang === 'ar' ? "تمت الإضافة لقائمة المراقبة!" : "Added to watch list!");
+            alert(lang === 'ar' ? "تمت الإضافة!" : "Added!");
         }
 
         function startVoice() {
@@ -279,7 +257,7 @@
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SpeechRecognition) return;
             const recognition = new SpeechRecognition();
-            recognition.lang = lang === 'ar' ? 'ar-SA' : 'en-US';
+            recognition.lang = (lang==='ar'?'ar-SA':lang==='fr'?'fr-FR':lang==='de'?'de-DE':lang==='tr'?'tr-TR':lang==='es'?'es-ES':'en-US');
             recognition.onstart = () => mic.classList.add('mic-active');
             recognition.onresult = (e) => {
                 document.getElementById('s-input').value = e.results[0][0].transcript;

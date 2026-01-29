@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Findly Sage Ultimate</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics-compat.js"></script>
+
     <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -370,7 +375,10 @@
                 <i class="fa-solid fa-bell"></i>
                 <span id="watch-count" style="position:absolute; top:-5px; right:-5px; background:#ef4444; color:white; font-size:0.6rem; padding:2px 6px; border-radius:50%; display:none; border: 2px solid var(--bg-dark);">0</span>
             </button>
-            <button class="tool-btn" onclick="openProfile()"><i class="fa-solid fa-user-gear"></i></button>
+            
+            <div id="auth-buttons-container">
+                <button class="tool-btn" onclick="toggleAuthModal()"><i class="fa-solid fa-user"></i></button>
+            </div>
         </div>
     </header>
 
@@ -432,20 +440,140 @@
             <label style="font-size:0.85rem; display:block; margin-top:15px; margin-bottom:5px; opacity:0.7;">الميزانية ($)</label>
             <input type="number" id="in-budget" placeholder="أقصى ميزانية لديك...">
             <button class="action-btn buy-now" onclick="saveSet()" style="width:100%; margin-top:20px;">حفظ التغييرات ✅</button>
-            <button onclick="openProfile()" style="background:none; color:var(--text-muted); border:none; margin-top:15px; cursor:pointer; font-size:0.9rem;">إغلاق</button>
+            <button onclick="document.getElementById('p-modal').style.display = 'none';" style="background:none; color:var(--text-muted); border:none; margin-top:15px; cursor:pointer; font-size:0.9rem;">إغلاق</button>
+        </div>
+    </div>
+
+    <div class="modal" id="auth-modal">
+        <div class="modal-box">
+            <h3 style="color:var(--primary); margin-top:0;">تسجيل الدخول / إنشاء حساب</h3>
+            
+            <input type="email" id="auth-email" placeholder="البريد الإلكتروني" style="margin-bottom: 10px;">
+            <input type="password" id="auth-pass" placeholder="كلمة المرور" style="margin-bottom: 20px;">
+            
+            <button class="action-btn buy-now" onclick="handleEmailLogin()" style="width:100%; margin-bottom:10px;">تسجيل دخول (Email)</button>
+            <button class="action-btn" onclick="handleEmailRegister()" style="width:100%; background: transparent; border: 1px solid var(--primary); color: var(--text); margin-bottom:10px;">إنشاء حساب جديد</button>
+            
+            <div style="margin: 15px 0; border-top: 1px solid var(--glass-border); position: relative;">
+                <span style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: #0f172a; padding: 0 10px; font-size: 0.8rem; color: var(--text-muted);">أو</span>
+            </div>
+
+            <button class="action-btn" onclick="handleGoogleLogin()" style="width:100%; background: #fff; color: #333; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <i class="fa-brands fa-google" style="color: #DB4437;"></i> الدخول عبر Google
+            </button>
+
+            <button onclick="toggleAuthModal()" style="background:none; color:var(--text-muted); border:none; margin-top:15px; cursor:pointer; font-size:0.9rem;">إغلاق</button>
         </div>
     </div>
 
     <script>
+        // --- 1. إعدادات Firebase المصححة ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyCI_q51kgRY4133ua4R1G5TeiCqJ5N5KTU",
+            authDomain: "findly-ede17.firebaseapp.com",
+            projectId: "findly-ede17",
+            storageBucket: "findly-ede17.appspot.com",
+            messagingSenderId: "503212830017",
+            appId: "1:503212830017:web:9afb64c19822bbe7f645c0",
+            measurementId: "G-X103WDP50N"
+        };
+
+        // تهيئة Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const analytics = firebase.analytics();
+
+        // متغيرات عامة
         const API = "https://findly-api.onrender.com";
-        
         let lang = localStorage.getItem('findly_lang') || 'ar';
         let savedAttempts = localStorage.getItem('findly_attempts');
         let attempts = (savedAttempts !== null) ? parseInt(savedAttempts) : 3;
         if (savedAttempts === null) localStorage.setItem('findly_attempts', 3);
-
         let watchList = JSON.parse(localStorage.getItem('findly_watch')) || [];
+        let currentUserUID = localStorage.getItem('findly_uid');
 
+        // --- 2. دوال المصادقة والتسجيل ---
+
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                currentUserUID = user.uid;
+                localStorage.setItem('findly_uid', user.uid);
+                updateAuthUI(true);
+            } else {
+                currentUserUID = null;
+                localStorage.removeItem('findly_uid');
+                updateAuthUI(false);
+            }
+        });
+
+        function toggleAuthModal() {
+            const modal = document.getElementById('auth-modal');
+            modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
+        }
+
+        function handleEmailLogin() {
+            const email = document.getElementById('auth-email').value;
+            const pass = document.getElementById('auth-pass').value;
+            if(!email || !pass) return alert("الرجاء إدخال البيانات");
+
+            auth.signInWithEmailAndPassword(email, pass)
+                .then((userCredential) => {
+                    toggleAuthModal();
+                    alert("تم تسجيل الدخول بنجاح! 👋");
+                })
+                .catch((error) => {
+                    alert("خطأ: " + error.message);
+                });
+        }
+
+        function handleEmailRegister() {
+            const email = document.getElementById('auth-email').value;
+            const pass = document.getElementById('auth-pass').value;
+            if(!email || !pass) return alert("الرجاء إدخال البيانات");
+
+            auth.createUserWithEmailAndPassword(email, pass)
+                .then((userCredential) => {
+                    toggleAuthModal();
+                    alert("تم إنشاء الحساب بنجاح! 🚀");
+                })
+                .catch((error) => {
+                    alert("خطأ: " + error.message);
+                });
+        }
+
+        function handleGoogleLogin() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider)
+                .then((result) => {
+                    toggleAuthModal();
+                    alert("أهلاً بك عبر Google! 🎉");
+                }).catch((error) => {
+                    alert("خطأ: " + error.message);
+                });
+        }
+
+        function handleLogout() {
+            auth.signOut().then(() => {
+                alert("تم تسجيل الخروج");
+                location.reload();
+            });
+        }
+
+        function updateAuthUI(isLoggedIn) {
+            const container = document.getElementById('auth-buttons-container');
+            if (isLoggedIn) {
+                container.innerHTML = `
+                    <button class="tool-btn" onclick="openProfile()" title="الملف الشخصي"><i class="fa-solid fa-user-gear"></i></button>
+                    <button class="tool-btn" onclick="handleLogout()" style="border-color: #ef4444; color: #ef4444;" title="تسجيل خروج"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
+                `;
+            } else {
+                container.innerHTML = `
+                    <button class="tool-btn" onclick="toggleAuthModal()" title="تسجيل الدخول"><i class="fa-solid fa-user"></i></button>
+                `;
+            }
+        }
+
+        // --- قاموس الترجمة (نفس القديم) ---
         const dict = {
             ar: { title: "مستشارك الحكيم", sub: "دليلك الذكي للتسوق المثالي", energy: "طاقة العقل", welcome: "مرحباً،", game: "ألعاب", beauty: "جمال", home: "منزل ذكي", c1: "هواتف", c2: "لابتوب", c4: "ساعات", p_head: "الملف الشخصي", buy: "شراء الآن 🛒", watch: "راقب السعر 🔔", over: "يتجاوز الميزانيتك!", cheap: "اقتصادي", top: "الأعلى تقييماً", new: "حديث جداً", deep: "وضع التحليل الذكي", watchTitle: "قائمة المراقبة", why: "لماذا اخترنا هذا؟", slow: "السيرفر يستيقظ.. انتظر ثوانٍ", noAttempts: "⚠️ استنفدت محاولاتك!" },
             en: { title: "Sage Advisor", sub: "Your smart shopping guide", energy: "Sage Energy", welcome: "Welcome,", game: "Gaming", beauty: "Beauty", home: "Smart Home", c1: "Phones", c2: "Laptops", c4: "Watches", p_head: "Profile", buy: "Buy Now 🛒", watch: "Watch Price 🔔", over: "Over Budget!", cheap: "Budget", top: "Top Rated", new: "Newest", deep: "AI Deep Mode", watchTitle: "Watch List", why: "Why this choice?", slow: "Server waking up.. wait", noAttempts: "⚠️ No attempts left!" },
@@ -455,13 +583,13 @@
             tr: { title: "Bilge Danışman", sub: "Akıllı alışveriş rehberiniz", energy: "Bilge Enerji", welcome: "Hoş geldiniz,", game: "Oyunlar", beauty: "Güzellik", home: "Akıllı Ev", c1: "Telefonlar", c2: "Laptoplar", c4: "Saatler", p_head: "Profil", buy: "Satın Al 🛒", watch: "Fiyatı İzle 🔔", over: "Bütçe Aşıldı!", cheap: "Ekonomik", top: "En İyi", new: "Yeni", deep: "Yapay Zeka Analiz", watchTitle: "İzleme Listesi", why: "Neden bu seçim?", slow: "Sunucu uyanıyor.. bekleyin", noAttempts: "⚠️ Deneme kalmadı!" }
         };
 
+        // --- 3. دالة البحث المحدثة (ترسل UID) ---
         async function runSearch() {
             let q = document.getElementById('s-input').value;
             const status = document.getElementById('status');
             const resCon = document.getElementById('results');
             const d = dict[lang] || dict['ar'];
             
-            // Fix: Parse budget correctly (handle if user didn't set one)
             let rawBudget = localStorage.getItem('fb');
             let userBudget = rawBudget ? parseFloat(rawBudget) : 0;
 
@@ -477,10 +605,17 @@
             resCon.innerHTML = "";
 
             try {
+                // إرسال UID مع الطلب
+                const bodyData = { 
+                    query: q, 
+                    lang: lang,
+                    uid: currentUserUID || 'guest' // نرسل الـ ID
+                };
+
                 const res = await fetch(`${API}/smart-search`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query: q, lang: lang })
+                    body: JSON.stringify(bodyData)
                 });
                 
                 const data = await res.json();
@@ -488,12 +623,9 @@
 
                 if (data.products && data.products.length > 0) {
                     data.products.forEach((p, index) => {
-                        // FIX: Logic to handle prices like "$1,200.00" correctly
-                        // We must remove commas BEFORE parsing float
                         let cleanPriceString = p.price ? p.price.toString().replace(/,/g, '').replace(/[^\d.]/g, '') : "0";
                         let priceVal = parseFloat(cleanPriceString);
                         
-                        // Logic: Show Alert if price > budget AND budget is set (>0)
                         let budgetAlert = "";
                         if (userBudget > 0 && priceVal > userBudget) {
                             budgetAlert = `<div class="budget-error"><i class="fa-solid fa-triangle-exclamation"></i> ${d.over} ($${userBudget})</div>`;
@@ -542,7 +674,6 @@
             const userEmail = prompt(promptMsg[lang] || promptMsg['ar']);
 
             if (userEmail && userEmail.includes("@")) {
-                // Fix: Ensure we send a valid Number to the backend
                 let cleanPriceString = price.toString().replace(/,/g, '').replace(/[^\d.]/g, '');
                 let numericPrice = parseFloat(cleanPriceString);
 
@@ -556,7 +687,7 @@
                         body: JSON.stringify({
                             email: userEmail,
                             productName: name,
-                            targetPrice: numericPrice, // Sending Number, not String
+                            targetPrice: numericPrice,
                             link: link,
                             lang: lang
                         })
@@ -569,13 +700,11 @@
                         const successMsg = lang === 'ar' ? "✅ تم تفعيل المراقبة بنجاح!" : "✅ Alert activated successfully!";
                         alert(successMsg);
                     } else {
-                        // Backend exists but returned error
                         const errText = await response.text();
                         console.error("Backend Error:", errText);
                         alert("Server Error: " + (lang === 'ar' ? "فشل الحفظ في السيرفر" : "Failed to save on server"));
                     }
                 } catch (error) {
-                    // Network error (Server down or bad URL)
                     console.error("Network Error:", error);
                     alert((lang === 'ar' ? "خطأ في الاتصال بالسيرفر (تأكد من تشغيل الباك إند)" : "Connection Error (Check backend URL)"));
                 }
@@ -614,44 +743,49 @@
         }
         
         function setLang(l) { lang = l; localStorage.setItem('findly_lang', l); toggleLMenu(); update(); }
+        
         function openProfile() { 
             document.getElementById('p-modal').style.display = 'flex'; 
-            // Pre-fill inputs
+            d = dict[lang] || dict['ar'];
+            document.getElementById('p-head').innerHTML = `<i class="fa-solid fa-user-gear"></i> ${d.p_head}`;
             document.getElementById('in-name').value = localStorage.getItem('fn') || '';
             document.getElementById('in-budget').value = localStorage.getItem('fb') || '';
         }
-        function quickSearch(q) { document.getElementById('s-input').value = q; runSearch(); }
-        function quickFilter(type) { document.getElementById('s-input').value += " " + type; }
 
         function toggleWatchList() {
             const m = document.getElementById('w-modal');
-            const con = document.getElementById('watch-list-content');
             m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
-            
-            if (m.style.display === 'flex') {
-                con.innerHTML = watchList.map((item, index) => `
-                    <div style="background:var(--bg-card); padding:15px; border-radius:16px; margin-bottom:10px; text-align:right; border:1px solid var(--glass-border);">
-                        <div style="font-weight:bold; font-size:0.9rem; margin-bottom:5px;">${item.name}</div>
-                        <div style="color:var(--primary); font-size:0.9rem; font-weight:700;">${item.price}</div>
-                        <button onclick="watchList.splice(${index},1); localStorage.setItem('findly_watch', JSON.stringify(watchList)); toggleWatchList(); toggleWatchList(); update();" style="background:#ef4444; color:white; border:none; border-radius:8px; font-size:0.7rem; padding:6px 12px; margin-top:8px; cursor:pointer;">حذف</button>
-                    </div>
-                `).join('') || (lang === 'ar' ? "القائمة فارغة" : "List is empty");
+            const list = document.getElementById('watch-list-content');
+            list.innerHTML = "";
+            if(watchList.length === 0) {
+                list.innerHTML = "<p style='color:var(--text-muted);'>القائمة فارغة / Empty List</p>";
+            } else {
+                watchList.forEach(w => {
+                    list.innerHTML += `<div style="background:var(--bg-card); margin-bottom:10px; padding:10px; border-radius:10px; text-align:right;">
+                        <div style="font-weight:bold; font-size:0.9rem;">${w.name}</div>
+                        <div style="color:#10b981;">${w.price}</div>
+                        <a href="${w.link}" target="_blank" style="font-size:0.8rem; color:var(--primary);">رابط المنتج</a>
+                    </div>`;
+                });
             }
         }
 
+        function quickSearch(k) { document.getElementById('s-input').value = k; runSearch(); }
+        function quickFilter(type) { document.getElementById('s-input').value += ` (${type})`; runSearch(); }
+
         function update() {
             const d = dict[lang] || dict['ar'];
-            const userName = localStorage.getItem('fn') || (lang === 'ar' ? 'أيها الباحث' : 'Seeker');
-            
-            document.getElementById('txt-energy').innerText = d.energy;
-            document.getElementById('greeting').innerText = d.welcome + " " + userName;
             document.getElementById('txt-title').innerText = d.title;
             document.getElementById('txt-sub').innerText = d.sub;
+            document.getElementById('txt-energy').innerText = d.energy;
             document.getElementById('txt-deep').innerText = d.deep;
-            document.getElementById('tag-cheap').innerText = d.cheap;
-            document.getElementById('tag-top').innerText = d.top;
-            document.getElementById('tag-new').innerText = d.new;
+            document.getElementById('r-count').innerText = attempts;
             
+            const uName = localStorage.getItem('fn');
+            if(uName) document.getElementById('greeting').innerText = `${d.welcome} ${uName}`;
+            else document.getElementById('greeting').innerText = "";
+
+            // Categories
             document.getElementById('cat-game').innerText = d.game;
             document.getElementById('cat-beauty').innerText = d.beauty;
             document.getElementById('cat-home').innerText = d.home;
@@ -659,22 +793,21 @@
             document.getElementById('cat-c2').innerText = d.c2;
             document.getElementById('cat-c4').innerText = d.c4;
             
-            document.getElementById('p-head').innerText = d.p_head;
-            document.getElementById('txt-watch-title').innerText = d.watchTitle;
-            document.getElementById('r-count').innerText = attempts;
-
-            const wCount = document.getElementById('watch-count');
-            if (watchList.length > 0) {
-                wCount.innerText = watchList.length;
-                wCount.style.display = 'block';
-            } else {
-                wCount.style.display = 'none';
-            }
+            // Tags
+            document.getElementById('tag-cheap').innerText = d.cheap;
+            document.getElementById('tag-top').innerText = d.top;
+            document.getElementById('tag-new').innerText = d.new;
             
-            document.getElementById('main-html').dir = (lang === 'ar') ? 'rtl' : 'ltr';
+            document.getElementById('txt-watch-title').innerText = d.watchTitle;
+            
+            // Watch badge
+            const wBadge = document.getElementById('watch-count');
+            wBadge.innerText = watchList.length;
+            wBadge.style.display = watchList.length > 0 ? 'block' : 'none';
         }
 
-        window.onload = update;
+        // Initialize
+        update();
     </script>
 </body>
 </html>

@@ -186,17 +186,48 @@
             }
         }
 
-        // دالة المراقبة - نسخة مستقرة تطلب الإيميل وتحفظه محلياً لضمان عدم توقف الزر
+        // الدالة المصلحة لزر المراقبة
         function addToWatch(name, price, link) {
-            const userEmail = prompt(lang === 'ar' ? "أدخل إيميلك للتنبيه:" : "Enter email for alerts:");
+            // التحقق من اللغة الحالية لجعل الطلب مفهوماً
+            const promptMsg = {
+                ar: "أدخل إيميلك للتنبيه:",
+                en: "Enter email for alerts:",
+                fr: "Entrez votre e-mail:",
+                de: "E-Mail eingeben:",
+                es: "Correo electrónico:",
+                tr: "E-posta girin:"
+            };
+
+            const userEmail = prompt(promptMsg[lang] || promptMsg['ar']);
             
             if (userEmail && userEmail.includes("@")) {
-                watchList.push({ name, price, link, email: userEmail });
+                // إضافة المنتج للقائمة
+                watchList.push({ 
+                    name: name, 
+                    price: price, 
+                    link: link, 
+                    email: userEmail 
+                });
+                
+                // حفظ في الذاكرة
                 localStorage.setItem('findly_watch', JSON.stringify(watchList));
+                
+                // تحديث عداد الجرس في الواجهة
                 update();
-                alert(lang === 'ar' ? "تمت الإضافة بنجاح!" : "Added successfully!");
+                
+                // رسالة تأكيد
+                const successMsg = {
+                    ar: "تمت الإضافة بنجاح!",
+                    en: "Added successfully!",
+                    fr: "Ajouté avec succès!",
+                    de: "Erfolgreich hinzugefügt!",
+                    es: "¡Agregado con éxito!",
+                    tr: "Başarıyla eklendi!"
+                };
+                alert(successMsg[lang] || successMsg['ar']);
             }
         }
+        
 
         async function runSearch() {
             let q = document.getElementById('s-input').value;

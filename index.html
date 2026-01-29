@@ -192,20 +192,17 @@
 
 async function runSearch() {
     let q = document.getElementById('s-input').value;
-    
-    // 1. التحقق من المحاولات قبل البدء
+    const isDeepMode = document.getElementById('ai-deep-mode').checked; // سحب حالة التحليل الذكي
+
     if (attempts <= 0) {
-        alert("⚠️ عذراً، لقد استنفدت محاولات البحث المتاحة لك اليوم!");
+        alert("⚠️ عذراً، استنفدت محاولاتك!");
         return;
     }
-
     if (!q) return;
 
     const status = document.getElementById('status');
     const resCon = document.getElementById('results');
     const d = dict[lang] || dict['ar'];
-    
-    // 2. جلب الميزانية وضمان أنها رقم
     const userBudget = parseFloat(localStorage.getItem('fb')) || 0;
 
     status.style.display = "block";
@@ -216,19 +213,26 @@ async function runSearch() {
         const res = await fetch(`${API}/smart-search`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ query: q, lang: lang })
+            body: JSON.stringify({ 
+                query: q, 
+                lang: lang,
+                deepMode: isDeepMode // إرسال حالة التحليل للسيرفر
+            })
         });
 
         const data = await res.json();
         status.style.display = "none";
 
+        if (!data.products || data.products.length === 0) {
+            resCon.innerHTML = "<p>لم نجد نتائج مطابقة، جرب كلمات أخرى.</p>";
+            return;
+        }
+
         data.products.forEach((p) => {
-            // 3. منطق التنبيه الأحمر: تحويل السعر (مثلاً $1,200) إلى رقم (1200)
-            let cleanPrice = p.price.toString().replace(/[^\d.]/g, ''); 
+            let cleanPrice = p.price ? p.price.toString().replace(/[^\d.]/g, '') : "0"; 
             let priceVal = parseFloat(cleanPrice);
             let budgetAlert = "";
 
-            // المقارنة الرياضية: $priceVal > userBudget$
             if(userBudget > 0 && priceVal > userBudget) {
                 budgetAlert = `
                 <div style="background:rgba(239, 68, 68, 0.2); border:1px solid #ef4444; color:#fca5a5; padding:10px; border-radius:12px; margin-bottom:12px; font-size:0.85rem; font-weight:bold; display:flex; align-items:center; gap:8px;">
@@ -239,7 +243,7 @@ async function runSearch() {
             resCon.innerHTML += `
                 <div class="product-card" style="${userBudget > 0 && priceVal > userBudget ? 'border: 1px solid #ef4444;' : ''}">
                     ${budgetAlert}
-                    <img src="${p.thumbnail}">
+                    <img src="${p.thumbnail || 'https://via.placeholder.com/150'}">
                     <h3>${p.name}</h3>
                     <div style="font-weight:900; color:#10b981; font-size:1.2rem;">${p.price}</div>
                     <div class="analysis-engine">
@@ -253,27 +257,14 @@ async function runSearch() {
                 </div>`;
         });
 
-        // 4. خصم محاولة وتحديث الواجهة
         attempts--;
         localStorage.setItem('findly_attempts', attempts);
         update();
 
     } catch (e) {
-        status.innerText = "خطأ في الاتصال بالسيرفر...";
+        status.innerText = "⚠️ تعذر الاتصال بالسيرفر. تأكد من تشغيل Render.";
     }
 }
-        
-        function saveSet() { 
-    const nameVal = document.getElementById('in-name').value;
-    const budgetVal = document.getElementById('in-budget').value;
-
-    localStorage.setItem('fn', nameVal); 
-    localStorage.setItem('fb', budgetVal); // تخزين الميزانية
-    
-    document.getElementById('p-modal').style.display = 'none';
-    update(); 
-    alert(lang === 'ar' ? "✅ تم تحديث ملفك الشخصي بنجاح!" : "✅ Profile updated!");
-        }
         
         function toggleMode() { document.body.classList.toggle('light-mode'); }
         

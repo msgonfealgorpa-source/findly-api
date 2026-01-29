@@ -335,6 +335,41 @@ async function runSearch() {
             alert("تم حفظ بياناتك بنجاح! سيقوم المستشار الآن بمراعاة ميزانيتك.");
         }
         
+       // --- الجزء الخاص بالبحث الصوتي ---
+function startVoice() {
+    const mic = document.getElementById('mic-btn');
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+        alert("متصفحك لا يدعم البحث الصوتي.");
+        return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = lang === 'ar' ? 'ar-SA' : 'en-US';
+
+    recognition.onstart = () => {
+        mic.classList.add('mic-active');
+    };
+
+    recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        document.getElementById('s-input').value = transcript;
+        mic.classList.remove('mic-active');
+        // استدعاء دالة البحث فوراً بعد التعرف على الصوت
+        runSearch(); 
+    };
+
+    recognition.onerror = () => {
+        mic.classList.remove('mic-active');
+    };
+
+    recognition.onend = () => {
+        mic.classList.remove('mic-active');
+    };
+
+    recognition.start();
+}
         function quickSearch(q) { document.getElementById('s-input').value = q; runSearch(); }
         function quickFilter(type) { document.getElementById('s-input').value += " " + type; }
         window.onload = update;

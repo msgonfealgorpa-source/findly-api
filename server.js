@@ -9,10 +9,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// السيرفر سيقرأ الرابط من إعدادات النظام وليس من الكود
+// --- 1. إعدادات المتغيرات من رندر ---
 const MONGO_URI = process.env.MONGO_URI;
+const SERP_API_KEY = process.env.SERPAPI_KEY; // تم التعديل ليقرأ من رندر مباشرة
 
-const SERP_API_KEY = 'مفتاح_SERPAPI_الخاص_بك';
+// التحقق من وجود المفاتيح لضمان عدم توقف السيرفر
+if (!MONGO_URI || !SERP_API_KEY) {
+    console.error("❌ تحذير: MONGO_URI أو SERPAPI_KEY غير معرف في إعدادات رندر!");
+}
 
 // إعداد الاتصال بقاعدة البيانات
 mongoose.connect(MONGO_URI)
@@ -29,16 +33,16 @@ const AlertSchema = new mongoose.Schema({
 });
 const Alert = mongoose.model('Alert', AlertSchema);
 
-// إعداد البريد الإلكتروني
+// إعداد البريد الإلكتروني (تأكد من وضع إيميلك الحقيقي في رندر أيضاً إذا أردت الأمان)
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: { 
-        user: 'your-email@gmail.com', 
-        pass: 'your-app-password' 
+        user: process.env.EMAIL_USER || 'your-email@gmail.com', 
+        pass: process.env.EMAIL_PASS || 'your-app-password' 
     }
 });
 
-// --- 2. قاموس الذكاء المنطقي (Rule-Based Intelligence) ---
+// --- 2. منطق تحليل المنتجات ---
 const smartReasonsDict = {
     high_rating: { ar: "⭐ منتج ذو تقييم ممتاز (أعلى من 4.5)", en: "⭐ Top Rated product (4.5+ stars)" },
     popular: { ar: "🔥 الأكثر شعبية (آلاف المراجعات)", en: "🔥 Most Popular (Thousands of reviews)" },
@@ -57,7 +61,7 @@ function analyzeProduct(product, lang) {
 
 // --- 3. مسار البحث الذكي ---
 app.post('/smart-search', (req, res) => {
-    const { query, lang, budget } = req.body; 
+    const { query, lang } = req.body; 
     const currentLang = lang || 'ar';
 
     getJson({
@@ -68,7 +72,7 @@ app.post('/smart-search', (req, res) => {
         gl: "sa",
         num: 20
     }, (data) => {
-        if (!data.shopping_results) return res.json({ products: [] });
+        if (!data || !data.shopping_results) return res.json({ products: [] });
 
         let processedProducts = data.shopping_results.map(p => {
             const priceClean = p.price ? parseFloat(p.price.toString().replace(/[^0-9.]/g, '')) : 0;
@@ -94,20 +98,20 @@ app.post('/smart-search', (req, res) => {
     });
 });
 
-// --- 4. إصلاح نظام مراقبة الأسعار (تم إضافة معالجة أفضل للأخطاء) ---
+// --- 4. مسار مراقبة الأسعار ---
 app.post('/set-alert', async (req, res) => {
     try {
         console.log("📥 طلب مراقبة جديد لـ:", req.body.productName);
         const alert = new Alert(req.body);
         await alert.save(); 
-        res.status(200).send({ message: "تم حفظ التنبيه بنجاح في قاعدة البيانات" });
+        res.status(200).send({ message: "تم حفظ التنبيه بنجاح" });
     } catch (e) {
         console.error("❌ فشل حفظ التنبيه:", e.message);
-        res.status(500).send({ error: "خطأ في السيرفر عند الحفظ في المونجو" });
+        res.status(500).send({ error: "خطأ في السيرفر عند الحفظ" });
     }
 });
 
-// تشغيل الفحص الدوري
+// تشغيل الفحص الدوري (كل 6 ساعات)
 cron.schedule('0 */6 * * *', async () => {
     console.log("⏰ جاري فحص الأسعار...");
     const alerts = await Alert.find();
@@ -120,7 +124,7 @@ cron.schedule('0 */6 * * *', async () => {
             hl: alert.lang || 'ar'
         }, async (data) => {
             if (data.shopping_results && data.shopping_results.length > 0) {
-                const currentPrice = parseFloat(data.shopping_results[0].price.replace(/[^0-9.]/g, ''));
+                const currentPrice = parseFloat(data.shopping_results[0].price.toString().replace(/[^0-9.]/g, ''));
                 if (currentPrice <= alert.targetPrice) {
                     const mailOptions = {
                         from: 'Findly AI',
@@ -130,6 +134,7 @@ cron.schedule('0 */6 * * *', async () => {
                     };
                     await transporter.sendMail(mailOptions);
                     await Alert.findByIdAndDelete(alert._id);
+                    console.log(`✅ تم إرسال إيميل لـ ${alert.email} وحذف التنبيه.`);
                 }
             }
         });

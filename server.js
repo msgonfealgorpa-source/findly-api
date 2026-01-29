@@ -11,29 +11,27 @@ app.use(express.json());
 
 // --- 1. إعدادات المتغيرات من رندر ---
 const MONGO_URI = process.env.MONGO_URI;
-const SERP_API_KEY = process.env.SERPAPI_KEY; // تم التعديل ليقرأ من رندر مباشرة
+const SERP_API_KEY = process.env.SERPAPI_KEY;
 
-// التحقق من وجود المفاتيح لضمان عدم توقف السيرفر
 if (!MONGO_URI || !SERP_API_KEY) {
     console.error("❌ تحذير: MONGO_URI أو SERPAPI_KEY غير معرف في إعدادات رندر!");
 }
 
-// إعداد الاتصال بقاعدة البيانات
 mongoose.connect(MONGO_URI)
     .then(() => console.log("✅ تم الاتصال بنجاح بـ MongoDB Atlas"))
     .catch(err => console.error("❌ خطأ في الاتصال بقاعدة البيانات:", err.message));
 
-// نموذج تنبيهات الأسعار
+// نموذج تنبيهات الأسعار (كما هو)
 const AlertSchema = new mongoose.Schema({
     email: String,
     productName: String,
     targetPrice: Number,
     link: String,
-    lang: String
+    lang: String,
+    userId: String // أضفت هذا الحقل اختيارياً لربط التنبيه بالمستخدم مستقبلاً
 });
 const Alert = mongoose.model('Alert', AlertSchema);
 
-// إعداد البريد الإلكتروني (تأكد من وضع إيميلك الحقيقي في رندر أيضاً إذا أردت الأمان)
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: { 
@@ -42,7 +40,7 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-// --- 2. منطق تحليل المنتجات ---
+// --- 2. منطق تحليل المنتجات (كما هو) ---
 const smartReasonsDict = {
     high_rating: { ar: "⭐ منتج ذو تقييم ممتاز (أعلى من 4.5)", en: "⭐ Top Rated product (4.5+ stars)" },
     popular: { ar: "🔥 الأكثر شعبية (آلاف المراجعات)", en: "🔥 Most Popular (Thousands of reviews)" },
@@ -59,10 +57,14 @@ function analyzeProduct(product, lang) {
     return smartReasonsDict.default[l] || smartReasonsDict.default['ar'];
 }
 
-// --- 3. مسار البحث الذكي ---
+// --- 3. مسار البحث الذكي (تم تحديثه ليدعم UID) ---
 app.post('/smart-search', (req, res) => {
-    const { query, lang } = req.body; 
+    // استقبال الـ uid من الكود الجديد في الواجهة
+    const { query, lang, uid } = req.body; 
     const currentLang = lang || 'ar';
+
+    // طباعة المستخدم في الكونسول للمراقبة
+    console.log(`🔎 بحث من مستخدم [${uid || 'Guest'}]: ${query}`);
 
     getJson({
         engine: "google_shopping",
@@ -98,7 +100,7 @@ app.post('/smart-search', (req, res) => {
     });
 });
 
-// --- 4. مسار مراقبة الأسعار ---
+// --- 4. مسار مراقبة الأسعار (كما هو) ---
 app.post('/set-alert', async (req, res) => {
     try {
         console.log("📥 طلب مراقبة جديد لـ:", req.body.productName);
@@ -111,7 +113,7 @@ app.post('/set-alert', async (req, res) => {
     }
 });
 
-// تشغيل الفحص الدوري (كل 6 ساعات)
+// تشغيل الفحص الدوري (كما هو)
 cron.schedule('0 */6 * * *', async () => {
     console.log("⏰ جاري فحص الأسعار...");
     const alerts = await Alert.find();

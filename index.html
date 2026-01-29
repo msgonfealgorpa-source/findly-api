@@ -143,66 +143,61 @@
     </div>
 
     <script>
-        
         const API = "https://findly-api.onrender.com";
         let lang = localStorage.getItem('findly_lang') || 'ar';
         
-        // --- 1. حل مشكلة المحاولات (تخزين ثابت) ---
+        // --- 1. حل مشكلة المحاولات ---
         let savedAttempts = localStorage.getItem('findly_attempts');
         let attempts = (savedAttempts !== null) ? parseInt(savedAttempts) : 3;
         if (savedAttempts === null) localStorage.setItem('findly_attempts', 3);
 
         let watchList = JSON.parse(localStorage.getItem('findly_watch')) || [];
 
+        // --- 2. القاموس الكامل بأسماء مطابقة للـ IDs ---
         const dict = {
             ar: { 
                 title: "مستشارك الحكيم", sub: "دليلك الذكي للتسوق المثالي", energy: "طاقة العقل", welcome: "مرحباً،", 
-                game: "ألعاب", beauty: "جمال", home: "منزل ذكي", c1: "هواتف", c2: "لابتوب", c4: "ساعات", 
-                p_head: "الملف الشخصي", buy: "شراء الآن 🛒", watch: "راقب السعر 🔔", over: "⚠️ انتبه! يتجاوز ميزانيتك", 
-                tagCheap: "اقتصادي", tagTop: "الأعلى تقييماً", tagNew: "حديث جداً", deep: "وضع التحليل الذكي", 
-                watchTitle: "قائمة المراقبة", why: "لماذا اخترنا هذا؟", 
+                "cat-game": "ألعاب", "cat-beauty": "جمال", "cat-home": "منزل ذكي", "cat-c1": "هواتف", "cat-c2": "لابتوب", "cat-c4": "ساعات", 
+                "p-head": "الملف الشخصي", buy: "شراء الآن 🛒", watch: "راقب السعر 🔔", over: "⚠️ انتبه! يتجاوز ميزانيتك", 
+                "tag-cheap": "اقتصادي", "tag-top": "الأعلى تقييماً", "tag-new": "حديث جداً", "txt-deep": "وضع التحليل الذكي", 
+                "txt-watch-title": "قائمة المراقبة", why: "لماذا اخترنا هذا؟", 
                 slow: "السيرفر يستيقظ.. انتظر ثوانٍ ستظهر النتائج تلقائياً", 
                 noAttempts: "⚠️ عذراً، لقد استنفدت محاولاتك لليوم!" 
             },
             en: { 
                 title: "Sage Advisor", sub: "Your smart shopping guide", energy: "Sage Energy", welcome: "Welcome,", 
-                game: "Gaming", beauty: "Beauty", home: "Smart Home", c1: "Phones", c2: "Laptops", c4: "Watches", 
-                p_head: "Profile", buy: "Buy Now 🛒", watch: "Watch Price 🔔", over: "⚠️ Over Budget!", 
-                tagCheap: "Budget", tagTop: "Top Rated", tagNew: "Newest", deep: "AI Deep Mode", 
-                watchTitle: "Watch List", why: "Why this choice?", 
+                "cat-game": "Gaming", "cat-beauty": "Beauty", "cat-home": "Smart Home", "cat-c1": "Phones", "cat-c2": "Laptops", "cat-c4": "Watches", 
+                "p-head": "Profile", buy: "Buy Now 🛒", watch: "Watch Price 🔔", over: "⚠️ Over Budget!", 
+                "tag-cheap": "Budget", "tag-top": "Top Rated", "tag-new": "Newest", "txt-deep": "AI Deep Mode", 
+                "txt-watch-title": "Watch List", why: "Why this choice?", 
                 slow: "Server is waking up.. please wait", 
                 noAttempts: "⚠️ Sorry, no more attempts today!" 
             }
         };
 
-        // --- 2. دالة التحديث الكاملة (بدون أي نقص) ---
+        // --- 3. دالة التحديث (ربط مباشر بين القاموس والـ IDs) ---
         function update() {
             const d = dict[lang] || dict['ar'];
             document.getElementById('main-html').dir = lang === 'ar' ? 'rtl' : 'ltr';
             
-            // النصوص الأساسية
+            // النصوص الثابتة
             document.getElementById('txt-title').innerText = d.title;
             document.getElementById('txt-sub').innerText = d.sub;
             document.getElementById('txt-energy').innerText = d.energy;
             document.getElementById('r-count').innerText = attempts;
-            
-            // ترجمة الأقسام (Category Buttons)
-            if(document.getElementById('cat-game')) document.getElementById('cat-game').innerText = d.game;
-            if(document.getElementById('cat-beauty')) document.getElementById('cat-beauty').innerText = d.beauty;
-            if(document.getElementById('cat-home')) document.getElementById('cat-home').innerText = d.home;
-            if(document.getElementById('cat-c1')) document.getElementById('cat-c1').innerText = d.c1;
-            if(document.getElementById('cat-c2')) document.getElementById('cat-c2').innerText = d.c2;
-            if(document.getElementById('cat-c4')) document.getElementById('cat-c4').innerText = d.c4;
 
-            // ترجمة الأوسمة والتحليل العميق
-            if(document.getElementById('tag-cheap')) document.getElementById('tag-cheap').innerText = d.tagCheap;
-            if(document.getElementById('tag-top')) document.getElementById('tag-top').innerText = d.tagTop;
-            if(document.getElementById('tag-new')) document.getElementById('tag-new').innerText = d.tagNew;
-            if(document.getElementById('txt-deep')) document.getElementById('txt-deep').innerText = d.deep;
-            if(document.getElementById('txt-watch-title')) document.getElementById('txt-watch-title').innerText = d.watchTitle;
-            if(document.getElementById('p-head')) document.getElementById('p-head').innerText = d.p_head;
+            // حلقة تكرار ذكية لترجمة كل الأزرار والـ IDs دفعة واحدة
+            const keysToTranslate = [
+                'cat-game', 'cat-beauty', 'cat-home', 'cat-c1', 'cat-c2', 'cat-c4',
+                'tag-cheap', 'tag-top', 'tag-new', 'txt-deep', 'txt-watch-title', 'p-head'
+            ];
 
-            // الترحيب وعداد المراقبة
+            keysToTranslate.forEach(key => {
+                const el = document.getElementById(key);
+                if (el) el.innerText = d[key];
+            });
+
+            // اسم المستخدم وعداد المراقبة
             const name = localStorage.getItem('fn') || (lang === 'ar' ? "أحمد" : "User");
             document.getElementById('greeting').innerText = `${d.welcome} ${name}`;
             
@@ -213,7 +208,7 @@
             }
         }
 
-        // --- 3. دالة البحث الذكية (حل مشكلة الرسالة المزعجة) ---
+        // --- 4. دالة البحث والوظائف الأخرى (لا تلمسها، فهي مثالية) ---
         async function runSearch() {
             let q = document.getElementById('s-input').value;
             const status = document.getElementById('status');
@@ -238,7 +233,6 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ query: q, lang: lang })
                 });
-
                 const data = await res.json();
                 status.style.display = "none";
 
@@ -247,7 +241,7 @@
                         let cleanPrice = p.price ? p.price.toString().replace(/[^\d.]/g, '') : "0"; 
                         let priceVal = parseFloat(cleanPrice);
                         let budgetAlert = (userBudget > 0 && priceVal > userBudget) ? 
-                            `<div style="background:rgba(239, 68, 68, 0.2); border:1px solid #ef4444; color:#fca5a5; padding:10px; border-radius:12px; margin-bottom:12px; font-size:0.85rem; font-weight:bold;">⚠️ ${d.over} (${userBudget}$)</div>` : "";
+                            `<div style="background:rgba(239,68,68,0.2); border:1px solid #ef4444; color:#fca5a5; padding:10px; border-radius:12px; margin-bottom:12px; font-size:0.85rem; font-weight:bold;">⚠️ ${d.over} (${userBudget}$)</div>` : "";
 
                         resCon.innerHTML += `
                             <div class="product-card">
@@ -267,13 +261,11 @@
                     update();
                 }
             } catch (e) {
-                // المحاولة الصامتة بدون Alert
                 status.innerHTML = `<i class="fa-solid fa-clock-rotate-left"></i> ${d.slow}`;
                 setTimeout(runSearch, 4000);
             }
         }
 
-        // --- 4. دالة المراقبة (إعادة التفعيل) ---
         function addToWatch(name, price, link) {
             watchList.push({ name, price, link });
             localStorage.setItem('findly_watch', JSON.stringify(watchList));
@@ -281,10 +273,9 @@
             alert(lang === 'ar' ? "تمت الإضافة لقائمة المراقبة!" : "Added to watch list!");
         }
 
-        // --- 5. بقية الدوال المساعدة (البحث الصوتي، المودال، إلخ) ---
         function startVoice() {
             const mic = document.getElementById('mic-btn');
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const SpeechRecognition = window.SpeechRecognition || window.webkitRecognition;
             if (!SpeechRecognition) return;
             const recognition = new SpeechRecognition();
             recognition.lang = lang === 'ar' ? 'ar-SA' : 'en-US';
@@ -302,7 +293,6 @@
             localStorage.setItem('fb', document.getElementById('in-budget').value);
             document.getElementById('p-modal').style.display = 'none';
             update();
-            alert(lang === 'ar' ? "تم الحفظ بنجاح!" : "Settings Saved!");
         }
 
         function toggleMode() { document.body.classList.toggle('light-mode'); }

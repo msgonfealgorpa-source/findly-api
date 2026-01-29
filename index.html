@@ -267,18 +267,43 @@
         function toggleMode() { document.body.classList.toggle('light-mode'); }
         
         // تعديل وظيفة زر المراقبة لمحاكاة التنبيه
-        function addToWatch(n, p) { 
-            watchList.push({ name: n, price: p }); 
-            localStorage.setItem('findly_watch', JSON.stringify(watchList)); 
+        async function addToWatch(productName, currentPrice, productLink) {
+    // 1. طلب البريد الإلكتروني من المستخدم (لأننا سنرسل التنبيه عليه)
+    const email = prompt("أدخل بريدك الإلكتروني ليصلك التنبيه عند انخفاض السعر:");
+    
+    if (!email) return; // إذا ألغى المستخدم العملية
+
+    // تنظيف السعر من الرموز (تحويل $100 إلى 100)
+    const targetPrice = parseFloat(currentPrice.replace(/[^0-9.]/g, ''));
+
+    // 2. إرسال الطلب للسيرفر الحقيقي
+    try {
+        const response = await fetch(`${API}/set-alert`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                email: email,
+                productName: productName,
+                targetPrice: targetPrice, // نراقب السعر الحالي، أو يمكنك خصم مبلغ منه
+                link: productLink,
+                lang: lang
+            })
+        });
+
+        if (response.ok) {
+            alert("✅ تم تفعيل المراقبة الحقيقية! سيصلك إيميل فور انخفاض السعر.");
+            
+            // تحديث القائمة الشكلية أيضاً
+            watchList.push({ name: productName, price: currentPrice });
+            localStorage.setItem('findly_watch', JSON.stringify(watchList));
             update();
-            
-            // محاكاة التنبيه العملي
-            alert("✅ تمت الإضافة لقائمة المراقبة. سنقوم بتنبيهك عند انخفاض السعر!");
-            
-            // محاكاة وصول إشعار بعد 5 ثواني
-            setTimeout(() => {
-                alert(`🔔 تنبيه عاجل من Findly:\n\nانخفض سعر المنتج: "${n}" للتو!\nكان السعر: ${p}\nالسعر الجديد: خصم 15% 🔥\nاغتنم الفرصة الآن!`);
-            }, 5000);
+        } else {
+            alert("حدث خطأ في الاتصال بالسيرفر.");
+        }
+    } catch (error) {
+        console.error(error);
+        alert("تأكد أن السيرفر يعمل.");
+    }
         }
 
         function toggleWatchList() { const m = document.getElementById('w-modal'); const c = document.getElementById('watch-list-content'); c.innerHTML = ""; watchList.forEach((item, i) => { c.innerHTML += `<div style="padding:10px; border-bottom:1px solid #334155;">${item.name} - ${item.price}</div>`; }); m.style.display = m.style.display === 'flex' ? 'none' : 'flex'; }

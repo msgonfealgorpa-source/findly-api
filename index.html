@@ -145,221 +145,157 @@
     <script>
         const API = "https://findly-api.onrender.com";
         let lang = localStorage.getItem('findly_lang') || 'ar';
-        let attempts = parseInt(localStorage.getItem('findly_attempts')) || 3;
+        
+        // --- حل مشكلة المحاولات: قراءة القيمة المخزنة أو البدء بـ 3 ---
+        let savedAttempts = localStorage.getItem('findly_attempts');
+        let attempts = (savedAttempts !== null) ? parseInt(savedAttempts) : 3;
+        
+        // حفظ القيمة لأول مرة إذا لم تكن موجودة
+        if (savedAttempts === null) {
+            localStorage.setItem('findly_attempts', 3);
+        }
+
         let watchList = JSON.parse(localStorage.getItem('findly_watch')) || [];
 
         const dict = {
-            ar: { title: "مستشارك الحكيم", sub: "دليلك الذكي للتسوق المثالي", energy: "طاقة العقل", welcome: "مرحباً،", game: "ألعاب", beauty: "جمال", home: "منزل ذكي", c1: "هواتف", c2: "لابتوب", c4: "ساعات", p_head: "الملف الشخصي", buy: "شراء الآن 🛒", watch: "راقب السعر 🔔", over: "⚠️ انتبه! يتجاوز ميزانيتك", tagCheap: "اقتصادي", tagTop: "الأعلى تقييماً", tagNew: "حديث جداً", deep: "وضع التحليل الذكي", watchTitle: "قائمة المراقبة", why: "لماذا اخترنا هذا؟" },
-            
-            en: { title: "Sage Advisor", sub: "Your smart shopping guide", energy: "Sage Energy", welcome: "Welcome,", game: "Gaming", beauty: "Beauty", home: "Smart Home", c1: "Phones", c2: "Laptops", c4: "Watches", p_head: "Profile", buy: "Buy Now 🛒", watch: "Watch Price 🔔", over: "⚠️ Over Budget!", tagCheap: "Budget", tagTop: "Top Rated", tagNew: "Newest", deep: "AI Deep Mode", watchTitle: "Watch List", why: "Why this choice?" },
-            
-            fr: { title: "Conseiller Sage", sub: "Votre guide d'achat intelligent", energy: "Énergie Sage", welcome: "Bienvenue,", game: "Jeux", beauty: "Beauté", home: "Maison Intel.", c1: "Téléphones", c2: "Portables", c4: "Montres", p_head: "Profil", buy: "Acheter 🛒", watch: "Suivre Prix 🔔", over: "⚠️ Hors budget!", tagCheap: "Économique", tagTop: "Mieux noté", tagNew: "Nouveau", deep: "Mode IA", watchTitle: "Liste de suivi", why: "Pourquoi ce choix?" },
-            
-            de: { title: "Weiser Berater", sub: "Ihr intelligenter Einkaufsführer", energy: "Weise Energie", welcome: "Willkommen,", game: "Spiele", beauty: "Schönheit", home: "Smart Home", c1: "Handys", c2: "Laptops", c4: "Uhren", p_head: "Profil", buy: "Jetzt Kaufen 🛒", watch: "Preis beobachten 🔔", over: "⚠️ Über Budget!", tagCheap: "Günstig", tagTop: "Bestbewertet", tagNew: "Neuheit", deep: "KI-Modus", watchTitle: "Beobachtungsliste", why: "Warum diese Wahl?" },
-            
-            es: { title: "Consejero Sabio", sub: "Tu guía de compras inteligente", energy: "Energía Sabia", welcome: "Hola,", game: "Juegos", beauty: "Belleza", home: "Casa Intel.", c1: "Móviles", c2: "Portátiles", c4: "Relojes", p_head: "Perfil", buy: "Comprar 🛒", watch: "Seguir Precio 🔔", over: "⚠️ ¡Sobre presupuesto!", tagCheap: "Económico", tagTop: "Top Valorados", tagNew: "Nuevo", deep: "Modo IA", watchTitle: "Lista de seguimiento", why: "¿Por qué esta elección?" },
-            
-            tr: { title: "Bilge Danışman", sub: "Akıllı alışveriş rehberiniz", energy: "Bilge Enerjisi", welcome: "Hoş geldin,", game: "Oyun", beauty: "Güzellik", home: "Akıllı Ev", c1: "Telefonlar", c2: "Laptoplar", c4: "Saatler", p_head: "Profil", buy: "Satın Al 🛒", watch: "Fiyatı İzle 🔔", over: "⚠️ Bütçeyi Aşıyor!", tagCheap: "Ucuz", tagTop: "En İyi", tagNew: "Yeni", deep: "Yapay Zeka", watchTitle: "İzleme Listesi", why: "Neden bu seçim?" }
+            ar: { title: "مستشارك الحكيم", sub: "دليلك الذكي للتسوق المثالي", energy: "طاقة العقل", welcome: "مرحباً،", game: "ألعاب", beauty: "جمال", home: "منزل ذكي", c1: "هواتف", c2: "لابتوب", c4: "ساعات", p_head: "الملف الشخصي", buy: "شراء الآن 🛒", watch: "راقب السعر 🔔", over: "⚠️ انتبه! يتجاوز ميزانيتك", tagCheap: "اقتصادي", tagTop: "الأعلى تقييماً", tagNew: "حديث جداً", deep: "وضع التحليل الذكي", watchTitle: "قائمة المراقبة", why: "لماذا اخترنا هذا؟", slow: "السيرفر يستيقظ.. انتظر ثوانٍ ستظهر النتائج تلقائياً", noAttempts: "⚠️ عذراً، لقد استنفدت محاولاتك لليوم!" },
+            en: { title: "Sage Advisor", sub: "Your smart shopping guide", energy: "Sage Energy", welcome: "Welcome,", game: "Gaming", beauty: "Beauty", home: "Smart Home", c1: "Phones", c2: "Laptops", c4: "Watches", p_head: "Profile", buy: "Buy Now 🛒", watch: "Watch Price 🔔", over: "⚠️ Over Budget!", tagCheap: "Budget", tagTop: "Top Rated", tagNew: "Newest", deep: "AI Deep Mode", watchTitle: "Watch List", why: "Why this choice?", slow: "Server is waking up.. please wait", noAttempts: "⚠️ Sorry, no more attempts today!" }
         };
 
         function update() {
             const d = dict[lang] || dict['ar'];
+            
+            // تحديث اتجاه الصفحة واللغة
             document.getElementById('main-html').dir = lang === 'ar' ? 'rtl' : 'ltr';
             
+            // تحديث النصوص الرئيسية
             document.getElementById('txt-title').innerText = d.title;
             document.getElementById('txt-sub').innerText = d.sub;
             document.getElementById('txt-energy').innerText = d.energy;
             document.getElementById('r-count').innerText = attempts;
-            document.getElementById('cat-game').innerText = d.game;
-            document.getElementById('cat-beauty').innerText = d.beauty;
-            document.getElementById('cat-home').innerText = d.home;
-            document.getElementById('cat-c1').innerText = d.c1;
-            document.getElementById('cat-c2').innerText = d.c2;
-            document.getElementById('cat-c4').innerText = d.c4;
-            document.getElementById('tag-cheap').innerText = d.tagCheap;
-            document.getElementById('tag-top').innerText = d.tagTop;
-            document.getElementById('tag-new').innerText = d.tagNew;
-            document.getElementById('txt-deep').innerText = d.deep;
-            document.getElementById('txt-watch-title').innerText = d.watchTitle;
-            document.getElementById('p-head').innerText = d.p_head;
             
+            // تحديث نصوص التصنيفات (تأكد أن IDs مطابقة لما في الـ HTML)
+            if(document.getElementById('cat-game')) document.getElementById('cat-game').innerText = d.game;
+            if(document.getElementById('cat-beauty')) document.getElementById('cat-beauty').innerText = d.beauty;
+            if(document.getElementById('cat-home')) document.getElementById('cat-home').innerText = d.home;
+            if(document.getElementById('cat-c1')) document.getElementById('cat-c1').innerText = d.c1;
+            if(document.getElementById('cat-c2')) document.getElementById('cat-c2').innerText = d.c2;
+            if(document.getElementById('cat-c4')) document.getElementById('cat-c4').innerText = d.c4;
+            
+            // تحديث نصوص الأوسمة (Tags)
+            if(document.getElementById('tag-cheap')) document.getElementById('tag-cheap').innerText = d.tagCheap;
+            if(document.getElementById('tag-top')) document.getElementById('tag-top').innerText = d.tagTop;
+            if(document.getElementById('tag-new')) document.getElementById('tag-new').innerText = d.tagNew;
+            
+            // تحديث نصوص أوضاع البحث والقائمة
+            if(document.getElementById('txt-deep')) document.getElementById('txt-deep').innerText = d.deep;
+            if(document.getElementById('txt-watch-title')) document.getElementById('txt-watch-title').innerText = d.watchTitle;
+            if(document.getElementById('p-head')) document.getElementById('p-head').innerText = d.p_head;
+            
+            // تحديث رسالة الترحيب باسم المستخدم
             const name = localStorage.getItem('fn') || (lang === 'ar' ? "أحمد" : "User");
             document.getElementById('greeting').innerText = `${d.welcome} ${name}`;
+            
+            // تحديث عداد قائمة المراقبة
             const wBtn = document.getElementById('watch-count');
-            wBtn.innerText = watchList.length;
-            wBtn.style.display = watchList.length > 0 ? 'block' : 'none';
-        }
-async function runSearch() {
-    let q = document.getElementById('s-input').value;
-    if (attempts <= 0) {
-        alert("⚠️ عذراً، استنفدت محاولاتك!");
-        return;
-    }
-    if (!q) return;
-
-    const status = document.getElementById('status');
-    const resCon = document.getElementById('results');
-    const d = dict[lang] || dict['ar'];
-    const userBudget = parseFloat(localStorage.getItem('fb')) || 0;
-
-    status.style.display = "block";
-    status.innerHTML = '<i class="fa-solid fa-microchip fa-spin"></i> جاري التحليل الذكي...';
-    resCon.innerHTML = "";
-
-    try {
-        const res = await fetch(`${API}/smart-search`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ query: q, lang: lang })
-        });
-
-        if (!res.ok) throw new Error("Server delay"); // إذا لم يرد السيرفر فوراً
-
-        const data = await res.json();
-        status.style.display = "none";
-
-        if (data.products && data.products.length > 0) {
-            data.products.forEach((p) => {
-                let cleanPrice = p.price ? p.price.toString().replace(/[^\d.]/g, '') : "0"; 
-                let priceVal = parseFloat(cleanPrice);
-                let budgetAlert = "";
-
-                if(userBudget > 0 && priceVal > userBudget) {
-                    budgetAlert = `<div style="background:rgba(239, 68, 68, 0.2); border:1px solid #ef4444; color:#fca5a5; padding:10px; border-radius:12px; margin-bottom:12px; font-size:0.85rem; font-weight:bold;"><i class="fa-solid fa-circle-exclamation"></i> ${d.over} (${userBudget}$)</div>`;
-                }
-
-                resCon.innerHTML += `
-                    <div class="product-card" style="${userBudget > 0 && priceVal > userBudget ? 'border: 1px solid #ef4444;' : ''}">
-                        ${budgetAlert}
-                        <img src="${p.thumbnail}">
-                        <h3>${p.name}</h3>
-                        <div style="font-weight:900; color:#10b981; font-size:1.2rem;">${p.price}</div>
-                        <div class="analysis-engine"><span class="analysis-label"><i class="fa-solid fa-brain"></i> ${d.why}</span>${p.reason}</div>
-                        <div class="btn-group">
-                            <a href="${p.link}" target="_blank" class="action-btn buy-now">${d.buy}</a>
-                            <button class="action-btn watch-later" onclick="addToWatch('${p.name.replace(/'/g, "\\'")}', '${p.price}', '${p.link}')">${d.watch}</button>
-                        </div>
-                    </div>`;
-            });
-            attempts--;
-            localStorage.setItem('findly_attempts', attempts);
-            update();
-        }
-    } catch (e) {
-        // بدلاً من التنبيه (Alert) المزعج، نكتفي بتغيير نص الحالة
-        console.log("Connection slow, retrying...");
-        status.innerHTML = '<i class="fa-solid fa-clock-rotate-left"></i> السيرفر يستغرق وقتاً للاستيقاظ.. جاري المحاولة ثانية';
-        // محاولة البحث مرة أخرى تلقائياً بعد 3 ثوانٍ
-        setTimeout(runSearch, 3000);
-    }
-}
-        
-        function toggleMode() { document.body.classList.toggle('light-mode'); }
-        
-        // تعديل وظيفة زر المراقبة لمحاكاة التنبيه
-        async function addToWatch(productName, currentPrice, productLink) {
-    // 1. طلب البريد الإلكتروني من المستخدم (لأننا سنرسل التنبيه عليه)
-    const email = prompt("أدخل بريدك الإلكتروني ليصلك التنبيه عند انخفاض السعر:");
-    
-    if (!email) return; // إذا ألغى المستخدم العملية
-
-    // تنظيف السعر من الرموز (تحويل $100 إلى 100)
-    const targetPrice = parseFloat(currentPrice.replace(/[^0-9.]/g, ''));
-
-    // 2. إرسال الطلب للسيرفر الحقيقي
-    try {
-        const response = await fetch(`${API}/set-alert`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                email: email,
-                productName: productName,
-                targetPrice: targetPrice, // نراقب السعر الحالي، أو يمكنك خصم مبلغ منه
-                link: productLink,
-                lang: lang
-            })
-        });
-
-        if (response.ok) {
-            alert("✅ تم تفعيل المراقبة الحقيقية! سيصلك إيميل فور انخفاض السعر.");
-            
-            // تحديث القائمة الشكلية أيضاً
-            watchList.push({ name: productName, price: currentPrice });
-            localStorage.setItem('findly_watch', JSON.stringify(watchList));
-            update();
-        } else {
-            alert("حدث خطأ في الاتصال بالسيرفر.");
-        }
-    } catch (error) {
-        console.error(error);
-        alert("تأكد أن السيرفر يعمل.");
-    }
-        }
-
-        function toggleWatchList() { const m = document.getElementById('w-modal'); const c = document.getElementById('watch-list-content'); c.innerHTML = ""; watchList.forEach((item, i) => { c.innerHTML += `<div style="padding:10px; border-bottom:1px solid #334155;">${item.name} - ${item.price}</div>`; }); m.style.display = m.style.display === 'flex' ? 'none' : 'flex'; }
-        function setLang(l) { lang = l; localStorage.setItem('findly_lang', l); document.getElementById('l-menu').style.display = 'none'; update(); }
-        function toggleLMenu() { const m = document.getElementById('l-menu'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
-        
-        // تعديل فتح الملف الشخصي لملء البيانات
-        function openProfile() { 
-            const m = document.getElementById('p-modal'); 
-            
-            // ملء الحقول بالبيانات المحفوظة
-            if(m.style.display !== 'flex') {
-                document.getElementById('in-name').value = localStorage.getItem('fn') || '';
-                document.getElementById('in-budget').value = localStorage.getItem('fb') || '';
+            if(wBtn) {
+                wBtn.innerText = watchList.length;
+                wBtn.style.display = watchList.length > 0 ? 'block' : 'none';
             }
-            
-            m.style.display = m.style.display === 'flex' ? 'none' : 'flex'; 
         }
 
-        function saveSet() { 
-            localStorage.setItem('fn', document.getElementById('in-name').value); 
-            localStorage.setItem('fb', document.getElementById('in-budget').value); 
-            
-            // إغلاق المودال وتحديث الصفحة
+        async function runSearch() {
+            let q = document.getElementById('s-input').value;
+            const status = document.getElementById('status');
+            const resCon = document.getElementById('results');
+            const d = dict[lang] || dict['ar'];
+            const userBudget = parseFloat(localStorage.getItem('fb')) || 0;
+
+            // منع البحث إذا انتهت المحاولات
+            if (attempts <= 0) { 
+                status.style.display = "block";
+                status.innerHTML = d.noAttempts;
+                return; 
+            }
+            if (!q) return;
+
+            status.style.display = "block";
+            status.innerHTML = '<i class="fa-solid fa-microchip fa-spin"></i> جاري التحليل الذكي...';
+            resCon.innerHTML = "";
+
+            try {
+                const res = await fetch(`${API}/smart-search`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: q, lang: lang })
+                });
+
+                const data = await res.json();
+                status.style.display = "none";
+
+                if (data.products && data.products.length > 0) {
+                    data.products.forEach((p) => {
+                        let cleanPrice = p.price ? p.price.toString().replace(/[^\d.]/g, '') : "0"; 
+                        let priceVal = parseFloat(cleanPrice);
+                        let budgetAlert = (userBudget > 0 && priceVal > userBudget) ? 
+                            `<div style="background:rgba(239, 68, 68, 0.2); border:1px solid #ef4444; color:#fca5a5; padding:10px; border-radius:12px; margin-bottom:12px; font-size:0.85rem; font-weight:bold;"><i class="fa-solid fa-circle-exclamation"></i> ${d.over} (${userBudget}$)</div>` : "";
+
+                        resCon.innerHTML += `
+                            <div class="product-card" style="${userBudget > 0 && priceVal > userBudget ? 'border: 1px solid #ef4444;' : ''}">
+                                ${budgetAlert}
+                                <img src="${p.thumbnail || ''}">
+                                <h3>${p.name}</h3>
+                                <div style="font-weight:900; color:#10b981; font-size:1.2rem;">${p.price}</div>
+                                <div class="analysis-engine"><span class="analysis-label"><i class="fa-solid fa-brain"></i> ${d.why}</span>${p.reason}</div>
+                                <div class="btn-group">
+                                    <a href="${p.link}" target="_blank" class="action-btn buy-now">${d.buy}</a>
+                                    <button class="action-btn watch-later" onclick="addToWatch('${p.name.replace(/'/g, "\\'")}', '${p.price}', '${p.link}')">${d.watch}</button>
+                                </div>
+                            </div>`;
+                    });
+                    
+                    // خصم محاولة وحفظها فوراً
+                    attempts--;
+                    localStorage.setItem('findly_attempts', attempts);
+                    update();
+                }
+            } catch (e) {
+                // حل مشكلة رسالة الخطأ: لا يوجد Alert هنا
+                console.log("Slow connection, retrying...");
+                status.innerHTML = `<i class="fa-solid fa-clock-rotate-left"></i> ${d.slow}`;
+                setTimeout(runSearch, 4000); // محاولة تلقائية
+            }
+        }
+
+        function startVoice() {
+            const mic = document.getElementById('mic-btn');
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) return;
+            const recognition = new SpeechRecognition();
+            recognition.lang = lang === 'ar' ? 'ar-SA' : 'en-US';
+            recognition.onstart = () => mic.classList.add('mic-active');
+            recognition.onresult = (e) => {
+                document.getElementById('s-input').value = e.results[0][0].transcript;
+                runSearch();
+            };
+            recognition.onend = () => mic.classList.remove('mic-active');
+            recognition.start();
+        }
+
+        function saveSet() {
+            localStorage.setItem('fn', document.getElementById('in-name').value);
+            localStorage.setItem('fb', document.getElementById('in-budget').value);
             document.getElementById('p-modal').style.display = 'none';
-            update(); 
-            alert("تم حفظ بياناتك بنجاح! سيقوم المستشار الآن بمراعاة ميزانيتك.");
+            update();
         }
-        
-       // --- الجزء الخاص بالبحث الصوتي ---
-function startVoice() {
-    const mic = document.getElementById('mic-btn');
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-    if (!SpeechRecognition) {
-        alert("متصفحك لا يدعم البحث الصوتي.");
-        return;
-    }
-
-    const recognition = new SpeechRecognition();
-    recognition.lang = lang === 'ar' ? 'ar-SA' : 'en-US';
-
-    recognition.onstart = () => {
-        mic.classList.add('mic-active');
-    };
-
-    recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
-        document.getElementById('s-input').value = transcript;
-        mic.classList.remove('mic-active');
-        // استدعاء دالة البحث فوراً بعد التعرف على الصوت
-        runSearch(); 
-    };
-
-    recognition.onerror = () => {
-        mic.classList.remove('mic-active');
-    };
-
-    recognition.onend = () => {
-        mic.classList.remove('mic-active');
-    };
-
-    recognition.start();
-}
+        function toggleMode() { document.body.classList.toggle('light-mode'); }
+        function toggleLMenu() { const m = document.getElementById('l-menu'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
+        function setLang(l) { lang = l; localStorage.setItem('findly_lang', l); toggleLMenu(); update(); }
+        function openProfile() { document.getElementById('p-modal').style.display = 'flex'; }
         function quickSearch(q) { document.getElementById('s-input').value = q; runSearch(); }
         function quickFilter(type) { document.getElementById('s-input').value += " " + type; }
+
         window.onload = update;
     </script>
 </body>

@@ -171,12 +171,12 @@
         
         .ai-toggle input { width: 20px; height: 20px; accent-color: var(--primary); cursor: pointer; }
 
-        /* --- Search Input Styling (FIXED) --- */
+        /* --- Search Input Styling --- */
         .search-wrapper { position: relative; max-width: 600px; margin: 0 auto 20px; }
         
         .search-input {
             width: 100%;
-            padding: 18px 60px; /* Padding for icons */
+            padding: 18px 60px;
             border-radius: 24px;
             border: 2px solid var(--glass-border);
             background: var(--bg-card);
@@ -202,7 +202,7 @@
             cursor: pointer; 
             font-size: 1.4rem; 
             transition: 0.3s;
-            z-index: 10; /* Ensure it stays on top */
+            z-index: 10;
         }
         
         .mic-active { color: #ef4444; text-shadow: 0 0 10px #ef4444; animation: pulse 1s infinite; }
@@ -223,7 +223,7 @@
             display: flex; 
             align-items: center; 
             justify-content: center;
-            z-index: 10; /* Ensure it stays on top */
+            z-index: 10;
         }
         
         .send-btn:hover { transform: translateY(-50%) scale(1.05); box-shadow: 0 0 15px var(--primary-glow); }
@@ -306,9 +306,17 @@
         .watch-later:hover { background: rgba(139, 92, 246, 0.1); }
 
         .budget-error {
-            background: rgba(239, 68, 68, 0.15); color: #ef4444;
-            padding: 8px 12px; border-radius: 12px; font-size: 0.8rem;
-            margin-bottom: 10px; font-weight: bold; border: 1px solid rgba(239, 68, 68, 0.3);
+            background: rgba(239, 68, 68, 0.2); 
+            color: #fca5a5;
+            padding: 10px; 
+            border-radius: 12px; 
+            font-size: 0.85rem;
+            margin-bottom: 15px; 
+            font-weight: bold; 
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         /* --- Modals --- */
@@ -429,10 +437,8 @@
     </div>
 
     <script>
-        // Server URL - Must match your Render URL
         const API = "https://findly-api.onrender.com";
         
-        // State Management
         let lang = localStorage.getItem('findly_lang') || 'ar';
         let savedAttempts = localStorage.getItem('findly_attempts');
         let attempts = (savedAttempts !== null) ? parseInt(savedAttempts) : 3;
@@ -440,9 +446,8 @@
 
         let watchList = JSON.parse(localStorage.getItem('findly_watch')) || [];
 
-        // Dictionary
         const dict = {
-            ar: { title: "مستشارك الحكيم", sub: "دليلك الذكي للتسوق المثالي", energy: "طاقة العقل", welcome: "مرحباً،", game: "ألعاب", beauty: "جمال", home: "منزل ذكي", c1: "هواتف", c2: "لابتوب", c4: "ساعات", p_head: "الملف الشخصي", buy: "شراء الآن 🛒", watch: "راقب السعر 🔔", over: "يتجاوز ميزانيتك", cheap: "اقتصادي", top: "الأعلى تقييماً", new: "حديث جداً", deep: "وضع التحليل الذكي", watchTitle: "قائمة المراقبة", why: "لماذا اخترنا هذا؟", slow: "السيرفر يستيقظ.. انتظر ثوانٍ", noAttempts: "⚠️ استنفدت محاولاتك!" },
+            ar: { title: "مستشارك الحكيم", sub: "دليلك الذكي للتسوق المثالي", energy: "طاقة العقل", welcome: "مرحباً،", game: "ألعاب", beauty: "جمال", home: "منزل ذكي", c1: "هواتف", c2: "لابتوب", c4: "ساعات", p_head: "الملف الشخصي", buy: "شراء الآن 🛒", watch: "راقب السعر 🔔", over: "يتجاوز الميزانيتك!", cheap: "اقتصادي", top: "الأعلى تقييماً", new: "حديث جداً", deep: "وضع التحليل الذكي", watchTitle: "قائمة المراقبة", why: "لماذا اخترنا هذا؟", slow: "السيرفر يستيقظ.. انتظر ثوانٍ", noAttempts: "⚠️ استنفدت محاولاتك!" },
             en: { title: "Sage Advisor", sub: "Your smart shopping guide", energy: "Sage Energy", welcome: "Welcome,", game: "Gaming", beauty: "Beauty", home: "Smart Home", c1: "Phones", c2: "Laptops", c4: "Watches", p_head: "Profile", buy: "Buy Now 🛒", watch: "Watch Price 🔔", over: "Over Budget!", cheap: "Budget", top: "Top Rated", new: "Newest", deep: "AI Deep Mode", watchTitle: "Watch List", why: "Why this choice?", slow: "Server waking up.. wait", noAttempts: "⚠️ No attempts left!" },
             fr: { title: "Conseiller Sage", sub: "Votre guide d'achat intelligent", energy: "Énergie Sage", welcome: "Bienvenue,", game: "Jeux", beauty: "Beauté", home: "Maison Inte.", c1: "Mobiles", c2: "Laptops", c4: "Montres", p_head: "Profil", buy: "Acheter 🛒", watch: "Surveiller 🔔", over: "Hors budget!", cheap: "Éco", top: "Mieux notés", new: "Nouveau", deep: "Mode Analyse AI", watchTitle: "Liste de veille", why: "Pourquoi ce choix?", slow: "Le serveur se réveille..", noAttempts: "⚠️ Plus d'essais!" },
             de: { title: "Weiser Berater", sub: "Ihr smarter Einkaufsführer", energy: "Weise Energie", welcome: "Willkommen,", game: "Spiele", beauty: "Schönheit", home: "Smart Home", c1: "Handys", c2: "Laptops", c4: "Uhren", p_head: "Profil", buy: "Kaufen 🛒", watch: "Beobachten 🔔", over: "Budget übersch.", cheap: "Günstig", top: "Bestbewertet", new: "Neu", deep: "KI-Analyse-Modus", watchTitle: "Beobachtungsliste", why: "Warum diese Wahl?", slow: "Server wacht auf..", noAttempts: "⚠️ Keine Versuche mehr!" },
@@ -450,14 +455,15 @@
             tr: { title: "Bilge Danışman", sub: "Akıllı alışveriş rehberiniz", energy: "Bilge Enerji", welcome: "Hoş geldiniz,", game: "Oyunlar", beauty: "Güzellik", home: "Akıllı Ev", c1: "Telefonlar", c2: "Laptoplar", c4: "Saatler", p_head: "Profil", buy: "Satın Al 🛒", watch: "Fiyatı İzle 🔔", over: "Bütçe Aşıldı!", cheap: "Ekonomik", top: "En İyi", new: "Yeni", deep: "Yapay Zeka Analiz", watchTitle: "İzleme Listesi", why: "Neden bu seçim?", slow: "Sunucu uyanıyor.. bekleyin", noAttempts: "⚠️ Deneme kalmadı!" }
         };
 
-        // --- Core Functions ---
-
         async function runSearch() {
             let q = document.getElementById('s-input').value;
             const status = document.getElementById('status');
             const resCon = document.getElementById('results');
             const d = dict[lang] || dict['ar'];
-            const userBudget = parseFloat(localStorage.getItem('fb')) || 0;
+            
+            // Fix: Parse budget correctly (handle if user didn't set one)
+            let rawBudget = localStorage.getItem('fb');
+            let userBudget = rawBudget ? parseFloat(rawBudget) : 0;
 
             if (attempts <= 0) { 
                 status.style.display = "block";
@@ -471,7 +477,6 @@
             resCon.innerHTML = "";
 
             try {
-                // Connection to Backend
                 const res = await fetch(`${API}/smart-search`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -483,12 +488,17 @@
 
                 if (data.products && data.products.length > 0) {
                     data.products.forEach((p, index) => {
-                        // Safe Price Logic
-                        let cleanPrice = p.price ? p.price.toString().replace(/[^\d.]/g, '') : "0"; 
-                        let priceVal = parseFloat(cleanPrice);
-                        let budgetAlert = (userBudget > 0 && priceVal > userBudget) ? `<div class="budget-error">⚠️ ${d.over} (${userBudget}$)</div>` : "";
+                        // FIX: Logic to handle prices like "$1,200.00" correctly
+                        // We must remove commas BEFORE parsing float
+                        let cleanPriceString = p.price ? p.price.toString().replace(/,/g, '').replace(/[^\d.]/g, '') : "0";
+                        let priceVal = parseFloat(cleanPriceString);
                         
-                        // Using timeout for animation effect
+                        // Logic: Show Alert if price > budget AND budget is set (>0)
+                        let budgetAlert = "";
+                        if (userBudget > 0 && priceVal > userBudget) {
+                            budgetAlert = `<div class="budget-error"><i class="fa-solid fa-triangle-exclamation"></i> ${d.over} ($${userBudget})</div>`;
+                        }
+                        
                         setTimeout(() => {
                             resCon.innerHTML += `
                                 <div class="product-card">
@@ -521,27 +531,32 @@
 
         async function addToWatch(name, price, link) {
             const promptMsg = {
-                ar: "أدخل إيميلك لتفعيل تنبيه انخفاض السعر العملي:",
-                en: "Enter email for real price drop alerts:",
-                fr: "Entrez votre e-mail pour les alertes:",
-                de: "E-Mail für Preisalarme eingeben:",
-                es: "Correo electrónico para alertas:",
-                tr: "Fiyat alarmı için e-posta girin:"
+                ar: "أدخل إيميلك لتفعيل تنبيه انخفاض السعر:",
+                en: "Enter email for price alert:",
+                fr: "Email pour alerte prix:",
+                de: "E-Mail für Preisalarm:",
+                es: "Email para alerta de precio:",
+                tr: "Fiyat alarmı için e-posta:"
             };
 
             const userEmail = prompt(promptMsg[lang] || promptMsg['ar']);
 
             if (userEmail && userEmail.includes("@")) {
-                const numericPrice = parseFloat(price.replace(/[^0-9.]/g, ''));
+                // Fix: Ensure we send a valid Number to the backend
+                let cleanPriceString = price.toString().replace(/,/g, '').replace(/[^\d.]/g, '');
+                let numericPrice = parseFloat(cleanPriceString);
 
                 try {
                     const response = await fetch(`${API}/set-alert`, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json' 
+                        },
                         body: JSON.stringify({
                             email: userEmail,
                             productName: name,
-                            targetPrice: numericPrice,
+                            targetPrice: numericPrice, // Sending Number, not String
                             link: link,
                             lang: lang
                         })
@@ -551,14 +566,18 @@
                         watchList.push({ name, price, link });
                         localStorage.setItem('findly_watch', JSON.stringify(watchList));
                         update();
-                        const successMsg = lang === 'ar' ? "تم تفعيل التنبيه! سنراقب السعر." : "Alert activated! Monitoring price.";
+                        const successMsg = lang === 'ar' ? "✅ تم تفعيل المراقبة بنجاح!" : "✅ Alert activated successfully!";
                         alert(successMsg);
                     } else {
-                        alert("Error connecting to server / خطأ في السيرفر");
+                        // Backend exists but returned error
+                        const errText = await response.text();
+                        console.error("Backend Error:", errText);
+                        alert("Server Error: " + (lang === 'ar' ? "فشل الحفظ في السيرفر" : "Failed to save on server"));
                     }
                 } catch (error) {
-                    console.error("Error:", error);
-                    alert("Connection failed / فشل الاتصال");
+                    // Network error (Server down or bad URL)
+                    console.error("Network Error:", error);
+                    alert((lang === 'ar' ? "خطأ في الاتصال بالسيرفر (تأكد من تشغيل الباك إند)" : "Connection Error (Check backend URL)"));
                 }
             }
         }
@@ -566,7 +585,7 @@
         function startVoice() {
             const mic = document.getElementById('mic-btn');
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) return; // Restored original logic (removed alert)
+            if (!SpeechRecognition) return;
             
             const recognition = new SpeechRecognition();
             recognition.lang = (lang==='ar'?'ar-SA':lang==='fr'?'fr-FR':lang==='de'?'de-DE':lang==='tr'?'tr-TR':lang==='es'?'es-ES':'en-US');
@@ -579,8 +598,6 @@
             recognition.onend = () => mic.classList.remove('mic-active');
             recognition.start();
         }
-
-        // --- UI & Helper Functions ---
 
         function saveSet() {
             localStorage.setItem('fn', document.getElementById('in-name').value);
@@ -597,7 +614,12 @@
         }
         
         function setLang(l) { lang = l; localStorage.setItem('findly_lang', l); toggleLMenu(); update(); }
-        function openProfile() { document.getElementById('p-modal').style.display = 'flex'; }
+        function openProfile() { 
+            document.getElementById('p-modal').style.display = 'flex'; 
+            // Pre-fill inputs
+            document.getElementById('in-name').value = localStorage.getItem('fn') || '';
+            document.getElementById('in-budget').value = localStorage.getItem('fb') || '';
+        }
         function quickSearch(q) { document.getElementById('s-input').value = q; runSearch(); }
         function quickFilter(type) { document.getElementById('s-input').value += " " + type; }
 
@@ -617,12 +639,10 @@
             }
         }
 
-        // --- Update Function ---
         function update() {
             const d = dict[lang] || dict['ar'];
             const userName = localStorage.getItem('fn') || (lang === 'ar' ? 'أيها الباحث' : 'Seeker');
             
-            // Text Updates
             document.getElementById('txt-energy').innerText = d.energy;
             document.getElementById('greeting').innerText = d.welcome + " " + userName;
             document.getElementById('txt-title').innerText = d.title;
@@ -632,7 +652,6 @@
             document.getElementById('tag-top').innerText = d.top;
             document.getElementById('tag-new').innerText = d.new;
             
-            // Categories
             document.getElementById('cat-game').innerText = d.game;
             document.getElementById('cat-beauty').innerText = d.beauty;
             document.getElementById('cat-home').innerText = d.home;
@@ -640,12 +659,10 @@
             document.getElementById('cat-c2').innerText = d.c2;
             document.getElementById('cat-c4').innerText = d.c4;
             
-            // Modals & Buttons
             document.getElementById('p-head').innerText = d.p_head;
             document.getElementById('txt-watch-title').innerText = d.watchTitle;
             document.getElementById('r-count').innerText = attempts;
 
-            // Watch Badge
             const wCount = document.getElementById('watch-count');
             if (watchList.length > 0) {
                 wCount.innerText = watchList.length;
@@ -654,11 +671,9 @@
                 wCount.style.display = 'none';
             }
             
-            // Update direction based on Lang
             document.getElementById('main-html').dir = (lang === 'ar') ? 'rtl' : 'ltr';
         }
 
-        // Init
         window.onload = update;
     </script>
 </body>

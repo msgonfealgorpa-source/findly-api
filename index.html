@@ -186,9 +186,7 @@
             }
         }
 
-        // الدالة المصلحة لزر المراقبة
-        function addToWatch(name, price, link) {
-            // التحقق من اللغة الحالية لجعل الطلب مفهوماً
+      function addToWatch(name, price, link) {
             const promptMsg = {
                 ar: "أدخل إيميلك للتنبيه:",
                 en: "Enter email for alerts:",
@@ -199,23 +197,18 @@
             };
 
             const userEmail = prompt(promptMsg[lang] || promptMsg['ar']);
-            
+
             if (userEmail && userEmail.includes("@")) {
-                // إضافة المنتج للقائمة
-                watchList.push({ 
-                    name: name, 
-                    price: price, 
-                    link: link, 
-                    email: userEmail 
+                watchList.push({
+                    name: name,
+                    price: price,
+                    link: link,
+                    email: userEmail
                 });
-                
-                // حفظ في الذاكرة
+
                 localStorage.setItem('findly_watch', JSON.stringify(watchList));
-                
-                // تحديث عداد الجرس في الواجهة
                 update();
-                
-                // رسالة تأكيد
+
                 const successMsg = {
                     ar: "تمت الإضافة بنجاح!",
                     en: "Added successfully!",
@@ -227,7 +220,6 @@
                 alert(successMsg[lang] || successMsg['ar']);
             }
         }
-        
 
         async function runSearch() {
             let q = document.getElementById('s-input').value;

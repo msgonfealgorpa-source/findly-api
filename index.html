@@ -152,6 +152,7 @@
 
         let watchList = JSON.parse(localStorage.getItem('findly_watch')) || [];
 
+        // القاموس الشامل لكل اللغات الستة الموجودة في قائمتك
         const dict = {
             ar: { title: "مستشارك الحكيم", sub: "دليلك الذكي للتسوق المثالي", energy: "طاقة العقل", welcome: "مرحباً،", game: "ألعاب", beauty: "جمال", home: "منزل ذكي", c1: "هواتف", c2: "لابتوب", c4: "ساعات", p_head: "الملف الشخصي", buy: "شراء الآن 🛒", watch: "راقب السعر 🔔", over: "يتجاوز ميزانيتك", cheap: "اقتصادي", top: "الأعلى تقييماً", new: "حديث جداً", deep: "وضع التحليل الذكي", watchTitle: "قائمة المراقبة", why: "لماذا اخترنا هذا؟", slow: "السيرفر يستيقظ.. انتظر ثوانٍ ستظهر النتائج تلقائياً", noAttempts: "⚠️ استنفدت محاولاتك!" },
             en: { title: "Sage Advisor", sub: "Your smart shopping guide", energy: "Sage Energy", welcome: "Welcome,", game: "Gaming", beauty: "Beauty", home: "Smart Home", c1: "Phones", c2: "Laptops", c4: "Watches", p_head: "Profile", buy: "Buy Now 🛒", watch: "Watch Price 🔔", over: "Over Budget!", cheap: "Budget", top: "Top Rated", new: "Newest", deep: "AI Deep Mode", watchTitle: "Watch List", why: "Why this choice?", slow: "Server waking up.. please wait", noAttempts: "⚠️ No attempts left!" },
@@ -165,11 +166,13 @@
             const d = dict[lang] || dict['ar'];
             document.getElementById('main-html').dir = (lang === 'ar') ? 'rtl' : 'ltr';
             
+            // النصوص الأساسية
             document.getElementById('txt-title').innerText = d.title;
             document.getElementById('txt-sub').innerText = d.sub;
             document.getElementById('txt-energy').innerText = d.energy;
             document.getElementById('r-count').innerText = attempts;
 
+            // تحديث الأزرار (Categories)
             const map = { 'cat-game':'game', 'cat-beauty':'beauty', 'cat-home':'home', 'cat-c1':'c1', 'cat-c2':'c2', 'cat-c4':'c4', 'tag-cheap':'cheap', 'tag-top':'top', 'tag-new':'new', 'txt-deep':'deep', 'txt-watch-title':'watchTitle', 'p-head':'p_head' };
             for(let id in map) {
                 let el = document.getElementById(id);
@@ -185,39 +188,6 @@
                 wCount.style.display = watchList.length > 0 ? 'block' : 'none';
             }
         }
-      function addToWatch(name, price, link) {
-            const promptMsg = {
-                ar: "أدخل إيميلك للتنبيه:",
-                en: "Enter email for alerts:",
-                fr: "Entrez votre e-mail:",
-                de: "E-Mail eingeben:",
-                es: "Correo electrónico:",
-                tr: "E-posta girin:"
-            };
-
-            const userEmail = prompt(promptMsg[lang] || promptMsg['ar']);
-
-            if (userEmail && userEmail.includes("@")) {
-                watchList.push({
-                    name: name,
-                    price: price,
-                    link: link,
-                    email: userEmail
-                });
-
-                localStorage.setItem('findly_watch', JSON.stringify(watchList));
-                update();
-
-                const successMsg = {
-                    ar: "تمت الإضافة بنجاح!",
-                    en: "Added successfully!",
-                    fr: "Ajouté avec succès!",
-                    de: "Erfolgreich hinzugefügt!",
-                    es: "¡Agregado con éxito!",
-                    tr: "Başarıyla eklendi!"
-                };
-                alert(successMsg[lang] || successMsg['ar']);
-            }
 
         async function runSearch() {
             let q = document.getElementById('s-input').value;
@@ -226,7 +196,11 @@
             const d = dict[lang] || dict['ar'];
             const userBudget = parseFloat(localStorage.getItem('fb')) || 0;
 
-            if (attempts <= 0) { status.style.display = "block"; status.innerHTML = d.noAttempts; return; }
+            if (attempts <= 0) { 
+                status.style.display = "block";
+                status.innerHTML = d.noAttempts;
+                return; 
+            }
             if (!q) return;
 
             status.style.display = "block";
@@ -271,7 +245,13 @@
             }
         }
 
-        // باقي الدوال (صوت، حفظ إعدادات، إلخ)
+        function addToWatch(name, price, link) {
+            watchList.push({ name, price, link });
+            localStorage.setItem('findly_watch', JSON.stringify(watchList));
+            update();
+            alert(lang === 'ar' ? "تمت الإضافة!" : "Added!");
+        }
+
         function startVoice() {
             const mic = document.getElementById('mic-btn');
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -279,7 +259,10 @@
             const recognition = new SpeechRecognition();
             recognition.lang = (lang==='ar'?'ar-SA':lang==='fr'?'fr-FR':lang==='de'?'de-DE':lang==='tr'?'tr-TR':lang==='es'?'es-ES':'en-US');
             recognition.onstart = () => mic.classList.add('mic-active');
-            recognition.onresult = (e) => { document.getElementById('s-input').value = e.results[0][0].transcript; runSearch(); };
+            recognition.onresult = (e) => {
+                document.getElementById('s-input').value = e.results[0][0].transcript;
+                runSearch();
+            };
             recognition.onend = () => mic.classList.remove('mic-active');
             recognition.start();
         }
@@ -292,14 +275,16 @@
         }
 
         function toggleMode() { document.body.classList.toggle('light-mode'); }
-        function toggleLMenu() { const m = document.getElementById('l-menu'); m.style.display = (m.style.display === 'block') ? 'none' : 'block'; }
+        function toggleLMenu() { 
+            const m = document.getElementById('l-menu'); 
+            m.style.display = (m.style.display === 'block') ? 'none' : 'block'; 
+        }
         function setLang(l) { lang = l; localStorage.setItem('findly_lang', l); toggleLMenu(); update(); }
         function openProfile() { document.getElementById('p-modal').style.display = 'flex'; }
         function quickSearch(q) { document.getElementById('s-input').value = q; runSearch(); }
         function quickFilter(type) { document.getElementById('s-input').value += " " + type; }
 
         window.onload = update;
-        
     </script>
 </body>
 </html>

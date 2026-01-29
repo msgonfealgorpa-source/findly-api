@@ -268,13 +268,5 @@
         function quickFilter(type) { document.getElementById('s-input').value += " " + type; }
         window.onload = update;
     </script>
-{
-    if (attempts <= 0) {
-        alert(lang === 'ar' ? "نفدت الطاقة! انتظر للشحن" : "Out of energy!");
-        return; 
-    }
-
-    let q = document.getElementById('s-input').value;
-    if (!q) return;
 </body>
 </html>

@@ -9,10 +9,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// --- 1. إعدادات الاتصال المعدلة ---
-
-// ملاحظة: استبدل كلمة 'كلمة_المرور_الخاصة_بك' بكلمة المرور التي نسختها (Wgr4...)
-const MONGO_URI = 'mongodb+srv://msgonfealgorpa_db_user:كلمة_المرور_الخاصة_بك@cluster0.os2qrmb.mongodb.net/FindlyDB?retryWrites=true&w=majority&appName=Cluster0';
+// السيرفر سيقرأ الرابط من إعدادات النظام وليس من الكود
+const MONGO_URI = process.env.MONGO_URI;
 
 const SERP_API_KEY = 'مفتاح_SERPAPI_الخاص_بك';
 

@@ -1,199 +1,250 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" id="html-tag">
+<html lang="ar" dir="rtl" id="findlyRoot">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Findly AI | Global Shopping OS</title>
+    <title>Findly AI | The World's #1 Shopping OS</title>
+    
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;800&family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
-        :root { --bg: #050505; --accent: #bcee45; --glass: rgba(255,255,255,0.05); --text: #fff; }
-        body { background: var(--bg); color: var(--text); font-family: 'Tajawal', 'Inter', sans-serif; margin: 0; padding-bottom: 100px; transition: 0.3s; }
-        
-        /* Header & Lang Switcher */
-        header { padding: 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; backdrop-filter: blur(15px); z-index: 100; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .lang-select { background: var(--glass); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 5px 10px; border-radius: 12px; font-size: 0.8rem; cursor: pointer; outline: none; }
-        
-        .hero { text-align: center; padding: 40px 20px; }
-        .hero h1 { font-size: 2.2rem; margin: 0; background: linear-gradient(45deg, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        
-        .search-box { margin: 20px; position: relative; }
-        .search-box input { width: 100%; padding: 18px 20px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); background: #111; color: #fff; font-size: 1rem; outline: none; box-sizing: border-box; }
-        .search-box input:focus { border-color: var(--accent); }
-        
-        .product-card { background: #111; border-radius: 25px; margin: 15px 20px; padding: 15px; display: flex; gap: 15px; border: 1px solid rgba(255,255,255,0.05); }
-        .p-img { width: 90px; height: 90px; border-radius: 15px; object-fit: contain; background: #fff; flex-shrink: 0; }
-        .p-price { color: var(--accent); font-weight: 800; font-size: 1.1rem; }
-        
-        .btn { padding: 8px 15px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; text-decoration: none; font-size: 0.85rem; }
-        .btn-buy { background: var(--accent); color: #000; flex: 1; text-align: center; }
-        .btn-alert { background: #222; color: #fff; }
+        :root {
+            --bg: #050505; --accent: #bcee45; --glass: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.1); --text: #fff; --text-dim: #999;
+        }
 
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
-        .modal-content { background: #111; padding: 30px; border-radius: 30px; border: 1px solid var(--accent); width: 100%; max-width: 400px; text-align: center; }
-        .modal input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 12px; background: #222; border: 1px solid #444; color: #fff; text-align: center; box-sizing: border-box; }
+        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: var(--text); font-family: 'Tajawal', sans-serif; margin: 0; transition: 0.3s; padding-bottom: 50px; }
+        
+        /* Header & Performance Hub */
+        header {
+            padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 1000; backdrop-filter: blur(25px); border-bottom: 1px solid var(--border);
+        }
+        .ai-status { font-size: 0.7rem; color: var(--accent); display: flex; align-items: center; gap: 5px; }
+        .pulse { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; animation: pulse 1.5s infinite; }
 
-        /* LTR Support for English/French */
-        .ltr { direction: ltr; text-align: left; }
-        .ltr .product-card { flex-direction: row; }
+        /* Global Search Engine UI */
+        .engine-container { padding: 30px 20px; text-align: center; }
+        .hero-title { font-size: 2.8rem; font-weight: 800; margin: 0; letter-spacing: -1px; }
+        .hero-title span { color: var(--accent); }
+
+        .search-hub {
+            background: #111; border: 1px solid var(--border); border-radius: 24px;
+            margin: 25px 0; padding: 8px; display: flex; align-items: center; gap: 10px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+        .search-hub input {
+            flex: 1; background: none; border: none; color: #fff; padding: 15px; font-size: 1.1rem; font-family: inherit;
+        }
+        .deep-search-toggle {
+            display: flex; align-items: center; gap: 8px; padding: 10px 15px;
+            background: var(--glass); border-radius: 18px; font-size: 0.8rem; cursor: pointer; border: 1px solid transparent;
+        }
+        .deep-search-toggle.active { border-color: var(--accent); color: var(--accent); }
+
+        /* Product Cards - World Class UI */
+        .results-container { padding: 0 20px; display: grid; gap: 20px; }
+        .product-card {
+            background: #0d0d0d; border: 1px solid var(--border); border-radius: 28px;
+            overflow: hidden; animation: slideUp 0.6s ease forwards;
+        }
+        .p-header { display: flex; gap: 15px; padding: 20px; }
+        .p-image { width: 100px; height: 100px; background: #fff; border-radius: 20px; object-fit: contain; padding: 5px; }
+        .p-main-info { flex: 1; }
+        .p-badge { background: var(--accent); color: #000; font-size: 0.6rem; font-weight: 800; padding: 3px 8px; border-radius: 50px; text-transform: uppercase; }
+        .p-name { font-size: 1rem; font-weight: 700; margin: 5px 0; line-height: 1.3; }
+        .p-price { font-size: 1.4rem; font-weight: 900; color: var(--accent); }
+
+        .ai-analysis {
+            background: rgba(188, 238, 69, 0.03); border-top: 1px solid var(--border); padding: 15px 20px;
+            font-size: 0.85rem; color: #ccc;
+        }
+        .analysis-tags { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+        .tag { background: var(--glass); padding: 5px 12px; border-radius: 10px; font-size: 0.7rem; border: 1px solid var(--border); }
+        .tag.pro { color: #4ade80; }
+        .tag.con { color: #f87171; }
+
+        .p-footer { padding: 15px 20px; display: flex; gap: 10px; }
+        .btn {
+            flex: 1; padding: 15px; border-radius: 18px; border: none; font-weight: 800;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
+            font-family: inherit; transition: 0.2s; text-decoration: none;
+        }
+        .btn-buy { background: var(--accent); color: #000; }
+        .btn-alert { background: #1a1a1a; color: #fff; border: 1px solid var(--border); }
+        .btn:active { transform: scale(0.97); }
+
+        /* LTR Logic */
+        [dir="ltr"] .p-main-info { text-align: left; }
+        [dir="ltr"] .ai-analysis { text-align: left; }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        .loading-screen { text-align: center; padding: 50px; display: none; }
+        .loading-text { font-size: 0.8rem; color: var(--accent); margin-top: 10px; font-family: 'Inter'; }
     </style>
 </head>
 <body>
 
     <header>
-        <div style="font-weight: 900; font-size: 1.4rem;">Findly<span style="color:var(--accent)">AI</span></div>
-        <select class="lang-select" id="langPicker" onchange="changeLanguage(this.value)">
-            <option value="ar">العربية (AR)</option>
-            <option value="en">English (EN)</option>
-            <option value="fr">Français (FR)</option>
-            <option value="zh">中文 (ZH)</option>
+        <div style="font-weight: 900; font-size: 1.5rem;">Findly<span>.</span></div>
+        <div class="ai-status">
+            <div class="pulse"></div>
+            <span id="ai-log">AI Engine: Online</span>
+        </div>
+        <select id="langPicker" onchange="changeLang(this.value)" style="background:none; border:none; color:#fff; font-size:0.8rem; cursor:pointer;">
+            <option value="ar">AR</option>
+            <option value="en">EN</option>
         </select>
     </header>
 
-    <div class="hero">
-        <h1 id="txt-hero-title">تسوق بذكاء اصطناعي</h1>
-        <p id="txt-hero-sub">نقارن ملايين المنتجات لنعطيك الأفضل</p>
-    </div>
+    <div class="engine-container">
+        <h1 class="hero-title" id="txt-title">محرك التسوق <span>الأول</span></h1>
+        <p style="color:var(--text-dim)" id="txt-sub">ذكاء اصطناعي يحلل ملايين المراجعات ليعطيك القرار الأصح</p>
 
-    <div class="search-box">
-        <input type="text" id="query" placeholder="ابحث عن أي منتج...">
-    </div>
-
-    <div id="results"></div>
-
-    <div id="alertModal" class="modal">
-        <div class="modal-content">
-            <h2 id="txt-modal-title">تفعيل التنبيه</h2>
-            <p id="alert-p-name" style="font-size: 0.8rem; color: #aaa;"></p>
-            <input type="number" id="targetPrice" placeholder="السعر المطلوب">
-            <input type="email" id="userEmail" placeholder="بريدك الإلكتروني">
-            <button class="btn btn-buy" id="txt-btn-activate" onclick="confirmAlert()">تفعيل</button>
-            <button class="btn" style="background:none; color:#888;" id="txt-btn-cancel" onclick="closeModal()">إلغاء</button>
+        <div class="search-hub">
+            <input type="text" id="searchInput" placeholder="ابحث عن هاتف، لابتوب، أو أي منتج...">
+            <div class="deep-search-toggle" id="deepToggle" onclick="toggleDeepSearch()">
+                <i class="fa-solid fa-microchip"></i>
+                <span id="txt-deep">Deep Search</span>
+            </div>
+            <button onclick="performGlobalSearch()" style="background:var(--accent); border:none; padding:12px 20px; border-radius:18px; cursor:pointer;">
+                <i class="fa-solid fa-arrow-left" id="searchIcon"></i>
+            </button>
         </div>
     </div>
 
+    <div id="loading" class="loading-screen">
+        <i class="fa-solid fa-brain fa-spin fa-3x" style="color:var(--accent)"></i>
+        <div class="loading-text" id="loading-msg">Initializing Deep Analysis...</div>
+    </div>
+
+    <div class="results-container" id="resultsArea">
+        </div>
+
     <script>
-        // --- 1. قاموس اللغات العالمي ---
+        const API = "https://findly-api.onrender.com";
+        let isDeepSearch = false;
+        let currentLang = 'ar';
+
         const dictionary = {
             ar: {
-                title: "تسوق بذكاء اصطناعي",
-                sub: "نقارن ملايين المنتجات لنعطيك الأفضل",
-                placeholder: "ابحث عن أي منتج...",
-                buy: "شراء الآن",
-                modalTitle: "تفعيل تنبيه السعر",
-                activate: "تفعيل المراقبة",
-                cancel: "إلغاء",
-                dir: "rtl"
+                title: "محرك التسوق <span>الأول</span>",
+                sub: "ذكاء اصطناعي يحلل ملايين المراجعات ليعطيك القرار الأصح",
+                place: "ابحث عن أي منتج عالمي...",
+                deep: "بحث عميق",
+                buy: "اقتنِ الآن",
+                alert: "تنبيه السعر",
+                currency: "ر.س",
+                pros: "المميزات",
+                cons: "العيوب"
             },
             en: {
-                title: "AI Smart Shopping",
-                sub: "Comparing millions of products for you",
-                placeholder: "Search any product globally...",
-                buy: "Buy Now",
-                modalTitle: "Set Price Alert",
-                activate: "Activate Tracking",
-                cancel: "Cancel",
-                dir: "ltr"
-            },
-            fr: {
-                title: "Shopping Intelligent IA",
-                sub: "Comparer des millions de produits pour vous",
-                placeholder: "Rechercher un produit...",
-                buy: "Acheter",
-                modalTitle: "Alerte de Prix",
-                activate: "Activer",
-                cancel: "Annuler",
-                dir: "ltr"
-            },
-            zh: {
-                title: "AI 智能购物",
-                sub: "为您比较数百万种产品",
-                placeholder: "全球搜索...",
-                buy: "立即购买",
-                modalTitle: "设置价格提醒",
-                activate: "激活监控",
-                cancel: "取消",
-                dir: "ltr"
+                title: "World's <span>#1</span> Shopping OS",
+                sub: "AI Analyzing millions of reviews to give you the best deal",
+                place: "Search products globally...",
+                deep: "Deep Search",
+                buy: "Get It Now",
+                alert: "Price Alert",
+                currency: "$",
+                pros: "Pros",
+                cons: "Cons"
             }
         };
 
-        let currentLang = localStorage.getItem('findly_lang') || 'ar';
-        const API_URL = "https://findly-api.onrender.com";
-
-        // --- 2. محرك تغيير اللغة ---
-        function updateUI() {
-            const langData = dictionary[currentLang];
-            document.getElementById('txt-hero-title').innerText = langData.title;
-            document.getElementById('txt-hero-sub').innerText = langData.sub;
-            document.getElementById('query').placeholder = langData.placeholder;
-            document.getElementById('txt-modal-title').innerText = langData.modalTitle;
-            document.getElementById('txt-btn-activate').innerText = langData.activate;
-            document.getElementById('txt-btn-cancel').innerText = langData.cancel;
-            
-            // تغيير اتجاه الصفحة
-            const html = document.getElementById('html-tag');
-            html.dir = langData.dir;
-            if(langData.dir === 'ltr') document.body.classList.add('ltr');
-            else document.body.classList.remove('ltr');
-            
-            document.getElementById('langPicker').value = currentLang;
+        function toggleDeepSearch() {
+            isDeepSearch = !isDeepSearch;
+            document.getElementById('deepToggle').classList.toggle('active');
+            updateLog(isDeepSearch ? "Deep Search Activated" : "Standard Search");
         }
 
-        function changeLanguage(val) {
-            currentLang = val;
-            localStorage.setItem('findly_lang', val);
-            updateUI();
-            // إعادة البحث باللغة الجديدة إذا كان هناك نص
-            if(document.getElementById('query').value) search();
+        function updateLog(msg) {
+            document.getElementById('ai-log').innerText = "AI Engine: " + msg;
         }
 
-        // --- 3. البحث العالمي ---
-        async function search() {
-            const q = document.getElementById('query').value;
+        function changeLang(l) {
+            currentLang = l;
+            const d = dictionary[l];
+            document.getElementById('findlyRoot').dir = (l === 'ar' ? 'rtl' : 'ltr');
+            document.getElementById('txt-title').innerHTML = d.title;
+            document.getElementById('txt-sub').innerText = d.sub;
+            document.getElementById('searchInput').placeholder = d.place;
+            document.getElementById('txt-deep').innerText = d.deep;
+            document.getElementById('searchIcon').className = (l === 'ar' ? "fa-solid fa-arrow-left" : "fa-solid fa-arrow-right");
+            if(document.getElementById('searchInput').value) performGlobalSearch();
+        }
+
+        async function performGlobalSearch() {
+            const q = document.getElementById('searchInput').value;
             if(!q) return;
-            const resDiv = document.getElementById('results');
-            resDiv.innerHTML = '<div style="text-align:center; padding:50px;"><i class="fa-solid fa-spinner fa-spin fa-2x"></i></div>';
+
+            const grid = document.getElementById('resultsArea');
+            const loader = document.getElementById('loading');
+            const msg = document.getElementById('loading-msg');
             
+            grid.innerHTML = "";
+            loader.style.display = "block";
+            
+            // محاكاة خطوات الذكاء الاصطناعي (هذا ما يجعل التطبيق يشعر المستخدم بالقوة)
+            const steps = ["Scanning Amazon...", "Checking eBay Global...", "Analyzing Expert Reviews...", "Calculating Value Score..."];
+            let stepIdx = 0;
+            const interval = setInterval(() => {
+                msg.innerText = steps[stepIdx % steps.length];
+                stepIdx++;
+            }, 800);
+
             try {
-                const response = await fetch(`${API_URL}/smart-search`, {
+                const res = await fetch(`${API}/smart-search`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        query: q, 
-                        lang: currentLang // نرسل اللغة الحالية للسيرفر لضبط SerpApi
-                    })
+                    body: JSON.stringify({ query: q, lang: currentLang, deep: isDeepSearch })
                 });
-                const data = await response.json();
-                resDiv.innerHTML = "";
-                data.products.forEach(p => {
-                    resDiv.innerHTML += `
-                        <div class="product-card">
-                            <img src="${p.thumbnail}" class="p-img">
-                            <div class="p-info">
-                                <div class="p-name"><b>${p.name}</b></div>
-                                <div class="p-price">${p.price}</div>
-                                <div class="action-btns" style="display:flex; gap:5px; margin-top:10px;">
-                                    <a href="${p.link}" target="_blank" class="btn btn-buy">${dictionary[currentLang].buy}</a>
-                                    <button class="btn btn-alert" onclick="openAlert('${p.name.replace(/'/g,"")}', '${p.link}')"><i class="fa-solid fa-bell"></i></button>
+                const data = await res.json();
+                
+                clearInterval(interval);
+                loader.style.display = "none";
+
+                data.products.forEach((p, idx) => {
+                    const priceDisplay = p.price.includes('$') || p.price.includes('ر.س') ? p.price : `${p.price} ${dictionary[currentLang].currency}`;
+                    
+                    grid.innerHTML += `
+                        <div class="product-card" style="animation-delay: ${idx * 0.1}s">
+                            <div class="p-header">
+                                <img src="${p.thumbnail}" class="p-image">
+                                <div class="p-main-info">
+                                    <span class="p-badge">AI Choice</span>
+                                    <div class="p-name">${p.name}</div>
+                                    <div class="p-price">${priceDisplay}</div>
                                 </div>
+                            </div>
+                            <div class="ai-analysis">
+                                <b><i class="fa-solid fa-wand-magic-sparkles"></i> AI Deep Analysis:</b><br>
+                                <div style="margin-top:5px;">${p.reason}</div>
+                                <div class="analysis-tags">
+                                    <span class="tag pro"><i class="fa-solid fa-check"></i> ${dictionary[currentLang].pros}</span>
+                                    <span class="tag con"><i class="fa-solid fa-xmark"></i> ${dictionary[currentLang].cons}</span>
+                                    <span class="tag"><i class="fa-solid fa-chart-line"></i> Best Value</span>
+                                </div>
+                            </div>
+                            <div class="p-footer">
+                                <a href="${p.link}" target="_blank" class="btn btn-buy">${dictionary[currentLang].buy}</a>
+                                <button class="btn btn-alert"><i class="fa-solid fa-bell"></i></button>
                             </div>
                         </div>
                     `;
                 });
-            } catch (e) { resDiv.innerHTML = "Error connecting to AI Server."; }
+                updateLog("Analysis Complete");
+            } catch (e) {
+                clearInterval(interval);
+                loader.style.display = "none";
+                grid.innerHTML = "<p style='text-align:center;'>Unable to reach AI Global Servers. Check Render deployment.</p>";
+            }
         }
 
-        document.getElementById('query').onkeypress = (e) => { if(e.key === 'Enter') search(); };
-
-        // تشغيل اللغة عند التحميل
-        updateUI();
-
-        // وظائف المودال (نفسها كما سبق)
-        function openAlert(name, link) { 
-            document.getElementById('alert-p-name').innerText = name;
-            document.getElementById('alertModal').style.display = 'flex'; 
-        }
-        function closeModal() { document.getElementById('alertModal').style.display = 'none'; }
+        document.getElementById('searchInput').onkeypress = (e) => { if(e.key === 'Enter') performGlobalSearch(); };
     </script>
 </body>
 </html>

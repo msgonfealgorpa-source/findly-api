@@ -184,8 +184,16 @@
         }
 
         async function runSearch() {
+    // 1. فحص المحاولات فوراً
     if (attempts <= 0) {
         alert(lang === 'ar' ? "نفدت الطاقة! انتظر للشحن" : "Out of energy!");
+        return; 
+    }
+
+    let q = document.getElementById('s-input').value;
+    if (!q) return;
+
+    // ... باقي الكود الخاص بـ fetch
         return; 
     let q = document.getElementById('s-input').value;
     if (!q) return;

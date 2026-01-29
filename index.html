@@ -245,11 +245,35 @@
             }
         }
 
-        function addToWatch(name, price, link) {
-            watchList.push({ name, price, link });
-            localStorage.setItem('findly_watch', JSON.stringify(watchList));
-            update();
-            alert(lang === 'ar' ? "تمت الإضافة!" : "Added!");
+        async function addToWatch(name, price, link) {
+            const d = dict[lang] || dict['ar'];
+            const userEmail = prompt(lang === 'ar' ? "أدخل إيميلك لتفعيل تنبيه انخفاض السعر الحقيقي:" : "Enter email for real price drop alerts:");
+
+            if (userEmail && userEmail.includes("@")) {
+                try {
+                    // إرسال البيانات لسيرفر Node.js ليقوم بتخزينها في MongoDB
+                    const response = await fetch(`${API}/add-to-watch`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            email: userEmail,
+                            productName: name,
+                            currentPrice: price,
+                            productLink: link,
+                            lang: lang
+                        })
+                    });
+
+                    if (response.ok) {
+                        alert(lang === 'ar' ? "تم الحفظ في قاعدة البيانات! سنراقب السعر ونرسل لك إيميلاً." : "Saved to DB! We will monitor the price for you.");
+                    } else {
+                        alert("حدث خطأ في الاتصال بالسيرفر.");
+                    }
+                } catch (e) {
+                    console.error("خطأ:", e);
+                    alert("السيرفر لا يستجيب حالياً.");
+                }
+            }
         }
 
         function startVoice() {

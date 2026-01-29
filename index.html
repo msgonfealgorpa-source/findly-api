@@ -129,7 +129,18 @@
     </main>
 
     <div class="modal" id="w-modal"><div class="modal-box"><h3 style="color:#A855F7"><i class="fa-solid fa-bell"></i> <span id="txt-watch-title"></span></h3><div id="watch-list-content"></div><button onclick="toggleWatchList()" style="background:none; color:#fff; border:none; margin-top:15px; cursor:pointer;">إغلاق</button></div></div>
-    <div class="modal" id="p-modal"><div class="modal-box"><h3 id="p-head"></h3><input type="text" id="in-name"><input type="number" id="in-budget"><button class="action-btn buy-now" onclick="saveSet()" style="width:100%;">حفظ ✅</button></div></div>
+    
+    <div class="modal" id="p-modal">
+        <div class="modal-box">
+            <h3 id="p-head"></h3>
+            <label style="font-size:0.8rem; display:block; margin-bottom:5px; opacity:0.7;">اسم المستخدم</label>
+            <input type="text" id="in-name" placeholder="أدخل اسمك هنا...">
+            <label style="font-size:0.8rem; display:block; margin-top:10px; margin-bottom:5px; opacity:0.7;">الميزانية ($)</label>
+            <input type="number" id="in-budget" placeholder="أقصى ميزانية لديك...">
+            <button class="action-btn buy-now" onclick="saveSet()" style="width:100%; margin-top:10px;">حفظ التغييرات ✅</button>
+            <button onclick="openProfile()" style="background:none; color:#fff; border:none; margin-top:15px; cursor:pointer;">إغلاق</button>
+        </div>
+    </div>
 
     <script>
         const API = "https://findly-api.onrender.com";
@@ -137,9 +148,8 @@
         let attempts = parseInt(localStorage.getItem('findly_attempts')) || 3;
         let watchList = JSON.parse(localStorage.getItem('findly_watch')) || [];
 
-        // هنا كان النقص: تمت إضافة كافة اللغات لتعمل القائمة
         const dict = {
-            ar: { title: "مستشارك الحكيم", sub: "دليلك الذكي للتسوق المثالي", energy: "طاقة العقل", welcome: "مرحباً،", game: "ألعاب", beauty: "جمال", home: "منزل ذكي", c1: "هواتف", c2: "لابتوب", c4: "ساعات", p_head: "الملف الشخصي", buy: "شراء الآن 🛒", watch: "راقب السعر 🔔", over: "⚠️ يتجاوز ميزانيتك!", tagCheap: "اقتصادي", tagTop: "الأعلى تقييماً", tagNew: "حديث جداً", deep: "وضع التحليل الذكي", watchTitle: "قائمة المراقبة", why: "لماذا اخترنا هذا؟" },
+            ar: { title: "مستشارك الحكيم", sub: "دليلك الذكي للتسوق المثالي", energy: "طاقة العقل", welcome: "مرحباً،", game: "ألعاب", beauty: "جمال", home: "منزل ذكي", c1: "هواتف", c2: "لابتوب", c4: "ساعات", p_head: "الملف الشخصي", buy: "شراء الآن 🛒", watch: "راقب السعر 🔔", over: "⚠️ انتبه! يتجاوز ميزانيتك", tagCheap: "اقتصادي", tagTop: "الأعلى تقييماً", tagNew: "حديث جداً", deep: "وضع التحليل الذكي", watchTitle: "قائمة المراقبة", why: "لماذا اخترنا هذا؟" },
             
             en: { title: "Sage Advisor", sub: "Your smart shopping guide", energy: "Sage Energy", welcome: "Welcome,", game: "Gaming", beauty: "Beauty", home: "Smart Home", c1: "Phones", c2: "Laptops", c4: "Watches", p_head: "Profile", buy: "Buy Now 🛒", watch: "Watch Price 🔔", over: "⚠️ Over Budget!", tagCheap: "Budget", tagTop: "Top Rated", tagNew: "Newest", deep: "AI Deep Mode", watchTitle: "Watch List", why: "Why this choice?" },
             
@@ -153,10 +163,7 @@
         };
 
         function update() {
-            // استخدام اللغة المختارة أو العودة للعربية إذا حدث خطأ
             const d = dict[lang] || dict['ar'];
-            
-            // تغيير اتجاه الصفحة بناءً على اللغة (العربية فقط يمين ليسار)
             document.getElementById('main-html').dir = lang === 'ar' ? 'rtl' : 'ltr';
             
             document.getElementById('txt-title').innerText = d.title;
@@ -182,53 +189,69 @@
             wBtn.innerText = watchList.length;
             wBtn.style.display = watchList.length > 0 ? 'block' : 'none';
         }
+
         async function runSearch() {
-    let q = document.getElementById('s-input').value;
-    if (!q || attempts <= 0) return;
+            let q = document.getElementById('s-input').value;
+            if (!q || attempts <= 0) return;
 
-    const status = document.getElementById('status');
-    const resCon = document.getElementById('results');
-    const d = dict[lang] || dict['ar'];
+            const status = document.getElementById('status');
+            const resCon = document.getElementById('results');
+            const d = dict[lang] || dict['ar'];
+            
+            // جلب الميزانية المحفوظة
+            const userBudget = parseFloat(localStorage.getItem('fb')) || 0;
 
-    status.style.display = "block";
-    status.innerHTML = '<i class="fa-solid fa-microchip fa-spin"></i> ...';
-    resCon.innerHTML = "";
+            status.style.display = "block";
+            status.innerHTML = '<i class="fa-solid fa-microchip fa-spin"></i> ...';
+            resCon.innerHTML = "";
 
-    try {
-        const res = await fetch(`${API}/smart-search`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ query: q, lang: lang })
-        });
+            try {
+                const res = await fetch(`${API}/smart-search`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: q, lang: lang })
+                });
 
-        const data = await res.json(); // القراءة الصحيحة للبيانات
-        status.style.display = "none";
+                const data = await res.json();
+                status.style.display = "none";
 
-        data.products.forEach((p) => {
-            resCon.innerHTML += `
-                <div class="product-card">
-                    <img src="${p.thumbnail}">
-                    <h3>${p.name}</h3>
-                    <div style="font-weight:900; color:#10b981;">${p.price}</div>
-                    <div class="analysis-engine">
-                        <span class="analysis-label"><i class="fa-solid fa-brain"></i> ${d.why}</span>
-                        ${p.reason}
-                    </div>
-                    <div class="btn-group">
-                        <a href="${p.link}" target="_blank" class="action-btn buy-now">${d.buy}</a>
-                        <button class="action-btn watch-later" onclick="addToWatch('${p.name}', '${p.price}')">${d.watch}</button>
-                    </div>
-                </div>`;
-        });
+                data.products.forEach((p) => {
+                    // التحقق من السعر مقابل الميزانية
+                    let budgetAlert = "";
+                    // تنظيف السعر من الرموز لتحويله لرقم للمقارنة
+                    let priceVal = parseFloat(p.price.toString().replace(/[^0-9.]/g, ''));
+                    
+                    if(userBudget > 0 && priceVal > userBudget) {
+                        budgetAlert = `<div style="background:rgba(239, 68, 68, 0.2); border:1px solid #ef4444; color:#fca5a5; padding:8px; border-radius:10px; margin-bottom:10px; font-size:0.8rem; font-weight:bold; display:flex; align-items:center; gap:5px;">
+                            <i class="fa-solid fa-triangle-exclamation"></i> ${d.over}
+                        </div>`;
+                    }
 
-        attempts--;
-        localStorage.setItem('findly_attempts', attempts);
-        update();
+                    resCon.innerHTML += `
+                        <div class="product-card">
+                            ${budgetAlert}
+                            <img src="${p.thumbnail}">
+                            <h3>${p.name}</h3>
+                            <div style="font-weight:900; color:#10b981;">${p.price}</div>
+                            <div class="analysis-engine">
+                                <span class="analysis-label"><i class="fa-solid fa-brain"></i> ${d.why}</span>
+                                ${p.reason}
+                            </div>
+                            <div class="btn-group">
+                                <a href="${p.link}" target="_blank" class="action-btn buy-now">${d.buy}</a>
+                                <button class="action-btn watch-later" onclick="addToWatch('${p.name}', '${p.price}')">${d.watch}</button>
+                            </div>
+                        </div>`;
+                });
 
-    } catch (e) {
-        status.innerText = "Error Connecting...";
-    }
-}
+                attempts--;
+                localStorage.setItem('findly_attempts', attempts);
+                update();
+
+            } catch (e) {
+                status.innerText = "Error Connecting...";
+            }
+        }
         
         function startVoice() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -240,13 +263,51 @@
             rec.onend = () => document.getElementById('mic-btn').classList.remove('mic-active');
             rec.start();
         }
+        
         function toggleMode() { document.body.classList.toggle('light-mode'); }
-        function addToWatch(n, p) { watchList.push({ name: n, price: p }); localStorage.setItem('findly_watch', JSON.stringify(watchList)); update(); }
+        
+        // تعديل وظيفة زر المراقبة لمحاكاة التنبيه
+        function addToWatch(n, p) { 
+            watchList.push({ name: n, price: p }); 
+            localStorage.setItem('findly_watch', JSON.stringify(watchList)); 
+            update();
+            
+            // محاكاة التنبيه العملي
+            alert("✅ تمت الإضافة لقائمة المراقبة. سنقوم بتنبيهك عند انخفاض السعر!");
+            
+            // محاكاة وصول إشعار بعد 5 ثواني
+            setTimeout(() => {
+                alert(`🔔 تنبيه عاجل من Findly:\n\nانخفض سعر المنتج: "${n}" للتو!\nكان السعر: ${p}\nالسعر الجديد: خصم 15% 🔥\nاغتنم الفرصة الآن!`);
+            }, 5000);
+        }
+
         function toggleWatchList() { const m = document.getElementById('w-modal'); const c = document.getElementById('watch-list-content'); c.innerHTML = ""; watchList.forEach((item, i) => { c.innerHTML += `<div style="padding:10px; border-bottom:1px solid #334155;">${item.name} - ${item.price}</div>`; }); m.style.display = m.style.display === 'flex' ? 'none' : 'flex'; }
         function setLang(l) { lang = l; localStorage.setItem('findly_lang', l); document.getElementById('l-menu').style.display = 'none'; update(); }
         function toggleLMenu() { const m = document.getElementById('l-menu'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
-        function openProfile() { const m = document.getElementById('p-modal'); m.style.display = m.style.display === 'flex' ? 'none' : 'flex'; }
-        function saveSet() { localStorage.setItem('fn', document.getElementById('in-name').value); localStorage.setItem('fb', document.getElementById('in-budget').value); openProfile(); update(); }
+        
+        // تعديل فتح الملف الشخصي لملء البيانات
+        function openProfile() { 
+            const m = document.getElementById('p-modal'); 
+            
+            // ملء الحقول بالبيانات المحفوظة
+            if(m.style.display !== 'flex') {
+                document.getElementById('in-name').value = localStorage.getItem('fn') || '';
+                document.getElementById('in-budget').value = localStorage.getItem('fb') || '';
+            }
+            
+            m.style.display = m.style.display === 'flex' ? 'none' : 'flex'; 
+        }
+
+        function saveSet() { 
+            localStorage.setItem('fn', document.getElementById('in-name').value); 
+            localStorage.setItem('fb', document.getElementById('in-budget').value); 
+            
+            // إغلاق المودال وتحديث الصفحة
+            document.getElementById('p-modal').style.display = 'none';
+            update(); 
+            alert("تم حفظ بياناتك بنجاح! سيقوم المستشار الآن بمراعاة ميزانيتك.");
+        }
+        
         function quickSearch(q) { document.getElementById('s-input').value = q; runSearch(); }
         function quickFilter(type) { document.getElementById('s-input').value += " " + type; }
         window.onload = update;

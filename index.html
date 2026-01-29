@@ -300,5 +300,51 @@
 
         window.onload = update;
     </script>
+function update() {
+            const d = dict[lang] || dict['ar'];
+            const userName = localStorage.getItem('fn') || (lang === 'ar' ? 'أيها الباحث' : 'Seeker');
+            
+            document.getElementById('txt-energy').innerText = d.energy;
+            document.getElementById('greeting').innerText = d.welcome + " " + userName;
+            document.getElementById('txt-title').innerText = d.title;
+            document.getElementById('txt-sub').innerText = d.sub;
+            document.getElementById('txt-deep').innerText = d.deep;
+            document.getElementById('tag-cheap').innerText = d.cheap;
+            document.getElementById('tag-top').innerText = d.top;
+            document.getElementById('tag-new').innerText = d.new;
+            document.getElementById('cat-game').innerText = d.game;
+            document.getElementById('cat-beauty').innerText = d.beauty;
+            document.getElementById('cat-home').innerText = d.home;
+            document.getElementById('cat-c1').innerText = d.c1;
+            document.getElementById('cat-c2').innerText = d.c2;
+            document.getElementById('cat-c4').innerText = d.c4;
+            document.getElementById('p-head').innerText = d.p_head;
+            document.getElementById('txt-watch-title').innerText = d.watchTitle;
+            document.getElementById('r-count').innerText = attempts;
+
+            const wCount = document.getElementById('watch-count');
+            if (watchList.length > 0) {
+                wCount.innerText = watchList.length;
+                wCount.style.display = 'block';
+            } else {
+                wCount.style.display = 'none';
+            }
+        }
+
+        function toggleWatchList() {
+            const m = document.getElementById('w-modal');
+            const con = document.getElementById('watch-list-content');
+            m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
+            
+            if (m.style.display === 'flex') {
+                con.innerHTML = watchList.map((item, index) => `
+                    <div style="background:#1e293b; padding:10px; border-radius:10px; margin-bottom:10px; text-align:right; border:1px solid var(--border);">
+                        <div style="font-weight:bold; font-size:0.8rem;">${item.name}</div>
+                        <div style="color:#A855F7; font-size:0.8rem;">${item.price}</div>
+                        <button onclick="watchList.splice(${index},1); localStorage.setItem('findly_watch', JSON.stringify(watchList)); toggleWatchList(); toggleWatchList(); update();" style="background:red; color:white; border:none; border-radius:5px; font-size:0.6rem; padding:3px 8px; margin-top:5px; cursor:pointer;">حذف</button>
+                    </div>
+                `).join('') || (lang === 'ar' ? "القائمة فارغة" : "List is empty");
+            }
+        }
 </body>
 </html>

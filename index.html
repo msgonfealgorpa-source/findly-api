@@ -218,40 +218,53 @@
             }
         }
 
-        function addToWatch(name, price, link) {
-    const promptMsg = {
-        ar: "أدخل إيميلك للتنبيه:",
-        en: "Enter email for alerts:",
-        fr: "Entrez votre e-mail:",
-        de: "E-Mail eingeben:",
-        es: "Correo electrónico:",
-        tr: "E-posta girin:"
-    };
+        async function addToWatch(name, price, link) {
+            const promptMsg = {
+                ar: "أدخل إيميلك لتفعيل تنبيه انخفاض السعر العملي:",
+                en: "Enter email for real price drop alerts:",
+                fr: "Entrez votre e-mail pour les alertes:",
+                de: "E-Mail für Preisalarme eingeben:",
+                es: "Correo electrónico para alertas:",
+                tr: "Fiyat alarmı için e-posta girin:"
+            };
 
-    const userEmail = prompt(promptMsg[lang] || promptMsg['ar']);
+            const userEmail = prompt(promptMsg[lang] || promptMsg['ar']);
 
-    if (userEmail && userEmail.includes("@")) {
-        watchList.push({
-            name: name,
-            price: price,
-            link: link,
-            email: userEmail
-        });
+            if (userEmail && userEmail.includes("@")) {
+                // تنظيف السعر لتحويله إلى رقم (مثلاً: 500$ تصبح 500)
+                const numericPrice = parseFloat(price.replace(/[^0-9.]/g, ''));
 
-        localStorage.setItem('findly_watch', JSON.stringify(watchList));
-        update();
+                try {
+                    // الربط الحقيقي مع السيرفر و MongoDB
+                    const response = await fetch(`${API}/set-alert`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            email: userEmail,
+                            productName: name,
+                            targetPrice: numericPrice,
+                            link: link,
+                            lang: lang
+                        })
+                    });
 
-        const successMsg = {
-            ar: "تمت الإضافة بنجاح!",
-            en: "Added successfully!",
-            fr: "Ajouté avec succès!",
-            de: "Erfolgreich hinzugefügt!",
-            es: "¡Agregado con éxito!",
-            tr: "Başarıyla eklendi!"
-        };
-        alert(successMsg[lang] || successMsg['ar']);
-    }
-}
+                    if (response.ok) {
+                        // إضافة محلية فقط لتحديث عداد الجرس في الواجهة
+                        watchList.push({ name, price, link });
+                        localStorage.setItem('findly_watch', JSON.stringify(watchList));
+                        update();
+
+                        const successMsg = lang === 'ar' ? "تم تفعيل التنبيه! سنراقب السعر في MongoDB ونراسلك." : "Alert activated! We will monitor the price.";
+                        alert(successMsg);
+                    } else {
+                        alert("خطأ في الاتصال بالسيرفر، تأكد أن السيرفر يعمل.");
+                    }
+                } catch (error) {
+                    console.error("Error:", error);
+                    alert("فشل الاتصال بالسيرفر.");
+                }
+            }
+        }
 
         function startVoice() {
             const mic = document.getElementById('mic-btn');

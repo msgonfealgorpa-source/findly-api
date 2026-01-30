@@ -933,6 +933,17 @@
     }  
 
     // تشغيل عند التحميل  
+
+<div id="about-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:9999; justify-content:center; align-items:center; backdrop-filter: blur(5px);">
+    <div style="background:#161b22; width:90%; max-width:400px; padding:25px; border-radius:24px; border:1px solid var(--glass-border); text-align:center;">
+        <i class="fa-solid fa-wand-magic-sparkles" style="font-size:3rem; color:var(--primary); margin-bottom:15px;"></i>
+        <h2 style="color:#fff; margin-bottom:10px;">Findly Sage</h2>
+        <p style="color:var(--text-muted); line-height:1.6; font-size:0.9rem;">
+            مساعدك الذكي للتسوق. نستخدم الذكاء الاصطناعي لتحليل المنتجات وترشيح الأفضل لك بناءً على الجودة والسعر.
+        </p>
+        <button onclick="closeAbout()" style="margin-top:20px; background:var(--primary); color:white; border:none; padding:10px 30px; border-radius:12px; cursor:pointer; font-weight:bold; width:100%;">إغلاق</button>
+    </div>
+</div>
     <div class="legal-container">
     <a href="#" class="legal-item" onclick="showLegal('privacy')">
         <div class="legal-icon"><i class="fa-solid fa-shield-halved"></i></div>
@@ -949,17 +960,6 @@
         <span id="link-about">من نحن</span>
     </a>
 </div>
-
-<div id="about-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:9999; justify-content:center; align-items:center; backdrop-filter: blur(5px);">
-    <div style="background:#161b22; width:90%; max-width:400px; padding:25px; border-radius:24px; border:1px solid var(--glass-border); text-align:center;">
-        <i class="fa-solid fa-wand-magic-sparkles" style="font-size:3rem; color:var(--primary); margin-bottom:15px;"></i>
-        <h2 style="color:#fff; margin-bottom:10px;">Findly Sage</h2>
-        <p style="color:var(--text-muted); line-height:1.6; font-size:0.9rem;">
-            مساعدك الذكي للتسوق. نستخدم الذكاء الاصطناعي لتحليل المنتجات وترشيح الأفضل لك بناءً على الجودة والسعر.
-        </p>
-        <button onclick="closeAbout()" style="margin-top:20px; background:var(--primary); color:white; border:none; padding:10px 30px; border-radius:12px; cursor:pointer; font-weight:bold; width:100%;">إغلاق</button>
-    </div>
-</div>
-
+    
 </body>  
 </html>

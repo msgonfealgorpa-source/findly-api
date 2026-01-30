@@ -365,7 +365,57 @@
         color: var(--primary);
         text-shadow: 0 0 10px var(--primary-glow);
     }
-    </style>
+    
+
+<style>
+    .findly-native-tag {
+        /* إزالة أي خلفية بيضاء افتراضية */
+        background: rgba(255, 255, 255, 0.05) !important; 
+        color: #e0e0e0 !important;
+        /* حدود رمادية شفافة مثل البقية */
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        
+        padding: 6px 14px;
+        border-radius: 10px; /* نفس انحناء أزرار موقعك */
+        font-size: 0.8rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: 0.3s;
+        backdrop-filter: blur(5px);
+        margin: 4px;
+        outline: none;
+    }
+
+    /* التفاعل عند اللمس - سيتوهج خفيفاً مثل البقية */
+    .findly-native-tag:hover {
+        background: rgba(162, 89, 255, 0.1) !important;
+        border-color: rgba(162, 89, 255, 0.5) !important;
+        color: #fff !important;
+    }
+
+    .tag-icon {
+        font-size: 0.85rem;
+        opacity: 0.9;
+    }
+
+    /* لودر بنفسجي متناسق مع هوية Findly */
+    .tag-loader {
+        width: 12px;
+        height: 12px;
+        border: 2px solid rgba(255,255,255,0.1);
+        border-top: 2px solid #a259ff;
+        border-radius: 50%;
+        animation: spin-tag 0.8s linear infinite;
+    }
+
+    @keyframes spin-tag { 
+        0% { transform: rotate(0deg); } 
+        100% { transform: rotate(360deg); } 
+    }
+</style>
+    
 </head>  
 <body>
 <header>  
@@ -429,10 +479,10 @@
         </div>
     </div>
 
-<button id="compareBtn" onclick="executeComparison()" class="findly-mini-btn">
-    <span class="btn-icon">⚖️</span>
-    <span class="btn-text">قارن الأسعار</span>
-    <div id="loader" class="mini-spinner" style="display: none;"></div>
+<button id="compareBtn" onclick="executeComparison()" class="findly-native-tag">
+    <span class="tag-icon">⚖️</span>
+    <span class="tag-text">قارن الأسعار</span>
+    <div id="loader" class="tag-loader" style="display: none;"></div>
 </button>
     
     <div class="cat-grid">  

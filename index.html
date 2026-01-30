@@ -447,6 +447,7 @@
     <div class="modal" id="auth-modal">
         <div class="modal-box">
             <h3 style="color:var(--primary); margin-top:0;">تسجيل الدخول / إنشاء حساب</h3>
+            <p style="color:var(--text-muted); font-size:0.8rem; margin-bottom:20px;">يجب عليك تسجيل الدخول لاستخدام التطبيق</p>
             
             <input type="email" id="auth-email" placeholder="البريد الإلكتروني" style="margin-bottom: 10px;">
             <input type="password" id="auth-pass" placeholder="كلمة المرور" style="margin-bottom: 20px;">
@@ -462,12 +463,12 @@
                 <i class="fa-brands fa-google" style="color: #DB4437;"></i> الدخول عبر Google
             </button>
 
-            <button onclick="toggleAuthModal()" style="background:none; color:var(--text-muted); border:none; margin-top:15px; cursor:pointer; font-size:0.9rem;">إغلاق</button>
+            <button id="auth-close-btn" onclick="toggleAuthModal()" style="background:none; color:var(--text-muted); border:none; margin-top:15px; cursor:pointer; font-size:0.9rem;">إغلاق</button>
         </div>
     </div>
 
     <script>
-        // --- 1. إعدادات Firebase المصححة ---
+        // --- 1. إعدادات Firebase ---
         const firebaseConfig = {
             apiKey: "AIzaSyCI_q51kgRY4133ua4R1G5TeiCqJ5N5KTU",
             authDomain: "findly-ede17.firebaseapp.com",
@@ -478,7 +479,6 @@
             measurementId: "G-X103WDP50N"
         };
 
-        // تهيئة Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const analytics = firebase.analytics();
@@ -492,8 +492,7 @@
         let watchList = JSON.parse(localStorage.getItem('findly_watch')) || [];
         let currentUserUID = localStorage.getItem('findly_uid');
 
-        // --- 2. دوال المصادقة والتسجيل ---
-
+        // --- 2. دوال المصادقة ---
         auth.onAuthStateChanged((user) => {
             if (user) {
                 currentUserUID = user.uid;
@@ -503,12 +502,23 @@
                 currentUserUID = null;
                 localStorage.removeItem('findly_uid');
                 updateAuthUI(false);
+                // إجبار المستخدم على تسجيل الدخول إذا لم يكن مسجلاً
+                toggleAuthModal();
             }
         });
 
         function toggleAuthModal() {
             const modal = document.getElementById('auth-modal');
+            const closeBtn = document.getElementById('auth-close-btn');
+            
             modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
+            
+            // إخفاء زر الإغلاق إذا لم يكن المستخدم مسجلاً لإجباره على التسجيل
+            if (!currentUserUID && modal.style.display === 'flex') {
+                closeBtn.style.display = 'none';
+            } else {
+                closeBtn.style.display = 'block';
+            }
         }
 
         function handleEmailLogin() {
@@ -573,9 +583,9 @@
             }
         }
 
-        // --- قاموس الترجمة (نفس القديم) ---
+        // --- قاموس الترجمة ---
         const dict = {
-            ar: { title: "مستشارك الحكيم", sub: "دليلك الذكي للتسوق المثالي", energy: "طاقة العقل", welcome: "مرحباً،", game: "ألعاب", beauty: "جمال", home: "منزل ذكي", c1: "هواتف", c2: "لابتوب", c4: "ساعات", p_head: "الملف الشخصي", buy: "شراء الآن 🛒", watch: "راقب السعر 🔔", over: "يتجاوز الميزانيتك!", cheap: "اقتصادي", top: "الأعلى تقييماً", new: "حديث جداً", deep: "وضع التحليل الذكي", watchTitle: "قائمة المراقبة", why: "لماذا اخترنا هذا؟", slow: "السيرفر يستيقظ.. انتظر ثوانٍ", noAttempts: "⚠️ استنفدت محاولاتك!" },
+            ar: { title: "مستشارك الحكيم", sub: "دليلك الذكي للتسوق المثالي", energy: "طاقة العقل", welcome: "مرحباً،", game: "ألعاب", beauty: "جمال", home: "منزل ذكي", c1: "هواتف", c2: "لابتوب", c4: "ساعات", p_head: "الملف الشخصي", buy: "شراء الآن 🛒", watch: "راقب السعر 🔔", over: "يتجاوز ميزانيتك!", cheap: "اقتصادي", top: "الأعلى تقييماً", new: "حديث جداً", deep: "وضع التحليل الذكي", watchTitle: "قائمة المراقبة", why: "لماذا اخترنا هذا؟", slow: "السيرفر يستيقظ.. انتظر ثوانٍ", noAttempts: "⚠️ استنفدت محاولاتك!" },
             en: { title: "Sage Advisor", sub: "Your smart shopping guide", energy: "Sage Energy", welcome: "Welcome,", game: "Gaming", beauty: "Beauty", home: "Smart Home", c1: "Phones", c2: "Laptops", c4: "Watches", p_head: "Profile", buy: "Buy Now 🛒", watch: "Watch Price 🔔", over: "Over Budget!", cheap: "Budget", top: "Top Rated", new: "Newest", deep: "AI Deep Mode", watchTitle: "Watch List", why: "Why this choice?", slow: "Server waking up.. wait", noAttempts: "⚠️ No attempts left!" },
             fr: { title: "Conseiller Sage", sub: "Votre guide d'achat intelligent", energy: "Énergie Sage", welcome: "Bienvenue,", game: "Jeux", beauty: "Beauté", home: "Maison Inte.", c1: "Mobiles", c2: "Laptops", c4: "Montres", p_head: "Profil", buy: "Acheter 🛒", watch: "Surveiller 🔔", over: "Hors budget!", cheap: "Éco", top: "Mieux notés", new: "Nouveau", deep: "Mode Analyse AI", watchTitle: "Liste de veille", why: "Pourquoi ce choix?", slow: "Le serveur se réveille..", noAttempts: "⚠️ Plus d'essais!" },
             de: { title: "Weiser Berater", sub: "Ihr smarter Einkaufsführer", energy: "Weise Energie", welcome: "Willkommen,", game: "Spiele", beauty: "Schönheit", home: "Smart Home", c1: "Handys", c2: "Laptops", c4: "Uhren", p_head: "Profil", buy: "Kaufen 🛒", watch: "Beobachten 🔔", over: "Budget übersch.", cheap: "Günstig", top: "Bestbewertet", new: "Neu", deep: "KI-Analyse-Modus", watchTitle: "Beobachtungsliste", why: "Warum diese Wahl?", slow: "Server wacht auf..", noAttempts: "⚠️ Keine Versuche mehr!" },
@@ -583,13 +593,21 @@
             tr: { title: "Bilge Danışman", sub: "Akıllı alışveriş rehberiniz", energy: "Bilge Enerji", welcome: "Hoş geldiniz,", game: "Oyunlar", beauty: "Güzellik", home: "Akıllı Ev", c1: "Telefonlar", c2: "Laptoplar", c4: "Saatler", p_head: "Profil", buy: "Satın Al 🛒", watch: "Fiyatı İzle 🔔", over: "Bütçe Aşıldı!", cheap: "Ekonomik", top: "En İyi", new: "Yeni", deep: "Yapay Zeka Analiz", watchTitle: "İzleme Listesi", why: "Neden bu seçim?", slow: "Sunucu uyanıyor.. bekleyin", noAttempts: "⚠️ Deneme kalmadı!" }
         };
 
-        // --- 3. دالة البحث المحدثة (ترسل UID) ---
+        // --- 3. دالة البحث ---
         async function runSearch() {
+            // التحقق من تسجيل الدخول قبل البحث
+            if (!currentUserUID) {
+                alert("يجب عليك تسجيل الدخول أولاً!");
+                toggleAuthModal();
+                return;
+            }
+
             let q = document.getElementById('s-input').value;
             const status = document.getElementById('status');
             const resCon = document.getElementById('results');
             const d = dict[lang] || dict['ar'];
             
+            // جلب الميزانية المحفوظة
             let rawBudget = localStorage.getItem('fb');
             let userBudget = rawBudget ? parseFloat(rawBudget) : 0;
 
@@ -605,11 +623,10 @@
             resCon.innerHTML = "";
 
             try {
-                // إرسال UID مع الطلب
                 const bodyData = { 
                     query: q, 
                     lang: lang,
-                    uid: currentUserUID || 'guest' // نرسل الـ ID
+                    uid: currentUserUID || 'guest'
                 };
 
                 const res = await fetch(`${API}/smart-search`, {
@@ -626,6 +643,7 @@
                         let cleanPriceString = p.price ? p.price.toString().replace(/,/g, '').replace(/[^\d.]/g, '') : "0";
                         let priceVal = parseFloat(cleanPriceString);
                         
+                        // منطق تنبيه تجاوز الميزانية
                         let budgetAlert = "";
                         if (userBudget > 0 && priceVal > userBudget) {
                             budgetAlert = `<div class="budget-error"><i class="fa-solid fa-triangle-exclamation"></i> ${d.over} ($${userBudget})</div>`;
@@ -667,125 +685,132 @@
                 en: "Enter email for price alert:",
                 fr: "Email pour alerte prix:",
                 de: "E-Mail für Preisalarm:",
-                es: "Email para alerta de precio:",
-                tr: "Fiyat alarmı için e-posta:"
+                es: "Correo para alerta de precio:",
+                tr: "Fiyat uyarısı için e-posta:"
             };
-
-            const userEmail = prompt(promptMsg[lang] || promptMsg['ar']);
-
-            if (userEmail && userEmail.includes("@")) {
-                let cleanPriceString = price.toString().replace(/,/g, '').replace(/[^\d.]/g, '');
-                let numericPrice = parseFloat(cleanPriceString);
-
-                try {
-                    const response = await fetch(`${API}/set-alert`, {
-                        method: 'POST',
-                        headers: { 
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json' 
-                        },
-                        body: JSON.stringify({
-                            email: userEmail,
-                            productName: name,
-                            targetPrice: numericPrice,
-                            link: link,
-                            lang: lang
-                        })
-                    });
-
-                    if (response.ok) {
-                        watchList.push({ name, price, link });
-                        localStorage.setItem('findly_watch', JSON.stringify(watchList));
-                        update();
-                        const successMsg = lang === 'ar' ? "✅ تم تفعيل المراقبة بنجاح!" : "✅ Alert activated successfully!";
-                        alert(successMsg);
-                    } else {
-                        const errText = await response.text();
-                        console.error("Backend Error:", errText);
-                        alert("Server Error: " + (lang === 'ar' ? "فشل الحفظ في السيرفر" : "Failed to save on server"));
-                    }
-                } catch (error) {
-                    console.error("Network Error:", error);
-                    alert((lang === 'ar' ? "خطأ في الاتصال بالسيرفر (تأكد من تشغيل الباك إند)" : "Connection Error (Check backend URL)"));
-                }
+            
+            let email = prompt(promptMsg[lang] || promptMsg['ar']);
+            if (email) {
+                let newItem = { name, price, link, email, date: new Date().toLocaleDateString() };
+                watchList.push(newItem);
+                localStorage.setItem('findly_watch', JSON.stringify(watchList));
+                update();
+                alert("تمت الإضافة لقائمة المراقبة ✅");
             }
+        }
+
+        // --- وظائف الواجهة المفقودة والمكملة ---
+
+        // دالة حفظ الملف الشخصي (الميزانية والاسم)
+        function saveSet() {
+            const name = document.getElementById('in-name').value;
+            const budget = document.getElementById('in-budget').value;
+            
+            // حفظ البيانات
+            localStorage.setItem('findly_name', name);
+            if(budget) localStorage.setItem('fb', budget); // fb = Findly Budget
+            
+            document.getElementById('p-modal').style.display = 'none';
+            update();
+            alert("تم حفظ البيانات بنجاح ✅");
+        }
+
+        function openProfile() {
+            const savedName = localStorage.getItem('findly_name') || '';
+            const savedBudget = localStorage.getItem('fb') || '';
+            
+            document.getElementById('in-name').value = savedName;
+            document.getElementById('in-budget').value = savedBudget;
+            document.getElementById('p-modal').style.display = 'flex';
+        }
+
+        function toggleMode() {
+            document.body.classList.toggle('light-mode');
+        }
+
+        function toggleLMenu() {
+            const m = document.getElementById('l-menu');
+            m.style.display = (m.style.display === 'block') ? 'none' : 'block';
+        }
+
+        function setLang(l) {
+            lang = l;
+            localStorage.setItem('findly_lang', l);
+            document.getElementById('l-menu').style.display = 'none';
+            document.documentElement.lang = l;
+            document.documentElement.dir = (l === 'ar') ? 'rtl' : 'ltr';
+            update();
+        }
+
+        function toggleWatchList() {
+            const modal = document.getElementById('w-modal');
+            modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
+            renderWatchList();
+        }
+
+        function renderWatchList() {
+            const container = document.getElementById('watch-list-content');
+            if (watchList.length === 0) {
+                container.innerHTML = '<p style="color:var(--text-muted)">القائمة فارغة</p>';
+                return;
+            }
+            container.innerHTML = watchList.map(item => `
+                <div style="background:var(--bg-card); padding:10px; margin-bottom:10px; border-radius:10px; text-align:right; border:1px solid var(--glass-border);">
+                    <div style="font-weight:bold; font-size:0.9rem;">${item.name}</div>
+                    <div style="color:#10b981; font-size:0.8rem;">${item.price}</div>
+                    <a href="${item.link}" target="_blank" style="color:var(--primary); font-size:0.8rem;">رابط المنتج</a>
+                </div>
+            `).join('');
+        }
+
+        function quickSearch(txt) {
+            document.getElementById('s-input').value = txt;
+            runSearch();
+        }
+
+        function quickFilter(type) {
+            let current = document.getElementById('s-input').value;
+            let suffix = "";
+            const d = dict[lang];
+            if(type === 'cheap') suffix = ` ${d.cheap}`;
+            if(type === 'top') suffix = ` ${d.top}`;
+            if(type === 'new') suffix = ` ${d.new}`;
+            
+            document.getElementById('s-input').value = current + suffix;
+            runSearch();
         }
 
         function startVoice() {
             const mic = document.getElementById('mic-btn');
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) return;
+            mic.classList.add('mic-active');
             
-            const recognition = new SpeechRecognition();
-            recognition.lang = (lang==='ar'?'ar-SA':lang==='fr'?'fr-FR':lang==='de'?'de-DE':lang==='tr'?'tr-TR':lang==='es'?'es-ES':'en-US');
-            
-            recognition.onstart = () => mic.classList.add('mic-active');
-            recognition.onresult = (e) => {
-                document.getElementById('s-input').value = e.results[0][0].transcript;
-                runSearch();
-            };
-            recognition.onend = () => mic.classList.remove('mic-active');
-            recognition.start();
-        }
-
-        function saveSet() {
-            localStorage.setItem('fn', document.getElementById('in-name').value);
-            localStorage.setItem('fb', document.getElementById('in-budget').value);
-            document.getElementById('p-modal').style.display = 'none';
-            update();
-        }
-
-        function toggleMode() { document.body.classList.toggle('light-mode'); }
-        
-        function toggleLMenu() { 
-            const m = document.getElementById('l-menu'); 
-            m.style.display = (m.style.display === 'block') ? 'none' : 'block'; 
-        }
-        
-        function setLang(l) { lang = l; localStorage.setItem('findly_lang', l); toggleLMenu(); update(); }
-        
-        function openProfile() { 
-            document.getElementById('p-modal').style.display = 'flex'; 
-            d = dict[lang] || dict['ar'];
-            document.getElementById('p-head').innerHTML = `<i class="fa-solid fa-user-gear"></i> ${d.p_head}`;
-            document.getElementById('in-name').value = localStorage.getItem('fn') || '';
-            document.getElementById('in-budget').value = localStorage.getItem('fb') || '';
-        }
-
-        function toggleWatchList() {
-            const m = document.getElementById('w-modal');
-            m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
-            const list = document.getElementById('watch-list-content');
-            list.innerHTML = "";
-            if(watchList.length === 0) {
-                list.innerHTML = "<p style='color:var(--text-muted);'>القائمة فارغة / Empty List</p>";
+            if ('webkitSpeechRecognition' in window) {
+                const recognition = new webkitSpeechRecognition();
+                recognition.lang = lang;
+                recognition.onresult = (event) => {
+                    document.getElementById('s-input').value = event.results[0][0].transcript;
+                    mic.classList.remove('mic-active');
+                    runSearch();
+                };
+                recognition.onerror = () => mic.classList.remove('mic-active');
+                recognition.start();
             } else {
-                watchList.forEach(w => {
-                    list.innerHTML += `<div style="background:var(--bg-card); margin-bottom:10px; padding:10px; border-radius:10px; text-align:right;">
-                        <div style="font-weight:bold; font-size:0.9rem;">${w.name}</div>
-                        <div style="color:#10b981;">${w.price}</div>
-                        <a href="${w.link}" target="_blank" style="font-size:0.8rem; color:var(--primary);">رابط المنتج</a>
-                    </div>`;
-                });
+                alert("المتصفح لا يدعم الصوت");
+                mic.classList.remove('mic-active');
             }
         }
 
-        function quickSearch(k) { document.getElementById('s-input').value = k; runSearch(); }
-        function quickFilter(type) { document.getElementById('s-input').value += ` (${type})`; runSearch(); }
-
         function update() {
-            const d = dict[lang] || dict['ar'];
+            const d = dict[lang];
+            const userName = localStorage.getItem('findly_name') || "";
+            
             document.getElementById('txt-title').innerText = d.title;
             document.getElementById('txt-sub').innerText = d.sub;
             document.getElementById('txt-energy').innerText = d.energy;
-            document.getElementById('txt-deep').innerText = d.deep;
+            document.getElementById('greeting').innerText = d.welcome + " " + userName;
             document.getElementById('r-count').innerText = attempts;
             
-            const uName = localStorage.getItem('fn');
-            if(uName) document.getElementById('greeting').innerText = `${d.welcome} ${uName}`;
-            else document.getElementById('greeting').innerText = "";
-
-            // Categories
+            // تحديث نصوص الفئات
             document.getElementById('cat-game').innerText = d.game;
             document.getElementById('cat-beauty').innerText = d.beauty;
             document.getElementById('cat-home').innerText = d.home;
@@ -793,19 +818,33 @@
             document.getElementById('cat-c2').innerText = d.c2;
             document.getElementById('cat-c4').innerText = d.c4;
             
-            // Tags
+            // تحديث نصوص أخرى
+            document.getElementById('txt-deep').innerText = d.deep;
             document.getElementById('tag-cheap').innerText = d.cheap;
             document.getElementById('tag-top').innerText = d.top;
             document.getElementById('tag-new').innerText = d.new;
-            
+            document.getElementById('p-head').innerText = d.p_head;
             document.getElementById('txt-watch-title').innerText = d.watchTitle;
-            
-            // Watch badge
-            const wBadge = document.getElementById('watch-count');
-            wBadge.innerText = watchList.length;
-            wBadge.style.display = watchList.length > 0 ? 'block' : 'none';
+
+            // تحديث عداد التنبيهات
+            const wc = document.getElementById('watch-count');
+            if (watchList.length > 0) {
+                wc.innerText = watchList.length;
+                wc.style.display = 'block';
+            } else {
+                wc.style.display = 'none';
+            }
         }
 
-</script>
+        // التشغيل الأولي
+        window.onload = function() {
+            update();
+            // التحقق من حالة تسجيل الدخول عند البدء
+            if (!currentUserUID) {
+                toggleAuthModal();
+            }
+        };
+
+    </script>
 </body>
 </html>

@@ -8,7 +8,8 @@
 
 <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">  
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">  
-<style>  
+
+    <style>  
     /* --- Core Variables & Reset --- */  
     :root {  
         --primary: #8b5cf6;  
@@ -350,7 +351,18 @@
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }  
 
 </style>
+.footer-link {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: 0.3s;
+    font-weight: 300;
+}
 
+.footer-link:hover {
+    color: var(--primary);
+    text-shadow: 0 0 10px var(--primary-glow);
+}
 </head>  
 <body>  <header>  
     <div class="logo">Findly <i class="fa-solid fa-wand-magic-sparkles"></i></div>  
@@ -845,6 +857,15 @@
     update();  
 
 </script>
-
+<footer style="margin-top: 50px; padding: 30px 5%; border-top: 1px solid var(--glass-border); text-align: center; background: rgba(15, 23, 42, 0.4);">
+    <div style="display: flex; justify-content: center; gap: 25px; margin-bottom: 15px;">
+        <a href="privacy.html" class="footer-link">سياسة الخصوصية</a>
+        <a href="terms.html" class="footer-link">شروط الاستخدام</a>
+        <a href="about.html" class="footer-link">من نحن</a>
+    </div>
+    <p style="color: var(--text-muted); font-size: 0.75rem; opacity: 0.6;">
+        © 2026 Findly Sage. جميع الحقوق محفوظة.
+    </p>
+</footer>
 </body>  
 </html>

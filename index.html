@@ -741,6 +741,26 @@ function closeAbout() {
         document.getElementById('main-html').setAttribute('dir', (lang === 'ar') ? 'rtl' : 'ltr');  
     }  
 
+    function quickFilter(type) {
+    const input = document.getElementById('s-input');
+    let currentQuery = input.value.trim();
+
+    // إذا كان الحقل فارغاً، نضع كلمة بحث افتراضية
+    if (!currentQuery) currentQuery = "جوالات"; 
+
+    // تنظيف الكلمة من أي إضافات قديمة للفلاتر
+    currentQuery = currentQuery.replace(" أرخص سعر", "").replace(" top rated", "").replace(" 2026", "");
+
+    // إضافة الكلمة المفتاحية بناءً على نوع الفلتر
+    if (type === 'cheap') currentQuery += " أرخص سعر";
+    if (type === 'top-rated') currentQuery += " top rated";
+    if (type === 'new') currentQuery += " 2026";
+
+    input.value = currentQuery;
+    
+    // تشغيل البحث فوراً بالكلمة الجديدة
+    runSearch(); 
+}
     // --- 5. دوال مساعدة إضافية ---  
 
     // تبديل اللغة  

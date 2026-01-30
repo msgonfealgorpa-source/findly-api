@@ -310,6 +310,32 @@
         }
         .watch-later:hover { background: rgba(139, 92, 246, 0.1); }
 
+        /* --- Deep AI & Watchlist Styles --- */
+        .deep-ai-box {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(168, 85, 247, 0.1));
+            border: 1px solid var(--primary);
+            padding: 20px;
+            border-radius: 20px;
+            margin: 20px auto;
+            max-width: 600px;
+            text-align: right;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.15);
+            animation: fadeIn 0.8s ease;
+        }
+        .deep-ai-title { font-size: 1.2rem; color: #fff; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        .deep-ai-text { font-size: 0.95rem; line-height: 1.7; color: #e2e8f0; white-space: pre-line; }
+
+        .watchlist-item {
+            display: flex; gap: 15px; align-items: center;
+            background: rgba(255,255,255,0.03); padding: 10px;
+            border-radius: 12px; margin-bottom: 10px;
+            text-align: right; border: 1px solid var(--glass-border);
+        }
+        .watchlist-item img { width: 50px; height: 50px; object-fit: contain; background: #fff; border-radius: 8px; }
+        .watchlist-info { flex: 1; }
+        .watchlist-info h4 { margin: 0; font-size: 0.9rem; color: var(--text); }
+        .watchlist-info p { margin: 5px 0 0; color: #10b981; font-weight: bold; font-size: 0.9rem; }
+
         .budget-error {
             background: rgba(239, 68, 68, 0.2); 
             color: #fca5a5;
@@ -427,7 +453,9 @@
     <div class="modal" id="w-modal">
         <div class="modal-box">
             <h3 style="color:var(--primary); margin-top:0;"><i class="fa-solid fa-bell"></i> <span id="txt-watch-title"></span></h3>
-            <div id="watch-list-content"></div>
+            <div id="watch-list-content" style="max-height: 300px; overflow-y: auto;">
+                <p style="color:var(--text-muted); font-size:0.9rem;">جاري التحميل...</p>
+            </div>
             <button onclick="toggleWatchList()" style="background:none; color:var(--text-muted); border:none; margin-top:20px; cursor:pointer; font-size:0.9rem;">إغلاق</button>
         </div>
     </div>
@@ -500,11 +528,11 @@
                 currentUserUID = user.uid;
                 localStorage.setItem('findly_uid', user.uid);
                 updateAuthUI(true);
+                updateWatchListUI(); // تحديث العداد عند الدخول
             } else {
                 currentUserUID = null;
                 localStorage.removeItem('findly_uid');
                 updateAuthUI(false);
-                // إجبار المستخدم على تسجيل الدخول إذا لم يكن مسجلاً
                 toggleAuthModal();
             }
         });
@@ -586,17 +614,16 @@
 
         // --- قاموس الترجمة ---
         const dict = {
-            ar: { title: "مستشارك الحكيم", sub: "دليلك الذكي للتسوق المثالي", energy: "طاقة العقل", welcome: "مرحباً،", game: "ألعاب", beauty: "جمال", home: "منزل ذكي", c1: "هواتف", c2: "لابتوب", c4: "ساعات", p_head: "الملف الشخصي", buy: "شراء الآن 🛒", watch: "راقب السعر 🔔", over: "يتجاوز ميزانيتك!", cheap: "اقتصادي", top: "الأعلى تقييماً", new: "حديث جداً", deep: "وضع التحليل الذكي", watchTitle: "قائمة المراقبة", why: "لماذا اخترنا هذا؟", slow: "السيرفر يستيقظ.. انتظر ثوانٍ", noAttempts: "⚠️ استنفدت محاولاتك!" },
-            en: { title: "Sage Advisor", sub: "Your smart shopping guide", energy: "Sage Energy", welcome: "Welcome,", game: "Gaming", beauty: "Beauty", home: "Smart Home", c1: "Phones", c2: "Laptops", c4: "Watches", p_head: "Profile", buy: "Buy Now 🛒", watch: "Watch Price 🔔", over: "Over Budget!", cheap: "Budget", top: "Top Rated", new: "Newest", deep: "AI Deep Mode", watchTitle: "Watch List", why: "Why this choice?", slow: "Server waking up.. wait", noAttempts: "⚠️ No attempts left!" },
-            fr: { title: "Conseiller Sage", sub: "Votre guide d'achat intelligent", energy: "Énergie Sage", welcome: "Bienvenue,", game: "Jeux", beauty: "Beauté", home: "Maison Inte.", c1: "Mobiles", c2: "Laptops", c4: "Montres", p_head: "Profil", buy: "Acheter 🛒", watch: "Surveiller 🔔", over: "Hors budget!", cheap: "Éco", top: "Mieux notés", new: "Nouveau", deep: "Mode Analyse AI", watchTitle: "Liste de veille", why: "Pourquoi ce choix?", slow: "Le serveur se réveille..", noAttempts: "⚠️ Plus d'essais!" },
-            de: { title: "Weiser Berater", sub: "Ihr smarter Einkaufsführer", energy: "Weise Energie", welcome: "Willkommen,", game: "Spiele", beauty: "Schönheit", home: "Smart Home", c1: "Handys", c2: "Laptops", c4: "Uhren", p_head: "Profil", buy: "Kaufen 🛒", watch: "Beobachten 🔔", over: "Budget übersch.", cheap: "Günstig", top: "Bestbewertet", new: "Neu", deep: "KI-Analyse-Modus", watchTitle: "Beobachtungsliste", why: "Warum diese Wahl?", slow: "Server wacht auf..", noAttempts: "⚠️ Keine Versuche mehr!" },
-            es: { title: "Asesor Sabio", sub: "Tu guía de compras inteligente", energy: "Energía Sabia", welcome: "Bienvenido,", game: "Juegos", beauty: "Belleza", home: "Hogar Intelig.", c1: "Móviles", c2: "Portátiles", c4: "Relojes", p_head: "Perfil", buy: "Comprar 🛒", watch: "Vigilar 🔔", over: "Fuera de presupuesto", cheap: "Económico", top: "Mejor valorado", new: "Nuevo", deep: "Modo de análisis IA", watchTitle: "Lista de vigilancia", why: "¿Por qué esta elección?", slow: "El servidor está despertando..", noAttempts: "⚠️ ¡No quedan intentos!" },
-            tr: { title: "Bilge Danışman", sub: "Akıllı alışveriş rehberiniz", energy: "Bilge Enerji", welcome: "Hoş geldiniz,", game: "Oyunlar", beauty: "Güzellik", home: "Akıllı Ev", c1: "Telefonlar", c2: "Laptoplar", c4: "Saatler", p_head: "Profil", buy: "Satın Al 🛒", watch: "Fiyatı İzle 🔔", over: "Bütçe Aşıldı!", cheap: "Ekonomik", top: "En İyi", new: "Yeni", deep: "Yapay Zeka Analiz", watchTitle: "İzleme Listesi", why: "Neden bu seçim?", slow: "Sunucu uyanıyor.. bekleyin", noAttempts: "⚠️ Deneme kalmadı!" }
+            ar: { title: "مستشارك الحكيم", sub: "دليلك الذكي للتسوق المثالي", energy: "طاقة العقل", welcome: "مرحباً،", game: "ألعاب", beauty: "جمال", home: "منزل ذكي", c1: "هواتف", c2: "لابتوب", c4: "ساعات", p_head: "الملف الشخصي", buy: "شراء الآن 🛒", watch: "راقب السعر 🔔", over: "يتجاوز ميزانيتك!", cheap: "اقتصادي", top: "الأعلى تقييماً", new: "حديث جداً", deep: "وضع التحليل الذكي", watchTitle: "قائمة المراقبة", why: "لماذا اخترنا هذا؟", slow: "السيرفر يستيقظ.. انتظر ثوانٍ", noAttempts: "⚠️ استنفدت محاولاتك!", deepHead: "🧠 تحليل Deep AI" },
+            en: { title: "Sage Advisor", sub: "Your smart shopping guide", energy: "Sage Energy", welcome: "Welcome,", game: "Gaming", beauty: "Beauty", home: "Smart Home", c1: "Phones", c2: "Laptops", c4: "Watches", p_head: "Profile", buy: "Buy Now 🛒", watch: "Watch Price 🔔", over: "Over Budget!", cheap: "Budget", top: "Top Rated", new: "Newest", deep: "AI Deep Mode", watchTitle: "Watch List", why: "Why this choice?", slow: "Server waking up.. wait", noAttempts: "⚠️ No attempts left!", deepHead: "🧠 Deep AI Analysis" },
+            fr: { title: "Conseiller Sage", sub: "Votre guide d'achat intelligent", energy: "Énergie Sage", welcome: "Bienvenue,", game: "Jeux", beauty: "Beauté", home: "Maison Inte.", c1: "Mobiles", c2: "Laptops", c4: "Montres", p_head: "Profil", buy: "Acheter 🛒", watch: "Surveiller 🔔", over: "Hors budget!", cheap: "Éco", top: "Mieux notés", new: "Nouveau", deep: "Mode Analyse AI", watchTitle: "Liste de veille", why: "Pourquoi ce choix?", slow: "Le serveur se réveille..", noAttempts: "⚠️ Plus d'essais!", deepHead: "🧠 Analyse Deep AI" },
+            de: { title: "Weiser Berater", sub: "Ihr smarter Einkaufsführer", energy: "Weise Energie", welcome: "Willkommen,", game: "Spiele", beauty: "Schönheit", home: "Smart Home", c1: "Handys", c2: "Laptops", c4: "Uhren", p_head: "Profil", buy: "Kaufen 🛒", watch: "Beobachten 🔔", over: "Budget übersch.", cheap: "Günstig", top: "Bestbewertet", new: "Neu", deep: "KI-Analyse-Modus", watchTitle: "Beobachtungsliste", why: "Warum diese Wahl?", slow: "Server wacht auf..", noAttempts: "⚠️ Keine Versuche mehr!", deepHead: "🧠 KI-Analyse" },
+            es: { title: "Asesor Sabio", sub: "Tu guía de compras inteligente", energy: "Energía Sabia", welcome: "Bienvenido,", game: "Juegos", beauty: "Belleza", home: "Hogar Intelig.", c1: "Móviles", c2: "Portátiles", c4: "Relojes", p_head: "Perfil", buy: "Comprar 🛒", watch: "Vigilar 🔔", over: "Fuera de presupuesto", cheap: "Económico", top: "Mejor valorado", new: "Nuevo", deep: "Modo de análisis IA", watchTitle: "Lista de vigilancia", why: "¿Por qué esta elección?", slow: "El servidor está despertando..", noAttempts: "⚠️ ¡No quedan intentos!", deepHead: "🧠 Análisis Profundo IA" },
+            tr: { title: "Bilge Danışman", sub: "Akıllı alışveriş rehberiniz", energy: "Bilge Enerji", welcome: "Hoş geldiniz,", game: "Oyunlar", beauty: "Güzellik", home: "Akıllı Ev", c1: "Telefonlar", c2: "Laptoplar", c4: "Saatler", p_head: "Profil", buy: "Satın Al 🛒", watch: "Fiyatı İzle 🔔", over: "Bütçe Aşıldı!", cheap: "Ekonomik", top: "En İyi", new: "Yeni", deep: "Yapay Zeka Analiz", watchTitle: "İzleme Listesi", why: "Neden bu seçim?", slow: "Sunucu uyanıyor.. bekleyin", noAttempts: "⚠️ Deneme kalmadı!", deepHead: "🧠 Derin Yapay Zeka" }
         };
 
-        // --- 3. دالة البحث ---
+        // --- 3. دالة البحث الرئيسية (تم التعديل لإضافة Deep AI) ---
         async function runSearch() {
-            // التحقق من تسجيل الدخول قبل البحث
             if (!currentUserUID) {
                 alert("يجب عليك تسجيل الدخول أولاً!");
                 toggleAuthModal();
@@ -608,7 +635,6 @@
             const resCon = document.getElementById('results');
             const d = dict[lang] || dict['ar'];
             
-            // جلب الميزانية المحفوظة
             let rawBudget = localStorage.getItem('fb');
             let userBudget = rawBudget ? parseFloat(rawBudget) : 0;
 
@@ -640,17 +666,46 @@
                 status.style.display = "none";
 
                 if (data.products && data.products.length > 0) {
+                    
+                    // --- Deep AI Integration ---
+                    const deepMode = document.getElementById('ai-deep-mode').checked;
+                    if (deepMode) {
+                        status.style.display = "block";
+                        status.innerHTML = '<i class="fa-solid fa-brain fa-pulse"></i> Deep AI Thinking...';
+                        
+                        try {
+                            const deepRes = await fetch(`${API}/deep-ai-analyze`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ products: data.products, query: q, lang: lang })
+                            });
+                            const deepData = await deepRes.json();
+                            if(deepData.deepAnalysis) {
+                                resCon.innerHTML += `
+                                    <div class="deep-ai-box">
+                                        <div class="deep-ai-title"><i class="fa-solid fa-wand-magic-sparkles"></i> ${d.deepHead}</div>
+                                        <div class="deep-ai-text">${deepData.deepAnalysis}</div>
+                                    </div>
+                                `;
+                            }
+                        } catch (err) {
+                            console.error("Deep AI Error:", err);
+                        }
+                        status.style.display = "none";
+                    }
+                    // ---------------------------
+
                     data.products.forEach((p, index) => {
                         let cleanPriceString = p.price ? p.price.toString().replace(/,/g, '').replace(/[^\d.]/g, '') : "0";
                         let priceVal = parseFloat(cleanPriceString);
                         
-                        // منطق تنبيه تجاوز الميزانية
                         let budgetAlert = "";
                         if (userBudget > 0 && priceVal > userBudget) {
                             budgetAlert = `<div class="budget-error"><i class="fa-solid fa-triangle-exclamation"></i> ${d.over} ($${userBudget})</div>`;
                         }
                         
                         setTimeout(() => {
+                            // تم تعديل زر Watchlist لاستدعاء الدالة الجديدة
                             resCon.innerHTML += `
                                 <div class="product-card">
                                     ${budgetAlert}
@@ -660,7 +715,7 @@
                                     <div class="analysis-engine"><span class="analysis-label"><i class="fa-solid fa-brain"></i> ${d.why}</span>${p.reason}</div>
                                     <div class="btn-group">
                                         <a href="${p.link}" target="_blank" class="action-btn buy-now">${d.buy}</a>
-                                        <button class="action-btn watch-later" onclick="addToWatch('${p.name.replace(/'/g, "\\'")}', '${p.price}', '${p.link}')">${d.watch}</button>
+                                        <button class="action-btn watch-later" onclick="addToWatch('${p.name.replace(/'/g, "\\'")}', '${p.price}', '${p.thumbnail}', '${p.link}')">${d.watch}</button>
                                     </div>
                                 </div>`;
                         }, index * 100);
@@ -680,18 +735,163 @@
             }
         }
 
-        // --- 4. تحديث الواجهة واللغة ---
+        // --- 4. دالة Watchlist (إضافة وعرض) ---
+        
+        // دالة إضافة منتج للمفضلة
+        async function addToWatch(name, price, thumbnail, link) {
+            if (!currentUserUID) {
+                toggleAuthModal();
+                return;
+            }
+
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
+            try {
+                const res = await fetch(`${API}/watchlist/add`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        uid: currentUserUID,
+                        product: { name, price, thumbnail, link }
+                    })
+                });
+                const data = await res.json();
+                
+                if (res.ok) {
+                    btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+                    btn.style.background = 'rgba(16, 185, 129, 0.2)';
+                    btn.style.borderColor = '#10b981';
+                    updateWatchListUI(); // تحديث العداد
+                } else {
+                    alert("حدث خطأ: " + data.error);
+                    btn.innerHTML = originalText;
+                }
+            } catch (e) {
+                console.error(e);
+                btn.innerHTML = originalText;
+            }
+        }
+
+        // دالة فتح وعرض القائمة
+        async function toggleWatchList() {
+            const modal = document.getElementById('w-modal');
+            const content = document.getElementById('watch-list-content');
+            
+            if (modal.style.display !== 'flex') {
+                modal.style.display = 'flex';
+                if (!currentUserUID) {
+                    content.innerHTML = '<p style="color:var(--text-muted)">يجب تسجيل الدخول لرؤية القائمة.</p>';
+                    return;
+                }
+
+                content.innerHTML = '<p style="color:var(--text-muted)"><i class="fa-solid fa-spinner fa-spin"></i> جاري جلب البيانات...</p>';
+
+                try {
+                    const res = await fetch(`${API}/watchlist/${currentUserUID}`);
+                    const data = await res.json();
+                    
+                    if (data.watchlist && data.watchlist.length > 0) {
+                        content.innerHTML = "";
+                        data.watchlist.forEach(item => {
+                            content.innerHTML += `
+                                <div class="watchlist-item">
+                                    <img src="${item.thumbnail}" onerror="this.src='https://via.placeholder.com/50'">
+                                    <div class="watchlist-info">
+                                        <h4>${item.name}</h4>
+                                        <p>${item.price}</p>
+                                    </div>
+                                    <a href="${item.link}" target="_blank" style="color:var(--primary);"><i class="fa-solid fa-external-link-alt"></i></a>
+                                </div>
+                            `;
+                        });
+                        updateWatchCount(data.watchlist.length);
+                    } else {
+                        content.innerHTML = '<p style="color:var(--text-muted)">القائمة فارغة حالياً.</p>';
+                        updateWatchCount(0);
+                    }
+                } catch (e) {
+                    content.innerHTML = '<p style="color:#ef4444">فشل الاتصال بالسيرفر.</p>';
+                }
+            } else {
+                modal.style.display = 'none';
+            }
+        }
+
+        // دالة تحديث عداد التنبيهات فقط (بدون فتح القائمة)
+        async function updateWatchListUI() {
+            if (!currentUserUID) return;
+            try {
+                const res = await fetch(`${API}/watchlist/${currentUserUID}`);
+                const data = await res.json();
+                if (data.watchlist) {
+                    updateWatchCount(data.watchlist.length);
+                }
+            } catch (e) { console.error("Error fetching count"); }
+        }
+
+        function updateWatchCount(count) {
+            const badge = document.getElementById('watch-count');
+            if (count > 0) {
+                badge.innerText = count;
+                badge.style.display = 'block';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+
+        // --- Helper Functions ---
+        function setLang(l) {
+            lang = l; localStorage.setItem('findly_lang', l);
+            document.getElementById('l-menu').style.display = 'none';
+            update();
+        }
+        function toggleLMenu() {
+            const m = document.getElementById('l-menu');
+            m.style.display = (m.style.display === 'block') ? 'none' : 'block';
+        }
+        function toggleMode() {
+            document.body.classList.toggle('light-mode');
+        }
+        function openProfile() {
+            document.getElementById('p-modal').style.display = 'flex';
+            document.getElementById('in-name').value = localStorage.getItem('fn') || '';
+            document.getElementById('in-budget').value = localStorage.getItem('fb') || '';
+        }
+        function saveSet() {
+            const n = document.getElementById('in-name').value;
+            const b = document.getElementById('in-budget').value;
+            if(n) localStorage.setItem('fn', n);
+            if(b) localStorage.setItem('fb', b);
+            document.getElementById('p-modal').style.display = 'none';
+            update();
+        }
+        function quickSearch(t) {
+            document.getElementById('s-input').value = t;
+            runSearch();
+        }
+        function quickFilter(type) {
+             // يمكن تطويرها لاحقاً لإضافة فلاتر بحث
+             const input = document.getElementById('s-input');
+             const d = dict[lang] || dict['ar'];
+             let append = "";
+             if(type === 'cheap') append = " " + d.cheap;
+             if(type === 'top') append = " " + d.top;
+             if(type === 'new') append = " " + d.new;
+             input.value += append;
+        }
+
         function update() {
             const d = dict[lang] || dict['ar'];
-            
-            // النصوص الأساسية
+            document.getElementById('txt-energy').innerText = d.energy;
+            document.getElementById('r-count').innerText = attempts;
             document.getElementById('txt-title').innerText = d.title;
             document.getElementById('txt-sub').innerText = d.sub;
-            document.getElementById('txt-energy').innerText = d.energy;
-            document.getElementById('txt-deep').innerText = d.deep;
+            document.getElementById('txt-watch-title').innerText = d.watchTitle;
             document.getElementById('p-head').innerText = d.p_head;
             
-            // التصنيفات
             document.getElementById('cat-game').innerText = d.game;
             document.getElementById('cat-beauty').innerText = d.beauty;
             document.getElementById('cat-home').innerText = d.home;
@@ -699,154 +899,35 @@
             document.getElementById('cat-c2').innerText = d.c2;
             document.getElementById('cat-c4').innerText = d.c4;
             
-            // التاجات
             document.getElementById('tag-cheap').innerText = d.cheap;
             document.getElementById('tag-top').innerText = d.top;
             document.getElementById('tag-new').innerText = d.new;
+            document.getElementById('txt-deep').innerText = d.deep;
 
-            document.getElementById('txt-watch-title').innerText = d.watchTitle;
-
-            // تحديث عدد المحاولات
-            document.getElementById('r-count').innerText = attempts;
-            
-            // الترحيب
-            let uName = localStorage.getItem('fn') || 'User';
-            document.getElementById('greeting').innerText = `${d.welcome} ${uName} 👋`;
-
-            // تحديث عدد التنبيهات
-            const wCount = document.getElementById('watch-count');
-            if(watchList.length > 0) {
-                wCount.style.display = 'block';
-                wCount.innerText = watchList.length;
-            } else {
-                wCount.style.display = 'none';
-            }
-            
-            // اتجاه النص
-            document.getElementById('main-html').setAttribute('dir', (lang === 'ar') ? 'rtl' : 'ltr');
+            const n = localStorage.getItem('fn');
+            if (n) document.getElementById('greeting').innerText = d.welcome + " " + n;
+            else document.getElementById('greeting').innerText = "";
         }
 
-        // --- 5. دوال مساعدة إضافية ---
-
-        // تبديل اللغة
-        function setLang(l) {
-            lang = l;
-            localStorage.setItem('findly_lang', l);
-            document.getElementById('l-menu').style.display = 'none';
-            update();
-        }
-
-        function toggleLMenu() {
-            const m = document.getElementById('l-menu');
-            m.style.display = (m.style.display === 'block') ? 'none' : 'block';
-        }
-
-        // الوضع الليلي/النهاري
-        function toggleMode() {
-            document.body.classList.toggle('light-mode');
-        }
-
-        // البحث السريع عبر الفلاتر
-        function quickFilter(type) {
-            const input = document.getElementById('s-input');
-            const d = dict[lang];
-            let term = "";
-            if(type === 'cheap') term = (lang==='ar') ? "رخيص" : "Cheap";
-            if(type === 'top') term = (lang==='ar') ? "أفضل تقييم" : "Best rated";
-            if(type === 'new') term = (lang==='ar') ? "جديد" : "New";
-            
-            input.value += " " + term;
-        }
-
-        function quickSearch(txt) {
-            document.getElementById('s-input').value = txt;
-            runSearch();
-        }
-
-        // إدارة الملف الشخصي
-        function openProfile() {
-            document.getElementById('p-modal').style.display = 'flex';
-            document.getElementById('in-name').value = localStorage.getItem('fn') || '';
-            document.getElementById('in-budget').value = localStorage.getItem('fb') || '';
-        }
-
-        function saveSet() {
-            const n = document.getElementById('in-name').value;
-            const b = document.getElementById('in-budget').value;
-            localStorage.setItem('fn', n);
-            localStorage.setItem('fb', b);
-            document.getElementById('p-modal').style.display = 'none';
-            update();
-        }
-
-        // قائمة المراقبة (Watchlist)
-        function addToWatch(n, p, l) {
-            const item = { name: n, price: p, link: l };
-            watchList.push(item);
-            localStorage.setItem('findly_watch', JSON.stringify(watchList));
-            update();
-            alert("تمت الإضافة لقائمة المراقبة 🔔");
-        }
-
-        function toggleWatchList() {
-            const modal = document.getElementById('w-modal');
-            const content = document.getElementById('watch-list-content');
-            
-            if(modal.style.display === 'flex') {
-                modal.style.display = 'none';
-            } else {
-                modal.style.display = 'flex';
-                content.innerHTML = "";
-                if(watchList.length === 0) {
-                    content.innerHTML = "<p style='color:#94a3b8'>القائمة فارغة</p>";
-                } else {
-                    watchList.forEach((w, i) => {
-                        content.innerHTML += `
-                            <div style="background:#1e293b; padding:10px; margin-bottom:10px; border-radius:10px; text-align:right;">
-                                <div style="font-weight:bold; color:#fff; font-size:0.9rem;">${w.name}</div>
-                                <div style="color:#10b981; font-size:0.8rem;">${w.price}</div>
-                                <a href="${w.link}" target="_blank" style="color:var(--primary); font-size:0.8rem;">رابط المنتج</a>
-                                <button onclick="removeFromWatch(${i})" style="color:#ef4444; background:none; border:none; float:left; cursor:pointer;">حذف</button>
-                            </div>
-                        `;
-                    });
-                }
-            }
-        }
-
-        function removeFromWatch(index) {
-            watchList.splice(index, 1);
-            localStorage.setItem('findly_watch', JSON.stringify(watchList));
-            toggleWatchList(); // Refresh list
-            update(); // Update count badge
-        }
-
-        // الأوامر الصوتية
+        // Voice
         function startVoice() {
-            if (!('webkitSpeechRecognition' in window)) {
-                alert("متصفحك لا يدعم هذه الميزة");
-                return;
-            }
-            const recognition = new webkitSpeechRecognition();
-            const micBtn = document.getElementById('mic-btn');
-            
-            recognition.lang = (lang === 'ar') ? 'ar-SA' : 'en-US';
-            recognition.onstart = function() {
-                micBtn.classList.add('mic-active');
-            };
-            recognition.onend = function() {
-                micBtn.classList.remove('mic-active');
-            };
-            recognition.onresult = function(event) {
-                const transcript = event.results[0][0].transcript;
-                document.getElementById('s-input').value = transcript;
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) return alert("المتصفح لا يدعم الصوت");
+            const r = new SpeechRecognition();
+            r.lang = lang === 'ar' ? 'ar-SA' : 'en-US';
+            r.start();
+            document.getElementById('mic-btn').classList.add('mic-active');
+            r.onresult = (e) => {
+                document.getElementById('s-input').value = e.results[0][0].transcript;
+                document.getElementById('mic-btn').classList.remove('mic-active');
                 runSearch();
             };
-            recognition.start();
+            r.onerror = () => document.getElementById('mic-btn').classList.remove('mic-active');
         }
 
-        // تشغيل عند التحميل
+        // Init
         update();
+        if(currentUserUID) updateWatchListUI();
 
     </script>
 </body>

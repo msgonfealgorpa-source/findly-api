@@ -400,31 +400,7 @@
     </button>
 </div>
 
-<style>
-    .findly-native-btn {
-        /* نفس خلفية أزرار (اقتصادي / حديث جداً) */
-        background: rgba(255, 255, 255, 0.08); 
-        color: #e0e0e0;
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        padding: 8px 25px;
-        border-radius: 12px; /* زوايا دائرية ناعمة مثل البقية */
-        font-size: 0.9rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        backdrop-filter: blur(5px);
-    }
 
-    /* تأثير عند تمرير الماوس أو الضغط */
-    .findly-native-btn:hover {
-        background: rgba(162, 89, 255, 0.2); /* توهج بنفسجي خفيف جداً عند اللمس */
-        border-color: #a259ff;
-        color: #fff;
-    }
-
-    .findly-native-btn:active {
-        transform: scale(0.95);
-    }
-</style>
 
     <div class="search-wrapper">  
         <input type="text" id="s-input" class="search-input">  
@@ -444,18 +420,7 @@
         </div>
     </div>
 
-<div class="glass-compare-container">
-    <button id="compareBtn" onclick="executeComparison()" class="glass-icon-btn">
-        <span class="btn-text">قارن الأسعار</span>
-        <div id="loader" class="glass-loader" style="display: none;"></div>
-    </button>
-</div>
 
-<div id="comparisonResults" style="display: none; width: 100%; margin-top: 20px;">
-    <div id="aiAnalysis" class="glass-ai-note"></div>
-    <div id="productsGrid" class="glass-products-list"></div>
-</div>
-    
     <div class="cat-grid">  
         <div class="cat-card" onclick="quickSearch('ألعاب')"><i class="fa-solid fa-gamepad"></i><span id="cat-game"></span></div>  
         <div class="cat-card" onclick="quickSearch('جمال')"><i class="fa-solid fa-sparkles"></i><span id="cat-beauty"></span></div>  

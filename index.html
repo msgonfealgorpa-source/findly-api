@@ -1,512 +1,962 @@
 <!DOCTYPE html>
-<html id="main-html" lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" id="main-html">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Findly Sage | المستشار الحكيم</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Findly Sage Ultimate</title>
     
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics-compat.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-analytics-compat.js"></script>
 
     <style>
-        :root {
-            --primary: #6366f1;
-            --primary-glow: rgba(99, 102, 241, 0.6);
-            --accent: #f59e0b;
-            --bg-dark: #020617;
-            --glass: rgba(15, 23, 42, 0.7);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --text: #f8fafc;
-            --text-muted: #94a3b8;
-            --success: #10b981;
-            --error: #ef4444;
-        }
+    /* --- Core Variables & Reset --- */
+    :root {
+        --primary: #8b5cf6;
+        --primary-glow: rgba(139, 92, 246, 0.5);
+        --secondary: #6366f1;
+        --bg-dark: #020617;
+        --bg-card: rgba(30, 41, 59, 0.7);
+        --glass-border: rgba(255, 255, 255, 0.08);
+        --text: #f8fafc;
+        --text-muted: #94a3b8;
+        --gradient: linear-gradient(135deg, #6366F1, #A855F7);
+    }
 
-        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .light-mode {
+        --bg-dark: #f8fafc;
+        --bg-card: rgba(255, 255, 255, 0.9);
+        --glass-border: rgba(0, 0, 0, 0.05);
+        --text: #1e293b;
+        --text-muted: #64748b;
+    }
 
-        body {
-            background: radial-gradient(circle at top right, #1e1b4b, #020617, #000);
-            color: var(--text);
-            min-height: 100vh;
-            overflow-x: hidden;
-            line-height: 1.6;
-        }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+      
+    body {
+        background-color: var(--bg-dark);
+        background-image: radial-gradient(circle at 50% 0%, #1e1b4b 0%, transparent 50%);
+        color: var(--text);
+        font-family: 'Readex Pro', sans-serif;
+        margin: 0;
+        transition: background 0.4s ease, color 0.4s ease;
+        overflow-x: hidden;
+        min-height: 100vh;
+    }
 
-        /* --- Header & Glassmorphism --- */
-        header {
-            backdrop-filter: blur(20px);
-            background: var(--glass);
-            border-bottom: 1px solid var(--glass-border);
-            padding: 15px 5%;
-            display: flex; justify-content: space-between; align-items: center;
-            position: sticky; top: 0; z-index: 1000;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-        }
+    /* --- Header Styles --- */
+    header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 5%;
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-bottom: 1px solid var(--glass-border);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
 
-        .tool-btn {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid var(--glass-border);
-            color: white; padding: 12px; border-radius: 16px;
-            cursor: pointer; position: relative; font-size: 1.1rem;
-        }
+    .logo {
+        font-size: 1.5rem;
+        font-weight: 800;
+        background: var(--gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: -0.5px;
+        text-shadow: 0 0 20px rgba(168, 85, 247, 0.2);
+    }
 
-        .tool-btn:hover {
-            background: var(--primary);
-            box-shadow: 0 0 20px var(--primary-glow);
-            transform: translateY(-3px);
-        }
+    .header-tools { display: flex; gap: 10px; }
 
-        #watch-count {
-            position: absolute; top: -5px; right: -5px;
-            background: var(--error); color: white;
-            font-size: 0.7rem; padding: 2px 7px;
-            border-radius: 50%; border: 2px solid var(--bg-dark);
-            font-weight: 900;
-        }
+    .tool-btn {
+        background: var(--bg-card);
+        border: 1px solid var(--glass-border);
+        color: var(--text);
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+    }
 
-        /* --- Search Area --- */
-        .search-area { padding: 50px 5%; text-align: center; max-width: 900px; margin: auto; }
+    .tool-btn:hover {
+        transform: translateY(-2px);
+        border-color: var(--primary);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
 
-        .energy-box {
-            background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(16,185,129,0.15));
-            border: 1px solid var(--glass-border);
-            padding: 12px 25px; border-radius: 50px;
-            display: inline-flex; align-items: center; gap: 12px;
-            margin-bottom: 40px; animation: float 4s infinite ease-in-out;
-        }
+    /* --- Dropdown Menu --- */
+    .lang-menu {
+        display: none;
+        position: absolute;
+        top: 50px;
+        left: 0;
+        background: #1e293b;
+        border-radius: 16px;
+        border: 1px solid var(--glass-border);
+        width: 140px;
+        z-index: 2000;
+        box-shadow: 0 20px 40px -5px rgba(0,0,0,0.4);
+        overflow: hidden;
+        animation: fadeIn 0.2s ease;
+    }
 
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+    .lang-item {
+        padding: 12px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        border-bottom: 1px solid rgba(255,255,255,0.03);
+        color: #e2e8f0;
+        text-align: center;
+        transition: 0.2s;
+    }
 
-        h1 { font-size: 3rem; font-weight: 900; background: linear-gradient(to right, #fff, var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+    .lang-item:hover { background: var(--primary); color: white; }
 
-        /* --- Deep AI Toggle --- */
-        .ai-toggle {
-            display: flex; align-items: center; justify-content: center; gap: 15px;
-            margin: 30px auto; padding: 15px 30px; border-radius: 20px;
-            background: rgba(99, 102, 241, 0.05); border: 1px solid var(--primary);
-            width: fit-content; cursor: pointer; position: relative; overflow: hidden;
-        }
-        .ai-toggle::before { content: ''; position: absolute; inset: 0; background: var(--primary); opacity: 0; }
-        .ai-toggle:hover::before { opacity: 0.1; }
+    /* --- Main Search Area --- */
+    .search-area {
+        padding: 40px 5%;
+        text-align: center;
+        max-width: 800px;
+        margin: 0 auto;
+    }
 
-        .search-wrapper {
-            position: relative; display: flex; align-items: center;
-            background: var(--glass); border: 1px solid var(--glass-border);
-            padding: 10px; border-radius: 25px; box-shadow: 0 25px 50px rgba(0,0,0,0.4);
-        }
+    .energy-box {
+        background: rgba(168, 85, 247, 0.08);
+        border: 1px solid rgba(168, 85, 247, 0.3);
+        padding: 8px 20px;
+        border-radius: 50px;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 25px;
+        box-shadow: 0 0 15px rgba(168, 85, 247, 0.1);
+    }
 
-        .search-input {
-            background: transparent; border: none; color: white;
-            padding: 15px 20px; width: 100%; font-size: 1.2rem; outline: none;
-        }
+    h1#txt-title {
+        background: linear-gradient(to right, #fff, #94a3b8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin: 10px 0;
+        font-size: 2.5rem;
+        letter-spacing: -1px;
+    }
 
-        .mic-icon { font-size: 1.4rem; cursor: pointer; margin: 0 15px; color: var(--text-muted); }
-        .mic-active { color: var(--error) !important; text-shadow: 0 0 15px var(--error); }
+    .light-mode h1#txt-title {
+        background: linear-gradient(to right, #1e293b, #475569);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
 
-        .send-btn {
-            background: var(--primary); border: none; color: white;
-            width: 55px; height: 55px; border-radius: 18px; cursor: pointer;
-            font-size: 1.2rem; display: grid; place-items: center;
-        }
+    .ai-toggle {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.9rem;
+        color: var(--primary);
+        margin-bottom: 25px;
+        justify-content: center;
+        font-weight: 600;
+        background: rgba(139, 92, 246, 0.05);
+        padding: 8px 16px;
+        border-radius: 12px;
+        width: fit-content;
+        margin-left: auto;
+        margin-right: auto;
+    }
+      
+    .ai-toggle input { width: 20px; height: 20px; accent-color: var(--primary); cursor: pointer; }
 
-        /* --- Filter Row & Tags --- */
-        .filter-row { display: flex; justify-content: center; gap: 12px; margin: 25px 0; flex-wrap: wrap; }
-        .ai-tag {
-            cursor: pointer; padding: 10px 18px; background: rgba(255,255,255,0.05);
-            border: 1px solid var(--glass-border); border-radius: 14px; font-size: 0.85rem;
-            display: flex; align-items: center; gap: 8px;
-        }
-        .ai-tag:hover { border-color: var(--primary); background: rgba(99, 102, 241, 0.1); }
+    /* --- Search Input Styling --- */
+    .search-wrapper { position: relative; max-width: 600px; margin: 0 auto 20px; }
+      
+    .search-input {
+        width: 100%;
+        padding: 18px 60px;
+        border-radius: 24px;
+        border: 2px solid var(--glass-border);
+        background: var(--bg-card);
+        color: var(--text);
+        font-size: 1.1rem;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s;
+        text-align: center;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
 
-        /* --- Category Grid --- */
-        .cat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 15px; margin-top: 40px; }
-        .cat-card {
-            background: var(--glass); border: 1px solid var(--glass-border);
-            padding: 20px; border-radius: 22px; cursor: pointer; text-align: center;
-        }
-        .cat-card:hover { transform: translateY(-10px); background: var(--primary); border-color: white; }
-        .cat-card i { font-size: 1.8rem; margin-bottom: 10px; display: block; }
+    .search-input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
+    }
 
-        /* --- Results & Product Card --- */
-        .product-card {
-            background: var(--glass); backdrop-filter: blur(15px);
-            border: 1px solid var(--glass-border); border-radius: 30px;
-            padding: 30px; margin-top: 35px; text-align: right; position: relative;
-            animation: slideIn 0.6s cubic-bezier(0.23, 1, 0.32, 1); overflow: hidden;
-        }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+    .mic-icon {
+        position: absolute;   
+        right: 20px;   
+        top: 50%;   
+        transform: translateY(-50%);
+        color: var(--secondary);   
+        cursor: pointer;   
+        font-size: 1.4rem;   
+        transition: 0.3s;
+        z-index: 10;
+    }
+      
+    .mic-active { color: #ef4444; text-shadow: 0 0 10px #ef4444; animation: pulse 1s infinite; }
+      
+    .send-btn {
+        position: absolute;   
+        left: 10px;   
+        top: 50%;   
+        transform: translateY(-50%);
+        background: var(--gradient);   
+        border: none;   
+        width: 45px;   
+        height: 45px;
+        border-radius: 18px;   
+        color: #fff;   
+        cursor: pointer;
+        transition: 0.3s;   
+        display: flex;   
+        align-items: center;   
+        justify-content: center;
+        z-index: 10;
+    }
+      
+    .send-btn:hover { transform: translateY(-50%) scale(1.05); box-shadow: 0 0 15px var(--primary-glow); }
 
-        .product-card img { width: 100%; max-height: 280px; object-fit: contain; border-radius: 20px; margin-bottom: 20px; }
+    /* --- Tags & Categories --- */
+    .ai-options { display: flex; justify-content: center; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+      
+    .ai-tag {
+        font-size: 0.8rem; padding: 8px 16px; border-radius: 20px;
+        background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border);
+        cursor: pointer; color: var(--text-muted); display: flex; align-items: center; gap: 8px;
+        transition: 0.3s;
+    }
+      
+    .ai-tag:hover { background: var(--bg-card); color: var(--primary); border-color: var(--primary); }
 
-        .price { font-size: 2rem; font-weight: 900; color: var(--success); margin: 15px 0; }
+    .cat-grid {
+        display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+        max-width: 600px; margin: 30px auto;
+    }
+      
+    .cat-card {
+        background: var(--bg-card); border: 1px solid var(--glass-border);
+        padding: 15px 10px; border-radius: 20px; cursor: pointer;
+        transition: 0.3s; display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+      
+    .cat-card:hover { transform: translateY(-5px); background: rgba(255,255,255,0.05); border-color: var(--primary); }
+    .cat-card i { font-size: 1.5rem; color: var(--secondary); }
+    .cat-card span { font-size: 0.75rem; font-weight: 600; }
 
-        .analysis-engine {
-            background: rgba(16, 185, 129, 0.08); border-right: 4px solid var(--success);
-            padding: 20px; border-radius: 15px; margin: 20px 0; font-size: 0.95rem;
-        }
+    /* --- Product Cards (Results) --- */
+    .product-card {
+        background: var(--bg-card);
+        border: 1px solid var(--glass-border);
+        border-radius: 24px;
+        padding: 20px;
+        margin-top: 25px;
+        text-align: right;
+        max-width: 600px;
+        margin-left: auto; margin-right: auto;
+        position: relative;
+        overflow: hidden;
+        backdrop-filter: blur(20px);
+        animation: slideUp 0.5s ease;
+    }
 
-        .btn-group { display: flex; gap: 15px; margin-top: 25px; }
-        .action-btn {
-            flex: 1; padding: 16px; border-radius: 18px; font-weight: 800;
-            cursor: pointer; border: none; display: flex; align-items: center; justify-content: center; gap: 10px;
-            text-decoration: none; font-size: 1rem;
-        }
-        .buy-now { background: var(--primary); color: white; box-shadow: 0 10px 25px var(--primary-glow); }
-        .watch-later { background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--glass-border); }
+    .product-card img {
+        width: 100%; height: 200px; object-fit: contain;
+        background: #fff; border-radius: 16px; margin-bottom: 15px;
+        padding: 10px;
+    }
+      
+    .product-card h3 { margin: 0 0 10px 0; font-size: 1.1rem; line-height: 1.5; }
+    .product-card .price { font-size: 1.4rem; font-weight: 800; color: #10b981; margin-bottom: 10px; }
 
-        /* --- Modals --- */
-        .modal {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.9);
-            backdrop-filter: blur(15px); display: none; justify-content: center;
-            align-items: center; z-index: 2000; padding: 20px;
-        }
-        .modal-box {
-            background: #0f172a; border: 1px solid var(--glass-border);
-            padding: 40px; border-radius: 35px; width: 100%; max-width: 480px;
-            text-align: center; box-shadow: 0 0 60px rgba(0,0,0,0.8);
-        }
-        input {
-            width: 100%; padding: 16px; background: rgba(255,255,255,0.05);
-            border: 1px solid var(--glass-border); border-radius: 16px; color: white;
-            margin-top: 15px; font-size: 1rem; outline: none;
-        }
-        input:focus { border-color: var(--primary); background: rgba(255,255,255,0.1); }
+    .analysis-engine {
+        background: rgba(99, 102, 241, 0.08);
+        border-right: 3px solid var(--primary);
+        padding: 12px; border-radius: 12px; margin: 15px 0;
+        font-size: 0.85rem; line-height: 1.6; color: var(--text-muted);
+    }
+      
+    .analysis-label { font-weight: 700; color: var(--primary); display: block; margin-bottom: 5px; }
 
-        .lang-menu {
-            position: absolute; top: 110%; right: 0; background: #1e293b;
-            border-radius: 15px; display: none; min-width: 150px; z-index: 100;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); overflow: hidden;
-        }
-        .lang-menu div { padding: 15px; cursor: pointer; border-bottom: 1px solid var(--glass-border); font-size: 0.9rem; }
-        .lang-menu div:hover { background: var(--primary); color: white; }
+    .btn-group { display: flex; gap: 12px; margin-top: 15px; }
+      
+    .action-btn {
+        flex: 1; padding: 12px; border-radius: 14px; font-weight: 700;
+        text-align: center; border: none; font-size: 0.9rem; cursor: pointer;
+        transition: 0.3s;
+    }
+      
+    .buy-now { background: var(--gradient); color: #fff; text-decoration: none; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3); }
+    .buy-now:hover { filter: brightness(1.1); }
+      
+    .watch-later {
+        background: transparent; border: 1px solid var(--primary); color: var(--text);
+    }
+    .watch-later:hover { background: rgba(139, 92, 246, 0.1); }
 
-        .budget-error { background: rgba(239, 68, 68, 0.1); color: var(--error); padding: 10px; border-radius: 10px; margin-bottom: 15px; font-weight: bold; }
+    .budget-error {
+        background: rgba(239, 68, 68, 0.2);   
+        color: #fca5a5;
+        padding: 10px;   
+        border-radius: 12px;   
+        font-size: 0.85rem;
+        margin-bottom: 15px;   
+        font-weight: bold;   
+        border: 1px solid rgba(239, 68, 68, 0.4);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* --- Modals --- */
+    .modal {
+        display: none; position: fixed; inset: 0;
+        background: rgba(0,0,0,0.8); z-index: 3000;
+        align-items: center; justify-content: center;
+        backdrop-filter: blur(12px);
+    }
+      
+    .modal-box {
+        background: #0f172a; padding: 30px; border-radius: 30px;
+        width: 85%; max-width: 400px;
+        border: 1px solid var(--glass-border);
+        text-align: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+      
+    .modal-box input {
+        width: 100%; padding: 14px; margin: 10px 0; border-radius: 14px;
+        background: #1e293b; color: #fff; border: 1px solid var(--glass-border);
+        text-align: center; font-family: inherit;
+    }
+      
+    .modal-box input:focus { border-color: var(--primary); }
+
+    /* --- Animations --- */
+    @keyframes pulse { 0% { opacity: 1; transform:translateY(-50%) scale(1); } 50% { opacity: 0.5; transform:translateY(-50%) scale(1.1); } 100% { opacity: 1; transform:translateY(-50%) scale(1); } }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .footer-link {
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.85rem;
+        transition: 0.3s;
+        font-weight: 300;
+    }
+
+    .footer-link:hover {
+        color: var(--primary);
+        text-shadow: 0 0 10px var(--primary-glow);
+    }
     </style>
-</head>
+</head>  
 <body>
+<header>  
+    <div class="logo">Findly <i class="fa-solid fa-wand-magic-sparkles"></i></div>  
+    <div class="header-tools">  
+        <button class="tool-btn" onclick="toggleMode()"><i class="fa-solid fa-circle-half-stroke"></i></button>  
+        <div style="position: relative;">  
+            <button class="tool-btn" onclick="toggleLMenu()"><i class="fa-solid fa-language"></i></button>  
+            <div id="l-menu" class="lang-menu">  
+                <div class="lang-item" onclick="setLang('ar')">العربية</div>  
+                <div class="lang-item" onclick="setLang('en')">English</div>  
+                <div class="lang-item" onclick="setLang('fr')">Français</div>  
+                <div class="lang-item" onclick="setLang('de')">Deutsch</div>  
+                <div class="lang-item" onclick="setLang('es')">Español</div>  
+                <div class="lang-item" onclick="setLang('tr')">Türkçe</div>  
+            </div>  
+        </div>  
+        <button class="tool-btn" onclick="toggleWatchList()">  
+            <i class="fa-solid fa-bell"></i>  
+            <span id="watch-count" style="position:absolute; top:-5px; right:-5px; background:#ef4444; color:white; font-size:0.6rem; padding:2px 6px; border-radius:50%; display:none; border: 2px solid var(--bg-dark);">0</span>  
+        </button>  
+          
+        <div id="auth-buttons-container">  
+            <button class="tool-btn" onclick="toggleAuthModal()"><i class="fa-solid fa-user"></i></button>  
+        </div>  
+    </div>  
+</header>  
 
-<header>
-    <div style="display: flex; align-items: center; gap: 15px;">
-        <div style="position: relative;">
-            <button class="tool-btn" onclick="toggleLMenu()"><i class="fa-solid fa-globe"></i></button>
-            <div class="lang-menu" id="l-menu">
-                <div onclick="setLang('ar')">العربية</div>
-                <div onclick="setLang('en')">English</div>
-                <div onclick="setLang('fr')">Français</div>
-                <div onclick="setLang('de')">Deutsch</div>
-                <div onclick="setLang('es')">Español</div>
-                <div onclick="setLang('tr')">Türkçe</div>
-            </div>
+<main class="search-area">  
+    <div class="energy-box">  
+        <span id="txt-energy"></span>  
+        <span id="r-count" style="background:var(--primary); color:#fff; padding:3px 12px; border-radius:20px; font-weight:900; font-size: 0.9rem;">3</span>  
+        <i class="fa-solid fa-bolt" style="color:#FFD700;"></i>  
+    </div>  
+
+    <h2 id="greeting" style="color: var(--primary); font-size: 1.1rem; margin-bottom: 5px; font-weight: 600;"></h2>  
+    <h1 id="txt-title"></h1>  
+    <p id="txt-sub" style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 30px;"></p>  
+
+    <div class="ai-toggle">  
+        <i class="fa-solid fa-brain"></i>  
+        <span id="txt-deep"></span>  
+        <input type="checkbox" id="ai-deep-mode">  
+    </div>  
+
+    <div class="search-wrapper">  
+        <input type="text" id="s-input" class="search-input">  
+        <i id="mic-btn" class="fa-solid fa-microphone-lines mic-icon" onclick="startVoice()"></i>  
+        <button class="send-btn" onclick="runSearch()"><i class="fa-solid fa-magnifying-glass"></i></button>  
+    </div>  
+  
+    <div class="filter-row" style="display: flex; flex-direction: row; justify-content: center; gap: 8px; margin: 15px 0; width: 100%; overflow-x: auto; padding: 5px;">
+        <div class="ai-tag" onclick="quickFilter('cheap')" style="cursor:pointer; white-space: nowrap; padding: 8px 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; font-size: 0.75rem; display: flex; align-items: center; gap: 5px;">
+            <i class="fa-solid fa-sack-dollar" style="color: #10b981;"></i> <span id="tag-cheap">اقتصادي</span>
         </div>
-        <button class="tool-btn" onclick="toggleWatchList()">
-            <i class="fa-solid fa-bell"></i>
-            <span id="watch-count" style="display:none;">0</span>
-        </button>
-    </div>
-    
-    <div id="auth-buttons-container"></div>
-</header>
-
-<main class="search-area">
-    <div class="energy-box">
-        <span id="txt-energy"></span>
-        <span id="r-count" style="background:var(--primary); color:#fff; padding:4px 14px; border-radius:20px; font-weight:900;">3</span>
-        <i class="fa-solid fa-bolt" style="color:#FFD700;"></i>
+        <div class="ai-tag" onclick="quickFilter('top-rated')" style="cursor:pointer; white-space: nowrap; padding: 8px 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; font-size: 0.75rem; display: flex; align-items: center; gap: 5px;">
+            <i class="fa-solid fa-star" style="color: #f59e0b;"></i> <span id="tag-top">الأعلى تقييماً</span>
+        </div>
+        <div class="ai-tag" onclick="quickFilter('new')" style="cursor:pointer; white-space: nowrap; padding: 8px 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; font-size: 0.75rem; display: flex; align-items: center; gap: 5px;">
+            <i class="fa-solid fa-fire" style="color: #ef4444;"></i> <span id="tag-new">حديث جداً</span>
+        </div>
     </div>
 
-    <h2 id="greeting"></h2>
-    <h1 id="txt-title"></h1>
-    <p id="txt-sub"></p>
+    <div class="cat-grid">  
+        <div class="cat-card" onclick="quickSearch('ألعاب')"><i class="fa-solid fa-gamepad"></i><span id="cat-game"></span></div>  
+        <div class="cat-card" onclick="quickSearch('جمال')"><i class="fa-solid fa-sparkles"></i><span id="cat-beauty"></span></div>  
+        <div class="cat-card" onclick="quickSearch('منزل ذكي')"><i class="fa-solid fa-house-laptop"></i><span id="cat-home"></span></div>  
+        <div class="cat-card" onclick="quickSearch('هواتف')"><i class="fa-solid fa-mobile-screen-button"></i><span id="cat-c1"></span></div>  
+        <div class="cat-card" onclick="quickSearch('لابتوب')"><i class="fa-solid fa-laptop"></i><span id="cat-c2"></span></div>  
+        <div class="cat-card" onclick="quickSearch('ساعات')"><i class="fa-solid fa-stopwatch"></i><span id="cat-c4"></span></div>  
+    </div>  
 
-    <div class="ai-toggle" onclick="document.getElementById('ai-deep-mode').click()">
-        <i class="fa-solid fa-brain" style="font-size: 1.5rem; color: var(--primary);"></i>
-        <span id="txt-deep" style="font-weight: 700;"></span>
-        <input type="checkbox" id="ai-deep-mode" style="width:22px; height:22px; cursor:pointer;" onclick="event.stopPropagation()">
-    </div>
+    <div id="status" style="display:none; color:var(--primary); font-weight:bold; margin-top:30px; font-size: 1.1rem;"></div>  
+    <div id="results"></div>  
+</main>  
 
-    <div class="search-wrapper">
-        <input type="text" id="s-input" class="search-input">
-        <i id="mic-btn" class="fa-solid fa-microphone-lines mic-icon" onclick="startVoice()"></i>
-        <button class="send-btn" onclick="runSearch()"><i class="fa-solid fa-magnifying-glass"></i></button>
-    </div>
+<div class="modal" id="w-modal">  
+    <div class="modal-box">  
+        <h3 style="color:var(--primary); margin-top:0;"><i class="fa-solid fa-bell"></i> <span id="txt-watch-title"></span></h3>  
+        <div id="watch-list-content"></div>  
+        <button onclick="toggleWatchList()" style="background:none; color:var(--text-muted); border:none; margin-top:20px; cursor:pointer; font-size:0.9rem;">إغلاق</button>  
+    </div>  
+</div>  
+  
+<div class="modal" id="p-modal">  
+    <div class="modal-box">  
+        <h3 id="p-head" style="margin-top:0;"></h3>  
+        <label style="font-size:0.85rem; display:block; margin-bottom:5px; opacity:0.7;">اسم المستخدم</label>  
+        <input type="text" id="in-name" placeholder="أدخل اسمك هنا...">  
+        <label style="font-size:0.85rem; display:block; margin-top:15px; margin-bottom:5px; opacity:0.7;">الميزانية ($)</label>  
+        <input type="number" id="in-budget" placeholder="أقصى ميزانية لديك...">  
+        <button class="action-btn buy-now" onclick="saveSet()" style="width:100%; margin-top:20px;">حفظ التغييرات ✅</button>  
+        <button onclick="document.getElementById('p-modal').style.display = 'none';" style="background:none; color:var(--text-muted); border:none; margin-top:15px; cursor:pointer; font-size:0.9rem;">إغلاق</button>  
+    </div>  
+</div>  
 
-    <div class="filter-row">
-        <div class="ai-tag" onclick="quickFilter('cheap')"><i class="fa-solid fa-sack-dollar" style="color:var(--success)"></i> <span id="tag-cheap"></span></div>
-        <div class="ai-tag" onclick="quickFilter('top-rated')"><i class="fa-solid fa-star" style="color:var(--accent)"></i> <span id="tag-top"></span></div>
-        <div class="ai-tag" onclick="quickFilter('new')"><i class="fa-solid fa-fire" style="color:var(--error)"></i> <span id="tag-new"></span></div>
-    </div>
+<div class="modal" id="auth-modal">  
+    <div class="modal-box">  
+        <h3 style="color:var(--primary); margin-top:0;">تسجيل الدخول / إنشاء حساب</h3>  
+        <p style="color:var(--text-muted); font-size:0.8rem; margin-bottom:20px;">يجب عليك تسجيل الدخول لاستخدام التطبيق</p>  
+          
+        <input type="email" id="auth-email" placeholder="البريد الإلكتروني" style="margin-bottom: 10px;">  
+        <input type="password" id="auth-pass" placeholder="كلمة المرور" style="margin-bottom: 20px;">  
+          
+        <button class="action-btn buy-now" onclick="handleEmailLogin()" style="width:100%; margin-bottom:10px;">تسجيل دخول (Email)</button>  
+        <button class="action-btn" onclick="handleEmailRegister()" style="width:100%; background: transparent; border: 1px solid var(--primary); color: var(--text); margin-bottom:10px;">إنشاء حساب جديد</button>  
+          
+        <div style="margin: 15px 0; border-top: 1px solid var(--glass-border); position: relative;">  
+            <span style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: #0f172a; padding: 0 10px; font-size: 0.8rem; color: var(--text-muted);">أو</span>  
+        </div>  
 
-    <div class="cat-grid">
-        <div class="cat-card" onclick="quickSearch('ألعاب')"><i class="fa-solid fa-gamepad"></i><span id="cat-game"></span></div>
-        <div class="cat-card" onclick="quickSearch('جمال')"><i class="fa-solid fa-sparkles"></i><span id="cat-beauty"></span></div>
-        <div class="cat-card" onclick="quickSearch('منزل ذكي')"><i class="fa-solid fa-house-laptop"></i><span id="cat-home"></span></div>
-        <div class="cat-card" onclick="quickSearch('هواتف')"><i class="fa-solid fa-mobile-screen-button"></i><span id="cat-c1"></span></div>
-        <div class="cat-card" onclick="quickSearch('لابتوب')"><i class="fa-solid fa-laptop"></i><span id="cat-c2"></span></div>
-        <div class="cat-card" onclick="quickSearch('ساعات')"><i class="fa-solid fa-stopwatch"></i><span id="cat-c4"></span></div>
-    </div>
+        <button class="action-btn" onclick="handleGoogleLogin()" style="width:100%; background: #fff; color: #333; display: flex; align-items: center; justify-content: center; gap: 10px;">  
+            <i class="fa-brands fa-google" style="color: #DB4437;"></i> الدخول عبر Google  
+        </button>  
 
-    <div id="status" style="display:none; color:var(--primary); font-weight:bold; margin-top:30px; font-size:1.2rem;"></div>
-    <div id="results"></div>
-</main>
+        <button id="auth-close-btn" onclick="toggleAuthModal()" style="background:none; color:var(--text-muted); border:none; margin-top:15px; cursor:pointer; font-size:0.9rem;">إغلاق</button>  
+    </div>  
+</div>  
 
-<div class="modal" id="w-modal">
-    <div class="modal-box">
-        <h3 style="color:var(--primary); margin-bottom:20px; font-size:1.5rem;"><i class="fa-solid fa-bell"></i> <span id="txt-watch-title"></span></h3>
-        <div id="watch-list-content" style="max-height: 350px; overflow-y: auto; padding: 10px;"></div>
-        <button class="action-btn watch-later" onclick="toggleWatchList()" style="width:100%; margin-top:20px;">إغلاق</button>
-    </div>
-</div>
-
-<div class="modal" id="p-modal">
-    <div class="modal-box">
-        <h3 id="p-head" style="margin-bottom:20px; color:var(--primary);"></h3>
-        <input type="text" id="in-name" placeholder="اسمك">
-        <input type="number" id="in-budget" placeholder="الميزانية ($)">
-        <button class="action-btn buy-now" onclick="saveSet()" style="width:100%; margin-top:25px;">حفظ التغييرات ✅</button>
-        <button onclick="document.getElementById('p-modal').style.display='none'" style="background:none; border:none; color:var(--text-muted); margin-top:15px; cursor:pointer;">إغلاق</button>
-    </div>
-</div>
-
-<div class="modal" id="auth-modal">
-    <div class="modal-box">
-        <h3 style="color:var(--primary); margin-bottom:10px;">انضم إلى Findly</h3>
-        <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:20px;">سجل دخولك لتتمكن من البحث ومراقبة الأسعار</p>
-        <input type="email" id="auth-email" placeholder="البريد الإلكتروني">
-        <input type="password" id="auth-pass" placeholder="كلمة المرور">
-        <button class="action-btn buy-now" onclick="handleEmailLogin()" style="width:100%; margin-top:20px;">تسجيل دخول</button>
-        <button class="action-btn watch-later" onclick="handleEmailRegister()" style="width:100%; margin-top:10px;">إنشاء حساب جديد</button>
-        <div style="margin:20px 0; color:var(--text-muted); font-size:0.8rem;">أو</div>
-        <button class="action-btn" onclick="handleGoogleLogin()" style="width:100%; background:white; color:#333;"><i class="fa-brands fa-google" style="color:#DB4437"></i> Google</button>
-    </div>
-</div>
-
-<script>
-    // --- 1. Firebase Logic (كاملة) ---
-    const firebaseConfig = {
-        apiKey: "AIzaSyCI_q5lkgRY4133ua4RlG5TeiCqJ5N5KTU",
-        authDomain: "findly-ede17.firebaseapp.com",
-        projectId: "findly-ede17",
-        storageBucket: "findly-ede17.firebasestorage.app",
-        messagingSenderId: "503212830017",
-        appId: "1:503212830017:web:9afb64c19822bbe7f645c0",
-        measurementId: "G-X1Q3WDP50N"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const analytics = firebase.analytics();
-
-    let lang = localStorage.getItem('findly_lang') || 'ar';
-    let attempts = parseInt(localStorage.getItem('findly_attempts') || '3');
-    let watchList = JSON.parse(localStorage.getItem('findly_watch') || '[]');
-    let currentUserUID = localStorage.getItem('findly_uid');
-
-    // --- 2. Auth State ---
-    auth.onAuthStateChanged(user => {
-        if (user) {
-            currentUserUID = user.uid;
-            localStorage.setItem('findly_uid', user.uid);
-            updateAuthUI(true);
-        } else {
-            currentUserUID = null;
-            localStorage.removeItem('findly_uid');
-            updateAuthUI(false);
-            toggleAuthModal();
-        }
-    });
-
-    function toggleAuthModal() {
-        const m = document.getElementById('auth-modal');
-        m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
+<script>  
+    function openAbout() {
+        document.getElementById('about-modal').style.display = 'flex';
+    }
+    function closeAbout() {
+        document.getElementById('about-modal').style.display = 'none';
     }
 
-    function handleGoogleLogin() {
-        const provider = new firebase.auth.GoogleAuthProvider();
-        auth.signInWithPopup(provider).then(() => toggleAuthModal()).catch(e => alert(e.message));
+    // --- 1. إعدادات Firebase ---  
+    const firebaseConfig = {  
+        apiKey: "AIzaSyCI_q5lkgRY4133ua4RlG5TeiCqJ5N5KTU",  
+        authDomain: "findly-ede17.firebaseapp.com",  
+        projectId: "findly-ede17",  
+        storageBucket: "findly-ede17.firebasestorage.app",  
+        messagingSenderId: "503212830017",  
+        appId: "1:503212830017:web:9afb64c19822bbe7f645c0",  
+        measurementId: "G-X1Q3WDP50N"  
+    };  
+
+    // تشغيل Firebase  
+    firebase.initializeApp(firebaseConfig);  
+    const auth = firebase.auth();  
+    const analytics = firebase.analytics();  
+
+    // متغيرات عامة  
+    const API = "https://findly-api.onrender.com";  
+    let lang = localStorage.getItem('findly_lang') || 'ar';  
+    let savedAttempts = localStorage.getItem('findly_attempts');  
+    let attempts = (savedAttempts !== null) ? parseInt(savedAttempts) : 3;  
+    if (savedAttempts === null) localStorage.setItem('findly_attempts', 3);  
+    let watchList = JSON.parse(localStorage.getItem('findly_watch')) || [];  
+    let currentUserUID = localStorage.getItem('findly_uid');  
+
+    // --- 2. دوال المصادقة ---  
+    auth.onAuthStateChanged((user) => {  
+        if (user) {  
+            currentUserUID = user.uid;  
+            localStorage.setItem('findly_uid', user.uid);  
+            updateAuthUI(true);  
+        } else {  
+            currentUserUID = null;  
+            localStorage.removeItem('findly_uid');  
+            updateAuthUI(false);  
+            // إجبار المستخدم على تسجيل الدخول إذا لم يكن مسجلاً  
+            toggleAuthModal();  
+        }  
+    });  
+
+    function toggleAuthModal() {  
+        const modal = document.getElementById('auth-modal');  
+        const closeBtn = document.getElementById('auth-close-btn');  
+          
+        modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';  
+          
+        if (!currentUserUID && modal.style.display === 'flex') {  
+            closeBtn.style.display = 'none';  
+        } else {  
+            closeBtn.style.display = 'block';  
+        }  
+    }  
+
+    function handleEmailLogin() {  
+        const email = document.getElementById('auth-email').value;  
+        const pass = document.getElementById('auth-pass').value;  
+        if(!email || !pass) return alert("الرجاء إدخال البيانات");  
+
+        auth.signInWithEmailAndPassword(email, pass)  
+            .then((userCredential) => {  
+                toggleAuthModal();  
+                alert("تم تسجيل الدخول بنجاح! 👋");  
+            })  
+            .catch((error) => {  
+                alert("خطأ: " + error.message);  
+            });  
+    }  
+
+    function handleEmailRegister() {  
+        const email = document.getElementById('auth-email').value;  
+        const pass = document.getElementById('auth-pass').value;  
+        if(!email || !pass) return alert("الرجاء إدخال البيانات");  
+
+        auth.createUserWithEmailAndPassword(email, pass)  
+            .then((userCredential) => {  
+                toggleAuthModal();  
+                alert("تم إنشاء الحساب بنجاح! 🚀");  
+            })  
+            .catch((error) => {  
+                alert("خطأ: " + error.message);  
+            });  
+    }  
+
+    function handleGoogleLogin() {  
+        const provider = new firebase.auth.GoogleAuthProvider();  
+        auth.signInWithPopup(provider)  
+            .then((result) => {  
+                toggleAuthModal();  
+                alert("أهلاً بك عبر Google! 🎉");  
+            }).catch((error) => {  
+                alert("خطأ: " + error.message);  
+            });  
+    }  
+
+    function handleLogout() {  
+        auth.signOut().then(() => {  
+            alert("تم تسجيل الخروج");  
+            location.reload();  
+        });  
+    }  
+
+    function updateAuthUI(isLoggedIn) {  
+        const container = document.getElementById('auth-buttons-container');  
+        if (isLoggedIn) {  
+            container.innerHTML = `  
+                <button class="tool-btn" onclick="openProfile()" title="الملف الشخصي"><i class="fa-solid fa-user-gear"></i></button>  
+                <button class="tool-btn" onclick="handleLogout()" style="border-color: #ef4444; color: #ef4444;" title="تسجيل خروج"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>  
+            `;  
+        } else {  
+            container.innerHTML = `  
+                <button class="tool-btn" onclick="toggleAuthModal()" title="تسجيل الدخول"><i class="fa-solid fa-user"></i></button>  
+            `;  
+        }  
+    }  
+
+    // --- قاموس الترجمة ---  
+    const dict = {  
+        ar: { title: "مستشارك الحكيم", sub: "دليلك الذكي للتسوق المثالي", energy: "طاقة العقل", welcome: "مرحباً،", game: "ألعاب", beauty: "جمال", home: "منزل ذكي", c1: "هواتف", c2: "لابتوب", c4: "ساعات", p_head: "الملف الشخصي", buy: "شراء الآن 🛒", watch: "راقب السعر 🔔", over: "يتجاوز ميزانيتك!", cheap: "اقتصادي", top: "الأعلى تقييماً", new: "حديث جداً", deep: "وضع التحليل الذكي", watchTitle: "قائمة المراقبة", why: "لماذا اخترنا هذا؟", slow: "السيرفر يستيقظ.. انتظر ثوانٍ", noAttempts: "⚠️ استنفدت محاولاتك!" },  
+        en: { title: "Sage Advisor", sub: "Your smart shopping guide", energy: "Sage Energy", welcome: "Welcome,", game: "Gaming", beauty: "Beauty", home: "Smart Home", c1: "Phones", c2: "Laptops", c4: "Watches", p_head: "Profile", buy: "Buy Now 🛒", watch: "Watch Price 🔔", over: "Over Budget!", cheap: "Budget", top: "Top Rated", new: "Newest", deep: "AI Deep Mode", watchTitle: "Watch List", why: "Why this choice?", slow: "Server waking up.. wait", noAttempts: "⚠️ No attempts left!" },  
+        fr: { title: "Conseiller Sage", sub: "Votre guide d'achat intelligent", energy: "Énergie Sage", welcome: "Bienvenue,", game: "Jeux", beauty: "Beauté", home: "Maison Inte.", c1: "Mobiles", c2: "Laptops", c4: "Montres", p_head: "Profil", buy: "Acheter 🛒", watch: "Surveiller 🔔", over: "Hors budget!", cheap: "Éco", top: "Mieux notés", new: "Nouveau", deep: "Mode Analyse AI", watchTitle: "Liste de veille", why: "Pourquoi ce choix?", slow: "Le serveur se réveille..", noAttempts: "⚠️ Plus d'essais!" },  
+        de: { title: "Weiser Berater", sub: "Ihr smarter Einkaufsführer", energy: "Weise Energie", welcome: "Willkommen,", game: "Spiele", beauty: "Schönheit", home: "Smart Home", c1: "Handys", c2: "Laptops", c4: "Uhren", p_head: "Profil", buy: "Kaufen 🛒", watch: "Beobachten 🔔", over: "Budget übersch.", cheap: "Günstig", top: "Bestbewertet", new: "Neu", deep: "KI-Analyse-Modus", watchTitle: "Beobachtungsliste", why: "Warum diese Wahl?", slow: "Server wacht auf..", noAttempts: "⚠️ Keine Versuche mehr!" },  
+        es: { title: "Asesor Sabio", sub: "Tu guía de compras inteligente", energy: "Energía Sabia", welcome: "Bienvenido,", game: "Juegos", beauty: "Belleza", home: "Hogar Intelig.", c1: "Móviles", c2: "Portátiles", c4: "Relojes", p_head: "Perfil", buy: "Comprar 🛒", watch: "Vigilar 🔔", over: "Fuera de presupuesto", cheap: "Económico", top: "Mejor valorado", new: "Nuevo", deep: "Modo de análisis IA", watchTitle: "Lista de vigilancia", why: "¿Por qué esta elección?", slow: "El servidor está despertando..", noAttempts: "⚠️ ¡No quedan intentos!" },  
+        tr: { title: "Bilge Danışman", sub: "Akıllı alışveriş rehberiniz", energy: "Bilge Enerji", welcome: "Hoş geldiniz,", game: "Oyunlar", beauty: "Güzellik", home: "Akıllı Ev", c1: "Telefonlar", c2: "Laptoplar", c4: "Saatler", p_head: "Profil", buy: "Satın Al 🛒", watch: "Fiyatı İzle 🔔", over: "Bütçe Aşıldı!", cheap: "Ekonomik", top: "En İyi", new: "Yeni", deep: "Yapay Zeka Analiz", watchTitle: "İzleme Listesi", why: "Neden bu seçim?", slow: "Sunucu uyanıyor.. bekleyin", noAttempts: "⚠️ Deneme kalmadı!" }  
+    };  
+
+    // --- 3. دالة البحث ---  
+    async function runSearch() {  
+        // التحقق من تسجيل الدخول قبل البحث  
+        if (!currentUserUID) {  
+            alert("يجب عليك تسجيل الدخول أولاً!");  
+            toggleAuthModal();  
+            return;  
+        }  
+
+        let q = document.getElementById('s-input').value;  
+        const status = document.getElementById('status');  
+        const resCon = document.getElementById('results');  
+        const d = dict[lang] || dict['ar'];  
+          
+        // جلب الميزانية المحفوظة  
+        let rawBudget = localStorage.getItem('fb');  
+        let userBudget = rawBudget ? parseFloat(rawBudget) : 0;  
+
+        if (attempts <= 0) {   
+            status.style.display = "block";  
+            status.innerHTML = d.noAttempts;  
+            return;   
+        }  
+        if (!q) return;  
+
+        status.style.display = "block";  
+        status.innerHTML = '<i class="fa-solid fa-microchip fa-spin"></i> Analyzing...';  
+        resCon.innerHTML = "";  
+
+        try {  
+            const bodyData = {   
+                query: q,   
+                lang: lang,  
+                uid: currentUserUID || 'guest'  
+            };  
+
+            const res = await fetch(`${API}/smart-search`, {  
+                method: 'POST',  
+                headers: { 'Content-Type': 'application/json' },  
+                body: JSON.stringify(bodyData)  
+            });  
+              
+            const data = await res.json();  
+            status.style.display = "none";  
+
+            if (data.products && data.products.length > 0) {  
+                data.products.forEach((p, index) => {  
+                    let cleanPriceString = p.price ? p.price.toString().replace(/,/g, '').replace(/[^\d.]/g, '') : "0";  
+                    let priceVal = parseFloat(cleanPriceString);  
+                    
+                    // منطق تنبيه تجاوز الميزانية  
+                    let budgetAlert = "";  
+                    if (userBudget > 0 && priceVal > userBudget) {  
+                        budgetAlert = `<div class="budget-error"><i class="fa-solid fa-triangle-exclamation"></i> ${d.over} ($${userBudget})</div>`;  
+                    }  
+                    
+                    // تخزين الرابط للبرودكت بشكل آمن في زر الإضافة
+                    // استبدال علامات التنصيص لتجنب كسر الكود
+                    const safeName = p.name.replace(/'/g, "\\'");
+                    
+                    setTimeout(() => {  
+                        resCon.innerHTML += `  
+                            <div class="product-card">  
+                                ${budgetAlert}  
+                                <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/150'">  
+                                <h3>${p.name}</h3>  
+                                <div class="price">${p.price || 'N/A'}</div>  
+                                <div class="analysis-engine"><span class="analysis-label"><i class="fa-solid fa-brain"></i> ${d.why}</span>${p.reason}</div>  
+                                <div class="btn-group">  
+                                    <a href="${p.link}" target="_blank" class="action-btn buy-now">${d.buy}</a>  
+                                    <button class="action-btn watch-later" onclick="addToWatch('${safeName}', '${p.price}', '${p.link}')">${d.watch}</button>  
+                                </div>  
+                            </div>`;  
+                    }, index * 100);  
+                });  
+                  
+                attempts--;  
+                localStorage.setItem('findly_attempts', attempts);  
+                update();  
+            } else {  
+                status.style.display = "block";  
+                status.innerHTML = "No results found / لا توجد نتائج";  
+            }  
+        } catch (e) {  
+            console.error(e);  
+            status.style.display = "block";  
+            status.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Error: ${d.slow || "Server Error"}`;  
+        }  
+    }  
+
+    // --- 4. تحديث الواجهة واللغة ---  
+    function update() {  
+        const d = dict[lang] || dict['ar'];  
+          
+        // النصوص الأساسية  
+        document.getElementById('txt-title').innerText = d.title;  
+        document.getElementById('txt-sub').innerText = d.sub;  
+        document.getElementById('txt-energy').innerText = d.energy;  
+        document.getElementById('txt-deep').innerText = d.deep;  
+        document.getElementById('p-head').innerText = d.p_head;  
+          
+        // التصنيفات  
+        document.getElementById('cat-game').innerText = d.game;  
+        document.getElementById('cat-beauty').innerText = d.beauty;  
+        document.getElementById('cat-home').innerText = d.home;  
+        document.getElementById('cat-c1').innerText = d.c1;  
+        document.getElementById('cat-c2').innerText = d.c2;  
+        document.getElementById('cat-c4').innerText = d.c4;  
+          
+        // التاجات  
+        document.getElementById('tag-cheap').innerText = d.cheap;  
+        document.getElementById('tag-top').innerText = d.top;  
+        document.getElementById('tag-new').innerText = d.new;  
+
+        document.getElementById('txt-watch-title').innerText = d.watchTitle;  
+
+        // تحديث عدد المحاولات  
+        document.getElementById('r-count').innerText = attempts;  
+          
+        // الترحيب  
+        let uName = localStorage.getItem('fn') || 'User';  
+        document.getElementById('greeting').innerText = `${d.welcome} ${uName} 👋`;  
+
+        // تحديث عدد التنبيهات في الجرس
+        const wCount = document.getElementById('watch-count');  
+        if(watchList.length > 0) {  
+            wCount.style.display = 'block';  
+            wCount.innerText = watchList.length;  
+        } else {  
+            wCount.style.display = 'none';  
+        }  
+          
+        // اتجاه النص  
+        document.getElementById('main-html').setAttribute('dir', (lang === 'ar') ? 'rtl' : 'ltr');  
+    }  
+
+    // --- 5. دوال مساعدة إضافية ---  
+
+    // البحث السريع عبر الفلاتر - النسخة المدمجة الذكية
+    function quickFilter(type) {
+        const input = document.getElementById('s-input');
+        let currentQuery = input.value.trim();
+
+        // إذا كان الحقل فارغاً، نضع كلمة بحث افتراضية
+        if (!currentQuery) currentQuery = "جوالات"; 
+
+        // تنظيف الكلمة من أي إضافات قديمة للفلاتر
+        const d = dict[lang] || dict['ar'];
+        // نحاول إزالة الكلمات بناءً على اللغة الحالية
+        currentQuery = currentQuery.replace(" أرخص سعر", "").replace(" top rated", "").replace(" 2026", "")
+                                   .replace(" رخيص", "").replace(" Cheap", "").replace(" New", "");
+
+        // إضافة الكلمة المفتاحية بناءً على نوع الفلتر
+        if (type === 'cheap') currentQuery += (lang==='ar') ? " أرخص سعر" : " Cheap";
+        if (type === 'top-rated') currentQuery += " top rated";
+        if (type === 'new') currentQuery += " 2026";
+
+        input.value = currentQuery;
+        
+        // تشغيل البحث فوراً بالكلمة الجديدة
+        runSearch(); 
     }
 
-    function handleEmailLogin() {
-        const e = document.getElementById('auth-email').value;
-        const p = document.getElementById('auth-pass').value;
-        auth.signInWithEmailAndPassword(e, p).then(() => toggleAuthModal()).catch(e => alert(e.message));
-    }
+    // تبديل اللغة  
+    function setLang(l) {  
+        lang = l;  
+        localStorage.setItem('findly_lang', l);  
+        document.getElementById('l-menu').style.display = 'none';  
+        update();  
+    }  
 
-    function handleEmailRegister() {
-        const e = document.getElementById('auth-email').value;
-        const p = document.getElementById('auth-pass').value;
-        auth.createUserWithEmailAndPassword(e, p).then(() => toggleAuthModal()).catch(e => alert(e.message));
-    }
+    function toggleLMenu() {  
+        const m = document.getElementById('l-menu');  
+        m.style.display = (m.style.display === 'block') ? 'none' : 'block';  
+    }  
 
-    function updateAuthUI(logged) {
-        const container = document.getElementById('auth-buttons-container');
-        if(logged) {
-            container.innerHTML = `
-                <button class="tool-btn" onclick="openProfile()"><i class="fa-solid fa-user-gear"></i></button>
-                <button class="tool-btn" onclick="auth.signOut()" style="border-color:var(--error); color:var(--error);"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
-            `;
-        } else {
-            container.innerHTML = `<button class="tool-btn" onclick="toggleAuthModal()"><i class="fa-solid fa-user"></i></button>`;
-        }
-    }
+    // الوضع الليلي/النهاري  
+    function toggleMode() {  
+        document.body.classList.toggle('light-mode');  
+    }  
 
-    // --- 3. Dictionary (كامل بـ 6 لغات) ---
-    const dict = {
-        ar: { title: "مستشارك الحكيم", sub: "دليلك الذكي للتسوق المثالي", energy: "طاقة العقل", welcome: "مرحباً،", game: "ألعاب", beauty: "جمال", home: "منزل ذكي", c1: "هواتف", c2: "لابتوب", c4: "ساعات", p_head: "الملف الشخصي", buy: "شراء الآن 🛒", watch: "راقب السعر 🔔", over: "يتجاوز ميزانيتك!", cheap: "اقتصادي", top: "الأعلى تقييماً", new: "حديث جداً", deep: "وضع التحليل الذكي (Deep AI)", watchTitle: "قائمة المراقبة", why: "لماذا اخترنا هذا؟", noAttempts: "⚠️ استنفدت محاولاتك!" },
-        en: { title: "Sage Advisor", sub: "Your smart shopping guide", energy: "Sage Energy", welcome: "Welcome,", game: "Gaming", beauty: "Beauty", home: "Smart Home", c1: "Phones", c2: "Laptops", c4: "Watches", p_head: "Profile", buy: "Buy Now 🛒", watch: "Watch Price 🔔", over: "Over Budget!", cheap: "Budget", top: "Top Rated", new: "Newest", deep: "Deep AI Mode", watchTitle: "Watch List", why: "Why this choice?", noAttempts: "⚠️ No attempts left!" },
-        fr: { title: "Conseiller Sage", sub: "Votre guide d'achat intelligent", energy: "Énergie Sage", welcome: "Bienvenue,", game: "Jeux", beauty: "Beauté", home: "Maison Inte.", c1: "Mobiles", c2: "Laptops", c4: "Montres", p_head: "Profil", buy: "Acheter 🛒", watch: "Surveiller 🔔", over: "Hors budget!", cheap: "Éco", top: "Mieux notés", new: "Nouveau", deep: "Mode Analyse AI", watchTitle: "Liste de veille", why: "Pourquoi ce choix?", noAttempts: "⚠️ Plus d'essais!" },
-        de: { title: "Weiser Berater", sub: "Ihr smarter Einkaufsführer", energy: "Weise Energie", welcome: "Willkommen,", game: "Spiele", beauty: "Schönheit", home: "Smart Home", c1: "Handys", c2: "Laptops", c4: "Uhren", p_head: "Profil", buy: "Kaufen 🛒", watch: "Beobachten 🔔", over: "Budget übersch.", cheap: "Günstig", top: "Bestbewertet", new: "Neu", deep: "KI-Analyse-Modus", watchTitle: "Beobachtungsliste", why: "Warum diese Wahl?", noAttempts: "⚠️ Keine Versuche mehr!" },
-        es: { title: "Asesor Sabio", sub: "Tu guía de compras inteligente", energy: "Energía Sabia", welcome: "Bienvenido,", game: "Juegos", beauty: "Belleza", home: "Hogar Intelig.", c1: "Móviles", c2: "Portátiles", c4: "Relojes", p_head: "Perfil", buy: "Comprar 🛒", watch: "Vigilar 🔔", over: "Fuera de presupuesto", cheap: "Económico", top: "Mejor valorado", new: "Nuevo", deep: "Modo de análisis IA", watchTitle: "Lista de vigilancia", why: "¿Por qué esta elección?", noAttempts: "⚠️ ¡No quedan intentos!" },
-        tr: { title: "Bilge Danışman", sub: "Akıllı alışveriş rehberiniz", energy: "Bilge Enerji", welcome: "Hoş geldiniz,", game: "Oyunlar", beauty: "Güzellik", home: "Akıllı Ev", c1: "Telefonlar", c2: "Laptoplar", c4: "Saatler", p_head: "Profil", buy: "Satın Al 🛒", watch: "Fiyatı İzle 🔔", over: "Bütçe Aşıldı!", cheap: "Ekonomik", top: "En İyi", new: "Yeni", deep: "Yapay Zeka Analiz", watchTitle: "İزleme Listesi", why: "Neden bu seçim?", noAttempts: "⚠️ Deneme kalmadı!" }
-    };
+    function quickSearch(txt) {  
+        document.getElementById('s-input').value = txt;  
+        runSearch();  
+    }  
 
-    // --- 4. Main Functions (Search, Watchlist, Voice) ---
-    async function runSearch() {
-        if (!currentUserUID) return toggleAuthModal();
-        const q = document.getElementById('s-input').value;
-        const isDeep = document.getElementById('ai-deep-mode').checked;
-        const status = document.getElementById('status');
-        const resCon = document.getElementById('results');
-        const d = dict[lang] || dict.ar;
+    // إدارة الملف الشخصي  
+    function openProfile() {  
+        document.getElementById('p-modal').style.display = 'flex';  
+        document.getElementById('in-name').value = localStorage.getItem('fn') || '';  
+        document.getElementById('in-budget').value = localStorage.getItem('fb') || '';  
+    }  
 
-        if (attempts <= 0) { status.style.display="block"; status.innerHTML = d.noAttempts; return; }
-        if (!q) return;
+    // دالة حفظ الإعدادات وإرسال التنبيه
+    async function saveSet() {
+        const n = document.getElementById('in-name').value;
+        const b = document.getElementById('in-budget').value;
+        
+        // حفظ محلياً للتذكير
+        if(n) localStorage.setItem('fn', n);
+        if(b) localStorage.setItem('fb', b);
+        update(); // تحديث الترحيب
 
-        status.style.display = "block";
-        status.innerHTML = `<i class="fa-solid fa-brain fa-fade"></i> ${isDeep ? 'Deep Analysis Running...' : 'Searching...'}`;
-        resCon.innerHTML = "";
-
-        const userBudget = parseFloat(localStorage.getItem('fb')) || 0;
+        // طلب الإيميل من المستخدم لضبط تنبيه
+        const email = prompt("أدخل بريدك الإلكتروني لتلقي تنبيه عند انخفاض السعر:");
+        if (!email) return;
 
         try {
-            const res = await fetch(`https://findly-api.onrender.com/smart-search`, {
+            const response = await fetch(`${API}/set-alert`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ query: q, lang, deep: isDeep, uid: currentUserUID })
+                body: JSON.stringify({
+                    email: email,
+                    productName: n, // نستخدم الاسم المدخل كمرجع
+                    targetPrice: parseFloat(b),
+                    link: "#", // في شاشة البروفايل لا يوجد منتج محدد، نرسل قيمة افتراضية
+                    lang: 'ar',
+                    uid: localStorage.getItem('findly_uid')
+                })
             });
-            const data = await res.json();
-            status.style.display = "none";
 
-            if (data.products && data.products.length > 0) {
-                data.products.forEach((p, i) => {
-                    let priceVal = parseFloat(p.price.toString().replace(/[^\d.]/g, '')) || 0;
-                    let budgetAlert = (userBudget > 0 && priceVal > userBudget) ? `<div class="budget-error"><i class="fa-solid fa-triangle-exclamation"></i> ${d.over}</div>` : "";
-                    
-                    setTimeout(() => {
-                        resCon.innerHTML += `
-                            <div class="product-card">
-                                ${budgetAlert}
-                                <img src="${p.thumbnail || 'https://via.placeholder.com/300'}" onerror="this.src='https://via.placeholder.com/300'">
-                                <h3>${p.name}</h3>
-                                <div class="price">${p.price}</div>
-                                <div class="analysis-engine"><b><i class="fa-solid fa-robot"></i> ${d.why}:</b><br>${p.reason}</div>
-                                <div class="btn-group">
-                                    <a href="${p.link}" target="_blank" class="action-btn buy-now">${d.buy}</a>
-                                    <button class="action-btn watch-later" onclick="addToWatch('${p.name.replace(/'/g,"")}', '${p.price}', '${p.link}')">${d.watch}</button>
-                                </div>
-                            </div>
-                        `;
-                    }, i * 200);
-                });
-                attempts--;
-                localStorage.setItem('findly_attempts', attempts);
-                update();
+            if (response.ok) {
+                alert("✅ تم تحديث بياناتك وتفعيل التنبيهات العامة!");
+                document.getElementById('p-modal').style.display = 'none';
             }
-        } catch (e) { status.innerHTML = "Error connecting to AI Server"; }
-    }
-
-    function addToWatch(n, p, l) {
-        if(!currentUserUID) return toggleAuthModal();
-        watchList.push({ name: n, price: p, link: l });
-        localStorage.setItem('findly_watch', JSON.stringify(watchList));
-        update();
-        alert("✅ Added to Watchlist");
-    }
-
-    function toggleWatchList() {
-        const m = document.getElementById('w-modal');
-        const content = document.getElementById('watch-list-content');
-        if(m.style.display === 'flex') { m.style.display = 'none'; }
-        else {
-            m.style.display = 'flex';
-            content.innerHTML = watchList.length ? "" : "<p style='color:var(--text-muted)'>قائمة المراقبة فارغة</p>";
-            watchList.forEach((w, i) => {
-                content.innerHTML += `
-                    <div style="background:rgba(255,255,255,0.03); padding:15px; border-radius:15px; margin-bottom:10px; border:1px solid var(--glass-border); text-align:right;">
-                        <div style="font-weight:bold; font-size:0.9rem;">${w.name}</div>
-                        <div style="color:var(--success); font-weight:900;">${w.price}</div>
-                        <div style="display:flex; justify-content:space-between; margin-top:10px;">
-                            <a href="${w.link}" target="_blank" style="color:var(--primary); font-size:0.8rem;">فتح الرابط</a>
-                            <button onclick="removeFromWatch(${i})" style="color:var(--error); background:none; border:none; cursor:pointer;">حذف</button>
-                        </div>
-                    </div>
-                `;
-            });
+        } catch (err) {
+            alert("❌ فشل الاتصال بالسيرفر، لكن تم الحفظ محلياً");
+            document.getElementById('p-modal').style.display = 'none';
         }
     }
 
-    function removeFromWatch(i) {
-        watchList.splice(i, 1);
+    // دالة إضافة منتج للمفضلة (الجرس) بالسيرفر وتحديث الواجهة
+    async function addToWatch(n, p, l) {
+        const uid = localStorage.getItem('findly_uid');
+        if (!uid) { alert("يرجى تسجيل الدخول أولاً"); toggleAuthModal(); return; }
+
+        // إضافة مبدئية للمصفوفة المحلية لتحديث الواجهة بسرعة
+        const newItem = { name: n, price: p, link: l };
+        watchList.push(newItem);
         localStorage.setItem('findly_watch', JSON.stringify(watchList));
-        toggleWatchList(); toggleWatchList(); // Refresh
-        update();
+        update(); // تحديث أيقونة الجرس فوراً
+
+        try {
+            const res = await fetch(`${API}/watchlist/add`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ uid, product: newItem })
+            });
+            const data = await res.json();
+            alert(data.message === "موجود بالفعل" ? "⚠️ المنتج موجود في قائمتك" : "✅ تمت الإضافة للجرس");
+            // إذا كان موجود بالفعل، يمكننا إزالته من القائمة المحلية لتجنب التكرار إذا أردت
+        } catch (e) { 
+            console.error(e);
+            // لا نزعج المستخدم برسالة خطأ إذا نجحت الإضافة المحلية
+        }
     }
 
-    function startVoice() {
-        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-        recognition.lang = (lang === 'ar') ? 'ar-SA' : 'en-US';
-        recognition.onstart = () => document.getElementById('mic-btn').classList.add('mic-active');
-        recognition.onend = () => document.getElementById('mic-btn').classList.remove('mic-active');
-        recognition.onresult = (e) => { document.getElementById('s-input').value = e.results[0][0].transcript; runSearch(); };
-        recognition.start();
-    }
+    function toggleWatchList() {  
+        const modal = document.getElementById('w-modal');  
+        const content = document.getElementById('watch-list-content');  
+          
+        if(modal.style.display === 'flex') {  
+            modal.style.display = 'none';  
+        } else {  
+            modal.style.display = 'flex';  
+            content.innerHTML = "";  
+            if(watchList.length === 0) {  
+                content.innerHTML = "<p style='color:#94a3b8'>القائمة فارغة</p>";  
+            } else {  
+                watchList.forEach((w, i) => {  
+                    content.innerHTML += `  
+                        <div style="background:#1e293b; padding:10px; margin-bottom:10px; border-radius:10px; text-align:right;">  
+                            <div style="font-weight:bold; color:#fff; font-size:0.9rem;">${w.name}</div>  
+                            <div style="color:#10b981; font-size:0.8rem;">${w.price}</div>  
+                            <a href="${w.link}" target="_blank" style="color:var(--primary); font-size:0.8rem;">رابط المنتج</a>  
+                            <button onclick="removeFromWatch(${i})" style="color:#ef4444; background:none; border:none; float:left; cursor:pointer;">حذف</button>  
+                        </div>  
+                    `;  
+                });  
+            }  
+        }  
+    }  
 
-    // --- 5. UI Updates & Helpers ---
-    function update() {
-        const d = dict[lang] || dict.ar;
-        document.getElementById('txt-title').innerText = d.title;
-        document.getElementById('txt-sub').innerText = d.sub;
-        document.getElementById('txt-energy').innerText = d.energy;
-        document.getElementById('txt-deep').innerText = d.deep;
-        document.getElementById('p-head').innerText = d.p_head;
-        document.getElementById('tag-cheap').innerText = d.cheap;
-        document.getElementById('tag-top').innerText = d.top;
-        document.getElementById('tag-new').innerText = d.new;
-        document.getElementById('cat-game').innerText = d.game;
-        document.getElementById('cat-beauty').innerText = d.beauty;
-        document.getElementById('cat-home').innerText = d.home;
-        document.getElementById('cat-c1').innerText = d.c1;
-        document.getElementById('cat-c2').innerText = d.c2;
-        document.getElementById('cat-c4').innerText = d.c4;
-        document.getElementById('txt-watch-title').innerText = d.watchTitle;
-        document.getElementById('r-count').innerText = attempts;
-        
-        const wCount = document.getElementById('watch-count');
-        wCount.innerText = watchList.length;
-        wCount.style.display = watchList.length ? 'block' : 'none';
+    function removeFromWatch(index) {  
+        watchList.splice(index, 1);  
+        localStorage.setItem('findly_watch', JSON.stringify(watchList));  
+        toggleWatchList(); // Refresh list inside modal
+        update(); // Update count badge
+    }  
 
-        const uName = localStorage.getItem('fn') || 'User';
-        document.getElementById('greeting').innerText = `${d.welcome} ${uName} 👋`;
-        document.getElementById('main-html').setAttribute('dir', (lang === 'ar') ? 'rtl' : 'ltr');
-    }
+    // الأوامر الصوتية  
+    function startVoice() {  
+        if (!('webkitSpeechRecognition' in window)) {  
+            alert("متصفحك لا يدعم هذه الميزة");  
+            return;  
+        }  
+        const recognition = new webkitSpeechRecognition();  
+        const micBtn = document.getElementById('mic-btn');  
+          
+        recognition.lang = (lang === 'ar') ? 'ar-SA' : 'en-US';  
+        recognition.onstart = function() {  
+            micBtn.classList.add('mic-active');  
+        };  
+        recognition.onend = function() {  
+            micBtn.classList.remove('mic-active');  
+        };  
+        recognition.onresult = function(event) {  
+            const transcript = event.results[0][0].transcript;  
+            document.getElementById('s-input').value = transcript;  
+            runSearch();  
+        };  
+        recognition.start();  
+    }  
 
-    function setLang(l) { lang = l; localStorage.setItem('findly_lang', l); document.getElementById('l-menu').style.display='none'; update(); }
-    function toggleLMenu() { const m = document.getElementById('l-menu'); m.style.display = (m.style.display==='block')?'none':'block'; }
-    function openProfile() { document.getElementById('p-modal').style.display='flex'; document.getElementById('in-name').value=localStorage.getItem('fn')||''; document.getElementById('in-budget').value=localStorage.getItem('fb')||''; }
-    function saveSet() { localStorage.setItem('fn', document.getElementById('in-name').value); localStorage.setItem('fb', document.getElementById('in-budget').value); document.getElementById('p-modal').style.display='none'; update(); }
-    function quickSearch(t) { document.getElementById('s-input').value = t; runSearch(); }
-    function quickFilter(type) {
-        let current = document.getElementById('s-input').value || "جوالات";
-        if (type === 'cheap') current += " أرخص سعر";
-        if (type === 'top-rated') current += " top rated";
-        if (type === 'new') current += " 2026";
-        document.getElementById('s-input').value = current;
-        runSearch();
-    }
+    // تشغيل عند التحميل  
+    update();  
 
-    update();
 </script>
+<footer style="margin-top: 50px; padding: 30px 5%; border-top: 1px solid var(--glass-border); text-align: center;">
+    <div style="display: flex; justify-content: center; gap: 25px; margin-bottom: 15px;">
+        <a href="privacy.html" class="footer-link">سياسة الخصوصية</a>
+        <a href="terms.html" class="footer-link">شروط الاستخدام</a>
+        <a href="javascript:void(0)" onclick="openAbout()" class="footer-link">من نحن</a>
+    </div>
+    <p style="color: var(--text-muted); font-size: 0.75rem; opacity: 0.6;">
+        © 2026 Findly Sage. جميع الحقوق محفوظة.
+    </p>
+</footer>
 
-</body>
+<div id="about-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:9999; justify-content:center; align-items:center; backdrop-filter: blur(5px);">
+    <div style="background:#161b22; width:90%; max-width:400px; padding:25px; border-radius:24px; border:1px solid var(--glass-border); text-align:center;">
+        <i class="fa-solid fa-wand-magic-sparkles" style="font-size:3rem; color:var(--primary); margin-bottom:15px;"></i>
+        <h2 style="color:#fff; margin-bottom:10px;">Findly Sage</h2>
+        <p style="color:var(--text-muted); line-height:1.6; font-size:0.9rem;">
+            مساعدك الذكي للتسوق. نستخدم الذكاء الاصطناعي لتحليل المنتجات وترشيح الأفضل لك بناءً على الجودة والسعر.
+        </p>
+        <button onclick="closeAbout()" style="margin-top:20px; background:var(--primary); color:white; border:none; padding:10px 30px; border-radius:12px; cursor:pointer; font-weight:bold; width:100%;">إغلاق</button>
+    </div>
+</div>
+
+</body>  
 </html>

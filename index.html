@@ -468,21 +468,22 @@
     </div>
 
     <script>
-        // --- 1. إعدادات Firebase ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyCI_q51kgRY4133ua4R1G5TeiCqJ5N5KTU",
-            authDomain: "findly-ede17.firebaseapp.com",
-            projectId: "findly-ede17",
-            storageBucket: "findly-ede17.appspot.com",
-            messagingSenderId: "503212830017",
-            appId: "1:503212830017:web:9afb64c19822bbe7f645c0",
-            measurementId: "G-X103WDP50N"
-        };
 
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const analytics = firebase.analytics();
+        // --- 1. إعدادات Firebase الجديدة ---
+  const firebaseConfig = {
+    apiKey: "AIzaSyCI_q5lkgRY4133ua4RlG5TeiCqJ5N5KTU",
+    authDomain: "findly-ede17.firebaseapp.com",
+    projectId: "findly-ede17",
+    storageBucket: "findly-ede17.firebasestorage.app",
+    messagingSenderId: "503212830017",
+    appId: "1:503212830017:web:9afb64c19822bbe7f645c0",
+    measurementId: "G-X1Q3WDP50N"
+  };
 
+  // تشغيل Firebase
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const analytics = firebase.analytics();
         // متغيرات عامة
         const API = "https://findly-api.onrender.com";
         let lang = localStorage.getItem('findly_lang') || 'ar';

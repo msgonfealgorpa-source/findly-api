@@ -413,13 +413,17 @@ style>
         <i id="mic-btn" class="fa-solid fa-microphone-lines mic-icon" onclick="startVoice()"></i>  
         <button class="send-btn" onclick="runSearch()"><i class="fa-solid fa-magnifying-glass"></i></button>  
     </div>  
-
-    <div class="ai-options">  
-        <div class="ai-tag" onclick="quickFilter('cheap')"><i class="fa-solid fa-sack-dollar"></i> <span id="tag-cheap"></span></div>  
-        <div class="ai-tag" onclick="quickFilter('top')"><i class="fa-solid fa-star"></i> <span id="tag-top"></span></div>  
-        <div class="ai-tag" onclick="quickFilter('new')"><i class="fa-solid fa-fire"></i> <span id="tag-new"></span></div>  
-    </div>  
-
+  
+<div class="filter-container" style="display: flex; justify-content: center; gap: 10px; margin: 20px 0;">
+    <div class="ai-tag" onclick="quickFilter('cheap')" style="cursor:pointer; padding: 10px 18px; background: rgba(139, 92, 246, 0.1); border: 1px solid var(--glass-border); border-radius: 20px; font-size: 0.85rem; transition: 0.3s;">
+        <i class="fa-solid fa-sack-dollar" style="color: #10b981;"></i> اقتصادي
+    </div>
+    <div class="ai-tag" onclick="quickFilter('top-rated')" style="cursor:pointer; padding: 10px 18px; background: rgba(139, 92, 246, 0.1); border: 1px solid var(--glass-border); border-radius: 20px; font-size: 0.85rem; transition: 0.3s;">
+        <i class="fa-solid fa-star" style="color: #f59e0b;"></i> الأعلى تقييماً
+    </div>
+    <div class="ai-tag" onclick="quickFilter('new')" style="cursor:pointer; padding: 10px 18px; background: rgba(139, 92, 246, 0.1); border: 1px solid var(--glass-border); border-radius: 20px; font-size: 0.85rem; transition: 0.3s;">
+        <i class="fa-solid fa-fire" style="color: #ef4444;"></i> حديث جداً
+    </div>
     <div class="cat-grid">  
         <div class="cat-card" onclick="quickSearch('ألعاب')"><i class="fa-solid fa-gamepad"></i><span id="cat-game"></span></div>  
         <div class="cat-card" onclick="quickSearch('جمال')"><i class="fa-solid fa-sparkles"></i><span id="cat-beauty"></span></div>  
@@ -805,24 +809,54 @@ function closeAbout() {
         document.getElementById('in-budget').value = localStorage.getItem('fb') || '';  
     }  
 
-    function saveSet() {  
-        const n = document.getElementById('in-name').value;  
-        const b = document.getElementById('in-budget').value;  
-        localStorage.setItem('fn', n);  
-        localStorage.setItem('fb', b);  
-        document.getElementById('p-modal').style.display = 'none';  
-        update();  
-    }  
+    // دالة حفظ تنبيه السعر بالسيرفر (طلب الإيميل)
+async function saveSet() {
+    const n = document.getElementById('in-name').value;
+    const b = document.getElementById('in-budget').value;
+    
+    // طلب الإيميل من المستخدم
+    const email = prompt("أدخل بريدك الإلكتروني لتلقي تنبيه عند انخفاض السعر:");
+    if (!email) return;
 
-    // قائمة المراقبة (Watchlist)  
-    function addToWatch(n, p, l) {  
-        const item = { name: n, price: p, link: l };  
-        watchList.push(item);  
-        localStorage.setItem('findly_watch', JSON.stringify(watchList));  
-        update();  
-        alert("تمت الإضافة لقائمة المراقبة 🔔");  
-    }  
+    try {
+        const response = await fetch(`${API}/set-alert`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                email: email,
+                productName: n,
+                targetPrice: parseFloat(b),
+                link: window.currentProductLink || "#", // تأكد من تخزين الرابط عند فتح المودال
+                lang: 'ar',
+                uid: localStorage.getItem('findly_uid')
+            })
+        });
 
+        if (response.ok) {
+            alert("✅ تم تفعيل المراقبة! سنرسل لك إيميلاً فور انخفاض السعر.");
+            document.getElementById('p-modal').style.display = 'none';
+        }
+    } catch (err) {
+        alert("❌ فشل الاتصال بالسيرفر");
+    }
+}
+
+// دالة إضافة منتج للمفضلة (الجرس) بالسيرفر
+async function addToWatch(n, p, l) {
+    const uid = localStorage.getItem('findly_uid');
+    if (!uid) { alert("يرجى تسجيل الدخول أولاً"); return; }
+
+    try {
+        const res = await fetch(`${API}/watchlist/add`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ uid, product: { name: n, price: p, link: l } })
+        });
+        const data = await res.json();
+        alert(data.message === "موجود بالفعل" ? "⚠️ المنتج موجود في قائمتك" : "✅ تمت الإضافة للجرس");
+        updateWatchlistUI(); // تحديث شكل الجرس فوراً
+    } catch (e) { alert("❌ خطأ في الإضافة"); }
+}
     function toggleWatchList() {  
         const modal = document.getElementById('w-modal');  
         const content = document.getElementById('watch-list-content');  

@@ -429,17 +429,16 @@
         </div>
     </div>
 
-<div class="unique-compare-wrapper">
-    <button id="compareBtn" onclick="executeComparison()" class="findly-unique-btn">
-        <div class="btn-content">
-            <i class="sparkle-icon">✨</i>
-            <span id="btnText">مستشارك الحكيم يقارن الآن</span>
-            <div id="loader" class="loader-bars" style="display: none;">
-                <span></span><span></span><span></span>
-            </div>
-        </div>
-        <div class="btn-glow"></div>
+<div class="glass-compare-container">
+    <button id="compareBtn" onclick="executeComparison()" class="glass-icon-btn">
+        <span class="btn-text">قارن الأسعار</span>
+        <div id="loader" class="glass-loader" style="display: none;"></div>
     </button>
+</div>
+
+<div id="comparisonResults" style="display: none; width: 100%; margin-top: 20px;">
+    <div id="aiAnalysis" class="glass-ai-note"></div>
+    <div id="productsGrid" class="glass-products-list"></div>
 </div>
     
     <div class="cat-grid">  

@@ -738,42 +738,40 @@
         // --- 4. دالة Watchlist (إضافة وعرض) ---
         
         // دالة إضافة منتج للمفضلة
-        async function addToWatch(name, price, thumbnail, link) {
-            if (!currentUserUID) {
-                toggleAuthModal();
-                return;
-            }
+        async function addToWatch(name, price, link, thumbnail) {
+    if (!currentUserUID) {
+        alert("يجب عليك تسجيل الدخول أولاً!");
+        toggleAuthModal();
+        return;
+    }
 
-            const btn = event.target;
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+    try {
+        // 1. الإرسال للسيرفر (للحفظ الدائم والتنبيهات)
+        const res = await fetch(`${API}/watchlist/add`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                uid: currentUserUID,
+                product: { name, price, link, thumbnail }
+            })
+        });
 
-            try {
-                const res = await fetch(`${API}/watchlist/add`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        uid: currentUserUID,
-                        product: { name, price, thumbnail, link }
-                    })
-                });
-                const data = await res.json();
-                
-                if (res.ok) {
-                    btn.innerHTML = '<i class="fa-solid fa-check"></i>';
-                    btn.style.background = 'rgba(16, 185, 129, 0.2)';
-                    btn.style.borderColor = '#10b981';
-                    updateWatchListUI(); // تحديث العداد
-                } else {
-                    alert("حدث خطأ: " + data.error);
-                    btn.innerHTML = originalText;
-                }
-            } catch (e) {
-                console.error(e);
-                btn.innerHTML = originalText;
-            }
+        // 2. التحديث في المتصفح فوراً لكي يظهر في الجرس
+        let localWatch = JSON.parse(localStorage.getItem('findly_watch')) || [];
+        if (!localWatch.some(item => item.link === link)) {
+            localWatch.push({ name, price, link, thumbnail });
+            localStorage.setItem('findly_watch', JSON.stringify(localWatch));
+            
+            // تحديث العداد الأحمر فوق الجرس
+            updateWatchCount();
+            alert("تمت الإضافة لقائمة المراقبة بنجاح! 🔔");
+        } else {
+            alert("المنتج موجود بالفعل في قائمتك.");
         }
-
+    } catch (e) {
+        console.error("خطأ:", e);
+    }
+}
         // دالة فتح وعرض القائمة
         async function toggleWatchList() {
             const modal = document.getElementById('w-modal');
@@ -930,5 +928,12 @@
         if(currentUserUID) updateWatchListUI();
 
     </script>
+<footer style="margin-top: 50px; padding: 20px; border-top: 1px solid var(--glass-border); text-align: center;">
+    <div style="display: flex; justify-content: center; gap: 20px; font-size: 0.8rem;">
+        <a href="/terms.html" style="color: var(--text-muted); text-decoration: none;">شروط الاستخدام</a>
+        <a href="/privacy.html" style="color: var(--text-muted); text-decoration: none;">سياسة الخصوصية</a>
+    </div>
+    <p style="color: var(--text-muted); font-size: 0.7rem; margin-top: 10px;">© 2026 Findly Sage. جميع الحقوق محفوظة.</p>
+</footer>
 </body>
 </html>

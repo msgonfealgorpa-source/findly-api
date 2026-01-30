@@ -1,924 +1,850 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl" id="main-html">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Findly Sage Ultimate</title>
-    
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics-compat.js"></script>
-
-    <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        /* --- Core Variables & Reset --- */
-        :root {
-            --primary: #8b5cf6;
-            --primary-glow: rgba(139, 92, 246, 0.5);
-            --secondary: #6366f1;
-            --bg-dark: #020617;
-            --bg-card: rgba(30, 41, 59, 0.7);
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --text: #f8fafc;
-            --text-muted: #94a3b8;
-            --gradient: linear-gradient(135deg, #6366F1, #A855F7);
-        }
-
-        .light-mode {
-            --bg-dark: #f8fafc;
-            --bg-card: rgba(255, 255, 255, 0.9);
-            --glass-border: rgba(0, 0, 0, 0.05);
-            --text: #1e293b;
-            --text-muted: #64748b;
-        }
-
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        
-        body {
-            background-color: var(--bg-dark);
-            background-image: radial-gradient(circle at 50% 0%, #1e1b4b 0%, transparent 50%);
-            color: var(--text);
-            font-family: 'Readex Pro', sans-serif;
-            margin: 0;
-            transition: background 0.4s ease, color 0.4s ease;
-            overflow-x: hidden;
-            min-height: 100vh;
-        }
-
-        /* --- Header Styles --- */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 5%;
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid var(--glass-border);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 800;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: -0.5px;
-            text-shadow: 0 0 20px rgba(168, 85, 247, 0.2);
-        }
-
-        .header-tools { display: flex; gap: 10px; }
-
-        .tool-btn {
-            background: var(--bg-card);
-            border: 1px solid var(--glass-border);
-            color: var(--text);
-            width: 42px;
-            height: 42px;
-            border-radius: 14px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-        }
-
-        .tool-btn:hover {
-            transform: translateY(-2px);
-            border-color: var(--primary);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
-
-        /* --- Dropdown Menu --- */
-        .lang-menu {
-            display: none;
-            position: absolute;
-            top: 50px;
-            left: 0;
-            background: #1e293b;
-            border-radius: 16px;
-            border: 1px solid var(--glass-border);
-            width: 140px;
-            z-index: 2000;
-            box-shadow: 0 20px 40px -5px rgba(0,0,0,0.4);
-            overflow: hidden;
-            animation: fadeIn 0.2s ease;
-        }
-
-        .lang-item {
-            padding: 12px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            border-bottom: 1px solid rgba(255,255,255,0.03);
-            color: #e2e8f0;
-            text-align: center;
-            transition: 0.2s;
-        }
-
-        .lang-item:hover { background: var(--primary); color: white; }
-
-        /* --- Main Search Area --- */
-        .search-area {
-            padding: 40px 5%;
-            text-align: center;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .energy-box {
-            background: rgba(168, 85, 247, 0.08);
-            border: 1px solid rgba(168, 85, 247, 0.3);
-            padding: 8px 20px;
-            border-radius: 50px;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 25px;
-            box-shadow: 0 0 15px rgba(168, 85, 247, 0.1);
-        }
-
-        h1#txt-title {
-            background: linear-gradient(to right, #fff, #94a3b8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin: 10px 0;
-            font-size: 2.5rem;
-            letter-spacing: -1px;
-        }
-
-        .light-mode h1#txt-title {
-            background: linear-gradient(to right, #1e293b, #475569);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .ai-toggle {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.9rem;
-            color: var(--primary);
-            margin-bottom: 25px;
-            justify-content: center;
-            font-weight: 600;
-            background: rgba(139, 92, 246, 0.05);
-            padding: 8px 16px;
-            border-radius: 12px;
-            width: fit-content;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        
-        .ai-toggle input { width: 20px; height: 20px; accent-color: var(--primary); cursor: pointer; }
-
-        /* --- Search Input Styling --- */
-        .search-wrapper { position: relative; max-width: 600px; margin: 0 auto 20px; }
-        
-        .search-input {
-            width: 100%;
-            padding: 18px 60px;
-            border-radius: 24px;
-            border: 2px solid var(--glass-border);
-            background: var(--bg-card);
-            color: var(--text);
-            font-size: 1.1rem;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s;
-            text-align: center;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-
-        .search-input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
-        }
-
-        .mic-icon {
-            position: absolute; 
-            right: 20px; 
-            top: 50%; 
-            transform: translateY(-50%);
-            color: var(--secondary); 
-            cursor: pointer; 
-            font-size: 1.4rem; 
-            transition: 0.3s;
-            z-index: 10;
-        }
-        
-        .mic-active { color: #ef4444; text-shadow: 0 0 10px #ef4444; animation: pulse 1s infinite; }
-        
-        .send-btn {
-            position: absolute; 
-            left: 10px; 
-            top: 50%; 
-            transform: translateY(-50%);
-            background: var(--gradient); 
-            border: none; 
-            width: 45px; 
-            height: 45px;
-            border-radius: 18px; 
-            color: #fff; 
-            cursor: pointer;
-            transition: 0.3s; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            z-index: 10;
-        }
-        
-        .send-btn:hover { transform: translateY(-50%) scale(1.05); box-shadow: 0 0 15px var(--primary-glow); }
-
-        /* --- Tags & Categories --- */
-        .ai-options { display: flex; justify-content: center; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
-        
-        .ai-tag {
-            font-size: 0.8rem; padding: 8px 16px; border-radius: 20px;
-            background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border);
-            cursor: pointer; color: var(--text-muted); display: flex; align-items: center; gap: 8px;
-            transition: 0.3s;
-        }
-        
-        .ai-tag:hover { background: var(--bg-card); color: var(--primary); border-color: var(--primary); }
-
-        .cat-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
-            max-width: 600px; margin: 30px auto;
-        }
-        
-        .cat-card {
-            background: var(--bg-card); border: 1px solid var(--glass-border);
-            padding: 15px 10px; border-radius: 20px; cursor: pointer;
-            transition: 0.3s; display: flex; flex-direction: column; align-items: center; gap: 8px;
-        }
-        
-        .cat-card:hover { transform: translateY(-5px); background: rgba(255,255,255,0.05); border-color: var(--primary); }
-        .cat-card i { font-size: 1.5rem; color: var(--secondary); }
-        .cat-card span { font-size: 0.75rem; font-weight: 600; }
-
-        /* --- Product Cards (Results) --- */
-        .product-card {
-            background: var(--bg-card);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            padding: 20px;
-            margin-top: 25px;
-            text-align: right;
-            max-width: 600px;
-            margin-left: auto; margin-right: auto;
-            position: relative;
-            overflow: hidden;
-            backdrop-filter: blur(20px);
-            animation: slideUp 0.5s ease;
-        }
-
-        .product-card img {
-            width: 100%; height: 200px; object-fit: contain;
-            background: #fff; border-radius: 16px; margin-bottom: 15px;
-            padding: 10px;
-        }
-        
-        .product-card h3 { margin: 0 0 10px 0; font-size: 1.1rem; line-height: 1.5; }
-        .product-card .price { font-size: 1.4rem; font-weight: 800; color: #10b981; margin-bottom: 10px; }
-
-        .analysis-engine {
-            background: rgba(99, 102, 241, 0.08);
-            border-right: 3px solid var(--primary);
-            padding: 12px; border-radius: 12px; margin: 15px 0;
-            font-size: 0.85rem; line-height: 1.6; color: var(--text-muted);
-        }
-        
-        .analysis-label { font-weight: 700; color: var(--primary); display: block; margin-bottom: 5px; }
-
-        .btn-group { display: flex; gap: 12px; margin-top: 15px; }
-        
-        .action-btn {
-            flex: 1; padding: 12px; border-radius: 14px; font-weight: 700;
-            text-align: center; border: none; font-size: 0.9rem; cursor: pointer;
-            transition: 0.3s;
-        }
-        
-        .buy-now { background: var(--gradient); color: #fff; text-decoration: none; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3); }
-        .buy-now:hover { filter: brightness(1.1); }
-        
-        .watch-later {
-            background: transparent; border: 1px solid var(--primary); color: var(--text);
-        }
-        .watch-later:hover { background: rgba(139, 92, 246, 0.1); }
-
-        /* --- Deep AI & Watchlist Styles --- */
-        .deep-ai-box {
-            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(168, 85, 247, 0.1));
-            border: 1px solid var(--primary);
-            padding: 20px;
-            border-radius: 20px;
-            margin: 20px auto;
-            max-width: 600px;
-            text-align: right;
-            box-shadow: 0 0 20px rgba(139, 92, 246, 0.15);
-            animation: fadeIn 0.8s ease;
-        }
-        .watchlist-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: rgba(255, 255, 255, 0.05);
-    padding: 10px;
-    border-radius: 12px;
-    margin-bottom: 10px;
-    border: 1px solid var(--glass-border);
-    text-align: right;
-}
-.watchlist-item img {
-    width: 45px;
-    height: 45px;
-    border-radius: 8px;
-    background: white;
-    object-fit: contain;
-}
-.watchlist-info { flex: 1; }
-.watchlist-info h4 { margin: 0; font-size: 0.8rem; color: var(--text); }
-.watchlist-info p { margin: 2px 0 0; font-size: 0.8rem; color: var(--primary); font-weight: bold; }
-            background: rgba(239, 68, 68, 0.2); 
-            color: #fca5a5;
-            padding: 10px; 
-            border-radius: 12px; 
-            font-size: 0.85rem;
-            margin-bottom: 15px; 
-            font-weight: bold; 
-            border: 1px solid rgba(239, 68, 68, 0.4);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        /* --- Modals --- */
-        .modal {
-            display: none; position: fixed; inset: 0;
-            background: rgba(0,0,0,0.8); z-index: 3000;
-            align-items: center; justify-content: center;
-            backdrop-filter: blur(12px);
-        }
-        
-        .modal-box {
-            background: #0f172a; padding: 30px; border-radius: 30px;
-            width: 85%; max-width: 400px;
-            border: 1px solid var(--glass-border);
-            text-align: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        }
-        
-        .modal-box input {
-            width: 100%; padding: 14px; margin: 10px 0; border-radius: 14px;
-            background: #1e293b; color: #fff; border: 1px solid var(--glass-border);
-            text-align: center; font-family: inherit;
-        }
-        
-        .modal-box input:focus { border-color: var(--primary); }
-
-        /* --- Animations --- */
-        @keyframes pulse { 0% { opacity: 1; transform:translateY(-50%) scale(1); } 50% { opacity: 0.5; transform:translateY(-50%) scale(1.1); } 100% { opacity: 1; transform:translateY(-50%) scale(1); } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-    </style>
-</head>
-<body>
-
-    <header>
-        <div class="logo">Findly <i class="fa-solid fa-wand-magic-sparkles"></i></div>
-        <div class="header-tools">
-            <button class="tool-btn" onclick="toggleMode()"><i class="fa-solid fa-circle-half-stroke"></i></button>
-            <div style="position: relative;">
-                <button class="tool-btn" onclick="toggleLMenu()"><i class="fa-solid fa-language"></i></button>
-                <div id="l-menu" class="lang-menu">
-                    <div class="lang-item" onclick="setLang('ar')">العربية</div>
-                    <div class="lang-item" onclick="setLang('en')">English</div>
-                    <div class="lang-item" onclick="setLang('fr')">Français</div>
-                    <div class="lang-item" onclick="setLang('de')">Deutsch</div>
-                    <div class="lang-item" onclick="setLang('es')">Español</div>
-                    <div class="lang-item" onclick="setLang('tr')">Türkçe</div>
-                </div>
-            </div>
-            <button class="tool-btn" onclick="toggleWatchList()">
-                <i class="fa-solid fa-bell"></i>
-                <span id="watch-count" style="position:absolute; top:-5px; right:-5px; background:#ef4444; color:white; font-size:0.6rem; padding:2px 6px; border-radius:50%; display:none; border: 2px solid var(--bg-dark);">0</span>
-            </button>
-            
-            <div id="auth-buttons-container">
-                <button class="tool-btn" onclick="toggleAuthModal()"><i class="fa-solid fa-user"></i></button>
-            </div>
-        </div>
-    </header>
-
-    <main class="search-area">
-        <div class="energy-box">
-            <span id="txt-energy"></span>
-            <span id="r-count" style="background:var(--primary); color:#fff; padding:3px 12px; border-radius:20px; font-weight:900; font-size: 0.9rem;">3</span>
-            <i class="fa-solid fa-bolt" style="color:#FFD700;"></i>
-        </div>
-
-        <h2 id="greeting" style="color: var(--primary); font-size: 1.1rem; margin-bottom: 5px; font-weight: 600;"></h2>
-        <h1 id="txt-title"></h1>
-        <p id="txt-sub" style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 30px;"></p>
-
-        <div class="ai-toggle">
-            <i class="fa-solid fa-brain"></i>
-            <span id="txt-deep"></span>
-            <input type="checkbox" id="ai-deep-mode">
-        </div>
-
-        <div class="search-wrapper">
-            <input type="text" id="s-input" class="search-input">
-            <i id="mic-btn" class="fa-solid fa-microphone-lines mic-icon" onclick="startVoice()"></i>
-            <button class="send-btn" onclick="runSearch()"><i class="fa-solid fa-magnifying-glass"></i></button>
-        </div>
-
-        <div class="ai-options">
-            <div class="ai-tag" onclick="quickFilter('cheap')"><i class="fa-solid fa-sack-dollar"></i> <span id="tag-cheap"></span></div>
-            <div class="ai-tag" onclick="quickFilter('top')"><i class="fa-solid fa-star"></i> <span id="tag-top"></span></div>
-            <div class="ai-tag" onclick="quickFilter('new')"><i class="fa-solid fa-fire"></i> <span id="tag-new"></span></div>
-        </div>
-
-        <div class="cat-grid">
-            <div class="cat-card" onclick="quickSearch('ألعاب')"><i class="fa-solid fa-gamepad"></i><span id="cat-game"></span></div>
-            <div class="cat-card" onclick="quickSearch('جمال')"><i class="fa-solid fa-sparkles"></i><span id="cat-beauty"></span></div>
-            <div class="cat-card" onclick="quickSearch('منزل ذكي')"><i class="fa-solid fa-house-laptop"></i><span id="cat-home"></span></div>
-            <div class="cat-card" onclick="quickSearch('هواتف')"><i class="fa-solid fa-mobile-screen-button"></i><span id="cat-c1"></span></div>
-            <div class="cat-card" onclick="quickSearch('لابتوب')"><i class="fa-solid fa-laptop"></i><span id="cat-c2"></span></div>
-            <div class="cat-card" onclick="quickSearch('ساعات')"><i class="fa-solid fa-stopwatch"></i><span id="cat-c4"></span></div>
-        </div>
-
-        <div id="status" style="display:none; color:var(--primary); font-weight:bold; margin-top:30px; font-size: 1.1rem;"></div>
-        <div id="results"></div>
-    </main>
-
-    <div class="modal" id="w-modal">
-        <div class="modal-box">
-            <h3 style="color:var(--primary); margin-top:0;"><i class="fa-solid fa-bell"></i> <span id="txt-watch-title"></span></h3>
-            <div id="watch-list-content" style="max-height: 300px; overflow-y: auto;">
-                <p style="color:var(--text-muted); font-size:0.9rem;">جاري التحميل...</p>
-            </div>
-            <button onclick="toggleWatchList()" style="background:none; color:var(--text-muted); border:none; margin-top:20px; cursor:pointer; font-size:0.9rem;">إغلاق</button>
-        </div>
-    </div>
-    
-    <div class="modal" id="p-modal">
-        <div class="modal-box">
-            <h3 id="p-head" style="margin-top:0;"></h3>
-            <label style="font-size:0.85rem; display:block; margin-bottom:5px; opacity:0.7;">اسم المستخدم</label>
-            <input type="text" id="in-name" placeholder="أدخل اسمك هنا...">
-            <label style="font-size:0.85rem; display:block; margin-top:15px; margin-bottom:5px; opacity:0.7;">الميزانية ($)</label>
-            <input type="number" id="in-budget" placeholder="أقصى ميزانية لديك...">
-            <button class="action-btn buy-now" onclick="saveSet()" style="width:100%; margin-top:20px;">حفظ التغييرات ✅</button>
-            <button onclick="document.getElementById('p-modal').style.display = 'none';" style="background:none; color:var(--text-muted); border:none; margin-top:15px; cursor:pointer; font-size:0.9rem;">إغلاق</button>
-        </div>
-    </div>
-
-    <div class="modal" id="auth-modal">
-        <div class="modal-box">
-            <h3 style="color:var(--primary); margin-top:0;">تسجيل الدخول / إنشاء حساب</h3>
-            <p style="color:var(--text-muted); font-size:0.8rem; margin-bottom:20px;">يجب عليك تسجيل الدخول لاستخدام التطبيق</p>
-            
-            <input type="email" id="auth-email" placeholder="البريد الإلكتروني" style="margin-bottom: 10px;">
-            <input type="password" id="auth-pass" placeholder="كلمة المرور" style="margin-bottom: 20px;">
-            
-            <button class="action-btn buy-now" onclick="handleEmailLogin()" style="width:100%; margin-bottom:10px;">تسجيل دخول (Email)</button>
-            <button class="action-btn" onclick="handleEmailRegister()" style="width:100%; background: transparent; border: 1px solid var(--primary); color: var(--text); margin-bottom:10px;">إنشاء حساب جديد</button>
-            
-            <div style="margin: 15px 0; border-top: 1px solid var(--glass-border); position: relative;">
-                <span style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: #0f172a; padding: 0 10px; font-size: 0.8rem; color: var(--text-muted);">أو</span>
-            </div>
-
-            <button class="action-btn" onclick="handleGoogleLogin()" style="width:100%; background: #fff; color: #333; display: flex; align-items: center; justify-content: center; gap: 10px;">
-                <i class="fa-brands fa-google" style="color: #DB4437;"></i> الدخول عبر Google
-            </button>
-
-            <button id="auth-close-btn" onclick="toggleAuthModal()" style="background:none; color:var(--text-muted); border:none; margin-top:15px; cursor:pointer; font-size:0.9rem;">إغلاق</button>
-        </div>
-    </div>
-
-    <script>
-
-        // --- 1. إعدادات Firebase ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyCI_q5lkgRY4133ua4RlG5TeiCqJ5N5KTU",
-            authDomain: "findly-ede17.firebaseapp.com",
-            projectId: "findly-ede17",
-            storageBucket: "findly-ede17.firebasestorage.app",
-            messagingSenderId: "503212830017",
-            appId: "1:503212830017:web:9afb64c19822bbe7f645c0",
-            measurementId: "G-X1Q3WDP50N"
-        };
-
-        // تشغيل Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const analytics = firebase.analytics();
-
-        // متغيرات عامة
-        const API = "https://findly-api.onrender.com";
-        let lang = localStorage.getItem('findly_lang') || 'ar';
-        let savedAttempts = localStorage.getItem('findly_attempts');
-        let attempts = (savedAttempts !== null) ? parseInt(savedAttempts) : 3;
-        if (savedAttempts === null) localStorage.setItem('findly_attempts', 3);
-        let watchList = JSON.parse(localStorage.getItem('findly_watch')) || [];
-        let currentUserUID = localStorage.getItem('findly_uid');
-
-        // --- 2. دوال المصادقة ---
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                currentUserUID = user.uid;
-                localStorage.setItem('findly_uid', user.uid);
-                updateAuthUI(true);
-                updateWatchListUI(); // تحديث العداد عند الدخول
-            } else {
-                currentUserUID = null;
-                localStorage.removeItem('findly_uid');
-                updateAuthUI(false);
-                toggleAuthModal();
-            }
-        });
-
-        function toggleAuthModal() {
-            const modal = document.getElementById('auth-modal');
-            const closeBtn = document.getElementById('auth-close-btn');
-            
-            modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
-            
-            if (!currentUserUID && modal.style.display === 'flex') {
-                closeBtn.style.display = 'none';
-            } else {
-                closeBtn.style.display = 'block';
-            }
-        }
-
-        function handleEmailLogin() {
-            const email = document.getElementById('auth-email').value;
-            const pass = document.getElementById('auth-pass').value;
-            if(!email || !pass) return alert("الرجاء إدخال البيانات");
-
-            auth.signInWithEmailAndPassword(email, pass)
-                .then((userCredential) => {
-                    toggleAuthModal();
-                    alert("تم تسجيل الدخول بنجاح! 👋");
-                })
-                .catch((error) => {
-                    alert("خطأ: " + error.message);
-                });
-        }
-
-        function handleEmailRegister() {
-            const email = document.getElementById('auth-email').value;
-            const pass = document.getElementById('auth-pass').value;
-            if(!email || !pass) return alert("الرجاء إدخال البيانات");
-
-            auth.createUserWithEmailAndPassword(email, pass)
-                .then((userCredential) => {
-                    toggleAuthModal();
-                    alert("تم إنشاء الحساب بنجاح! 🚀");
-                })
-                .catch((error) => {
-                    alert("خطأ: " + error.message);
-                });
-        }
-
-        function handleGoogleLogin() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider)
-                .then((result) => {
-                    toggleAuthModal();
-                    alert("أهلاً بك عبر Google! 🎉");
-                }).catch((error) => {
-                    alert("خطأ: " + error.message);
-                });
-        }
-
-        function handleLogout() {
-            auth.signOut().then(() => {
-                alert("تم تسجيل الخروج");
-                location.reload();
-            });
-        }
-
-        function updateAuthUI(isLoggedIn) {
-            const container = document.getElementById('auth-buttons-container');
-            if (isLoggedIn) {
-                container.innerHTML = `
-                    <button class="tool-btn" onclick="openProfile()" title="الملف الشخصي"><i class="fa-solid fa-user-gear"></i></button>
-                    <button class="tool-btn" onclick="handleLogout()" style="border-color: #ef4444; color: #ef4444;" title="تسجيل خروج"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
-                `;
-            } else {
-                container.innerHTML = `
-                    <button class="tool-btn" onclick="toggleAuthModal()" title="تسجيل الدخول"><i class="fa-solid fa-user"></i></button>
-                `;
-            }
-        }
-
-        // --- قاموس الترجمة ---
-        const dict = {
-            ar: { title: "مستشارك الحكيم", sub: "دليلك الذكي للتسوق المثالي", energy: "طاقة العقل", welcome: "مرحباً،", game: "ألعاب", beauty: "جمال", home: "منزل ذكي", c1: "هواتف", c2: "لابتوب", c4: "ساعات", p_head: "الملف الشخصي", buy: "شراء الآن 🛒", watch: "راقب السعر 🔔", over: "يتجاوز ميزانيتك!", cheap: "اقتصادي", top: "الأعلى تقييماً", new: "حديث جداً", deep: "وضع التحليل الذكي", watchTitle: "قائمة المراقبة", why: "لماذا اخترنا هذا؟", slow: "السيرفر يستيقظ.. انتظر ثوانٍ", noAttempts: "⚠️ استنفدت محاولاتك!", deepHead: "🧠 تحليل Deep AI" },
-            en: { title: "Sage Advisor", sub: "Your smart shopping guide", energy: "Sage Energy", welcome: "Welcome,", game: "Gaming", beauty: "Beauty", home: "Smart Home", c1: "Phones", c2: "Laptops", c4: "Watches", p_head: "Profile", buy: "Buy Now 🛒", watch: "Watch Price 🔔", over: "Over Budget!", cheap: "Budget", top: "Top Rated", new: "Newest", deep: "AI Deep Mode", watchTitle: "Watch List", why: "Why this choice?", slow: "Server waking up.. wait", noAttempts: "⚠️ No attempts left!", deepHead: "🧠 Deep AI Analysis" },
-            fr: { title: "Conseiller Sage", sub: "Votre guide d'achat intelligent", energy: "Énergie Sage", welcome: "Bienvenue,", game: "Jeux", beauty: "Beauté", home: "Maison Inte.", c1: "Mobiles", c2: "Laptops", c4: "Montres", p_head: "Profil", buy: "Acheter 🛒", watch: "Surveiller 🔔", over: "Hors budget!", cheap: "Éco", top: "Mieux notés", new: "Nouveau", deep: "Mode Analyse AI", watchTitle: "Liste de veille", why: "Pourquoi ce choix?", slow: "Le serveur se réveille..", noAttempts: "⚠️ Plus d'essais!", deepHead: "🧠 Analyse Deep AI" },
-            de: { title: "Weiser Berater", sub: "Ihr smarter Einkaufsführer", energy: "Weise Energie", welcome: "Willkommen,", game: "Spiele", beauty: "Schönheit", home: "Smart Home", c1: "Handys", c2: "Laptops", c4: "Uhren", p_head: "Profil", buy: "Kaufen 🛒", watch: "Beobachten 🔔", over: "Budget übersch.", cheap: "Günstig", top: "Bestbewertet", new: "Neu", deep: "KI-Analyse-Modus", watchTitle: "Beobachtungsliste", why: "Warum diese Wahl?", slow: "Server wacht auf..", noAttempts: "⚠️ Keine Versuche mehr!", deepHead: "🧠 KI-Analyse" },
-            es: { title: "Asesor Sabio", sub: "Tu guía de compras inteligente", energy: "Energía Sabia", welcome: "Bienvenido,", game: "Juegos", beauty: "Belleza", home: "Hogar Intelig.", c1: "Móviles", c2: "Portátiles", c4: "Relojes", p_head: "Perfil", buy: "Comprar 🛒", watch: "Vigilar 🔔", over: "Fuera de presupuesto", cheap: "Económico", top: "Mejor valorado", new: "Nuevo", deep: "Modo de análisis IA", watchTitle: "Lista de vigilancia", why: "¿Por qué esta elección?", slow: "El servidor está despertando..", noAttempts: "⚠️ ¡No quedan intentos!", deepHead: "🧠 Análisis Profundo IA" },
-            tr: { title: "Bilge Danışman", sub: "Akıllı alışveriş rehberiniz", energy: "Bilge Enerji", welcome: "Hoş geldiniz,", game: "Oyunlar", beauty: "Güzellik", home: "Akıllı Ev", c1: "Telefonlar", c2: "Laptoplar", c4: "Saatler", p_head: "Profil", buy: "Satın Al 🛒", watch: "Fiyatı İzle 🔔", over: "Bütçe Aşıldı!", cheap: "Ekonomik", top: "En İyi", new: "Yeni", deep: "Yapay Zeka Analiz", watchTitle: "İzleme Listesi", why: "Neden bu seçim?", slow: "Sunucu uyanıyor.. bekleyin", noAttempts: "⚠️ Deneme kalmadı!", deepHead: "🧠 Derin Yapay Zeka" }
-        };
-
-        // --- 3. دالة البحث الرئيسية (تم التعديل لإضافة Deep AI) ---
-        async function runSearch() {
-            if (!currentUserUID) {
-                alert("يجب عليك تسجيل الدخول أولاً!");
-                toggleAuthModal();
-                return;
-            }
-
-            let q = document.getElementById('s-input').value;
-            const status = document.getElementById('status');
-            const resCon = document.getElementById('results');
-            const d = dict[lang] || dict['ar'];
-            
-            let rawBudget = localStorage.getItem('fb');
-            let userBudget = rawBudget ? parseFloat(rawBudget) : 0;
-
-            if (attempts <= 0) { 
-                status.style.display = "block";
-                status.innerHTML = d.noAttempts;
-                return; 
-            }
-            if (!q) return;
-
-            status.style.display = "block";
-            status.innerHTML = '<i class="fa-solid fa-microchip fa-spin"></i> Analyzing...';
-            resCon.innerHTML = "";
-
-            try {
-                const bodyData = { 
-                    query: q, 
-                    lang: lang,
-                    uid: currentUserUID || 'guest'
-                };
-
-                const res = await fetch(`${API}/smart-search`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(bodyData)
-                });
-                
-                const data = await res.json();
-                status.style.display = "none";
-
-                if (data.products && data.products.length > 0) {
-                    
-                    // --- Deep AI Integration ---
-                    const deepMode = document.getElementById('ai-deep-mode').checked;
-                    if (deepMode) {
-                        status.style.display = "block";
-                        status.innerHTML = '<i class="fa-solid fa-brain fa-pulse"></i> Deep AI Thinking...';
-                        
-                        try {
-                            const deepRes = await fetch(`${API}/deep-ai-analyze`, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ products: data.products, query: q, lang: lang })
-                            });
-                            const deepData = await deepRes.json();
-                            if(deepData.deepAnalysis) {
-                                resCon.innerHTML += `
-                                    <div class="deep-ai-box">
-                                        <div class="deep-ai-title"><i class="fa-solid fa-wand-magic-sparkles"></i> ${d.deepHead}</div>
-                                        <div class="deep-ai-text">${deepData.deepAnalysis}</div>
-                                    </div>
-                                `;
-                            }
-                        } catch (err) {
-                            console.error("Deep AI Error:", err);
-                        }
-                        status.style.display = "none";
-                    }
-                    // ---------------------------
-
-                    data.products.forEach((p, index) => {
-                        let cleanPriceString = p.price ? p.price.toString().replace(/,/g, '').replace(/[^\d.]/g, '') : "0";
-                        let priceVal = parseFloat(cleanPriceString);
-                        
-                        let budgetAlert = "";
-                        if (userBudget > 0 && priceVal > userBudget) {
-                            budgetAlert = `<div class="budget-error"><i class="fa-solid fa-triangle-exclamation"></i> ${d.over} ($${userBudget})</div>`;
-                        }
-                        
-                        setTimeout(() => {
-                            // تم تعديل زر Watchlist لاستدعاء الدالة الجديدة
-                            resCon.innerHTML += `
-                                <div class="product-card">
-                                    ${budgetAlert}
-                                    <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/150'">
-                                    <h3>${p.name}</h3>
-                                    <div class="price">${p.price || 'N/A'}</div>
-                                    <div class="analysis-engine"><span class="analysis-label"><i class="fa-solid fa-brain"></i> ${d.why}</span>${p.reason}</div>
-                                    <div class="btn-group">
-                                        <a href="${p.link}" target="_blank" class="action-btn buy-now">${d.buy}</a>
-                                        <button class="action-btn watch-later" onclick="addToWatch('${p.name.replace(/'/g, "\\'")}', '${p.price}', '${p.thumbnail}', '${p.link}')">${d.watch}</button>
-                                    </div>
-                                </div>`;
-                        }, index * 100);
-                    });
-                    
-                    attempts--;
-                    localStorage.setItem('findly_attempts', attempts);
-                    update();
-                } else {
-                    status.style.display = "block";
-                    status.innerHTML = "No results found / لا توجد نتائج";
-                }
-            } catch (e) {
-                console.error(e);
-                status.style.display = "block";
-                status.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Error: ${d.slow || "Server Error"}`;
-            }
-        }
-
-        // --- 4. دالة Watchlist (إضافة وعرض) ---
-        
-        // دالة إضافة منتج للمفضلة
-        async function addToWatch(name, price, link, thumbnail) {
-    if (!currentUserUID) {
-        alert("يجب عليك تسجيل الدخول أولاً!");
-        toggleAuthModal();
-        return;
-    }
-
-    try {
-        // 1. الإرسال للسيرفر (للحفظ الدائم والتنبيهات)
-        const res = await fetch(`${API}/watchlist/add`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                uid: currentUserUID,
-                product: { name, price, link, thumbnail }
-            })
-        });
-
-        // 2. التحديث في المتصفح فوراً لكي يظهر في الجرس
-        let localWatch = JSON.parse(localStorage.getItem('findly_watch')) || [];
-        if (!localWatch.some(item => item.link === link)) {
-            localWatch.push({ name, price, link, thumbnail });
-            localStorage.setItem('findly_watch', JSON.stringify(localWatch));
-            
-            // تحديث العداد الأحمر فوق الجرس
-            updateWatchCount();
-            alert("تمت الإضافة لقائمة المراقبة بنجاح! 🔔");
-        } else {
-            alert("المنتج موجود بالفعل في قائمتك.");
-        }
-    } catch (e) {
-        console.error("خطأ:", e);
-    }
-}
-        // دالة فتح وعرض القائمة
-        async function toggleWatchList() {
-            const modal = document.getElementById('w-modal');
-            const content = document.getElementById('watch-list-content');
-            
-            if (modal.style.display !== 'flex') {
-                modal.style.display = 'flex';
-                if (!currentUserUID) {
-                    content.innerHTML = '<p style="color:var(--text-muted)">يجب تسجيل الدخول لرؤية القائمة.</p>';
-                    return;
-                }
-
-                content.innerHTML = '<p style="color:var(--text-muted)"><i class="fa-solid fa-spinner fa-spin"></i> جاري جلب البيانات...</p>';
-
-                try {
-                    const res = await fetch(`${API}/watchlist/${currentUserUID}`);
-                    const data = await res.json();
-                    
-                    if (data.watchlist && data.watchlist.length > 0) {
-                        content.innerHTML = "";
-                        data.watchlist.forEach(item => {
-                            content.innerHTML += `
-                                <div class="watchlist-item">
-                                    <img src="${item.thumbnail}" onerror="this.src='https://via.placeholder.com/50'">
-                                    <div class="watchlist-info">
-                                        <h4>${item.name}</h4>
-                                        <p>${item.price}</p>
-                                    </div>
-                                    <a href="${item.link}" target="_blank" style="color:var(--primary);"><i class="fa-solid fa-external-link-alt"></i></a>
-                                </div>
-                            `;
-                        });
-                        updateWatchCount(data.watchlist.length);
-                    } else {
-                        content.innerHTML = '<p style="color:var(--text-muted)">القائمة فارغة حالياً.</p>';
-                        updateWatchCount(0);
-                    }
-                } catch (e) {
-                    content.innerHTML = '<p style="color:#ef4444">فشل الاتصال بالسيرفر.</p>';
-                }
-            } else {
-                modal.style.display = 'none';
-            }
-        }
-
-        
-
-        // --- Helper Functions ---
-        function setLang(l) {
-            lang = l; localStorage.setItem('findly_lang', l);
-            document.getElementById('l-menu').style.display = 'none';
-            update();
-        }
-        function toggleLMenu() {
-            const m = document.getElementById('l-menu');
-            m.style.display = (m.style.display === 'block') ? 'none' : 'block';
-        }
-        function toggleMode() {
-            document.body.classList.toggle('light-mode');
-        }
-        function openProfile() {
-            document.getElementById('p-modal').style.display = 'flex';
-            document.getElementById('in-name').value = localStorage.getItem('fn') || '';
-            document.getElementById('in-budget').value = localStorage.getItem('fb') || '';
-        }
-        function saveSet() {
-            const n = document.getElementById('in-name').value;
-            const b = document.getElementById('in-budget').value;
-            if(n) localStorage.setItem('fn', n);
-            if(b) localStorage.setItem('fb', b);
-            document.getElementById('p-modal').style.display = 'none';
-            update();
-        }
-        function quickSearch(t) {
-            document.getElementById('s-input').value = t;
-            runSearch();
-        }
-        function quickFilter(type) {
-             // يمكن تطويرها لاحقاً لإضافة فلاتر بحث
-             const input = document.getElementById('s-input');
-             const d = dict[lang] || dict['ar'];
-             let append = "";
-             if(type === 'cheap') append = " " + d.cheap;
-             if(type === 'top') append = " " + d.top;
-             if(type === 'new') append = " " + d.new;
-             input.value += append;
-        }
-
-        function update() {
-            const d = dict[lang] || dict['ar'];
-            document.getElementById('txt-energy').innerText = d.energy;
-            document.getElementById('r-count').innerText = attempts;
-            document.getElementById('txt-title').innerText = d.title;
-            document.getElementById('txt-sub').innerText = d.sub;
-            document.getElementById('txt-watch-title').innerText = d.watchTitle;
-            document.getElementById('p-head').innerText = d.p_head;
-            
-            document.getElementById('cat-game').innerText = d.game;
-            document.getElementById('cat-beauty').innerText = d.beauty;
-            document.getElementById('cat-home').innerText = d.home;
-            document.getElementById('cat-c1').innerText = d.c1;
-            document.getElementById('cat-c2').innerText = d.c2;
-            document.getElementById('cat-c4').innerText = d.c4;
-            
-            document.getElementById('tag-cheap').innerText = d.cheap;
-            document.getElementById('tag-top').innerText = d.top;
-            document.getElementById('tag-new').innerText = d.new;
-            document.getElementById('txt-deep').innerText = d.deep;
-
-            const n = localStorage.getItem('fn');
-            if (n) document.getElementById('greeting').innerText = d.welcome + " " + n;
-            else document.getElementById('greeting').innerText = "";
-        }
-
-        // Voice
-        function startVoice() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) return alert("المتصفح لا يدعم الصوت");
-            const r = new SpeechRecognition();
-            r.lang = lang === 'ar' ? 'ar-SA' : 'en-US';
-            r.start();
-            document.getElementById('mic-btn').classList.add('mic-active');
-            r.onresult = (e) => {
-                document.getElementById('s-input').value = e.results[0][0].transcript;
-                document.getElementById('mic-btn').classList.remove('mic-active');
-                runSearch();
-            };
-            r.onerror = () => document.getElementById('mic-btn').classList.remove('mic-active');
-        }
-
-        // Init
-        update();
-        if(currentUserUID) updateWatchListUI();
-
-    </script>
-<footer style="margin-top: 50px; padding: 20px; border-top: 1px solid var(--glass-border); text-align: center;">
-    <div style="display: flex; justify-content: center; gap: 20px; font-size: 0.8rem;">
-        <a href="/terms.html" style="color: var(--text-muted); text-decoration: none;">شروط الاستخدام</a>
-        <a href="/privacy.html" style="color: var(--text-muted); text-decoration: none;">سياسة الخصوصية</a>
-    </div>
-    <p style="color: var(--text-muted); font-size: 0.7rem; margin-top: 10px;">© 2026 Findly Sage. جميع الحقوق محفوظة.</p>
-</footer>
-</body>
+<!DOCTYPE html>  <html lang="ar" dir="rtl" id="main-html">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">  
+    <title>Findly Sage Ultimate</title>  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>  
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>  
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics-compat.js"></script>  
+
+<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">  
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">  
+<style>  
+    /* --- Core Variables & Reset --- */  
+    :root {  
+        --primary: #8b5cf6;  
+        --primary-glow: rgba(139, 92, 246, 0.5);  
+        --secondary: #6366f1;  
+        --bg-dark: #020617;  
+        --bg-card: rgba(30, 41, 59, 0.7);  
+        --glass-border: rgba(255, 255, 255, 0.08);  
+        --text: #f8fafc;  
+        --text-muted: #94a3b8;  
+        --gradient: linear-gradient(135deg, #6366F1, #A855F7);  
+    }  
+
+    .light-mode {  
+        --bg-dark: #f8fafc;  
+        --bg-card: rgba(255, 255, 255, 0.9);  
+        --glass-border: rgba(0, 0, 0, 0.05);  
+        --text: #1e293b;  
+        --text-muted: #64748b;  
+    }  
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }  
+      
+    body {  
+        background-color: var(--bg-dark);  
+        background-image: radial-gradient(circle at 50% 0%, #1e1b4b 0%, transparent 50%);  
+        color: var(--text);  
+        font-family: 'Readex Pro', sans-serif;  
+        margin: 0;  
+        transition: background 0.4s ease, color 0.4s ease;  
+        overflow-x: hidden;  
+        min-height: 100vh;  
+    }  
+
+    /* --- Header Styles --- */  
+    header {  
+        display: flex;  
+        justify-content: space-between;  
+        align-items: center;  
+        padding: 15px 5%;  
+        background: rgba(15, 23, 42, 0.6);  
+        backdrop-filter: blur(16px);  
+        -webkit-backdrop-filter: blur(16px);  
+        border-bottom: 1px solid var(--glass-border);  
+        position: sticky;  
+        top: 0;  
+        z-index: 1000;  
+    }  
+
+    .logo {  
+        font-size: 1.5rem;  
+        font-weight: 800;  
+        background: var(--gradient);  
+        -webkit-background-clip: text;  
+        -webkit-text-fill-color: transparent;  
+        letter-spacing: -0.5px;  
+        text-shadow: 0 0 20px rgba(168, 85, 247, 0.2);  
+    }  
+
+    .header-tools { display: flex; gap: 10px; }  
+
+    .tool-btn {  
+        background: var(--bg-card);  
+        border: 1px solid var(--glass-border);  
+        color: var(--text);  
+        width: 42px;  
+        height: 42px;  
+        border-radius: 14px;  
+        cursor: pointer;  
+        display: flex;  
+        align-items: center;  
+        justify-content: center;  
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);  
+        position: relative;  
+    }  
+
+    .tool-btn:hover {  
+        transform: translateY(-2px);  
+        border-color: var(--primary);  
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);  
+    }  
+
+    /* --- Dropdown Menu --- */  
+    .lang-menu {  
+        display: none;  
+        position: absolute;  
+        top: 50px;  
+        left: 0;  
+        background: #1e293b;  
+        border-radius: 16px;  
+        border: 1px solid var(--glass-border);  
+        width: 140px;  
+        z-index: 2000;  
+        box-shadow: 0 20px 40px -5px rgba(0,0,0,0.4);  
+        overflow: hidden;  
+        animation: fadeIn 0.2s ease;  
+    }  
+
+    .lang-item {  
+        padding: 12px;  
+        font-size: 0.9rem;  
+        cursor: pointer;  
+        border-bottom: 1px solid rgba(255,255,255,0.03);  
+        color: #e2e8f0;  
+        text-align: center;  
+        transition: 0.2s;  
+    }  
+
+    .lang-item:hover { background: var(--primary); color: white; }  
+
+    /* --- Main Search Area --- */  
+    .search-area {  
+        padding: 40px 5%;  
+        text-align: center;  
+        max-width: 800px;  
+        margin: 0 auto;  
+    }  
+
+    .energy-box {  
+        background: rgba(168, 85, 247, 0.08);  
+        border: 1px solid rgba(168, 85, 247, 0.3);  
+        padding: 8px 20px;  
+        border-radius: 50px;  
+        display: inline-flex;  
+        align-items: center;  
+        gap: 10px;  
+        margin-bottom: 25px;  
+        box-shadow: 0 0 15px rgba(168, 85, 247, 0.1);  
+    }  
+
+    h1#txt-title {  
+        background: linear-gradient(to right, #fff, #94a3b8);  
+        -webkit-background-clip: text;  
+        -webkit-text-fill-color: transparent;  
+        margin: 10px 0;  
+        font-size: 2.5rem;  
+        letter-spacing: -1px;  
+    }  
+
+    .light-mode h1#txt-title {  
+        background: linear-gradient(to right, #1e293b, #475569);  
+        -webkit-background-clip: text;  
+        -webkit-text-fill-color: transparent;  
+    }  
+
+    .ai-toggle {  
+        display: flex;  
+        align-items: center;  
+        gap: 10px;  
+        font-size: 0.9rem;  
+        color: var(--primary);  
+        margin-bottom: 25px;  
+        justify-content: center;  
+        font-weight: 600;  
+        background: rgba(139, 92, 246, 0.05);  
+        padding: 8px 16px;  
+        border-radius: 12px;  
+        width: fit-content;  
+        margin-left: auto;  
+        margin-right: auto;  
+    }  
+      
+    .ai-toggle input { width: 20px; height: 20px; accent-color: var(--primary); cursor: pointer; }  
+
+    /* --- Search Input Styling --- */  
+    .search-wrapper { position: relative; max-width: 600px; margin: 0 auto 20px; }  
+      
+    .search-input {  
+        width: 100%;  
+        padding: 18px 60px;  
+        border-radius: 24px;  
+        border: 2px solid var(--glass-border);  
+        background: var(--bg-card);  
+        color: var(--text);  
+        font-size: 1.1rem;  
+        backdrop-filter: blur(10px);  
+        transition: all 0.3s;  
+        text-align: center;  
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);  
+    }  
+
+    .search-input:focus {  
+        border-color: var(--primary);  
+        box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);  
+    }  
+
+    .mic-icon {  
+        position: absolute;   
+        right: 20px;   
+        top: 50%;   
+        transform: translateY(-50%);  
+        color: var(--secondary);   
+        cursor: pointer;   
+        font-size: 1.4rem;   
+        transition: 0.3s;  
+        z-index: 10;  
+    }  
+      
+    .mic-active { color: #ef4444; text-shadow: 0 0 10px #ef4444; animation: pulse 1s infinite; }  
+      
+    .send-btn {  
+        position: absolute;   
+        left: 10px;   
+        top: 50%;   
+        transform: translateY(-50%);  
+        background: var(--gradient);   
+        border: none;   
+        width: 45px;   
+        height: 45px;  
+        border-radius: 18px;   
+        color: #fff;   
+        cursor: pointer;  
+        transition: 0.3s;   
+        display: flex;   
+        align-items: center;   
+        justify-content: center;  
+        z-index: 10;  
+    }  
+      
+    .send-btn:hover { transform: translateY(-50%) scale(1.05); box-shadow: 0 0 15px var(--primary-glow); }  
+
+    /* --- Tags & Categories --- */  
+    .ai-options { display: flex; justify-content: center; gap: 10px; margin-top: 10px; flex-wrap: wrap; }  
+      
+    .ai-tag {  
+        font-size: 0.8rem; padding: 8px 16px; border-radius: 20px;  
+        background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border);  
+        cursor: pointer; color: var(--text-muted); display: flex; align-items: center; gap: 8px;  
+        transition: 0.3s;  
+    }  
+      
+    .ai-tag:hover { background: var(--bg-card); color: var(--primary); border-color: var(--primary); }  
+
+    .cat-grid {  
+        display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;  
+        max-width: 600px; margin: 30px auto;  
+    }  
+      
+    .cat-card {  
+        background: var(--bg-card); border: 1px solid var(--glass-border);  
+        padding: 15px 10px; border-radius: 20px; cursor: pointer;  
+        transition: 0.3s; display: flex; flex-direction: column; align-items: center; gap: 8px;  
+    }  
+      
+    .cat-card:hover { transform: translateY(-5px); background: rgba(255,255,255,0.05); border-color: var(--primary); }  
+    .cat-card i { font-size: 1.5rem; color: var(--secondary); }  
+    .cat-card span { font-size: 0.75rem; font-weight: 600; }  
+
+    /* --- Product Cards (Results) --- */  
+    .product-card {  
+        background: var(--bg-card);  
+        border: 1px solid var(--glass-border);  
+        border-radius: 24px;  
+        padding: 20px;  
+        margin-top: 25px;  
+        text-align: right;  
+        max-width: 600px;  
+        margin-left: auto; margin-right: auto;  
+        position: relative;  
+        overflow: hidden;  
+        backdrop-filter: blur(20px);  
+        animation: slideUp 0.5s ease;  
+    }  
+
+    .product-card img {  
+        width: 100%; height: 200px; object-fit: contain;  
+        background: #fff; border-radius: 16px; margin-bottom: 15px;  
+        padding: 10px;  
+    }  
+      
+    .product-card h3 { margin: 0 0 10px 0; font-size: 1.1rem; line-height: 1.5; }  
+    .product-card .price { font-size: 1.4rem; font-weight: 800; color: #10b981; margin-bottom: 10px; }  
+
+    .analysis-engine {  
+        background: rgba(99, 102, 241, 0.08);  
+        border-right: 3px solid var(--primary);  
+        padding: 12px; border-radius: 12px; margin: 15px 0;  
+        font-size: 0.85rem; line-height: 1.6; color: var(--text-muted);  
+    }  
+      
+    .analysis-label { font-weight: 700; color: var(--primary); display: block; margin-bottom: 5px; }  
+
+    .btn-group { display: flex; gap: 12px; margin-top: 15px; }  
+      
+    .action-btn {  
+        flex: 1; padding: 12px; border-radius: 14px; font-weight: 700;  
+        text-align: center; border: none; font-size: 0.9rem; cursor: pointer;  
+        transition: 0.3s;  
+    }  
+      
+    .buy-now { background: var(--gradient); color: #fff; text-decoration: none; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3); }  
+    .buy-now:hover { filter: brightness(1.1); }  
+      
+    .watch-later {  
+        background: transparent; border: 1px solid var(--primary); color: var(--text);  
+    }  
+    .watch-later:hover { background: rgba(139, 92, 246, 0.1); }  
+
+    .budget-error {  
+        background: rgba(239, 68, 68, 0.2);   
+        color: #fca5a5;  
+        padding: 10px;   
+        border-radius: 12px;   
+        font-size: 0.85rem;  
+        margin-bottom: 15px;   
+        font-weight: bold;   
+        border: 1px solid rgba(239, 68, 68, 0.4);  
+        display: flex;  
+        align-items: center;  
+        gap: 8px;  
+    }  
+
+    /* --- Modals --- */  
+    .modal {  
+        display: none; position: fixed; inset: 0;  
+        background: rgba(0,0,0,0.8); z-index: 3000;  
+        align-items: center; justify-content: center;  
+        backdrop-filter: blur(12px);  
+    }  
+      
+    .modal-box {  
+        background: #0f172a; padding: 30px; border-radius: 30px;  
+        width: 85%; max-width: 400px;  
+        border: 1px solid var(--glass-border);  
+        text-align: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);  
+    }  
+      
+    .modal-box input {  
+        width: 100%; padding: 14px; margin: 10px 0; border-radius: 14px;  
+        background: #1e293b; color: #fff; border: 1px solid var(--glass-border);  
+        text-align: center; font-family: inherit;  
+    }  
+      
+    .modal-box input:focus { border-color: var(--primary); }  
+
+    /* --- Animations --- */  
+    @keyframes pulse { 0% { opacity: 1; transform:translateY(-50%) scale(1); } 50% { opacity: 0.5; transform:translateY(-50%) scale(1.1); } 100% { opacity: 1; transform:translateY(-50%) scale(1); } }  
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }  
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }  
+
+</style>
+
+</head>  
+<body>  <header>  
+    <div class="logo">Findly <i class="fa-solid fa-wand-magic-sparkles"></i></div>  
+    <div class="header-tools">  
+        <button class="tool-btn" onclick="toggleMode()"><i class="fa-solid fa-circle-half-stroke"></i></button>  
+        <div style="position: relative;">  
+            <button class="tool-btn" onclick="toggleLMenu()"><i class="fa-solid fa-language"></i></button>  
+            <div id="l-menu" class="lang-menu">  
+                <div class="lang-item" onclick="setLang('ar')">العربية</div>  
+                <div class="lang-item" onclick="setLang('en')">English</div>  
+                <div class="lang-item" onclick="setLang('fr')">Français</div>  
+                <div class="lang-item" onclick="setLang('de')">Deutsch</div>  
+                <div class="lang-item" onclick="setLang('es')">Español</div>  
+                <div class="lang-item" onclick="setLang('tr')">Türkçe</div>  
+            </div>  
+        </div>  
+        <button class="tool-btn" onclick="toggleWatchList()">  
+            <i class="fa-solid fa-bell"></i>  
+            <span id="watch-count" style="position:absolute; top:-5px; right:-5px; background:#ef4444; color:white; font-size:0.6rem; padding:2px 6px; border-radius:50%; display:none; border: 2px solid var(--bg-dark);">0</span>  
+        </button>  
+          
+        <div id="auth-buttons-container">  
+            <button class="tool-btn" onclick="toggleAuthModal()"><i class="fa-solid fa-user"></i></button>  
+        </div>  
+    </div>  
+</header>  
+
+<main class="search-area">  
+    <div class="energy-box">  
+        <span id="txt-energy"></span>  
+        <span id="r-count" style="background:var(--primary); color:#fff; padding:3px 12px; border-radius:20px; font-weight:900; font-size: 0.9rem;">3</span>  
+        <i class="fa-solid fa-bolt" style="color:#FFD700;"></i>  
+    </div>  
+
+    <h2 id="greeting" style="color: var(--primary); font-size: 1.1rem; margin-bottom: 5px; font-weight: 600;"></h2>  
+    <h1 id="txt-title"></h1>  
+    <p id="txt-sub" style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 30px;"></p>  
+
+    <div class="ai-toggle">  
+        <i class="fa-solid fa-brain"></i>  
+        <span id="txt-deep"></span>  
+        <input type="checkbox" id="ai-deep-mode">  
+    </div>  
+
+    <div class="search-wrapper">  
+        <input type="text" id="s-input" class="search-input">  
+        <i id="mic-btn" class="fa-solid fa-microphone-lines mic-icon" onclick="startVoice()"></i>  
+        <button class="send-btn" onclick="runSearch()"><i class="fa-solid fa-magnifying-glass"></i></button>  
+    </div>  
+
+    <div class="ai-options">  
+        <div class="ai-tag" onclick="quickFilter('cheap')"><i class="fa-solid fa-sack-dollar"></i> <span id="tag-cheap"></span></div>  
+        <div class="ai-tag" onclick="quickFilter('top')"><i class="fa-solid fa-star"></i> <span id="tag-top"></span></div>  
+        <div class="ai-tag" onclick="quickFilter('new')"><i class="fa-solid fa-fire"></i> <span id="tag-new"></span></div>  
+    </div>  
+
+    <div class="cat-grid">  
+        <div class="cat-card" onclick="quickSearch('ألعاب')"><i class="fa-solid fa-gamepad"></i><span id="cat-game"></span></div>  
+        <div class="cat-card" onclick="quickSearch('جمال')"><i class="fa-solid fa-sparkles"></i><span id="cat-beauty"></span></div>  
+        <div class="cat-card" onclick="quickSearch('منزل ذكي')"><i class="fa-solid fa-house-laptop"></i><span id="cat-home"></span></div>  
+        <div class="cat-card" onclick="quickSearch('هواتف')"><i class="fa-solid fa-mobile-screen-button"></i><span id="cat-c1"></span></div>  
+        <div class="cat-card" onclick="quickSearch('لابتوب')"><i class="fa-solid fa-laptop"></i><span id="cat-c2"></span></div>  
+        <div class="cat-card" onclick="quickSearch('ساعات')"><i class="fa-solid fa-stopwatch"></i><span id="cat-c4"></span></div>  
+    </div>  
+
+    <div id="status" style="display:none; color:var(--primary); font-weight:bold; margin-top:30px; font-size: 1.1rem;"></div>  
+    <div id="results"></div>  
+</main>  
+
+<div class="modal" id="w-modal">  
+    <div class="modal-box">  
+        <h3 style="color:var(--primary); margin-top:0;"><i class="fa-solid fa-bell"></i> <span id="txt-watch-title"></span></h3>  
+        <div id="watch-list-content"></div>  
+        <button onclick="toggleWatchList()" style="background:none; color:var(--text-muted); border:none; margin-top:20px; cursor:pointer; font-size:0.9rem;">إغلاق</button>  
+    </div>  
+</div>  
+  
+<div class="modal" id="p-modal">  
+    <div class="modal-box">  
+        <h3 id="p-head" style="margin-top:0;"></h3>  
+        <label style="font-size:0.85rem; display:block; margin-bottom:5px; opacity:0.7;">اسم المستخدم</label>  
+        <input type="text" id="in-name" placeholder="أدخل اسمك هنا...">  
+        <label style="font-size:0.85rem; display:block; margin-top:15px; margin-bottom:5px; opacity:0.7;">الميزانية ($)</label>  
+        <input type="number" id="in-budget" placeholder="أقصى ميزانية لديك...">  
+        <button class="action-btn buy-now" onclick="saveSet()" style="width:100%; margin-top:20px;">حفظ التغييرات ✅</button>  
+        <button onclick="document.getElementById('p-modal').style.display = 'none';" style="background:none; color:var(--text-muted); border:none; margin-top:15px; cursor:pointer; font-size:0.9rem;">إغلاق</button>  
+    </div>  
+</div>  
+
+<div class="modal" id="auth-modal">  
+    <div class="modal-box">  
+        <h3 style="color:var(--primary); margin-top:0;">تسجيل الدخول / إنشاء حساب</h3>  
+        <p style="color:var(--text-muted); font-size:0.8rem; margin-bottom:20px;">يجب عليك تسجيل الدخول لاستخدام التطبيق</p>  
+          
+        <input type="email" id="auth-email" placeholder="البريد الإلكتروني" style="margin-bottom: 10px;">  
+        <input type="password" id="auth-pass" placeholder="كلمة المرور" style="margin-bottom: 20px;">  
+          
+        <button class="action-btn buy-now" onclick="handleEmailLogin()" style="width:100%; margin-bottom:10px;">تسجيل دخول (Email)</button>  
+        <button class="action-btn" onclick="handleEmailRegister()" style="width:100%; background: transparent; border: 1px solid var(--primary); color: var(--text); margin-bottom:10px;">إنشاء حساب جديد</button>  
+          
+        <div style="margin: 15px 0; border-top: 1px solid var(--glass-border); position: relative;">  
+            <span style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: #0f172a; padding: 0 10px; font-size: 0.8rem; color: var(--text-muted);">أو</span>  
+        </div>  
+
+        <button class="action-btn" onclick="handleGoogleLogin()" style="width:100%; background: #fff; color: #333; display: flex; align-items: center; justify-content: center; gap: 10px;">  
+            <i class="fa-brands fa-google" style="color: #DB4437;"></i> الدخول عبر Google  
+        </button>  
+
+        <button id="auth-close-btn" onclick="toggleAuthModal()" style="background:none; color:var(--text-muted); border:none; margin-top:15px; cursor:pointer; font-size:0.9rem;">إغلاق</button>  
+    </div>  
+</div>  
+
+<script>  
+
+    // --- 1. إعدادات Firebase ---  
+    const firebaseConfig = {  
+        apiKey: "AIzaSyCI_q5lkgRY4133ua4RlG5TeiCqJ5N5KTU",  
+        authDomain: "findly-ede17.firebaseapp.com",  
+        projectId: "findly-ede17",  
+        storageBucket: "findly-ede17.firebasestorage.app",  
+        messagingSenderId: "503212830017",  
+        appId: "1:503212830017:web:9afb64c19822bbe7f645c0",  
+        measurementId: "G-X1Q3WDP50N"  
+    };  
+
+    // تشغيل Firebase  
+    firebase.initializeApp(firebaseConfig);  
+    const auth = firebase.auth();  
+    const analytics = firebase.analytics();  
+
+    // متغيرات عامة  
+    const API = "https://findly-api.onrender.com";  
+    let lang = localStorage.getItem('findly_lang') || 'ar';  
+    let savedAttempts = localStorage.getItem('findly_attempts');  
+    let attempts = (savedAttempts !== null) ? parseInt(savedAttempts) : 3;  
+    if (savedAttempts === null) localStorage.setItem('findly_attempts', 3);  
+    let watchList = JSON.parse(localStorage.getItem('findly_watch')) || [];  
+    let currentUserUID = localStorage.getItem('findly_uid');  
+
+    // --- 2. دوال المصادقة ---  
+    auth.onAuthStateChanged((user) => {  
+        if (user) {  
+            currentUserUID = user.uid;  
+            localStorage.setItem('findly_uid', user.uid);  
+            updateAuthUI(true);  
+        } else {  
+            currentUserUID = null;  
+            localStorage.removeItem('findly_uid');  
+            updateAuthUI(false);  
+            // إجبار المستخدم على تسجيل الدخول إذا لم يكن مسجلاً  
+            toggleAuthModal();  
+        }  
+    });  
+
+    function toggleAuthModal() {  
+        const modal = document.getElementById('auth-modal');  
+        const closeBtn = document.getElementById('auth-close-btn');  
+          
+        modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';  
+          
+        if (!currentUserUID && modal.style.display === 'flex') {  
+            closeBtn.style.display = 'none';  
+        } else {  
+            closeBtn.style.display = 'block';  
+        }  
+    }  
+
+    function handleEmailLogin() {  
+        const email = document.getElementById('auth-email').value;  
+        const pass = document.getElementById('auth-pass').value;  
+        if(!email || !pass) return alert("الرجاء إدخال البيانات");  
+
+        auth.signInWithEmailAndPassword(email, pass)  
+            .then((userCredential) => {  
+                toggleAuthModal();  
+                alert("تم تسجيل الدخول بنجاح! 👋");  
+            })  
+            .catch((error) => {  
+                alert("خطأ: " + error.message);  
+            });  
+    }  
+
+    function handleEmailRegister() {  
+        const email = document.getElementById('auth-email').value;  
+        const pass = document.getElementById('auth-pass').value;  
+        if(!email || !pass) return alert("الرجاء إدخال البيانات");  
+
+        auth.createUserWithEmailAndPassword(email, pass)  
+            .then((userCredential) => {  
+                toggleAuthModal();  
+                alert("تم إنشاء الحساب بنجاح! 🚀");  
+            })  
+            .catch((error) => {  
+                alert("خطأ: " + error.message);  
+            });  
+    }  
+
+    function handleGoogleLogin() {  
+        const provider = new firebase.auth.GoogleAuthProvider();  
+        auth.signInWithPopup(provider)  
+            .then((result) => {  
+                toggleAuthModal();  
+                alert("أهلاً بك عبر Google! 🎉");  
+            }).catch((error) => {  
+                alert("خطأ: " + error.message);  
+            });  
+    }  
+
+    function handleLogout() {  
+        auth.signOut().then(() => {  
+            alert("تم تسجيل الخروج");  
+            location.reload();  
+        });  
+    }  
+
+    function updateAuthUI(isLoggedIn) {  
+        const container = document.getElementById('auth-buttons-container');  
+        if (isLoggedIn) {  
+            container.innerHTML = `  
+                <button class="tool-btn" onclick="openProfile()" title="الملف الشخصي"><i class="fa-solid fa-user-gear"></i></button>  
+                <button class="tool-btn" onclick="handleLogout()" style="border-color: #ef4444; color: #ef4444;" title="تسجيل خروج"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>  
+            `;  
+        } else {  
+            container.innerHTML = `  
+                <button class="tool-btn" onclick="toggleAuthModal()" title="تسجيل الدخول"><i class="fa-solid fa-user"></i></button>  
+            `;  
+        }  
+    }  
+
+    // --- قاموس الترجمة ---  
+    const dict = {  
+        ar: { title: "مستشارك الحكيم", sub: "دليلك الذكي للتسوق المثالي", energy: "طاقة العقل", welcome: "مرحباً،", game: "ألعاب", beauty: "جمال", home: "منزل ذكي", c1: "هواتف", c2: "لابتوب", c4: "ساعات", p_head: "الملف الشخصي", buy: "شراء الآن 🛒", watch: "راقب السعر 🔔", over: "يتجاوز ميزانيتك!", cheap: "اقتصادي", top: "الأعلى تقييماً", new: "حديث جداً", deep: "وضع التحليل الذكي", watchTitle: "قائمة المراقبة", why: "لماذا اخترنا هذا؟", slow: "السيرفر يستيقظ.. انتظر ثوانٍ", noAttempts: "⚠️ استنفدت محاولاتك!" },  
+        en: { title: "Sage Advisor", sub: "Your smart shopping guide", energy: "Sage Energy", welcome: "Welcome,", game: "Gaming", beauty: "Beauty", home: "Smart Home", c1: "Phones", c2: "Laptops", c4: "Watches", p_head: "Profile", buy: "Buy Now 🛒", watch: "Watch Price 🔔", over: "Over Budget!", cheap: "Budget", top: "Top Rated", new: "Newest", deep: "AI Deep Mode", watchTitle: "Watch List", why: "Why this choice?", slow: "Server waking up.. wait", noAttempts: "⚠️ No attempts left!" },  
+        fr: { title: "Conseiller Sage", sub: "Votre guide d'achat intelligent", energy: "Énergie Sage", welcome: "Bienvenue,", game: "Jeux", beauty: "Beauté", home: "Maison Inte.", c1: "Mobiles", c2: "Laptops", c4: "Montres", p_head: "Profil", buy: "Acheter 🛒", watch: "Surveiller 🔔", over: "Hors budget!", cheap: "Éco", top: "Mieux notés", new: "Nouveau", deep: "Mode Analyse AI", watchTitle: "Liste de veille", why: "Pourquoi ce choix?", slow: "Le serveur se réveille..", noAttempts: "⚠️ Plus d'essais!" },  
+        de: { title: "Weiser Berater", sub: "Ihr smarter Einkaufsführer", energy: "Weise Energie", welcome: "Willkommen,", game: "Spiele", beauty: "Schönheit", home: "Smart Home", c1: "Handys", c2: "Laptops", c4: "Uhren", p_head: "Profil", buy: "Kaufen 🛒", watch: "Beobachten 🔔", over: "Budget übersch.", cheap: "Günstig", top: "Bestbewertet", new: "Neu", deep: "KI-Analyse-Modus", watchTitle: "Beobachtungsliste", why: "Warum diese Wahl?", slow: "Server wacht auf..", noAttempts: "⚠️ Keine Versuche mehr!" },  
+        es: { title: "Asesor Sabio", sub: "Tu guía de compras inteligente", energy: "Energía Sabia", welcome: "Bienvenido,", game: "Juegos", beauty: "Belleza", home: "Hogar Intelig.", c1: "Móviles", c2: "Portátiles", c4: "Relojes", p_head: "Perfil", buy: "Comprar 🛒", watch: "Vigilar 🔔", over: "Fuera de presupuesto", cheap: "Económico", top: "Mejor valorado", new: "Nuevo", deep: "Modo de análisis IA", watchTitle: "Lista de vigilancia", why: "¿Por qué esta elección?", slow: "El servidor está despertando..", noAttempts: "⚠️ ¡No quedan intentos!" },  
+        tr: { title: "Bilge Danışman", sub: "Akıllı alışveriş rehberiniz", energy: "Bilge Enerji", welcome: "Hoş geldiniz,", game: "Oyunlar", beauty: "Güzellik", home: "Akıllı Ev", c1: "Telefonlar", c2: "Laptoplar", c4: "Saatler", p_head: "Profil", buy: "Satın Al 🛒", watch: "Fiyatı İzle 🔔", over: "Bütçe Aşıldı!", cheap: "Ekonomik", top: "En İyi", new: "Yeni", deep: "Yapay Zeka Analiz", watchTitle: "İzleme Listesi", why: "Neden bu seçim?", slow: "Sunucu uyanıyor.. bekleyin", noAttempts: "⚠️ Deneme kalmadı!" }  
+    };  
+
+    // --- 3. دالة البحث ---  
+    async function runSearch() {  
+        // التحقق من تسجيل الدخول قبل البحث  
+        if (!currentUserUID) {  
+            alert("يجب عليك تسجيل الدخول أولاً!");  
+            toggleAuthModal();  
+            return;  
+        }  
+
+        let q = document.getElementById('s-input').value;  
+        const status = document.getElementById('status');  
+        const resCon = document.getElementById('results');  
+        const d = dict[lang] || dict['ar'];  
+          
+        // جلب الميزانية المحفوظة  
+        let rawBudget = localStorage.getItem('fb');  
+        let userBudget = rawBudget ? parseFloat(rawBudget) : 0;  
+
+        if (attempts <= 0) {   
+            status.style.display = "block";  
+            status.innerHTML = d.noAttempts;  
+            return;   
+        }  
+        if (!q) return;  
+
+        status.style.display = "block";  
+        status.innerHTML = '<i class="fa-solid fa-microchip fa-spin"></i> Analyzing...';  
+        resCon.innerHTML = "";  
+
+        try {  
+            const bodyData = {   
+                query: q,   
+                lang: lang,  
+                uid: currentUserUID || 'guest'  
+            };  
+
+            const res = await fetch(`${API}/smart-search`, {  
+                method: 'POST',  
+                headers: { 'Content-Type': 'application/json' },  
+                body: JSON.stringify(bodyData)  
+            });  
+              
+            const data = await res.json();  
+            status.style.display = "none";  
+
+            if (data.products && data.products.length > 0) {  
+                data.products.forEach((p, index) => {  
+                    let cleanPriceString = p.price ? p.price.toString().replace(/,/g, '').replace(/[^\d.]/g, '') : "0";  
+                    let priceVal = parseFloat(cleanPriceString);  
+                      
+                    // منطق تنبيه تجاوز الميزانية  
+                    let budgetAlert = "";  
+                    if (userBudget > 0 && priceVal > userBudget) {  
+                        budgetAlert = `<div class="budget-error"><i class="fa-solid fa-triangle-exclamation"></i> ${d.over} ($${userBudget})</div>`;  
+                    }  
+                      
+                    setTimeout(() => {  
+                        resCon.innerHTML += `  
+                            <div class="product-card">  
+                                ${budgetAlert}  
+                                <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/150'">  
+                                <h3>${p.name}</h3>  
+                                <div class="price">${p.price || 'N/A'}</div>  
+                                <div class="analysis-engine"><span class="analysis-label"><i class="fa-solid fa-brain"></i> ${d.why}</span>${p.reason}</div>  
+                                <div class="btn-group">  
+                                    <a href="${p.link}" target="_blank" class="action-btn buy-now">${d.buy}</a>  
+                                    <button class="action-btn watch-later" onclick="addToWatch('${p.name.replace(/'/g, "\\'")}', '${p.price}', '${p.link}')">${d.watch}</button>  
+                                </div>  
+                            </div>`;  
+                    }, index * 100);  
+                });  
+                  
+                attempts--;  
+                localStorage.setItem('findly_attempts', attempts);  
+                update();  
+            } else {  
+                status.style.display = "block";  
+                status.innerHTML = "No results found / لا توجد نتائج";  
+            }  
+        } catch (e) {  
+            console.error(e);  
+            status.style.display = "block";  
+            status.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Error: ${d.slow || "Server Error"}`;  
+        }  
+    }  
+
+    // --- 4. تحديث الواجهة واللغة ---  
+    function update() {  
+        const d = dict[lang] || dict['ar'];  
+          
+        // النصوص الأساسية  
+        document.getElementById('txt-title').innerText = d.title;  
+        document.getElementById('txt-sub').innerText = d.sub;  
+        document.getElementById('txt-energy').innerText = d.energy;  
+        document.getElementById('txt-deep').innerText = d.deep;  
+        document.getElementById('p-head').innerText = d.p_head;  
+          
+        // التصنيفات  
+        document.getElementById('cat-game').innerText = d.game;  
+        document.getElementById('cat-beauty').innerText = d.beauty;  
+        document.getElementById('cat-home').innerText = d.home;  
+        document.getElementById('cat-c1').innerText = d.c1;  
+        document.getElementById('cat-c2').innerText = d.c2;  
+        document.getElementById('cat-c4').innerText = d.c4;  
+          
+        // التاجات  
+        document.getElementById('tag-cheap').innerText = d.cheap;  
+        document.getElementById('tag-top').innerText = d.top;  
+        document.getElementById('tag-new').innerText = d.new;  
+
+        document.getElementById('txt-watch-title').innerText = d.watchTitle;  
+
+        // تحديث عدد المحاولات  
+        document.getElementById('r-count').innerText = attempts;  
+          
+        // الترحيب  
+        let uName = localStorage.getItem('fn') || 'User';  
+        document.getElementById('greeting').innerText = `${d.welcome} ${uName} 👋`;  
+
+        // تحديث عدد التنبيهات  
+        const wCount = document.getElementById('watch-count');  
+        if(watchList.length > 0) {  
+            wCount.style.display = 'block';  
+            wCount.innerText = watchList.length;  
+        } else {  
+            wCount.style.display = 'none';  
+        }  
+          
+        // اتجاه النص  
+        document.getElementById('main-html').setAttribute('dir', (lang === 'ar') ? 'rtl' : 'ltr');  
+    }  
+
+    // --- 5. دوال مساعدة إضافية ---  
+
+    // تبديل اللغة  
+    function setLang(l) {  
+        lang = l;  
+        localStorage.setItem('findly_lang', l);  
+        document.getElementById('l-menu').style.display = 'none';  
+        update();  
+    }  
+
+    function toggleLMenu() {  
+        const m = document.getElementById('l-menu');  
+        m.style.display = (m.style.display === 'block') ? 'none' : 'block';  
+    }  
+
+    // الوضع الليلي/النهاري  
+    function toggleMode() {  
+        document.body.classList.toggle('light-mode');  
+    }  
+
+    // البحث السريع عبر الفلاتر  
+    function quickFilter(type) {  
+        const input = document.getElementById('s-input');  
+        const d = dict[lang];  
+        let term = "";  
+        if(type === 'cheap') term = (lang==='ar') ? "رخيص" : "Cheap";  
+        if(type === 'top') term = (lang==='ar') ? "أفضل تقييم" : "Best rated";  
+        if(type === 'new') term = (lang==='ar') ? "جديد" : "New";  
+          
+        input.value += " " + term;  
+    }  
+
+    function quickSearch(txt) {  
+        document.getElementById('s-input').value = txt;  
+        runSearch();  
+    }  
+
+    // إدارة الملف الشخصي  
+    function openProfile() {  
+        document.getElementById('p-modal').style.display = 'flex';  
+        document.getElementById('in-name').value = localStorage.getItem('fn') || '';  
+        document.getElementById('in-budget').value = localStorage.getItem('fb') || '';  
+    }  
+
+    function saveSet() {  
+        const n = document.getElementById('in-name').value;  
+        const b = document.getElementById('in-budget').value;  
+        localStorage.setItem('fn', n);  
+        localStorage.setItem('fb', b);  
+        document.getElementById('p-modal').style.display = 'none';  
+        update();  
+    }  
+
+    // قائمة المراقبة (Watchlist)  
+    function addToWatch(n, p, l) {  
+        const item = { name: n, price: p, link: l };  
+        watchList.push(item);  
+        localStorage.setItem('findly_watch', JSON.stringify(watchList));  
+        update();  
+        alert("تمت الإضافة لقائمة المراقبة 🔔");  
+    }  
+
+    function toggleWatchList() {  
+        const modal = document.getElementById('w-modal');  
+        const content = document.getElementById('watch-list-content');  
+          
+        if(modal.style.display === 'flex') {  
+            modal.style.display = 'none';  
+        } else {  
+            modal.style.display = 'flex';  
+            content.innerHTML = "";  
+            if(watchList.length === 0) {  
+                content.innerHTML = "<p style='color:#94a3b8'>القائمة فارغة</p>";  
+            } else {  
+                watchList.forEach((w, i) => {  
+                    content.innerHTML += `  
+                        <div style="background:#1e293b; padding:10px; margin-bottom:10px; border-radius:10px; text-align:right;">  
+                            <div style="font-weight:bold; color:#fff; font-size:0.9rem;">${w.name}</div>  
+                            <div style="color:#10b981; font-size:0.8rem;">${w.price}</div>  
+                            <a href="${w.link}" target="_blank" style="color:var(--primary); font-size:0.8rem;">رابط المنتج</a>  
+                            <button onclick="removeFromWatch(${i})" style="color:#ef4444; background:none; border:none; float:left; cursor:pointer;">حذف</button>  
+                        </div>  
+                    `;  
+                });  
+            }  
+        }  
+    }  
+
+    function removeFromWatch(index) {  
+        watchList.splice(index, 1);  
+        localStorage.setItem('findly_watch', JSON.stringify(watchList));  
+        toggleWatchList(); // Refresh list  
+        update(); // Update count badge  
+    }  
+
+    // الأوامر الصوتية  
+    function startVoice() {  
+        if (!('webkitSpeechRecognition' in window)) {  
+            alert("متصفحك لا يدعم هذه الميزة");  
+            return;  
+        }  
+        const recognition = new webkitSpeechRecognition();  
+        const micBtn = document.getElementById('mic-btn');  
+          
+        recognition.lang = (lang === 'ar') ? 'ar-SA' : 'en-US';  
+        recognition.onstart = function() {  
+            micBtn.classList.add('mic-active');  
+        };  
+        recognition.onend = function() {  
+            micBtn.classList.remove('mic-active');  
+        };  
+        recognition.onresult = function(event) {  
+            const transcript = event.results[0][0].transcript;  
+            document.getElementById('s-input').value = transcript;  
+            runSearch();  
+        };  
+        recognition.start();  
+    }  
+
+    // تشغيل عند التحميل  
+    update();  
+
+</script>
+
+</body>  
 </html>

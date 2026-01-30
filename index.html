@@ -934,54 +934,70 @@
 
     // تشغيل عند التحميل  
   
-
+update();
 </script>
 <style>
-    /* تأثيرات الروابط */
-    .footer-link {
-        text-decoration: none;
-        color: var(--text-muted); /* أو استخدم لونك المفضل */
-        transition: all 0.3s ease;
-        position: relative;
-        font-weight: 500;
+    /* حاوية التذييل الرئيسية */
+    .custom-footer {
+        margin-top: 50px;
+        padding: 40px 5%;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        text-align: center;
+        background: rgba(10, 11, 20, 0.5); /* لون داكن يتماشى مع صورتك */
+        backdrop-filter: blur(10px);
     }
 
-    /* خط سفلي يتحرك عند تمرير الماوس */
+    /* تنسيق الروابط */
+    .footer-link {
+        text-decoration: none;
+        color: #a0a0b0; /* لون رمادي فاتح ليناسب التصميم */
+        font-size: 0.9rem;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: inline-block;
+        position: relative;
+    }
+
+    /* تأثير عند تمرير الماوس */
+    .footer-link:hover {
+        color: #ffffff;
+        transform: translateY(-5px);
+        text-shadow: 0 0 10px rgba(162, 89, 255, 0.5); /* توهج بنفسجي خفيف يناسب شعارك */
+    }
+
+    /* النص الحقوقي */
+    .footer-copyright {
+        margin-top: 20px;
+        color: #63636e;
+        font-size: 0.8rem;
+        opacity: 0.8;
+    }
+
+    /* خط تحت الروابط يظهر عند التحويم */
     .footer-link::after {
         content: '';
         position: absolute;
         width: 0;
         height: 2px;
         bottom: -5px;
-        left: 0;
-        background-color: var(--glass-border); /* لون الخط */
+        right: 0;
+        background: linear-gradient(90deg, #a259ff, #6934ff); /* تدرج لوني يشبه شعارك */
         transition: width 0.3s ease;
-    }
-
-    .footer-link:hover {
-        color: #fff; /* يتغير اللون للأبيض عند المرور */
-        transform: translateY(-3px); /* حركة بسيطة للأعلى */
     }
 
     .footer-link:hover::after {
         width: 100%;
-    }
-
-    /* إضافة تأثير Glassmorphism للمتصفحات التي تدعمه */
-    footer {
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
+        left: 0;
     }
 </style>
 
-<footer style="margin-top: 50px; padding: 40px 5%; border-top: 1px solid var(--glass-border); text-align: center; background: rgba(255, 255, 255, 0.02);">
-    <div style="display: flex; justify-content: center; gap: 30px; margin-bottom: 20px;">
+<footer class="custom-footer">
+    <div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap;">
         <a href="privacy.html" class="footer-link">سياسة الخصوصية</a>
         <a href="terms.html" class="footer-link">شروط الاستخدام</a>
         <a href="javascript:void(0)" onclick="openAbout()" class="footer-link">من نحن</a>
     </div>
-    <p style="color: var(--text-muted); font-size: 0.85rem; opacity: 0.5; letter-spacing: 0.5px;">
-        © 2026 <span style="font-weight: bold;">Findly Sage</span>. جميع الحقوق محفوظة.
+    <p class="footer-copyright">
+        © 2026 <span style="color: #a259ff;">Findly Sage</span>. جميع الحقوق محفوظة.
     </p>
 </footer>
 

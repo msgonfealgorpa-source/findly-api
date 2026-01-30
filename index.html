@@ -823,28 +823,7 @@
             }
         }
 
-        // دالة تحديث عداد التنبيهات فقط (بدون فتح القائمة)
-        async function updateWatchListUI() {
-            if (!currentUserUID) return;
-            try {
-                const res = await fetch(`${API}/watchlist/${currentUserUID}`);
-                const data = await res.json();
-                if (data.watchlist) {
-                    updateWatchCount(data.watchlist.length);
-                }
-            } catch (e) { console.error("Error fetching count"); }
-        }
-
-        function updateWatchCount(count) {
-            const badge = document.getElementById('watch-count');
-            if (count > 0) {
-                badge.innerText = count;
-                badge.style.display = 'block';
-            } else {
-                badge.style.display = 'none';
-            }
-        }
-
+        
 
         // --- Helper Functions ---
         function setLang(l) {

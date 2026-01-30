@@ -46,7 +46,16 @@ const SearchLogSchema = new mongoose.Schema({
     timestamp: { type: Date, default: Date.now } // وقت البحث
 });
 const SearchLog = mongoose.model('SearchLog', SearchLogSchema);
-
+// أضف هذا تحت Alert model
+const WatchlistSchema = new mongoose.Schema({
+    uid: String,
+    name: String, // اسم المنتج
+    price: String,
+    thumbnail: String,
+    link: String,
+    addedAt: { type: Date, default: Date.now }
+});
+const Watchlist = mongoose.model('Watchlist', WatchlistSchema);
 // إعدادات البريد الإلكتروني
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -221,6 +230,43 @@ cron.schedule('0 */6 * * *', async () => {
         });
     }
 });
+// --- مسارات الـ Watchlist و Deep AI ---
 
+// مسار إضافة منتج للمفضلة
+app.post('/watchlist/add', async (req, res) => {
+    try {
+        const { uid, product } = req.body;
+        // نتحقق أولاً إذا كان المنتج موجود مسبقاً لنفس المستخدم
+        const exists = await Watchlist.findOne({ uid, link: product.link });
+        if (exists) return res.status(200).json({ message: "موجود بالفعل" });
+
+        const item = new Watchlist({ uid, ...product });
+        await item.save();
+        res.status(200).json({ message: "تمت الإضافة للمفضلة" });
+    } catch (err) { res.status(500).json({ error: "فشل الحفظ" }); }
+});
+
+// مسار جلب المفضلة
+app.get('/watchlist/:uid', async (req, res) => {
+    try {
+        const items = await Watchlist.find({ uid: req.params.uid }).sort({ addedAt: -1 });
+        res.json({ watchlist: items });
+    } catch (err) { res.status(500).json({ error: "فشل الجلب" }); }
+});
+
+// مسار تحليل Deep AI
+app.post('/deep-ai-analyze', (req, res) => {
+    const { products, query, lang } = req.body;
+    if (!products || products.length === 0) return res.json({ deepAnalysis: "" });
+
+    const bestPrice = products.reduce((min, p) => p.priceVal < min.priceVal ? p : min, products[0]);
+    const bestRated = products.reduce((max, p) => p.rating > max.rating ? p : max, products[0]);
+
+    const analysis = {
+        ar: `🔍 تحليل Findly العميق لـ "${query}":\n\nأفضل قيمة مقابل سعر هو "${bestPrice.name}" بسعر ${bestPrice.price}. \nأما إذا كنت تبحث عن الجودة، فننصح بـ "${bestRated.name}" لتقييمه المرتفع (${bestRated.rating}⭐).`,
+        en: `🔍 Findly Deep Analysis for "${query}":\n\nBest value is "${bestPrice.name}" at ${bestPrice.price}. \nFor top quality, we recommend "${bestRated.name}" with a rating of (${bestRated.rating}⭐).`
+    };
+    res.json({ deepAnalysis: analysis[lang] || analysis['ar'] });
+});
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Findly Server running on port ${PORT}`));

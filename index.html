@@ -400,19 +400,6 @@
         <span id="r-count" style="background:var(--primary); color:#fff; padding:3px 12px; border-radius:20px; font-weight:900; font-size: 0.9rem;">3</span>  
         <i class="fa-solid fa-bolt" style="color:#FFD700;"></i>  
     </div>  
-
-<section id="comparison-area" style="width: 100%; max-width: 500px; margin: 20px auto; padding: 0 15px;">
-    
-    <button id="compareBtn" onclick="executeComparison()" class="findly-btn">
-        <span>📊</span> مقارنة الأسعار الذكية
-    </button>
-
-    <div id="aiAnalysis" class="ai-box" style="display: none;"></div>
-
-    <div id="comparisonResults" style="display: none; margin-top: 20px;">
-        <div id="productsGrid" class="products-grid"></div>
-    </div>
-</section>
     
     <h2 id="greeting" style="color: var(--primary); font-size: 1.1rem; margin-bottom: 5px; font-weight: 600;"></h2>  
     <h1 id="txt-title"></h1>  
@@ -442,6 +429,19 @@
         </div>
     </div>
 
+<div class="unique-compare-wrapper">
+    <button id="compareBtn" onclick="executeComparison()" class="findly-unique-btn">
+        <div class="btn-content">
+            <i class="sparkle-icon">✨</i>
+            <span id="btnText">مستشارك الحكيم يقارن الآن</span>
+            <div id="loader" class="loader-bars" style="display: none;">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="btn-glow"></div>
+    </button>
+</div>
+    
     <div class="cat-grid">  
         <div class="cat-card" onclick="quickSearch('ألعاب')"><i class="fa-solid fa-gamepad"></i><span id="cat-game"></span></div>  
         <div class="cat-card" onclick="quickSearch('جمال')"><i class="fa-solid fa-sparkles"></i><span id="cat-beauty"></span></div>  

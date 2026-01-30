@@ -936,14 +936,52 @@
     update();  
 
 </script>
-<footer style="margin-top: 50px; padding: 30px 5%; border-top: 1px solid var(--glass-border); text-align: center;">
-    <div style="display: flex; justify-content: center; gap: 25px; margin-bottom: 15px;">
+<style>
+    /* تأثيرات الروابط */
+    .footer-link {
+        text-decoration: none;
+        color: var(--text-muted); /* أو استخدم لونك المفضل */
+        transition: all 0.3s ease;
+        position: relative;
+        font-weight: 500;
+    }
+
+    /* خط سفلي يتحرك عند تمرير الماوس */
+    .footer-link::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: -5px;
+        left: 0;
+        background-color: var(--glass-border); /* لون الخط */
+        transition: width 0.3s ease;
+    }
+
+    .footer-link:hover {
+        color: #fff; /* يتغير اللون للأبيض عند المرور */
+        transform: translateY(-3px); /* حركة بسيطة للأعلى */
+    }
+
+    .footer-link:hover::after {
+        width: 100%;
+    }
+
+    /* إضافة تأثير Glassmorphism للمتصفحات التي تدعمه */
+    footer {
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+</style>
+
+<footer style="margin-top: 50px; padding: 40px 5%; border-top: 1px solid var(--glass-border); text-align: center; background: rgba(255, 255, 255, 0.02);">
+    <div style="display: flex; justify-content: center; gap: 30px; margin-bottom: 20px;">
         <a href="privacy.html" class="footer-link">سياسة الخصوصية</a>
         <a href="terms.html" class="footer-link">شروط الاستخدام</a>
         <a href="javascript:void(0)" onclick="openAbout()" class="footer-link">من نحن</a>
     </div>
-    <p style="color: var(--text-muted); font-size: 0.75rem; opacity: 0.6;">
-        © 2026 Findly Sage. جميع الحقوق محفوظة.
+    <p style="color: var(--text-muted); font-size: 0.85rem; opacity: 0.5; letter-spacing: 0.5px;">
+        © 2026 <span style="font-weight: bold;">Findly Sage</span>. جميع الحقوق محفوظة.
     </p>
 </footer>
 

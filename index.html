@@ -469,21 +469,22 @@
 
     <script>
 
-        // --- 1. إعدادات Firebase الجديدة ---
-  const firebaseConfig = {
-    apiKey: "AIzaSyCI_q5lkgRY4133ua4RlG5TeiCqJ5N5KTU",
-    authDomain: "findly-ede17.firebaseapp.com",
-    projectId: "findly-ede17",
-    storageBucket: "findly-ede17.firebasestorage.app",
-    messagingSenderId: "503212830017",
-    appId: "1:503212830017:web:9afb64c19822bbe7f645c0",
-    measurementId: "G-X1Q3WDP50N"
-  };
+        // --- 1. إعدادات Firebase ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyCI_q5lkgRY4133ua4RlG5TeiCqJ5N5KTU",
+            authDomain: "findly-ede17.firebaseapp.com",
+            projectId: "findly-ede17",
+            storageBucket: "findly-ede17.firebasestorage.app",
+            messagingSenderId: "503212830017",
+            appId: "1:503212830017:web:9afb64c19822bbe7f645c0",
+            measurementId: "G-X1Q3WDP50N"
+        };
 
-  // تشغيل Firebase
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const analytics = firebase.analytics();
+        // تشغيل Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const analytics = firebase.analytics();
+
         // متغيرات عامة
         const API = "https://findly-api.onrender.com";
         let lang = localStorage.getItem('findly_lang') || 'ar';
@@ -514,7 +515,6 @@
             
             modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
             
-            // إخفاء زر الإغلاق إذا لم يكن المستخدم مسجلاً لإجباره على التسجيل
             if (!currentUserUID && modal.style.display === 'flex') {
                 closeBtn.style.display = 'none';
             } else {
@@ -676,142 +676,22 @@
             } catch (e) {
                 console.error(e);
                 status.style.display = "block";
-                status.innerHTML = `<i class="fa-solid fa-clock-rotate-left"></i> ${d.slow}`;
+                status.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Error: ${d.slow || "Server Error"}`;
             }
         }
 
-        async function addToWatch(name, price, link) {
-            const promptMsg = {
-                ar: "أدخل إيميلك لتفعيل تنبيه انخفاض السعر:",
-                en: "Enter email for price alert:",
-                fr: "Email pour alerte prix:",
-                de: "E-Mail für Preisalarm:",
-                es: "Correo para alerta de precio:",
-                tr: "Fiyat uyarısı için e-posta:"
-            };
-            
-            let email = prompt(promptMsg[lang] || promptMsg['ar']);
-            if (email) {
-                let newItem = { name, price, link, email, date: new Date().toLocaleDateString() };
-                watchList.push(newItem);
-                localStorage.setItem('findly_watch', JSON.stringify(watchList));
-                update();
-                alert("تمت الإضافة لقائمة المراقبة ✅");
-            }
-        }
-
-        // --- وظائف الواجهة المفقودة والمكملة ---
-
-        // دالة حفظ الملف الشخصي (الميزانية والاسم)
-        function saveSet() {
-            const name = document.getElementById('in-name').value;
-            const budget = document.getElementById('in-budget').value;
-            
-            // حفظ البيانات
-            localStorage.setItem('findly_name', name);
-            if(budget) localStorage.setItem('fb', budget); // fb = Findly Budget
-            
-            document.getElementById('p-modal').style.display = 'none';
-            update();
-            alert("تم حفظ البيانات بنجاح ✅");
-        }
-
-        function openProfile() {
-            const savedName = localStorage.getItem('findly_name') || '';
-            const savedBudget = localStorage.getItem('fb') || '';
-            
-            document.getElementById('in-name').value = savedName;
-            document.getElementById('in-budget').value = savedBudget;
-            document.getElementById('p-modal').style.display = 'flex';
-        }
-
-        function toggleMode() {
-            document.body.classList.toggle('light-mode');
-        }
-
-        function toggleLMenu() {
-            const m = document.getElementById('l-menu');
-            m.style.display = (m.style.display === 'block') ? 'none' : 'block';
-        }
-
-        function setLang(l) {
-            lang = l;
-            localStorage.setItem('findly_lang', l);
-            document.getElementById('l-menu').style.display = 'none';
-            document.documentElement.lang = l;
-            document.documentElement.dir = (l === 'ar') ? 'rtl' : 'ltr';
-            update();
-        }
-
-        function toggleWatchList() {
-            const modal = document.getElementById('w-modal');
-            modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
-            renderWatchList();
-        }
-
-        function renderWatchList() {
-            const container = document.getElementById('watch-list-content');
-            if (watchList.length === 0) {
-                container.innerHTML = '<p style="color:var(--text-muted)">القائمة فارغة</p>';
-                return;
-            }
-            container.innerHTML = watchList.map(item => `
-                <div style="background:var(--bg-card); padding:10px; margin-bottom:10px; border-radius:10px; text-align:right; border:1px solid var(--glass-border);">
-                    <div style="font-weight:bold; font-size:0.9rem;">${item.name}</div>
-                    <div style="color:#10b981; font-size:0.8rem;">${item.price}</div>
-                    <a href="${item.link}" target="_blank" style="color:var(--primary); font-size:0.8rem;">رابط المنتج</a>
-                </div>
-            `).join('');
-        }
-
-        function quickSearch(txt) {
-            document.getElementById('s-input').value = txt;
-            runSearch();
-        }
-
-        function quickFilter(type) {
-            let current = document.getElementById('s-input').value;
-            let suffix = "";
-            const d = dict[lang];
-            if(type === 'cheap') suffix = ` ${d.cheap}`;
-            if(type === 'top') suffix = ` ${d.top}`;
-            if(type === 'new') suffix = ` ${d.new}`;
-            
-            document.getElementById('s-input').value = current + suffix;
-            runSearch();
-        }
-
-        function startVoice() {
-            const mic = document.getElementById('mic-btn');
-            mic.classList.add('mic-active');
-            
-            if ('webkitSpeechRecognition' in window) {
-                const recognition = new webkitSpeechRecognition();
-                recognition.lang = lang;
-                recognition.onresult = (event) => {
-                    document.getElementById('s-input').value = event.results[0][0].transcript;
-                    mic.classList.remove('mic-active');
-                    runSearch();
-                };
-                recognition.onerror = () => mic.classList.remove('mic-active');
-                recognition.start();
-            } else {
-                alert("المتصفح لا يدعم الصوت");
-                mic.classList.remove('mic-active');
-            }
-        }
-
+        // --- 4. تحديث الواجهة واللغة ---
         function update() {
-            const d = dict[lang];
-            const userName = localStorage.getItem('findly_name') || "";
+            const d = dict[lang] || dict['ar'];
             
+            // النصوص الأساسية
             document.getElementById('txt-title').innerText = d.title;
             document.getElementById('txt-sub').innerText = d.sub;
             document.getElementById('txt-energy').innerText = d.energy;
-            document.getElementById('greeting').innerText = d.welcome + " " + userName;
-            document.getElementById('r-count').innerText = attempts;
+            document.getElementById('txt-deep').innerText = d.deep;
+            document.getElementById('p-head').innerText = d.p_head;
             
-            // تحديث نصوص الفئات
+            // التصنيفات
             document.getElementById('cat-game').innerText = d.game;
             document.getElementById('cat-beauty').innerText = d.beauty;
             document.getElementById('cat-home').innerText = d.home;
@@ -819,40 +699,155 @@
             document.getElementById('cat-c2').innerText = d.c2;
             document.getElementById('cat-c4').innerText = d.c4;
             
-            // تحديث نصوص أخرى
-            document.getElementById('txt-deep').innerText = d.deep;
+            // التاجات
             document.getElementById('tag-cheap').innerText = d.cheap;
             document.getElementById('tag-top').innerText = d.top;
             document.getElementById('tag-new').innerText = d.new;
-            document.getElementById('p-head').innerText = d.p_head;
+
             document.getElementById('txt-watch-title').innerText = d.watchTitle;
 
-            // تحديث عداد التنبيهات
-            const wc = document.getElementById('watch-count');
-            if (watchList.length > 0) {
-                wc.innerText = watchList.length;
-                wc.style.display = 'block';
+            // تحديث عدد المحاولات
+            document.getElementById('r-count').innerText = attempts;
+            
+            // الترحيب
+            let uName = localStorage.getItem('fn') || 'User';
+            document.getElementById('greeting').innerText = `${d.welcome} ${uName} 👋`;
+
+            // تحديث عدد التنبيهات
+            const wCount = document.getElementById('watch-count');
+            if(watchList.length > 0) {
+                wCount.style.display = 'block';
+                wCount.innerText = watchList.length;
             } else {
-                wc.style.display = 'none';
+                wCount.style.display = 'none';
+            }
+            
+            // اتجاه النص
+            document.getElementById('main-html').setAttribute('dir', (lang === 'ar') ? 'rtl' : 'ltr');
+        }
+
+        // --- 5. دوال مساعدة إضافية ---
+
+        // تبديل اللغة
+        function setLang(l) {
+            lang = l;
+            localStorage.setItem('findly_lang', l);
+            document.getElementById('l-menu').style.display = 'none';
+            update();
+        }
+
+        function toggleLMenu() {
+            const m = document.getElementById('l-menu');
+            m.style.display = (m.style.display === 'block') ? 'none' : 'block';
+        }
+
+        // الوضع الليلي/النهاري
+        function toggleMode() {
+            document.body.classList.toggle('light-mode');
+        }
+
+        // البحث السريع عبر الفلاتر
+        function quickFilter(type) {
+            const input = document.getElementById('s-input');
+            const d = dict[lang];
+            let term = "";
+            if(type === 'cheap') term = (lang==='ar') ? "رخيص" : "Cheap";
+            if(type === 'top') term = (lang==='ar') ? "أفضل تقييم" : "Best rated";
+            if(type === 'new') term = (lang==='ar') ? "جديد" : "New";
+            
+            input.value += " " + term;
+        }
+
+        function quickSearch(txt) {
+            document.getElementById('s-input').value = txt;
+            runSearch();
+        }
+
+        // إدارة الملف الشخصي
+        function openProfile() {
+            document.getElementById('p-modal').style.display = 'flex';
+            document.getElementById('in-name').value = localStorage.getItem('fn') || '';
+            document.getElementById('in-budget').value = localStorage.getItem('fb') || '';
+        }
+
+        function saveSet() {
+            const n = document.getElementById('in-name').value;
+            const b = document.getElementById('in-budget').value;
+            localStorage.setItem('fn', n);
+            localStorage.setItem('fb', b);
+            document.getElementById('p-modal').style.display = 'none';
+            update();
+        }
+
+        // قائمة المراقبة (Watchlist)
+        function addToWatch(n, p, l) {
+            const item = { name: n, price: p, link: l };
+            watchList.push(item);
+            localStorage.setItem('findly_watch', JSON.stringify(watchList));
+            update();
+            alert("تمت الإضافة لقائمة المراقبة 🔔");
+        }
+
+        function toggleWatchList() {
+            const modal = document.getElementById('w-modal');
+            const content = document.getElementById('watch-list-content');
+            
+            if(modal.style.display === 'flex') {
+                modal.style.display = 'none';
+            } else {
+                modal.style.display = 'flex';
+                content.innerHTML = "";
+                if(watchList.length === 0) {
+                    content.innerHTML = "<p style='color:#94a3b8'>القائمة فارغة</p>";
+                } else {
+                    watchList.forEach((w, i) => {
+                        content.innerHTML += `
+                            <div style="background:#1e293b; padding:10px; margin-bottom:10px; border-radius:10px; text-align:right;">
+                                <div style="font-weight:bold; color:#fff; font-size:0.9rem;">${w.name}</div>
+                                <div style="color:#10b981; font-size:0.8rem;">${w.price}</div>
+                                <a href="${w.link}" target="_blank" style="color:var(--primary); font-size:0.8rem;">رابط المنتج</a>
+                                <button onclick="removeFromWatch(${i})" style="color:#ef4444; background:none; border:none; float:left; cursor:pointer;">حذف</button>
+                            </div>
+                        `;
+                    });
+                }
             }
         }
 
-        // التشغيل الأولي
-        window.onload = function() {
-            update();
-            // التحقق من حالة تسجيل الدخول عند البدء
-            if (!currentUserUID) {
-                toggleAuthModal();
+        function removeFromWatch(index) {
+            watchList.splice(index, 1);
+            localStorage.setItem('findly_watch', JSON.stringify(watchList));
+            toggleWatchList(); // Refresh list
+            update(); // Update count badge
+        }
+
+        // الأوامر الصوتية
+        function startVoice() {
+            if (!('webkitSpeechRecognition' in window)) {
+                alert("متصفحك لا يدعم هذه الميزة");
+                return;
             }
-        };
+            const recognition = new webkitSpeechRecognition();
+            const micBtn = document.getElementById('mic-btn');
+            
+            recognition.lang = (lang === 'ar') ? 'ar-SA' : 'en-US';
+            recognition.onstart = function() {
+                micBtn.classList.add('mic-active');
+            };
+            recognition.onend = function() {
+                micBtn.classList.remove('mic-active');
+            };
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById('s-input').value = transcript;
+                runSearch();
+            };
+            recognition.start();
+        }
+
+        // تشغيل عند التحميل
+        update();
 
     </script>
-<footer style="text-align: center; padding: 40px 20px; background-color: #0f172a; border-top: 1px solid #1e293b; margin-top: 50px;">
-    <p style="color: #94a3b8; margin-bottom: 10px;">&copy; 2026 Findly AI Shopping Assistant</p>
-    <div style="display: flex; justify-content: center; gap: 20px;">
-        <a href="privacy.html" style="color: #38bdf8; text-decoration: none; font-size: 14px;">Privacy Policy</a>
-        <a href="terms.html" style="color: #38bdf8; text-decoration: none; font-size: 14px;">Terms of Service</a>
-    </div>
-</footer>
 </body>
 </html>

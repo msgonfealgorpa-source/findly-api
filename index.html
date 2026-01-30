@@ -394,22 +394,37 @@
     </div>  
 </header>  
 
-<main class="search-area">  
-    <div class="energy-box">  
-        <span id="txt-energy"></span>  
-        <span id="r-count" style="background:var(--primary); color:#fff; padding:3px 12px; border-radius:20px; font-weight:900; font-size: 0.9rem;">3</span>  
-        <i class="fa-solid fa-bolt" style="color:#FFD700;"></i>  
-    </div>  
-    
-    <h2 id="greeting" style="color: var(--primary); font-size: 1.1rem; margin-bottom: 5px; font-weight: 600;"></h2>  
-    <h1 id="txt-title"></h1>  
-    <p id="txt-sub" style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 30px;"></p>  
+<div style="text-align: center; margin: 15px 0;">
+    <button id="compareBtn" onclick="executeComparison()" class="findly-native-btn">
+        قارن الأسعار
+    </button>
+</div>
 
-    <div class="ai-toggle">  
-        <i class="fa-solid fa-brain"></i>  
-        <span id="txt-deep"></span>  
-        <input type="checkbox" id="ai-deep-mode">  
-    </div>  
+<style>
+    .findly-native-btn {
+        /* نفس خلفية أزرار (اقتصادي / حديث جداً) */
+        background: rgba(255, 255, 255, 0.08); 
+        color: #e0e0e0;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        padding: 8px 25px;
+        border-radius: 12px; /* زوايا دائرية ناعمة مثل البقية */
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(5px);
+    }
+
+    /* تأثير عند تمرير الماوس أو الضغط */
+    .findly-native-btn:hover {
+        background: rgba(162, 89, 255, 0.2); /* توهج بنفسجي خفيف جداً عند اللمس */
+        border-color: #a259ff;
+        color: #fff;
+    }
+
+    .findly-native-btn:active {
+        transform: scale(0.95);
+    }
+</style>
 
     <div class="search-wrapper">  
         <input type="text" id="s-input" class="search-input">  

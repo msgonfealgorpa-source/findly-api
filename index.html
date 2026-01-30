@@ -809,5 +809,15 @@
         // Initialize
         update();
     </script>
+// هذا الكود يفحص حالة تسجيل الدخول فور تحميل الصفحة
+window.onload = function() {
+    auth.onAuthStateChanged((user) => {
+        if (!user) {
+            // إذا لم يكن هناك مستخدم مسجل، اظهر نافذة التسجيل فوراً
+            document.getElementById('auth-modal').style.display = 'flex';
+        }
+    });
+};
+</script>
 </body>
 </html>

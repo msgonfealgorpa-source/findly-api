@@ -479,12 +479,43 @@
         </div>
     </div>
 
-<button id="compareBtn" onclick="executeComparison()" class="findly-native-tag">
-    <span class="tag-icon">⚖️</span>
-    <span class="tag-text">قارن الأسعار</span>
-    <div id="loader" class="tag-loader" style="display: none;"></div>
-</button>
-    
+<div style="text-align: center; margin: 15px 0;">
+    <button id="compareBtn" onclick="executeComparison()" class="findly-native-tag">
+        <span id="btnIcon">⚖️</span>
+        <span id="btnText">قارن الأسعار</span>
+        <div id="loader" class="tag-loader" style="display: none;"></div>
+    </button>
+</div>
+
+<style>
+    .findly-native-tag {
+        background: rgba(255, 255, 255, 0.05) !important;
+        color: #e0e0e0 !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        padding: 6px 14px;
+        border-radius: 10px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        backdrop-filter: blur(5px);
+        transition: 0.3s;
+        outline: none;
+    }
+    .findly-native-tag:hover {
+        background: rgba(162, 89, 255, 0.1) !important;
+        border-color: rgba(162, 89, 255, 0.5) !important;
+    }
+    .tag-loader {
+        width: 12px; height: 12px;
+        border: 2px solid rgba(255,255,255,0.1);
+        border-top: 2px solid #a259ff;
+        border-radius: 50%;
+        animation: spin-tag 0.8s linear infinite;
+    }
+    @keyframes spin-tag { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+</style>
     <div class="cat-grid">  
         <div class="cat-card" onclick="quickSearch('ألعاب')"><i class="fa-solid fa-gamepad"></i><span id="cat-game"></span></div>  
         <div class="cat-card" onclick="quickSearch('جمال')"><i class="fa-solid fa-sparkles"></i><span id="cat-beauty"></span></div>  

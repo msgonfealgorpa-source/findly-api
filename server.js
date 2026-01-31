@@ -36,81 +36,76 @@ function extractPrice(priceStr) {
     return parseFloat(cleaned) || 0;
 }
 
-// 1. تحليل Deep AI واستخراج العيوب والمميزات
 function deepAIAnalysis(product, marketAvg, lang = 'ar') {
     let pros = [];
     let cons = [];
     let verdict = "";
 
-    // تحليل الحالة (Condition)
-    const isNew = product.condition === "new" || !product.condition;
-    if (!isNew) cons.push(lang === 'ar' ? "المنتج مجدد/مستعمل" : "Refurbished/Used item");
+    const priceVal = product.priceVal;
 
-    // تحليل السعر مقابل المتوسط
-    const savings = marketAvg > 0 ? ((marketAvg - product.priceVal) / marketAvg) * 100 : 0;
-    if (savings > 15) pros.push(lang === 'ar' ? `سعر لقطة (أوفر بـ %${savings.toFixed(0)})` : `Great deal (${savings.toFixed(0)}% cheaper)`);
-    if (product.priceVal > marketAvg * 1.2) cons.push(lang === 'ar' ? "السعر مرتفع عن معدل السوق" : "Overpriced compared to average");
+    if (priceVal > 0 && marketAvg > 0) {
+        if (priceVal < marketAvg * 0.9) {
+            pros.push(lang === 'ar' ? "سعر لقطة (أرخص من السوق)" : "Great price (Below market)");
+        } else if (priceVal > marketAvg * 1.1) {
+            cons.push(lang === 'ar' ? "السعر مرتفع حالياً" : "Price is high right now");
+        }
+    }
 
-    // تحليل التقييمات
-    if (product.rating >= 4.5) pros.push(lang === 'ar' ? "جودة تقييم ممتازة" : "High build quality/rating");
-    if (product.reviews > 2000) pros.push(lang === 'ar' ? "موثوقية عالية (شعبية ضخمة)" : "Highly trusted by thousands");
+    // تحليل بناءً على التقييم الحقيقي القادم من جوجل
+    if (product.rating >= 4.5) {
+        pros.push(lang === 'ar' ? "تقييم ممتاز من المستخدمين" : "Excellent user ratings");
+    } else if (product.rating > 0 && product.rating < 3.5) {
+        cons.push(lang === 'ar' ? "تقييمات سلبية لبعض المشترين" : "Some negative feedback");
+    }
 
-    // القرار النهائي
-    if (product.rating >= 4 && savings > 5) verdict = (lang === 'ar' ? "ينصح به بشدة كأفضل قيمة" : "Highly Recommended: Best Value");
-    else if (product.priceVal > marketAvg) verdict = (lang === 'ar' ? "تنبيه: السعر مرتفع مقارنة بالمواصفات" : "Caution: High price point");
-    else verdict = (lang === 'ar' ? "خيار جيد ومتوازن" : "A balanced choice");
+    if (pros.length > cons.length) {
+        verdict = lang === 'ar' ? "ننصح بالشراء الآن" : "Highly Recommended";
+    } else if (cons.length > pros.length) {
+        verdict = lang === 'ar' ? "انتظر انخفاض السعر أو ابحث عن بديل" : "Wait for drop or look for alternatives";
+    } else {
+        verdict = lang === 'ar' ? "صفقة عادلة" : "Fair Deal";
+    }
 
-    return { pros, cons, verdict, savingsLabel: savings > 0 ? `${savings.toFixed(0)}%` : null };
+    return { pros, cons, verdict };
 }
 
-// --- Endpoints ---
+// --- المسارات (Endpoints) ---
 
+// 1. البحث الذكي (Smart Search)
 app.post('/smart-search', async (req, res) => {
-    const { query, lang, uid, filterType } = req.body; // filterType: 'economic', 'top_rated', 'newest'
+    const { query, lang } = req.body;
 
     getJson({
-        engine: "google_shopping", q: query, api_key: SERP_API_KEY, hl: lang || 'ar', gl: "sa", num: 25
-    }, async (data) => {
-        if (!data || !data.shopping_results) return res.json({ products: [], marketAvg: 0 });
-
-        // تنظيف وفلترة البيانات الأولية (منع السعر 0 والصور المفقودة)
-        let rawProducts = data.shopping_results
-            .map(p => ({
-                ...p,
-                priceVal: extractPrice(p.price || p.extracted_price)
-            }))
-            .filter(p => p.priceVal > 0 && p.thumbnail);
-
-        // حساب متوسط السوق الحقيقي
-        const validPrices = rawProducts.map(p => p.priceVal);
-        const marketAvg = validPrices.length > 0 ? Math.floor(validPrices.reduce((a, b) => a + b, 0) / validPrices.length) : 0;
-
-        // تطبيق الفلاتر الذكية (Task 3)
-        let filteredResults = [...rawProducts];
-        if (filterType === 'economic') {
-            filteredResults = rawProducts.filter(p => p.rating >= 4).sort((a, b) => a.priceVal - b.priceVal);
-        } else if (filterType === 'top_rated') {
-            filteredResults = rawProducts.sort((a, b) => b.reviews - a.reviews);
-        } else if (filterType === 'newest') {
-            const currentYear = new Date().getFullYear();
-            filteredResults = rawProducts.filter(p => p.title.includes(currentYear.toString()) || p.title.includes((currentYear + 1).toString()));
+        engine: "google_shopping",
+        q: query,
+        api_key: SERP_API_KEY,
+        hl: lang || 'ar',
+        gl: "sa"
+    }, (data) => {
+        if (!data || !data.shopping_results) {
+            return res.json({ products: [], marketAvg: 0 });
         }
 
-        // بناء استجابة البطاقة المطورة (Task 5)
-        const products = filteredResults.slice(0, 12).map(p => {
-            const analysis = deepAIAnalysis(p, marketAvg, lang);
+        const rawProducts = data.shopping_results.map(p => ({
+            ...p,
+            priceVal: extractPrice(p.price)
+        }));
+
+        const prices = rawProducts.map(p => p.priceVal).filter(p => p > 0);
+        const marketAvg = prices.length > 0 ? prices.reduce((a, b) => a + b, 0) / prices.length : 0;
+
+        const products = rawProducts.slice(0, 10).map(p => {
             return {
                 name: p.title,
                 price: p.price,
                 priceVal: p.priceVal,
                 thumbnail: p.thumbnail,
-                link: p.product_link || p.link,
-                store_name: p.source || "Unknown Store", // اسم المتجر الحقيقي
-                real_rating: p.rating || 0,
-                reviews_count: p.reviews || 0,
-                shipping_info: p.delivery || (lang === 'ar' ? "شحن قياسي" : "Standard Shipping"),
-                analysis: analysis, // بيانات الـ Deep AI
-                competitors: [] // سيتم ملؤها في طلب المقارنة المنفصل
+                link: p.link,
+                store_name: p.source,
+                rating: p.rating || 0,
+                reviews: p.reviews || 0,
+                snippet: p.snippet || "",
+                analysis: deepAIAnalysis(p, marketAvg, lang)
             };
         });
 
@@ -118,23 +113,53 @@ app.post('/smart-search', async (req, res) => {
     });
 });
 
-// 2. زر مقارنة الأسعار (Task 2)
+// 2. زر مقارنة الأسعار (Real Comparison)
 app.post('/compare-prices', (req, res) => {
     const { productName, lang } = req.body;
     getJson({
-        engine: "google_shopping", q: productName, api_key: SERP_API_KEY, hl: lang || 'ar'
+        engine: "google_shopping",
+        q: productName,
+        api_key: SERP_API_KEY,
+        hl: lang || 'ar',
+        gl: "sa"
     }, (data) => {
-        const competitors = (data.shopping_results || []).slice(0, 5).map(c => ({
+        const competitors = (data.shopping_results || []).slice(0, 8).map(c => ({
             store: c.source,
             price: c.price,
             priceVal: extractPrice(c.price),
-            link: c.link
+            link: c.link,
+            rating: c.rating || null // تقييم المتجر الحقيقي
         }));
         res.json({ competitors });
     });
 });
 
-// 4. تتبع السعر النشط (Task 4)
+// 3. قائمة المراقبة (Watchlist)
+app.get('/watchlist/:uid', async (req, res) => {
+    try {
+        const list = await Watchlist.find({ uid: req.params.uid });
+        res.json({ watchlist: list });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/watchlist/add', async (req, res) => {
+    try {
+        const { uid, product } = req.body;
+        const newItem = new Watchlist({ ...product, uid });
+        await newItem.save();
+        res.json({ message: "Added to watchlist" });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/watchlist/remove', async (req, res) => {
+    try {
+        const { uid, name } = req.body;
+        await Watchlist.deleteOne({ uid, name });
+        res.json({ message: "Removed" });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// 4. تتبع السعر النشط (Cron Job)
 cron.schedule('0 */12 * * *', async () => {
     console.log("Running Price Check Cron...");
     const alerts = await Alert.find();
@@ -144,8 +169,7 @@ cron.schedule('0 */12 * * *', async () => {
             if (topResult) {
                 const currentPrice = extractPrice(topResult.price);
                 if (currentPrice <= alert.targetPrice) {
-                    // إرسال إيميل (Nodemailer logic here...)
-                    console.log(`Alert! Price dropped for ${alert.productName}`);
+                    console.log(`Price alert triggered for ${alert.productName}`);
                 }
             }
         });
@@ -153,4 +177,4 @@ cron.schedule('0 */12 * * *', async () => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Intelligent Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

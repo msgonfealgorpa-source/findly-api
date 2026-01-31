@@ -515,7 +515,7 @@
 <div class="modal" id="comp-modal">
     <div class="modal-box" style="max-width: 500px; text-align: right;">
         <h3 style="color:var(--compare-color); margin-top:0; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;">
-            <i class="fa-solid fa-scale-balanced"></i> تحليل السوق
+            <i class="fa-solid fa-scale-balanced"></i> <span id="txt-comp-title">تحليل السوق</span>
         </h3>
         <p id="comp-product-name" style="color:#fff; font-weight:bold; margin-bottom:20px; font-size:1.1rem;"></p>
         
@@ -649,9 +649,14 @@
         }  
     }  
 
+    // --- القواميس المترجمة بالكامل ---
     const dict = {  
-        ar: { title: "مستشارك الحكيم", sub: "دليلك الذكي للتسوق المثالي", energy: "طاقة العقل", welcome: "مرحباً،", game: "ألعاب", beauty: "جمال", home: "منزل ذكي", c1: "هواتف", c2: "لابتوب", c4: "ساعات", p_head: "الملف الشخصي", buy: "شراء", watch: "مراقبة", compare: "مقارنة", over: "يتجاوز ميزانيتك!", cheap: "اقتصادي", top: "الأعلى تقييماً", new: "حديث جداً", deep: "تحليل ذكي (Deep AI)", watchTitle: "قائمة المراقبة", why: "لماذا اخترنا هذا؟", slow: "السيرفر يستيقظ.. انتظر ثوانٍ", noAttempts: "⚠️ استنفدت محاولاتك!" },  
-        en: { title: "Sage Advisor", sub: "Your smart shopping guide", energy: "Sage Energy", welcome: "Welcome,", game: "Gaming", beauty: "Beauty", home: "Smart Home", c1: "Phones", c2: "Laptops", c4: "Watches", p_head: "Profile", buy: "Buy", watch: "Watch", compare: "Compare", over: "Over Budget!", cheap: "Budget", top: "Top Rated", new: "Newest", deep: "Deep AI Mode", watchTitle: "Watch List", why: "Why this choice?", slow: "Server waking up.. wait", noAttempts: "⚠️ No attempts left!" }  
+        ar: { title: "مستشارك الحكيم", sub: "دليلك الذكي للتسوق المثالي", energy: "طاقة العقل", welcome: "مرحباً،", game: "ألعاب", beauty: "جمال", home: "منزل ذكي", c1: "هواتف", c2: "لابتوب", c4: "ساعات", p_head: "الملف الشخصي", buy: "شراء", watch: "مراقبة", compare: "مقارنة", over: "يتجاوز ميزانيتك!", cheap: "اقتصادي", top: "الأعلى تقييماً", new: "حديث جداً", deep: "تحليل ذكي (Deep AI)", watchTitle: "قائمة المراقبة", why: "لماذا اخترنا هذا؟", slow: "السيرفر يستيقظ.. انتظر ثوانٍ", noAttempts: "⚠️ استنفدت محاولاتك!", compTitle: "تحليل السوق" },  
+        en: { title: "Sage Advisor", sub: "Your smart shopping guide", energy: "Sage Energy", welcome: "Welcome,", game: "Gaming", beauty: "Beauty", home: "Smart Home", c1: "Phones", c2: "Laptops", c4: "Watches", p_head: "Profile", buy: "Buy", watch: "Watch", compare: "Compare", over: "Over Budget!", cheap: "Budget", top: "Top Rated", new: "Newest", deep: "Deep AI Mode", watchTitle: "Watch List", why: "Why this choice?", slow: "Server waking up.. wait", noAttempts: "⚠️ No attempts left!", compTitle: "Market Analysis" },
+        fr: { title: "Sage Conseiller", sub: "Votre guide d'achat intelligent", energy: "Énergie Sage", welcome: "Bienvenue,", game: "Jeux", beauty: "Beauté", home: "Maison", c1: "Téléphones", c2: "Portables", c4: "Montres", p_head: "Profil", buy: "Acheter", watch: "Suivre", compare: "Comparer", over: "Hors budget!", cheap: "Économique", top: "Mieux noté", new: "Nouveau", deep: "Mode IA Profond", watchTitle: "Liste de surveillance", why: "Pourquoi ce choix?", slow: "Serveur en réveil...", noAttempts: "⚠️ Plus de tentatives!", compTitle: "Analyse du marché" },
+        de: { title: "Weiser Berater", sub: "Ihr intelligenter Einkaufsführer", energy: "Sage Energie", welcome: "Willkommen,", game: "Spiele", beauty: "Schönheit", home: "Smart Home", c1: "Handys", c2: "Laptops", c4: "Uhren", p_head: "Profil", buy: "Kaufen", watch: "Beobachten", compare: "Vergleichen", over: "Über Budget!", cheap: "Günstig", top: "Bestbewertet", new: "Neu", deep: "Deep AI Modus", watchTitle: "Beobachtungsliste", why: "Warum diese Wahl?", slow: "Server wacht auf...", noAttempts: "⚠️ Keine Versuche mehr!", compTitle: "Marktanalyse" },
+        es: { title: "Consejero Sabio", sub: "Tu guía de compras inteligente", energy: "Energía Sabia", welcome: "Hola,", game: "Juegos", beauty: "Belleza", home: "Casa", c1: "Móviles", c2: "Portátiles", c4: "Relojes", p_head: "Perfil", buy: "Comprar", watch: "Seguir", compare: "Comparar", over: "¡Sobre presupuesto!", cheap: "Económico", top: "Mejor valorado", new: "Nuevo", deep: "Modo IA Profunda", watchTitle: "Lista de seguimiento", why: "¿Por qué esta elección?", slow: "Servidor despertando...", noAttempts: "⚠️ ¡Sin intentos!", compTitle: "Análisis de mercado" },
+        tr: { title: "Bilge Danışman", sub: "Akıllı alışveriş rehberiniz", energy: "Bilge Enerji", welcome: "Hoş geldiniz,", game: "Oyun", beauty: "Güzellik", home: "Ev", c1: "Telefonlar", c2: "Laptoplar", c4: "Saatler", p_head: "Profil", buy: "Satın Al", watch: "İzle", compare: "Karşılaştır", over: "Bütçe Aşıldı!", cheap: "Ekonomik", top: "En İyiler", new: "Yeni", deep: "Derin Yapay Zeka", watchTitle: "İzleme Listesi", why: "Neden bu seçim?", slow: "Sunucu uyanıyor...", noAttempts: "⚠️ Hakkınız kalmadı!", compTitle: "Pazar Analizi" }
     };  
 
     // Toggle Deep AI
@@ -661,6 +666,16 @@
         checkbox.checked = !checkbox.checked;
         if(checkbox.checked) box.classList.add('active-mode');
         else box.classList.remove('active-mode');
+    }
+
+    // Helper to extract numbers from strings like "$250" or "250 USD"
+    function extractPrice(priceInput) {
+        if (!priceInput) return 0;
+        if (typeof priceInput === 'number') return priceInput;
+        let str = priceInput.toString();
+        // Remove everything except numbers and dots
+        let num = parseFloat(str.replace(/[^0-9.]/g, ''));
+        return isNaN(num) ? 0 : num;
     }
 
     // --- 3. دالة البحث الرئيسية ---  
@@ -716,12 +731,17 @@
 
                 // 3. عرض المنتجات
                 data.products.forEach((p, index) => {  
-                    let priceVal = p.priceVal || 0;  
+                    // Fix: Extract price if priceVal is missing
+                    let priceVal = p.priceVal || extractPrice(p.price); 
+                    
                     let budgetAlert = (userBudget > 0 && priceVal > userBudget) ? `<div class="budget-error"><i class="fa-solid fa-triangle-exclamation"></i> ${d.over} ($${userBudget})</div>` : "";  
                     
                     const safeName = p.name.replace(/'/g, "\\'").replace(/"/g, "&quot;");
                     const safePrice = p.price.toString().replace(/'/g, "\\'");
                     
+                    // Pass serverAvg or estimate it based on current price if missing
+                    let mAvg = data.marketAvg || (priceVal * 1.1);
+
                     setTimeout(() => {  
                         resCon.innerHTML += `  
                             <div class="product-card">  
@@ -734,7 +754,7 @@
                                     <a href="${p.link}" target="_blank" class="action-btn buy-now">${d.buy} 🛒</a>  
                                     <button class="action-btn watch-later" onclick="addToWatch('${safeName}', '${safePrice}', '${p.link}')">${d.watch} 🔔</button>
 
-                                    <button class="action-btn compare-btn" onclick="openComparison('${safeName}', ${priceVal}, ${data.marketAvg})">
+                                    <button class="action-btn compare-btn" onclick="openComparison('${safeName}', ${priceVal}, ${mAvg})">
                                         <i class="fa-solid fa-code-compare"></i> ${d.compare}
                                     </button>
                                 </div>
@@ -750,7 +770,7 @@
                 status.style.display = "block"; 
                 status.innerHTML = "No results found"; 
             }  
-        } catch (e) { status.style.display = "block"; status.innerHTML = "Server Error"; console.error(e); }  
+        } catch (e) { status.style.display = "block"; status.innerHTML = "Server Error (Try again)"; console.error(e); }  
     }  
 
     // --- 4. وظائف المقارنة و Watchlist ---
@@ -758,14 +778,16 @@
 function openComparison(name, price, serverAvg) {
     const modal = document.getElementById('comp-modal');
     const content = document.getElementById('comp-content');
+    const d = dict[lang] || dict['ar'];
     document.getElementById('comp-product-name').innerText = name;
+    document.getElementById('txt-comp-title').innerText = d.compTitle;
     modal.style.display = 'flex';
 
     // استخدام المتوسط القادم من السيرفر، أو استخدام السعر نفسه كاحتياط
-    let marketAvg = serverAvg > 0 ? serverAvg : price;
-    
-    // التعامل مع حالة السعر غير المعروف
-    let displayPrice = (price > 0) ? price : "غير متوفر";
+    let marketAvg = (serverAvg > 0) ? serverAvg : price;
+    if(marketAvg === 0) marketAvg = 1; // Prevent division by zero
+
+    let displayPrice = (price > 0) ? price : "N/A";
     let chartWidth = (price > 0) ? Math.min((price / marketAvg) * 100, 100) : 0;
     
     // تحديد لون الشريط بناءً على المقارنة (أخضر إذا أرخص، أحمر إذا أغلى)
@@ -780,7 +802,7 @@ function openComparison(name, price, serverAvg) {
             </div>
         </div>
         <div class="comp-bar-container">
-            <div class="comp-label"><span>متوسط السوق الحقيقي</span> <span>${marketAvg}</span></div>
+            <div class="comp-label"><span>متوسط السوق الحقيقي</span> <span>${marketAvg.toFixed(2)}</span></div>
             <div class="comp-bar">
                 <div class="comp-fill" style="width: 100%; background:#64748b;"></div>
             </div>
@@ -788,14 +810,17 @@ function openComparison(name, price, serverAvg) {
         
         <p style="color:#cbd5e1; font-size:0.85rem; margin-top:20px;">
             <i class="fa-solid fa-chart-line" style="color:${barColor};"></i> 
-            تحليل البيانات: ${statusText}، حيث يبلغ متوسط سعر هذا المنتج في السوق حالياً <strong>${marketAvg}</strong>.
+            تحليل البيانات: ${statusText}
         </p>
     `;
 }
+
+    // Fix: Improved Watchlist with Local Fallback
     async function addToWatch(n, p, l) {
-        if (!currentUserUID) return;
+        if (!currentUserUID) { alert("Please login first"); return; }
         const newItem = { name: n, price: p, link: l };
         
+        // محاولة الحفظ في السيرفر أولاً
         try {
             const res = await fetch(`${API}/watchlist/add`, {
                 method: 'POST',
@@ -803,13 +828,30 @@ function openComparison(name, price, serverAvg) {
                 body: JSON.stringify({ uid: currentUserUID, product: newItem })
             });
             const data = await res.json();
+            
             if(data.message === "موجود بالفعل") { alert("⚠️ المنتج موجود بالفعل في قائمتك"); return; }
             
+            // نجاح السيرفر
             watchList.push(newItem);
             localStorage.setItem('findly_watch', JSON.stringify(watchList));
             update();
             alert("✅ تمت الإضافة لـ Watchlist بنجاح");
-        } catch (e) { alert("خطأ في الاتصال بالسيرفر"); }
+
+        } catch (e) { 
+            // فشل السيرفر: الحفظ محلياً
+            console.warn("Server offline, saving locally.");
+            
+            // تحقق من التكرار محلياً
+            const exists = watchList.some(item => item.name === newItem.name);
+            if(exists) {
+                alert("⚠️ المنتج موجود بالفعل (Local Mode)");
+            } else {
+                watchList.push(newItem);
+                localStorage.setItem('findly_watch', JSON.stringify(watchList));
+                update();
+                alert("✅ السيرفر مشغول، تم الحفظ محلياً فقط");
+            }
+        }
     }
 
     async function fetchWatchlistFromServer() {
@@ -822,7 +864,7 @@ function openComparison(name, price, serverAvg) {
                 localStorage.setItem('findly_watch', JSON.stringify(watchList));
                 update();
             }
-        } catch(e) { console.log("Offline mode"); }
+        } catch(e) { console.log("Offline mode - using local watchlist"); }
     }
 
     // --- 5. تحديث الواجهة ---  
@@ -846,6 +888,10 @@ function openComparison(name, price, serverAvg) {
         document.getElementById('r-count').innerText = attempts;  
         document.getElementById('greeting').innerText = `${d.welcome} ${localStorage.getItem('fn') || 'User'} 👋`;  
 
+        // Update Compare Modal Title if open
+        const compTitle = document.getElementById('txt-comp-title');
+        if(compTitle) compTitle.innerText = d.compTitle;
+
         const wCount = document.getElementById('watch-count');  
         if(watchList.length > 0) { wCount.style.display = 'block'; wCount.innerText = watchList.length; } 
         else wCount.style.display = 'none';  
@@ -855,7 +901,7 @@ function openComparison(name, price, serverAvg) {
 
     function quickFilter(type) {
         let input = document.getElementById('s-input');
-        if (type === 'cheap') input.value += " أرخص سعر";
+        if (type === 'cheap') input.value += " cheap price";
         if (type === 'top-rated') input.value += " top rated";
         if (type === 'new') input.value += " 2026";
         runSearch();

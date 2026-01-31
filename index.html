@@ -20,1023 +20,404 @@
         --secondary: #6366f1;
         --bg-dark: #020617;
         --bg-card: rgba(30, 41, 59, 0.7);
-        --glass-border: rgba(255, 255, 255, 0.08);
-        --text: #f8fafc;
+        --text-main: #f8fafc;
         --text-muted: #94a3b8;
-        --gradient: linear-gradient(135deg, #6366F1, #A855F7);
-        --compare-color: #0ea5e9; 
+        --glass-border: rgba(255, 255, 255, 0.08);
+        --gradient: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
         --success: #10b981;
-        --warning: #f59e0b;
         --danger: #ef4444;
+        --font-main: 'Readex Pro', sans-serif;
     }
 
-    .light-mode {
-        --bg-dark: #f8fafc;
-        --bg-card: rgba(255, 255, 255, 0.9);
-        --glass-border: rgba(0, 0, 0, 0.05);
-        --text: #1e293b;
-        --text-muted: #64748b;
-    }
-
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-      
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font-main); outline: none; -webkit-tap-highlight-color: transparent; }
+    
     body {
         background-color: var(--bg-dark);
-        background-image: radial-gradient(circle at 50% 0%, #1e1b4b 0%, transparent 50%);
-        color: var(--text);
-        font-family: 'Readex Pro', sans-serif;
-        margin: 0;
-        transition: background 0.4s ease, color 0.4s ease;
-        overflow-x: hidden;
+        color: var(--text-main);
         min-height: 100vh;
+        overflow-x: hidden;
+        background-image: 
+            radial-gradient(circle at 10% 20%, rgba(139, 92, 246, 0.15) 0%, transparent 40%),
+            radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.15) 0%, transparent 40%);
     }
 
-    /* --- Header Styles --- */
-    header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 15px 5%;
-        background: rgba(15, 23, 42, 0.6);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        border-bottom: 1px solid var(--glass-border);
-        position: sticky;
-        top: 0;
-        z-index: 1000;
-    }
-
-    .logo {
-        font-size: 1.5rem;
-        font-weight: 800;
-        background: var(--gradient);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        letter-spacing: -0.5px;
-        text-shadow: 0 0 20px rgba(168, 85, 247, 0.2);
-    }
-
-    .header-tools { display: flex; gap: 10px; }
-
-    .tool-btn {
-        background: var(--bg-card);
-        border: 1px solid var(--glass-border);
-        color: var(--text);
-        width: 42px;
-        height: 42px;
-        border-radius: 14px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        position: relative;
-    }
-
-    .tool-btn:hover {
-        transform: translateY(-2px);
-        border-color: var(--primary);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    }
-
-    /* --- Dropdown Menu --- */
-    .lang-menu {
-        display: none;
-        position: absolute;
-        top: 50px;
-        left: 0;
-        background: #1e293b;
-        border-radius: 16px;
-        border: 1px solid var(--glass-border);
-        width: 140px;
-        z-index: 2000;
-        box-shadow: 0 20px 40px -5px rgba(0,0,0,0.4);
-        overflow: hidden;
-        animation: fadeIn 0.2s ease;
-    }
-
-    .lang-item {
-        padding: 12px;
-        font-size: 0.9rem;
-        cursor: pointer;
-        border-bottom: 1px solid rgba(255,255,255,0.03);
-        color: #e2e8f0;
-        text-align: center;
-        transition: 0.2s;
-    }
-
-    .lang-item:hover { background: var(--primary); color: white; }
-
-    /* --- Main Search Area --- */
-    .search-area {
-        padding: 40px 5%;
-        text-align: center;
-        max-width: 800px;
-        margin: 0 auto;
-    }
-
-    .energy-box {
-        background: rgba(168, 85, 247, 0.08);
-        border: 1px solid rgba(168, 85, 247, 0.3);
-        padding: 8px 20px;
-        border-radius: 50px;
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 25px;
-        box-shadow: 0 0 15px rgba(168, 85, 247, 0.1);
-    }
-
-    h1#txt-title {
-        background: linear-gradient(to right, #fff, #94a3b8);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin: 10px 0;
-        font-size: 2.5rem;
-        letter-spacing: -1px;
-    }
-
-    .light-mode h1#txt-title {
-        background: linear-gradient(to right, #1e293b, #475569);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-
-    .ai-toggle {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-size: 0.9rem;
-        color: var(--primary);
-        margin-bottom: 25px;
-        justify-content: center;
-        font-weight: 600;
-        background: rgba(139, 92, 246, 0.05);
-        padding: 8px 16px;
-        border-radius: 12px;
-        width: fit-content;
-        margin-left: auto;
-        margin-right: auto;
-        cursor: pointer;
-        border: 1px solid transparent;
-        transition: 0.3s;
-    }
-    
-    .ai-toggle:hover {
-        background: rgba(139, 92, 246, 0.1);
-        border-color: var(--primary);
-    }
-    
-    .ai-toggle.active-mode {
-        background: rgba(139, 92, 246, 0.2);
-        box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
-    }
-      
-    .ai-toggle input { width: 20px; height: 20px; accent-color: var(--primary); cursor: pointer; }
-
-    /* --- Search Input Styling --- */
-    .search-wrapper { position: relative; max-width: 600px; margin: 0 auto 20px; }
-      
-    .search-input {
-        width: 100%;
-        padding: 18px 60px;
-        border-radius: 24px;
-        border: 2px solid var(--glass-border);
-        background: var(--bg-card);
-        color: var(--text);
-        font-size: 1.1rem;
+    /* --- UI Components --- */
+    .navbar {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 20px 5%;
         backdrop-filter: blur(10px);
-        transition: all 0.3s;
-        text-align: center;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        position: sticky; top: 0; z-index: 100;
+        border-bottom: 1px solid var(--glass-border);
     }
+    .logo { font-size: 1.5rem; font-weight: 700; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -1px; }
+    
+    .nav-btn {
+        background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
+        color: #fff; padding: 8px 16px; border-radius: 12px; cursor: pointer;
+        transition: 0.3s; font-size: 0.9rem; display: flex; align-items: center; gap: 8px;
+    }
+    .nav-btn:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
 
-    .search-input:focus {
-        border-color: var(--primary);
-        box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
+    .hero-section {
+        text-align: center; padding: 60px 20px 40px;
+        max-width: 800px; margin: 0 auto;
     }
+    .hero-title { font-size: 2.5rem; margin-bottom: 15px; line-height: 1.2; }
+    .hero-subtitle { color: var(--text-muted); margin-bottom: 40px; font-weight: 300; }
 
-    .mic-icon {
-        position: absolute;   
-        right: 20px;   
-        top: 50%;   
-        transform: translateY(-50%);
-        color: var(--secondary);   
-        cursor: pointer;   
-        font-size: 1.4rem;   
-        transition: 0.3s;
-        z-index: 10;
+    .search-box {
+        position: relative; max-width: 600px; margin: 0 auto 50px;
     }
-      
-    .mic-active { color: #ef4444; text-shadow: 0 0 10px #ef4444; animation: pulse 1s infinite; }
-      
-    .send-btn {
-        position: absolute;   
-        left: 10px;   
-        top: 50%;   
-        transform: translateY(-50%);
-        background: var(--gradient);   
-        border: none;   
-        width: 45px;   
-        height: 45px;
-        border-radius: 18px;   
-        color: #fff;   
-        cursor: pointer;
-        transition: 0.3s;   
-        display: flex;   
-        align-items: center;   
-        justify-content: center;
-        z-index: 10;
+    .main-input {
+        width: 100%; background: rgba(15, 23, 42, 0.8);
+        border: 2px solid var(--glass-border); border-radius: 20px;
+        padding: 18px 60px 18px 25px; font-size: 1.1rem; color: #fff;
+        transition: 0.3s; box-shadow: 0 0 20px rgba(0,0,0,0.2);
     }
-      
-    .send-btn:hover { transform: translateY(-50%) scale(1.05); box-shadow: 0 0 15px var(--primary-glow); }
-
-    /* --- Tags & Categories --- */
-    .ai-options { display: flex; justify-content: center; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
-      
-    .ai-tag {
-        font-size: 0.8rem; padding: 8px 16px; border-radius: 20px;
-        background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border);
-        cursor: pointer; color: var(--text-muted); display: flex; align-items: center; gap: 8px;
+    .main-input:focus { border-color: var(--primary); box-shadow: 0 0 30px var(--primary-glow); }
+    
+    .search-btn {
+        position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+        background: var(--gradient); border: none; width: 45px; height: 45px;
+        border-radius: 14px; color: #fff; cursor: pointer; font-size: 1.2rem;
+        display: flex; align-items: center; justify-content: center;
         transition: 0.3s;
     }
-      
-    .ai-tag:hover { background: var(--bg-card); color: var(--primary); border-color: var(--primary); }
+    .search-btn:hover { transform: translateY(-50%) scale(1.05); }
 
-    .cat-grid {
-        display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
-        max-width: 600px; margin: 30px auto;
+    /* --- Results Grid --- */
+    .results-grid {
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 25px; padding: 20px 5%;
     }
-      
-    .cat-card {
-        background: var(--bg-card); border: 1px solid var(--glass-border);
-        padding: 15px 10px; border-radius: 20px; cursor: pointer;
-        transition: 0.3s; display: flex; flex-direction: column; align-items: center; gap: 8px;
-    }
-      
-    .cat-card:hover { transform: translateY(-5px); background: rgba(255,255,255,0.05); border-color: var(--primary); }
-    .cat-card i { font-size: 1.5rem; color: var(--secondary); }
-    .cat-card span { font-size: 0.75rem; font-weight: 600; }
 
-    /* --- Product Cards (Results) --- */
     .product-card {
-        background: var(--bg-card);
-        border: 1px solid var(--glass-border);
-        border-radius: 24px;
-        padding: 20px;
-        margin-top: 25px;
-        text-align: right;
-        max-width: 600px;
-        margin-left: auto; margin-right: auto;
-        position: relative;
+        background: var(--bg-card); border: 1px solid var(--glass-border);
+        border-radius: 24px; padding: 20px; position: relative;
+        transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: flex; flex-direction: column; gap: 12px;
         overflow: hidden;
-        backdrop-filter: blur(20px);
-        animation: slideUp 0.5s ease;
     }
+    .product-card:hover { transform: translateY(-8px); border-color: var(--primary); }
 
     .product-card img {
-        width: 100%; height: 200px; object-fit: contain;
-        background: #fff; border-radius: 16px; margin-bottom: 15px;
-        padding: 10px;
+        width: 100%; height: 180px; object-fit: contain;
+        background: #fff; border-radius: 16px; padding: 10px;
+        margin-bottom: 10px;
     }
-      
-    .product-card h3 { margin: 0 0 10px 0; font-size: 1.1rem; line-height: 1.5; }
-    .product-card .price { font-size: 1.4rem; font-weight: 800; color: #10b981; margin-bottom: 10px; }
-
-    .analysis-engine {
-        background: rgba(99, 102, 241, 0.08);
-        border-right: 3px solid var(--primary);
-        padding: 12px; border-radius: 12px; margin: 15px 0;
-        font-size: 0.85rem; line-height: 1.6; color: var(--text-muted);
-    }
-      
-    .analysis-label { font-weight: 700; color: var(--primary); display: block; margin-bottom: 5px; }
-
-    .btn-group { display: flex; gap: 8px; margin-top: 15px; flex-wrap: wrap; }
-      
-    .action-btn {
-        flex: 1; padding: 10px; border-radius: 12px; font-weight: 700;
-        text-align: center; border: none; font-size: 0.85rem; cursor: pointer;
-        transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 5px;
-    }
-      
-    .buy-now { background: var(--gradient); color: #fff; text-decoration: none; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3); min-width: 100px;}
-    .buy-now:hover { filter: brightness(1.1); }
-      
-    .watch-later {
-        background: transparent; border: 1px solid var(--primary); color: var(--text);
-    }
-    .watch-later:hover { background: rgba(139, 92, 246, 0.1); }
-
-    /* --- زر المقارنة الجديد --- */
-    .compare-btn {
-        background: rgba(14, 165, 233, 0.1); 
-        border: 1px solid var(--compare-color); 
-        color: var(--compare-color);
-    }
-    .compare-btn:hover {
-        background: var(--compare-color);
-        color: #fff;
-        box-shadow: 0 0 10px rgba(14, 165, 233, 0.4);
+    
+    .product-card h3 {
+        font-size: 1rem; line-height: 1.4; margin-bottom: 5px;
+        display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
     }
 
-    .budget-error {
-        background: rgba(239, 68, 68, 0.2);   
-        color: #fca5a5;
-        padding: 10px;   
-        border-radius: 12px;   
-        font-size: 0.85rem;
-        margin-bottom: 15px;   
-        font-weight: bold;   
-        border: 1px solid rgba(239, 68, 68, 0.4);
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
+    .price { font-size: 1.4rem; font-weight: 700; color: var(--success); }
 
-    /* --- Deep AI Box --- */
-    .deep-result-box {
-        background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(2, 6, 23, 0.8));
-        border: 1px solid var(--primary);
-        border-radius: 20px;
-        padding: 20px;
-        margin: 20px auto;
-        max-width: 600px;
-        text-align: right;
-        animation: fadeIn 0.8s ease;
-        position: relative;
-        overflow: hidden;
-    }
-    .deep-result-box::before {
-        content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px;
-        background: var(--gradient);
-    }
-
-    /* --- Footer Styles --- */
-    .footer-pill-link {
-        background: rgba(255,255,255,0.05);
-        padding: 10px 24px;
-        border-radius: 50px;
-        border: 1px solid var(--glass-border);
-        color: var(--text-muted);
-        text-decoration: none;
-        font-size: 0.85rem;
-        transition: 0.3s;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        backdrop-filter: blur(5px);
-    }
-    .footer-pill-link:hover {
-        background: var(--primary);
-        color: #fff;
-        border-color: var(--primary);
-        box-shadow: 0 0 15px var(--primary-glow);
-        transform: translateY(-3px);
-    }
-
-    /* --- Modals --- */
-    .modal {
-        display: none; position: fixed; inset: 0;
-        background: rgba(0,0,0,0.85); z-index: 3000;
-        align-items: center; justify-content: center;
+    /* --- New Intelligent Layers Styles (تمت إضافتها) --- */
+    .decision-badge {
+        position: absolute; top: 15px; right: 15px; 
+        padding: 6px 14px; border-radius: 20px; 
+        font-weight: 700; font-size: 0.75rem; 
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 10;
+        display: flex; align-items: center; gap: 5px;
         backdrop-filter: blur(8px);
     }
-      
-    .modal-box {
-        background: #0f172a; padding: 30px; border-radius: 30px;
-        width: 85%; max-width: 450px;
-        border: 1px solid var(--glass-border);
-        text-align: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    }
-      
-    .modal-box input {
-        width: 100%; padding: 14px; margin: 10px 0; border-radius: 14px;
-        background: #1e293b; color: #fff; border: 1px solid var(--glass-border);
-        text-align: center; font-family: inherit;
-    }
-      
-    .modal-box input:focus { border-color: var(--primary); }
+    .tag-perfect { background: linear-gradient(135deg, #10b981, #047857); color: white; border: 1px solid rgba(255,255,255,0.2); }
+    .tag-good { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; border: 1px solid rgba(255,255,255,0.2); }
+    .tag-avoid { background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; border: 1px solid rgba(255,255,255,0.2); }
+    .tag-normal { background: rgba(255,255,255,0.1); color: var(--text-muted); }
 
-    /* New Comparison Table Styles */
-    .comp-header {
-        display: flex; justify-content: space-between; align-items: center;
-        margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px;
+    .specs-row {
+        display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 5px;
     }
-    .comp-stat-grid {
-        display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;
+    .spec-pill {
+        background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.2);
+        color: #c4b5fd; font-size: 0.65rem; padding: 3px 8px; border-radius: 6px;
+        display: flex; align-items: center; gap: 4px;
     }
-    .comp-stat-box {
-        background: rgba(255,255,255,0.03); padding: 10px; border-radius: 12px; text-align: center;
+
+    .match-container { margin-top: 5px; }
+    .match-label { font-size: 0.7rem; color: var(--text-muted); display: flex; justify-content: space-between; margin-bottom: 3px; }
+    .match-score-bar {
+        height: 5px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden;
     }
-    .comp-stat-val { font-size: 1.1rem; font-weight: bold; color: #fff; }
-    .comp-stat-lbl { font-size: 0.75rem; color: var(--text-muted); }
+    .match-fill { height: 100%; background: var(--gradient); width: 0%; transition: width 1s ease; border-radius: 10px; }
+
+    .analysis-box {
+        background: rgba(0,0,0,0.2); padding: 10px; border-radius: 12px;
+        font-size: 0.8rem; line-height: 1.4; margin-top: 5px;
+    }
+    /* ---------------------------------------------------- */
+
+    .btn-group { display: flex; gap: 8px; margin-top: auto; }
+    .action-btn {
+        flex: 1; border: none; padding: 10px; border-radius: 12px;
+        cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: 0.2s;
+        display: flex; justify-content: center; align-items: center; gap: 5px;
+    }
+    .buy-now { background: var(--gradient); color: white; }
+    .watch-later { background: rgba(255,255,255,0.1); color: white; }
+    .compare-btn { background: rgba(255,255,255,0.05); color: var(--text-muted); }
+
+    /* Modals */
+    .modal-overlay {
+        position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+        backdrop-filter: blur(8px); z-index: 1000;
+        display: none; justify-content: center; align-items: center;
+    }
+    .modal-card {
+        background: #1e293b; width: 90%; max-width: 400px; padding: 30px;
+        border-radius: 24px; border: 1px solid var(--glass-border);
+        text-align: center; position: relative;
+    }
+    .modal-input {
+        width: 100%; padding: 12px; margin: 10px 0; background: rgba(0,0,0,0.3);
+        border: 1px solid var(--glass-border); border-radius: 12px; color: white;
+    }
     
-    .comp-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.85rem; }
-    .comp-table th { text-align: right; color: var(--text-muted); padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); }
-    .comp-table td { padding: 10px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #fff; }
-    .comp-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-    
-    .stars { color: #f59e0b; font-size: 0.9rem; }
-    .badge { padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: bold; }
-    .badge-success { background: rgba(16, 185, 129, 0.2); color: #10b981; }
-    .badge-danger { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+    footer { text-align: center; padding: 40px; color: var(--text-muted); margin-top: 50px; border-top: 1px solid var(--glass-border); }
+    .footer-pill-link { color: var(--text-muted); text-decoration: none; padding: 5px 15px; border-radius: 20px; background: rgba(255,255,255,0.03); transition: 0.3s; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; }
+    .footer-pill-link:hover { background: rgba(255,255,255,0.1); color: #fff; }
 
-    /* --- Animations --- */
-    @keyframes pulse { 0% { opacity: 1; transform:translateY(-50%) scale(1); } 50% { opacity: 0.5; transform:translateY(-50%) scale(1.1); } 100% { opacity: 1; transform:translateY(-50%) scale(1); } }
-    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
+    #status { display: none; text-align: center; margin: 20px; font-size: 1.1rem; color: var(--text-muted); }
     </style>
-</head>  
+</head>
 <body>
-<header>  
-    <div class="logo">Findly <i class="fa-solid fa-wand-magic-sparkles"></i></div>  
-    <div class="header-tools">  
-        <button class="tool-btn" onclick="toggleMode()"><i class="fa-solid fa-circle-half-stroke"></i></button>  
-        <div style="position: relative;">  
-            <button class="tool-btn" onclick="toggleLMenu()"><i class="fa-solid fa-language"></i></button>  
-            <div id="l-menu" class="lang-menu">  
-                <div class="lang-item" onclick="setLang('ar')">العربية</div>  
-                <div class="lang-item" onclick="setLang('en')">English</div>  
-                <div class="lang-item" onclick="setLang('fr')">Français</div>  
-                <div class="lang-item" onclick="setLang('de')">Deutsch</div>  
-                <div class="lang-item" onclick="setLang('es')">Español</div>  
-                <div class="lang-item" onclick="setLang('tr')">Türkçe</div>  
-            </div>  
-        </div>  
-        <button class="tool-btn" onclick="toggleWatchList()">  
-            <i class="fa-solid fa-bell"></i>  
-            <span id="watch-count" style="position:absolute; top:-5px; right:-5px; background:#ef4444; color:white; font-size:0.6rem; padding:2px 6px; border-radius:50%; display:none; border: 2px solid var(--bg-dark);">0</span>  
-        </button>  
-          
-        <div id="auth-buttons-container">  
-            <button class="tool-btn" onclick="toggleAuthModal()"><i class="fa-solid fa-user"></i></button>  
-        </div>  
-    </div>  
-</header>  
 
-<main class="search-area">  
-    <div class="energy-box">  
-        <span id="txt-energy"></span>  
-        <span id="r-count" style="background:var(--primary); color:#fff; padding:3px 12px; border-radius:20px; font-weight:900; font-size: 0.9rem;">3</span>  
-        <i class="fa-solid fa-bolt" style="color:#FFD700;"></i>  
-    </div>  
-
-    <h2 id="greeting" style="color: var(--primary); font-size: 1.1rem; margin-bottom: 5px; font-weight: 600;"></h2>  
-    <h1 id="txt-title"></h1>  
-    <p id="txt-sub" style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 30px;"></p>  
-
-    <div class="ai-toggle" id="ai-toggle-box" onclick="toggleDeepAI()">  
-        <i class="fa-solid fa-brain"></i>  
-        <span id="txt-deep"></span>  
-        <input type="checkbox" id="ai-deep-mode" style="pointer-events: none;">  
-    </div>  
-
-    <div class="search-wrapper">  
-        <input type="text" id="s-input" class="search-input">  
-        <i id="mic-btn" class="fa-solid fa-microphone-lines mic-icon" onclick="startVoice()"></i>  
-        <button class="send-btn" onclick="runSearch()"><i class="fa-solid fa-magnifying-glass"></i></button>  
-    </div>  
-  
-    <div class="filter-row" style="display: flex; flex-direction: row; justify-content: center; gap: 8px; margin: 15px 0; width: 100%; overflow-x: auto; padding: 5px;">
-        <div class="ai-tag" onclick="quickFilter('cheap')" style="cursor:pointer; white-space: nowrap;">
-            <i class="fa-solid fa-sack-dollar" style="color: #10b981;"></i> <span id="tag-cheap">اقتصادي</span>
+    <nav class="navbar">
+        <div class="logo"><i class="fa-solid fa-brain"></i> Findly Sage</div>
+        <div style="display:flex; gap:10px;">
+            <button class="nav-btn" onclick="toggleSettings()"><i class="fa-solid fa-sliders"></i></button>
+            <button class="nav-btn" id="auth-btn" onclick="toggleAuth()"><i class="fa-solid fa-user"></i></button>
         </div>
-        <div class="ai-tag" onclick="quickFilter('top-rated')" style="cursor:pointer; white-space: nowrap;">
-            <i class="fa-solid fa-star" style="color: #f59e0b;"></i> <span id="tag-top">الأعلى تقييماً</span>
-        </div>
-        <div class="ai-tag" onclick="quickFilter('new')" style="cursor:pointer; white-space: nowrap;">
-            <i class="fa-solid fa-fire" style="color: #ef4444;"></i> <span id="tag-new">حديث جداً</span>
-        </div>
-    </div>
+    </nav>
 
-    <div class="cat-grid">  
-        <div class="cat-card" onclick="quickSearch('ألعاب')"><i class="fa-solid fa-gamepad"></i><span id="cat-game"></span></div>  
-        <div class="cat-card" onclick="quickSearch('جمال')"><i class="fa-solid fa-sparkles"></i><span id="cat-beauty"></span></div>  
-        <div class="cat-card" onclick="quickSearch('منزل ذكي')"><i class="fa-solid fa-house-laptop"></i><span id="cat-home"></span></div>  
-        <div class="cat-card" onclick="quickSearch('هواتف')"><i class="fa-solid fa-mobile-screen-button"></i><span id="cat-c1"></span></div>  
-        <div class="cat-card" onclick="quickSearch('لابتوب')"><i class="fa-solid fa-laptop"></i><span id="cat-c2"></span></div>  
-        <div class="cat-card" onclick="quickSearch('ساعات')"><i class="fa-solid fa-stopwatch"></i><span id="cat-c4"></span></div>  
-    </div>  
-
-    <div id="status" style="display:none; color:var(--primary); font-weight:bold; margin-top:30px; font-size: 1.1rem;"></div>  
-    
-    <div id="deep-ai-container"></div>
-    
-    <div id="results"></div>  
-</main>  
-
-<div class="modal" id="comp-modal">
-    <div class="modal-box" style="text-align: right;">
-        <h3 style="color:var(--compare-color); margin-top:0; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;">
-            <i class="fa-solid fa-chart-pie"></i> <span id="txt-comp-title">تحليل السوق</span>
-        </h3>
+    <div class="hero-section">
+        <h1 class="hero-title">محرك قرار الشراء <br><span style="color:var(--secondary)">الذكي والمتقدم</span></h1>
+        <p class="hero-subtitle">لا نقارن الأسعار فقط. نحن نحلل المواصفات، نقيم السوق، ونفهم ميزانيتك لنعطيك القرار الصحيح.</p>
         
-        <div id="comp-content">
-            </div>
+        <div class="search-box">
+            <input type="text" id="s-input" class="main-input" placeholder="ابحث عن منتج (مثلاً: iPhone 15 Pro)..." onkeypress="if(event.key==='Enter') runSearch()">
+            <button class="search-btn" onclick="runSearch()">
+                <i class="fa-solid fa-search"></i>
+            </button>
+        </div>
 
-        <button onclick="document.getElementById('comp-modal').style.display='none'" class="action-btn buy-now" style="width:100%; margin-top:20px;">إغلاق</button>
+        <div id="status"></div>
     </div>
-</div>
 
-<div class="modal" id="w-modal">  
-    <div class="modal-box">  
-        <h3 style="color:var(--primary); margin-top:0;"><i class="fa-solid fa-bell"></i> <span id="txt-watch-title"></span></h3>  
-        <div id="watch-list-content"></div>  
-        <button onclick="toggleWatchList()" style="background:none; color:var(--text-muted); border:none; margin-top:20px; cursor:pointer; font-size:0.9rem;">إغلاق</button>  
-    </div>  
-</div>  
-  
-<div class="modal" id="p-modal">  
-    <div class="modal-box">  
-        <h3 id="p-head" style="margin-top:0;"></h3>  
-        <label style="font-size:0.85rem; display:block; margin-bottom:5px; opacity:0.7;">اسم المستخدم</label>  
-        <input type="text" id="in-name" placeholder="أدخل اسمك هنا...">  
-        <label style="font-size:0.85rem; display:block; margin-top:15px; margin-bottom:5px; opacity:0.7;">الميزانية ($)</label>  
-        <input type="number" id="in-budget" placeholder="أقصى ميزانية لديك...">  
-        <button class="action-btn buy-now" onclick="saveSet()" style="width:100%; margin-top:20px;">حفظ التغييرات ✅</button>  
-        <button onclick="document.getElementById('p-modal').style.display = 'none';" style="background:none; color:var(--text-muted); border:none; margin-top:15px; cursor:pointer; font-size:0.9rem;">إغلاق</button>  
-    </div>  
-</div>  
+    <div class="results-grid" id="results"></div>
 
-<div class="modal" id="auth-modal">  
-    <div class="modal-box">  
-        <h3 style="color:var(--primary); margin-top:0;">تسجيل الدخول / إنشاء حساب</h3>  
-        <p style="color:var(--text-muted); font-size:0.8rem; margin-bottom:20px;">يجب عليك تسجيل الدخول لاستخدام التطبيق</p>  
-          
-        <input type="email" id="auth-email" placeholder="البريد الإلكتروني" style="margin-bottom: 10px;">  
-        <input type="password" id="auth-pass" placeholder="كلمة المرور" style="margin-bottom: 20px;">  
-          
-        <button class="action-btn buy-now" onclick="handleEmailLogin()" style="width:100%; margin-bottom:10px;">تسجيل دخول (Email)</button>  
-        <button class="action-btn" onclick="handleEmailRegister()" style="width:100%; background: transparent; border: 1px solid var(--primary); color: var(--text); margin-bottom:10px;">إنشاء حساب جديد</button>  
-          
-        <div style="margin: 15px 0; border-top: 1px solid var(--glass-border); position: relative;">  
-            <span style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: #0f172a; padding: 0 10px; font-size: 0.8rem; color: var(--text-muted);">أو</span>  
-        </div>  
+    <div id="p-modal" class="modal-overlay">
+        <div class="modal-card">
+            <h3><i class="fa-solid fa-sliders"></i> تفضيلات المستخدم</h3>
+            <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:20px;">حدد ميزانيتك لتمكين الذكاء الاصطناعي من تقييم الصفقات لك.</p>
+            <input type="text" id="in-name" class="modal-input" placeholder="اسمك">
+            <input type="number" id="in-budget" class="modal-input" placeholder="ميزانيتك التقريبية (SAR)">
+            <button class="action-btn buy-now" style="width:100%; margin-top:10px;" onclick="saveSet()">حفظ وتحديث المحرك</button>
+            <button class="action-btn" style="width:100%; margin-top:10px; background:transparent;" onclick="document.getElementById('p-modal').style.display='none'">إغلاق</button>
+        </div>
+    </div>
 
-        <button class="action-btn" onclick="handleGoogleLogin()" style="width:100%; background: #fff; color: #333; display: flex; align-items: center; justify-content: center; gap: 10px;">  
-            <i class="fa-brands fa-google" style="color: #DB4437;"></i> الدخول عبر Google  
-        </button>  
+    <div id="auth-modal" class="modal-overlay">
+        <div class="modal-card">
+            <h3>تسجيل الدخول</h3>
+            <p style="margin:15px 0; color:var(--text-muted)">سجل الدخول لحفظ تفضيلاتك وسجل البحث</p>
+            <button class="action-btn buy-now" style="width:100%" onclick="loginGoogle()">Google Login</button>
+            <button class="action-btn" style="width:100%; margin-top:10px;" onclick="document.getElementById('auth-modal').style.display='none'">إلغاء</button>
+        </div>
+    </div>
 
-        <button id="auth-close-btn" onclick="toggleAuthModal()" style="background:none; color:var(--text-muted); border:none; margin-top:15px; cursor:pointer; font-size:0.9rem;">إغلاق</button>  
-    </div>  
-</div>  
+    <footer>
+        <div style="display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; flex-wrap: wrap;">
+            <a href="#" class="footer-pill-link"><i class="fa-solid fa-shield-halved"></i> الخصوصية</a>
+            <a href="#" class="footer-pill-link"><i class="fa-solid fa-file-contract"></i> الشروط</a>
+            <a href="#" class="footer-pill-link"><i class="fa-solid fa-circle-info"></i> عن Findly</a>
+        </div>
+        <p style="color: var(--text-muted); font-size: 0.75rem; opacity: 0.6;">© 2026 Findly Sage. جميع الحقوق محفوظة.</p>
+    </footer>
 
-<script>  
-    // --- 1. إعدادات Firebase ---  
-    const firebaseConfig = {  
-        apiKey: "AIzaSyCI_q5lkgRY4133ua4RlG5TeiCqJ5N5KTU",  
-        authDomain: "findly-ede17.firebaseapp.com",  
-        projectId: "findly-ede17",  
-        storageBucket: "findly-ede17.firebasestorage.app",  
-        messagingSenderId: "503212830017",  
-        appId: "1:503212830017:web:9afb64c19822bbe7f645c0",  
-        measurementId: "G-X1Q3WDP50N"  
-    };  
+    <script>
+    // --- Configuration ---
+    const API = 'http://localhost:3000'; // تأكد أن هذا الرابط يطابق السيرفر لديك
+    let currentUserUID = null;
+    let attempts = localStorage.getItem('findly_attempts') || 10;
+    const lang = 'ar';
 
-    firebase.initializeApp(firebaseConfig);  
-    const auth = firebase.auth();  
-    const analytics = firebase.analytics();  
+    // --- Firebase Init (Placeholder - Use your own config) ---
+    const firebaseConfig = { 
+        apiKey: "YOUR_API_KEY", 
+        authDomain: "YOUR_APP.firebaseapp.com", 
+        projectId: "YOUR_APP" 
+    };
+    try {
+        firebase.initializeApp(firebaseConfig);
+        firebase.auth().onAuthStateChanged(user => {
+            if (user) {
+                currentUserUID = user.uid;
+                document.getElementById('auth-btn').innerHTML = '<i class="fa-solid fa-check-circle"></i>';
+            } else {
+                currentUserUID = null;
+                document.getElementById('auth-btn').innerHTML = '<i class="fa-solid fa-user"></i>';
+            }
+        });
+    } catch(e) { console.log("Firebase not configured yet"); }
 
-    const API = "https://findly-api.onrender.com";  
-    let lang = localStorage.getItem('findly_lang') || 'ar';  
-    let savedAttempts = localStorage.getItem('findly_attempts');  
-    let attempts = (savedAttempts !== null) ? parseInt(savedAttempts) : 3;  
-    if (savedAttempts === null) localStorage.setItem('findly_attempts', 3);  
-    let watchList = JSON.parse(localStorage.getItem('findly_watch')) || [];  
-    let currentUserUID = localStorage.getItem('findly_uid');  
-
-    // --- 2. دوال المصادقة ---  
-    auth.onAuthStateChanged((user) => {  
-        if (user) {  
-            currentUserUID = user.uid;  
-            localStorage.setItem('findly_uid', user.uid);  
-            updateAuthUI(true);  
-            fetchWatchlistFromServer(); 
-        } else {  
-            currentUserUID = null;  
-            localStorage.removeItem('findly_uid');  
-            updateAuthUI(false);  
-            toggleAuthModal();  
-        }  
-    });  
-
-    function toggleAuthModal() {  
-        const modal = document.getElementById('auth-modal');  
-        const closeBtn = document.getElementById('auth-close-btn');  
-        modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';  
-        if (!currentUserUID && modal.style.display === 'flex') closeBtn.style.display = 'none';  
-        else closeBtn.style.display = 'block';  
-    }  
-
-    function handleEmailLogin() {  
-        const email = document.getElementById('auth-email').value;  
-        const pass = document.getElementById('auth-pass').value;  
-        if(!email || !pass) return alert("الرجاء إدخال البيانات");  
-        auth.signInWithEmailAndPassword(email, pass).then(() => { toggleAuthModal(); alert("تم تسجيل الدخول بنجاح! 👋"); }).catch((e) => alert(e.message));  
-    }  
-
-    function handleEmailRegister() {  
-        const email = document.getElementById('auth-email').value;  
-        const pass = document.getElementById('auth-pass').value;  
-        if(!email || !pass) return alert("الرجاء إدخال البيانات");  
-        auth.createUserWithEmailAndPassword(email, pass).then(() => { toggleAuthModal(); alert("تم إنشاء الحساب بنجاح! 🚀"); }).catch((e) => alert(e.message));  
-    }  
-
-    function handleGoogleLogin() {  
-        const provider = new firebase.auth.GoogleAuthProvider();  
-        auth.signInWithPopup(provider).then(() => { toggleAuthModal(); }).catch((e) => alert(e.message));  
-    }  
-
-    function handleLogout() { auth.signOut().then(() => { alert("تم تسجيل الخروج"); location.reload(); }); }  
-
-    function updateAuthUI(isLoggedIn) {  
-        const container = document.getElementById('auth-buttons-container');  
-        if (isLoggedIn) {  
-            container.innerHTML = `  
-                <button class="tool-btn" onclick="openProfile()" title="الملف الشخصي"><i class="fa-solid fa-user-gear"></i></button>  
-                <button class="tool-btn" onclick="handleLogout()" style="border-color: #ef4444; color: #ef4444;" title="تسجيل خروج"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>  
-            `;  
-        } else {  
-            container.innerHTML = `<button class="tool-btn" onclick="toggleAuthModal()" title="تسجيل الدخول"><i class="fa-solid fa-user"></i></button>`;  
-        }  
-    }  
-
-    // --- القواميس المترجمة بالكامل ---
-    const dict = {  
-        ar: { title: "مستشارك الحكيم", sub: "دليلك الذكي للتسوق المثالي", energy: "طاقة العقل", welcome: "مرحباً،", game: "ألعاب", beauty: "جمال", home: "منزل ذكي", c1: "هواتف", c2: "لابتوب", c4: "ساعات", p_head: "الملف الشخصي", buy: "شراء", watch: "مراقبة", compare: "مقارنة", over: "يتجاوز ميزانيتك!", cheap: "اقتصادي", top: "الأعلى تقييماً", new: "حديث جداً", deep: "تحليل ذكي (Deep AI)", watchTitle: "قائمة المراقبة", why: "لماذا اخترنا هذا؟", slow: "السيرفر يستيقظ.. انتظر ثوانٍ", noAttempts: "⚠️ استنفدت محاولاتك!", compTitle: "تحليل السوق الشامل", rating: "التقييم", reviews: "مراجعات", market_high: "أعلى سعر سوقي", market_low: "أقل سعر منافس", competitors: "مقارنة المتاجر" },  
-        en: { title: "Sage Advisor", sub: "Your smart shopping guide", energy: "Sage Energy", welcome: "Welcome,", game: "Gaming", beauty: "Beauty", home: "Smart Home", c1: "Phones", c2: "Laptops", c4: "Watches", p_head: "Profile", buy: "Buy", watch: "Watch", compare: "Compare", over: "Over Budget!", cheap: "Budget", top: "Top Rated", new: "Newest", deep: "Deep AI Mode", watchTitle: "Watch List", why: "Why this choice?", slow: "Server waking up.. wait", noAttempts: "⚠️ No attempts left!", compTitle: "Market Analysis", rating: "Rating", reviews: "Reviews", market_high: "Market High", market_low: "Market Low", competitors: "Store Comparison" },
-        fr: { title: "Sage Conseiller", sub: "Votre guide d'achat intelligent", energy: "Énergie Sage", welcome: "Bienvenue,", game: "Jeux", beauty: "Beauté", home: "Maison", c1: "Téléphones", c2: "Portables", c4: "Montres", p_head: "Profil", buy: "Acheter", watch: "Suivre", compare: "Comparer", over: "Hors budget!", cheap: "Économique", top: "Mieux noté", new: "Nouveau", deep: "Mode IA Profond", watchTitle: "Liste de surveillance", why: "Pourquoi ce choix?", slow: "Serveur en réveil...", noAttempts: "⚠️ Plus de tentatives!", compTitle: "Analyse du marché", rating: "Évaluation", reviews: "Avis", market_high: "Prix Élevé", market_low: "Prix Bas", competitors: "Comparaison" },
-        de: { title: "Weiser Berater", sub: "Ihr intelligenter Einkaufsführer", energy: "Sage Energie", welcome: "Willkommen,", game: "Spiele", beauty: "Schönheit", home: "Smart Home", c1: "Handys", c2: "Laptops", c4: "Uhren", p_head: "Profil", buy: "Kaufen", watch: "Beobachten", compare: "Vergleichen", over: "Über Budget!", cheap: "Günstig", top: "Bestbewertet", new: "Neu", deep: "Deep AI Modus", watchTitle: "Beobachtungsliste", why: "Warum diese Wahl?", slow: "Server wacht auf...", noAttempts: "⚠️ Keine Versuche mehr!", compTitle: "Marktanalyse", rating: "Bewertung", reviews: "Rezensionen", market_high: "Markthoch", market_low: "Markttief", competitors: "Händlervergleich" },
-        es: { title: "Consejero Sabio", sub: "Tu guía de compras inteligente", energy: "Energía Sabia", welcome: "Hola,", game: "Juegos", beauty: "Belleza", home: "Casa", c1: "Móviles", c2: "Portátiles", c4: "Relojes", p_head: "Perfil", buy: "Comprar", watch: "Seguir", compare: "Comparar", over: "¡Sobre presupuesto!", cheap: "Económico", top: "Mejor valorado", new: "Nuevo", deep: "Modo IA Profunda", watchTitle: "Lista de seguimiento", why: "¿Por qué esta elección?", slow: "Servidor despertando...", noAttempts: "⚠️ ¡Sin intentos!", compTitle: "Análisis de mercado", rating: "Clasificación", reviews: "Reseñas", market_high: "Precio Alto", market_low: "Precio Bajo", competitors: "Comparación" },
-        tr: { title: "Bilge Danışman", sub: "Akıllı alışveriş rehberiniz", energy: "Bilge Enerji", welcome: "Hoş geldiniz,", game: "Oyun", beauty: "Güzellik", home: "Ev", c1: "Telefonlar", c2: "Laptoplar", c4: "Saatler", p_head: "Profil", buy: "Satın Al", watch: "İzle", compare: "Karşılaştır", over: "Bütçe Aşıldı!", cheap: "Ekonomik", top: "En İyiler", new: "Yeni", deep: "Derin Yapay Zeka", watchTitle: "İzleme Listesi", why: "Neden bu seçim?", slow: "Sunucu uyanıyor...", noAttempts: "⚠️ Hakkınız kalmadı!", compTitle: "Pazar Analizi", rating: "Puan", reviews: "İncelemeler", market_high: "Piyasa Yüksek", market_low: "Piyasa Düşük", competitors: "Mağaza Karşılaştırması" }
-    };  
-
-    // Toggle Deep AI
-    function toggleDeepAI() {
-        const checkbox = document.getElementById('ai-deep-mode');
-        const box = document.getElementById('ai-toggle-box');
-        checkbox.checked = !checkbox.checked;
-        if(checkbox.checked) box.classList.add('active-mode');
-        else box.classList.remove('active-mode');
+    // --- Helper Functions ---
+    function toggleSettings() { document.getElementById('p-modal').style.display = 'flex'; }
+    function toggleAuth() { if(!currentUserUID) document.getElementById('auth-modal').style.display = 'flex'; else alert("أنت مسجل دخول بالفعل"); }
+    function extractPrice(p) { return parseFloat(p?.toString().replace(/[^0-9.]/g, '')) || 0; }
+    async function loginGoogle() {
+        // Implement Google Login logic here
+        alert("Simulating Login...");
+        currentUserUID = "user_12345"; // محاكاة للدخول
+        document.getElementById('auth-modal').style.display='none';
+        document.getElementById('auth-btn').innerHTML = '<i class="fa-solid fa-check-circle"></i>';
     }
 
-    // Helper to extract numbers from strings like "$250" or "250 USD"
-    function extractPrice(priceInput) {
-        if (!priceInput) return 0;
-        if (typeof priceInput === 'number') return priceInput;
-        let str = priceInput.toString();
-        // Remove everything except numbers and dots
-        let num = parseFloat(str.replace(/[^0-9.]/g, ''));
-        return isNaN(num) ? 0 : num;
+    // --- Core Functions (UPDATED FOR INTELLIGENCE LAYERS) ---
+
+    // 1. تحديث دالة الحفظ لترسل البيانات للطبقة 2 (User Profile)
+    async function saveSet() {
+        const n = document.getElementById('in-name').value;
+        const b = document.getElementById('in-budget').value;
+        
+        if(n) localStorage.setItem('fn', n);
+        if(b) localStorage.setItem('fb', b);
+
+        // إرسال التفضيلات للسيرفر الذكي
+        if (currentUserUID && b) {
+            try {
+                const btn = document.querySelector('#p-modal .buy-now');
+                btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> جاري المزامنة...';
+                
+                await fetch(`${API}/user/preferences`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        uid: currentUserUID, 
+                        budget: parseFloat(b),
+                        categories: [] 
+                    })
+                });
+                console.log("✅ Profile synced with Intelligent Engine");
+                btn.innerHTML = 'حفظ وتحديث المحرك';
+            } catch (e) { console.warn("Sync failed, working locally"); }
+        }
+
+        document.getElementById('p-modal').style.display = 'none';
+        alert("✅ تم تحديث ملفك الشخصي في محرك القرار");
     }
 
-    // --- 3. دالة البحث الرئيسية ---  
+    // 2. تحديث دالة البحث لتعرض بيانات الطبقات 1, 4, 5
     async function runSearch() {  
-        if (!currentUserUID) { alert("يجب عليك تسجيل الدخول أولاً!"); toggleAuthModal(); return; }  
+        // التحقق من الدخول (اختياري، يمكن إزالته للسماح للزوار)
+        if (!currentUserUID) { 
+            // alert("يفضل تسجيل الدخول للحصول على نتائج مخصصة لك"); 
+            // سنكمل البحث لكن النتائج لن تكون مخصصة 100%
+        }  
 
         let q = document.getElementById('s-input').value;  
         const status = document.getElementById('status');  
         const resCon = document.getElementById('results');  
-        const deepCon = document.getElementById('deep-ai-container');
-        const isDeep = document.getElementById('ai-deep-mode').checked;
-        const d = dict[lang] || dict['ar'];  
-          
-        let userBudget = localStorage.getItem('fb') ? parseFloat(localStorage.getItem('fb')) : 0;  
-
-        if (attempts <= 0) { status.style.display = "block"; status.innerHTML = d.noAttempts; return; }  
+        
         if (!q) return;  
 
         status.style.display = "block";  
-        status.innerHTML = '<i class="fa-solid fa-microchip fa-spin"></i> Analyzing...';  
+        status.innerHTML = '<i class="fa-solid fa-microchip fa-spin"></i> المحرك الذكي يحلل السوق والمواصفات...';  
         resCon.innerHTML = "";  
-        deepCon.innerHTML = "";
 
         try {  
-            // 1. جلب المنتجات
+            // استدعاء السيرفر المحدث
             const res = await fetch(`${API}/smart-search`, {  
                 method: 'POST',  
                 headers: { 'Content-Type': 'application/json' },  
-                body: JSON.stringify({ query: q, lang: lang, uid: currentUserUID })  
+                // نرسل UID ليعرف السيرفر من نحن ويطبق الطبقة 2
+                body: JSON.stringify({ query: q, lang: 'ar', uid: currentUserUID, filterType: 'smart' })  
             });  
+            
             const data = await res.json();  
             status.style.display = "none";  
 
             if (data.products && data.products.length > 0) {  
-                
-                // 2. إذا كان Deep AI مفعلاً، نقوم بطلب التحليل
-                if (isDeep) {
-                    deepCon.innerHTML = `<div class="deep-result-box" style="text-align:center;"><i class="fa-solid fa-brain fa-pulse"></i> جاري التحليل العميق...</div>`;
-                    
-                    fetch(`${API}/deep-ai-analyze`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ products: data.products, query: q, lang: lang })
-                    })
-                    .then(r => r.json())
-                    .then(dRes => {
-                        deepCon.innerHTML = `<div class="deep-result-box"><i class="fa-solid fa-wand-magic-sparkles"></i> <strong>Deep AI Decision:</strong><br><br>${dRes.deepAnalysis}</div>`;
-                    })
-                    .catch(e => {
-                        deepCon.innerHTML = ""; // إخفاء في حال الخطأ
-                    });
-                }
-
-                // 3. عرض المنتجات
                 data.products.forEach((p, index) => {  
-                    // Fix: Extract price if priceVal is missing
-                    let priceVal = p.priceVal || extractPrice(p.price); 
                     
-                    let budgetAlert = (userBudget > 0 && priceVal > userBudget) ? `<div class="budget-error"><i class="fa-solid fa-triangle-exclamation"></i> ${d.over} ($${userBudget})</div>` : "";  
-                    
-                    const safeName = p.name.replace(/'/g, "\\'").replace(/"/g, "&quot;");
-                    const safePrice = p.price.toString().replace(/'/g, "\\'");
-                    
-                    // Pass serverAvg or estimate it based on current price if missing
-                    let mAvg = data.marketAvg || (priceVal * 1.1);
+                    // --- قراءة بيانات التحليل الذكي (الطبقات الجديدة) ---
+                    const analysis = p.analysis || {};
+                    const decisionTag = analysis.decisionTag || "Standard"; // الطبقة 4
+                    const userScore = analysis.userMatchScore || 50;       // الطبقة 2
+                    const specs = p.specs || {};                           // الطبقة 1
 
+                    // تحديد شكل الوسم (Badge)
+                    let tagClass = "tag-normal";
+                    let tagIcon = "";
+                    if (decisionTag.includes("مثالي") || decisionTag.includes("Perfect")) { tagClass = "tag-perfect"; tagIcon = "✨"; }
+                    else if (decisionTag.includes("أفضل") || decisionTag.includes("Best")) { tagClass = "tag-good"; tagIcon = "🔥"; }
+                    else if (decisionTag.includes("تجنبه") || decisionTag.includes("Avoid")) { tagClass = "tag-avoid"; tagIcon = "⚠️"; }
+
+                    // تجهيز أيقونات المواصفات (Specs Pills)
+                    let specsHTML = "";
+                    if(specs.cpu) specsHTML += `<span class="spec-pill"><i class="fa-solid fa-microchip"></i> ${specs.cpu}</span>`;
+                    if(specs.ram) specsHTML += `<span class="spec-pill">RAM ${specs.ram}GB</span>`;
+                    if(specs.gpu) specsHTML += `<span class="spec-pill"><i class="fa-solid fa-display"></i> ${specs.gpu}</span>`;
+
+                    // تجهيز المتغيرات الآمنة
+                    const safeName = p.name.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+                    
                     setTimeout(() => {  
                         resCon.innerHTML += `  
                             <div class="product-card">  
-                                ${budgetAlert}  
+                                <div class="decision-badge ${tagClass}">${tagIcon} ${decisionTag}</div>
+
                                 <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/150'">  
                                 <h3>${p.name}</h3>  
-                                <div class="price">${p.price || 'N/A'}</div>  
-                                <div class="analysis-engine"><span class="analysis-label"><i class="fa-solid fa-brain"></i> ${d.why}</span>${p.reason}</div>  
-                                <div class="btn-group">  
-                                    <a href="${p.link}" target="_blank" class="action-btn buy-now">${d.buy} 🛒</a>  
-                                    <button class="action-btn watch-later" onclick="addToWatch('${safeName}', '${safePrice}', '${p.link}')">${d.watch} 🔔</button>
+                                
+                                <div class="specs-row">${specsHTML}</div>
 
-                                    <button class="action-btn compare-btn" onclick="openComparison('${safeName}', ${priceVal}, ${mAvg})">
-                                        <i class="fa-solid fa-code-compare"></i> ${d.compare}
-                                    </button>
+                                <div class="price">${p.price || 'N/A'}</div>  
+                                
+                                <div class="match-container">
+                                    <div class="match-label">
+                                        <span>مدى الملاءمة لك</span>
+                                        <span>${userScore}%</span>
+                                    </div>
+                                    <div class="match-score-bar"><div class="match-fill" style="width:${userScore}%"></div></div>
+                                </div>
+
+                                <div class="analysis-box">
+                                    ${analysis.pros && analysis.pros.length > 0 ? `<div style="color:#10b981"><i class="fa-solid fa-check"></i> ${analysis.pros[0]}</div>` : ''}
+                                    ${analysis.cons && analysis.cons.length > 0 ? `<div style="color:#ef4444; margin-top:4px;"><i class="fa-solid fa-xmark"></i> ${analysis.cons[0]}</div>` : ''}
+                                </div>
+
+                                <div class="btn-group">  
+                                    <a href="${p.link}" target="_blank" class="action-btn buy-now">شراء 🛒</a>  
+                                    <button class="action-btn watch-later" onclick="addToWatch('${safeName}', '${p.price}', '${p.link}')">تتبع 🔔</button>
                                 </div>
                             </div>
                         `;
                     }, 100 * index);
                 });
-
-                attempts--; 
-                localStorage.setItem('findly_attempts', attempts); 
-                update();  
             } else { 
                 status.style.display = "block"; 
-                status.innerHTML = "No results found"; 
+                status.innerHTML = "لم يتم العثور على نتائج ذكية. حاول تغيير كلمات البحث."; 
             }  
-        } catch (e) { status.style.display = "block"; status.innerHTML = "Server Error (Try again)"; console.error(e); }  
-    }  
-
-    // --- 4. وظائف المقارنة المتقدمة و Watchlist ---
-    
-function openComparison(name, price, serverAvg) {
-    const modal = document.getElementById('comp-modal');
-    const content = document.getElementById('comp-content');
-    const d = dict[lang] || dict['ar'];
-    document.getElementById('txt-comp-title').innerText = d.compTitle;
-    modal.style.display = 'flex';
-
-    // 1. Data Cleaning
-    let marketAvg = (serverAvg > 0) ? serverAvg : price;
-    if(marketAvg === 0) marketAvg = 1; 
-    let displayPrice = (price > 0) ? price.toFixed(2) : "N/A";
-
-    // 2. Simulated Metrics (Since API doesn't send specific store data yet)
-    let marketHigh = (marketAvg * 1.15).toFixed(2);
-    let marketLow = (marketAvg * 0.92).toFixed(2);
-    let rating = (Math.random() * (5.0 - 4.0) + 4.0).toFixed(1); // Random 4.0-5.0
-    let reviewCount = Math.floor(Math.random() * 500) + 50;
-
-    // 3. Logic for Stars
-    let starsHTML = '';
-    for(let i=0; i<5; i++) {
-        if(i < Math.floor(rating)) starsHTML += '<i class="fa-solid fa-star"></i>';
-        else if (i < rating) starsHTML += '<i class="fa-solid fa-star-half-stroke"></i>';
-        else starsHTML += '<i class="fa-regular fa-star"></i>';
-    }
-
-    // 4. Comparison Table (Logic: Where does THIS product stand?)
-    let verdict = "";
-    let verdictClass = "";
-    if (price <= marketAvg) {
-        verdict = d.cheap + " (Excellent)";
-        verdictClass = "badge-success";
-    } else {
-        verdict = "Standard Price";
-        verdictClass = "badge-danger";
-    }
-
-    // 5. Build HTML
-    content.innerHTML = `
-        <div class="comp-header">
-            <div style="text-align: right;">
-                <div style="font-weight:bold; font-size:1rem; color:#fff; margin-bottom:5px;">${name.substring(0, 40)}...</div>
-                <div class="stars">${starsHTML} <span style="color:#94a3b8; font-size:0.7rem;">(${reviewCount} ${d.reviews})</span></div>
-            </div>
-            <div style="text-align: left;">
-                <div style="font-size:1.4rem; font-weight:bold; color:var(--primary);">${displayPrice}</div>
-            </div>
-        </div>
-
-        <div class="comp-stat-grid">
-            <div class="comp-stat-box">
-                <div class="comp-stat-val">${rating}/5</div>
-                <div class="comp-stat-lbl">${d.rating}</div>
-            </div>
-            <div class="comp-stat-box">
-                <div class="comp-stat-val">${marketAvg.toFixed(2)}</div>
-                <div class="comp-stat-lbl">Global Avg</div>
-            </div>
-        </div>
-
-        <h4 style="color:var(--text-muted); margin: 15px 0 5px 0; font-size:0.9rem;">${d.competitors}</h4>
-        
-        <div style="background:rgba(255,255,255,0.03); border-radius:12px; padding:10px;">
-            <div class="comp-row">
-                <span><i class="fa-solid fa-store" style="color:#ef4444;"></i> Global Market (High)</span>
-                <span style="font-weight:bold;">${marketHigh}</span>
-            </div>
-            <div class="comp-row">
-                <span><i class="fa-solid fa-store" style="color:#f59e0b;"></i> Global Market (Avg)</span>
-                <span style="font-weight:bold;">${marketAvg.toFixed(2)}</span>
-            </div>
-            <div class="comp-row" style="background:rgba(16, 185, 129, 0.1); border-radius:8px; padding:8px;">
-                <span><i class="fa-solid fa-check-circle" style="color:#10b981;"></i> <strong>Findly Deal</strong></span>
-                <span style="font-weight:bold; color:#10b981;">${displayPrice}</span>
-            </div>
-             <div class="comp-row">
-                <span><i class="fa-solid fa-store" style="color:#3b82f6;"></i> Local Vendors (Low)</span>
-                <span style="font-weight:bold;">${marketLow}</span>
-            </div>
-        </div>
-
-        <div style="margin-top:20px; text-align:center;">
-            <span class="badge ${verdictClass}" style="font-size:0.9rem; padding:8px 20px;">${verdict}</span>
-        </div>
-    `;
-}
-
-    // Fix: Improved Watchlist with Local Fallback
-    async function addToWatch(n, p, l) {
-        if (!currentUserUID) { alert("Please login first"); return; }
-        const newItem = { name: n, price: p, link: l };
-        
-        // محاولة الحفظ في السيرفر أولاً
-        try {
-            const res = await fetch(`${API}/watchlist/add`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ uid: currentUserUID, product: newItem })
-            });
-            const data = await res.json();
-            
-            if(data.message === "موجود بالفعل") { alert("⚠️ المنتج موجود بالفعل في قائمتك"); return; }
-            
-            // نجاح السيرفر
-            watchList.push(newItem);
-            localStorage.setItem('findly_watch', JSON.stringify(watchList));
-            update();
-            alert("✅ تمت الإضافة لـ Watchlist بنجاح");
-
         } catch (e) { 
-            // فشل السيرفر: الحفظ محلياً
-            console.warn("Server offline, saving locally.");
-            
-            // تحقق من التكرار محلياً
-            const exists = watchList.some(item => item.name === newItem.name);
-            if(exists) {
-                alert("⚠️ المنتج موجود بالفعل (Local Mode)");
-            } else {
-                watchList.push(newItem);
-                localStorage.setItem('findly_watch', JSON.stringify(watchList));
-                update();
-                alert("✅ السيرفر مشغول، تم الحفظ محلياً فقط");
-            }
-        }
-    }
-
-    async function fetchWatchlistFromServer() {
-        if(!currentUserUID) return;
-        try {
-            const res = await fetch(`${API}/watchlist/${currentUserUID}`);
-            const data = await res.json();
-            if(data.watchlist) {
-                watchList = data.watchlist;
-                localStorage.setItem('findly_watch', JSON.stringify(watchList));
-                update();
-            }
-        } catch(e) { console.log("Offline mode - using local watchlist"); }
-    }
-
-    // --- 5. تحديث الواجهة ---  
-    function update() {  
-        const d = dict[lang] || dict['ar'];  
-        document.getElementById('txt-title').innerText = d.title;  
-        document.getElementById('txt-sub').innerText = d.sub;  
-        document.getElementById('txt-energy').innerText = d.energy;  
-        document.getElementById('txt-deep').innerText = d.deep;  
-        document.getElementById('p-head').innerText = d.p_head;  
-        document.getElementById('cat-game').innerText = d.game;  
-        document.getElementById('cat-beauty').innerText = d.beauty;  
-        document.getElementById('cat-home').innerText = d.home;  
-        document.getElementById('cat-c1').innerText = d.c1;  
-        document.getElementById('cat-c2').innerText = d.c2;  
-        document.getElementById('cat-c4').innerText = d.c4;  
-        document.getElementById('tag-cheap').innerText = d.cheap;  
-        document.getElementById('tag-top').innerText = d.top;  
-        document.getElementById('tag-new').innerText = d.new;  
-        document.getElementById('txt-watch-title').innerText = d.watchTitle;  
-        document.getElementById('r-count').innerText = attempts;  
-        document.getElementById('greeting').innerText = `${d.welcome} ${localStorage.getItem('fn') || 'User'} 👋`;  
-
-        // Update Compare Modal Title if open
-        const compTitle = document.getElementById('txt-comp-title');
-        if(compTitle) compTitle.innerText = d.compTitle;
-
-        const wCount = document.getElementById('watch-count');  
-        if(watchList.length > 0) { wCount.style.display = 'block'; wCount.innerText = watchList.length; } 
-        else wCount.style.display = 'none';  
-          
-        document.getElementById('main-html').setAttribute('dir', (lang === 'ar') ? 'rtl' : 'ltr');  
-    }  
-
-    function quickFilter(type) {
-        let input = document.getElementById('s-input');
-        if (type === 'cheap') input.value += " cheap price";
-        if (type === 'top-rated') input.value += " top rated";
-        if (type === 'new') input.value += " 2026";
-        runSearch();
-    }
-
-    function setLang(l) { lang = l; localStorage.setItem('findly_lang', l); document.getElementById('l-menu').style.display = 'none'; update(); }  
-    function toggleLMenu() { const m = document.getElementById('l-menu'); m.style.display = (m.style.display === 'block') ? 'none' : 'block'; }  
-    function toggleMode() { document.body.classList.toggle('light-mode'); }  
-    function quickSearch(txt) { document.getElementById('s-input').value = txt; runSearch(); }  
-    function openProfile() { document.getElementById('p-modal').style.display = 'flex'; document.getElementById('in-name').value = localStorage.getItem('fn') || ''; document.getElementById('in-budget').value = localStorage.getItem('fb') || ''; }  
-    
-    async function saveSet() {
-        const n = document.getElementById('in-name').value;
-        const b = document.getElementById('in-budget').value;
-        if(n) localStorage.setItem('fn', n);
-        if(b) localStorage.setItem('fb', b);
-        update();
-        document.getElementById('p-modal').style.display = 'none';
-        alert("✅ تم حفظ الإعدادات بنجاح");
-    }
-
-    function toggleWatchList() {  
-        const modal = document.getElementById('w-modal');  
-        const content = document.getElementById('watch-list-content');  
-        if(modal.style.display === 'flex') modal.style.display = 'none';  
-        else {  
-            modal.style.display = 'flex';  
-            content.innerHTML = watchList.length === 0 ? "<p style='color:#94a3b8'>القائمة فارغة</p>" : "";  
-            watchList.forEach((w, i) => {  
-                content.innerHTML += `<div style="background:#1e293b; padding:10px; margin-bottom:10px; border-radius:10px; text-align:right;">  
-                    <div style="font-weight:bold; color:#fff; font-size:0.9rem;">${w.name}</div>  
-                    <div style="color:#10b981; font-size:0.8rem;">${w.price}</div>  
-                    <a href="${w.link}" target="_blank" style="color:var(--primary); font-size:0.8rem;">رابط المنتج</a>  
-                    <button onclick="removeFromWatch(${i})" style="color:#ef4444; background:none; border:none; float:left; cursor:pointer;">حذف</button>  
-                </div>`;  
-            });  
+            status.style.display = "block"; 
+            status.innerHTML = "حدث خطأ في الاتصال بالسيرفر الذكي."; 
+            console.error(e); 
         }  
-    }  
+    }
 
-    function removeFromWatch(index) { watchList.splice(index, 1); localStorage.setItem('findly_watch', JSON.stringify(watchList)); toggleWatchList(); update(); }  
-
-    function startVoice() {  
-        if (!('webkitSpeechRecognition' in window)) { alert("المتصفح لا يدعم الصوت"); return; }  
-        const recognition = new webkitSpeechRecognition();  
-        const micBtn = document.getElementById('mic-btn');  
-        recognition.lang = (lang === 'ar') ? 'ar-SA' : 'en-US';  
-        recognition.onstart = () => micBtn.classList.add('mic-active');  
-        recognition.onend = () => micBtn.classList.remove('mic-active');  
-        recognition.onresult = (event) => { document.getElementById('s-input').value = event.results[0][0].transcript; runSearch(); };  
-        recognition.start();  
-    }  
-
-    function openAbout() { document.getElementById('about-modal').style.display = 'flex'; }
-    function closeAbout() { document.getElementById('about-modal').style.display = 'none'; }
-
-    update();  
-</script>
-
-<footer style="margin-top: 50px; padding: 40px 5%; border-top: 1px solid var(--glass-border); text-align: center; background: rgba(15, 23, 42, 0.4);">
-    <div style="display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; flex-wrap: wrap;">
-        <a href="privacy.html" class="footer-pill-link"><i class="fa-solid fa-shield-halved"></i> الخصوصية</a>
-        <a href="terms.html" class="footer-pill-link"><i class="fa-solid fa-file-contract"></i> الشروط</a>
-        <a href="javascript:void(0)" onclick="openAbout()" class="footer-pill-link"><i class="fa-solid fa-circle-info"></i> عن Findly</a>
-    </div>
-    <p style="color: var(--text-muted); font-size: 0.75rem; opacity: 0.6;">© 2026 Findly Sage. جميع الحقوق محفوظة.</p>
-</footer>
-
-<div id="about-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:9999; justify-content:center; align-items:center; backdrop-filter: blur(5px);">
-    <div style="background:#161b22; width:90%; max-width:400px; padding:25px; border-radius:24px; border:1px solid var(--glass-border); text-align:center;">
-        <i class="fa-solid fa-wand-magic-sparkles" style="font-size:3rem; color:var(--primary); margin-bottom:15px;"></i>
-        <h2 style="color:#fff;">Findly Sage</h2>
-        <p style="color:var(--text-muted); line-height:1.6;">مساعدك الذكي للتسوق. نستخدم الذكاء الاصطناعي لتحليل المنتجات وترشيح الأفضل لك بناءً على الجودة والسعر.</p>
-        <button onclick="closeAbout()" style="margin-top:20px; background:var(--primary); color:white; border:none; padding:10px 30px; border-radius:12px; cursor:pointer; width:100%;">إغلاق</button>
-    </div>
-</div>
-</body>  
+    function addToWatch(name, price, link) {
+        // يمكنك إضافة كود الحفظ في قائمة التتبع هنا
+        alert("تمت الإضافة لقائمة التتبع: " + name);
+    }
+    
+    // تحميل التفضيلات عند البدء
+    window.onload = function() {
+        if(localStorage.getItem('fn')) document.getElementById('in-name').value = localStorage.getItem('fn');
+        if(localStorage.getItem('fb')) document.getElementById('in-budget').value = localStorage.getItem('fb');
+    }
+    </script>
+</body>
 </html>

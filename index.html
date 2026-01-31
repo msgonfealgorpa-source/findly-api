@@ -485,6 +485,8 @@
         <span id="btnText">قارن الأسعار</span>
         <div id="loader" class="tag-loader" style="display: none;"></div>
     </button>
+<div id="comparisonResults" style="display: none; width: 95%; margin: 20px auto;">
+    <div id="productsGrid" style="display: grid; grid-template-columns: 1fr; gap: 15px;"></div>
 </div>
 
 <style>
@@ -1048,54 +1050,50 @@
 async function executeComparison() {
     const searchInput = document.querySelector('input[type="text"]');
     const btn = document.getElementById('compareBtn');
-    const btnText = document.getElementById('btnText');
-    const loader = document.getElementById('loader');
+    const grid = document.getElementById('productsGrid');
+    const resultsArea = document.getElementById('comparisonResults');
 
-    // 1. رابط سيرفرك الفعلي على Render
-    const API_URL = 'https://findly-api.onrender.com';
+    if (!searchInput.value.trim()) return;
 
-    if (!searchInput || !searchInput.value.trim()) {
-        alert("اكتب اسم المنتج أولاً في خانة البحث");
-        return;
-    }
-
-    // 2. تحديث شكل الزر عند الضغط
-    btn.disabled = true;
-    btnText.innerText = "جاري التحليل...";
-    loader.style.display = 'inline-block';
+    // حالة التحميل
+    btn.innerHTML = '🔍 جاري البحث...';
+    btn.style.opacity = '0.7';
 
     try {
-        // 3. الاتصال بالسيرفر (المقارنة الذكية)
-        const response = await fetch(`${API_URL}/smart-search`, {
+        const response = await fetch('https://findly-api.onrender.com/smart-search', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                query: searchInput.value,
-                lang: 'ar',
-                uid: 'user_findly'
-            })
+            body: JSON.stringify({ query: searchInput.value, lang: 'ar' })
         });
 
         const data = await response.json();
 
         if (data.products && data.products.length > 0) {
-            alert("تم جلب " + data.products.length + " نتيجة بنجاح!");
-            console.log("نتائج المقارنة:", data.products);
-            
-            // هنا يمكنك إضافة كود لعرض النتائج في قائمة أسفل الزر
-        } else {
-            alert("لم يجد المستشار الحكيم نتائج لهذه الكلمة، حاول مرة أخرى.");
+            resultsArea.style.display = 'block';
+            // تحويل البيانات إلى كروت زجاجية
+            grid.innerHTML = data.products.map(p => `
+                <div style="background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; padding: 15px; display: flex; align-items: center; gap: 15px; animation: fadeIn 0.5s ease;">
+                    <img src="${p.thumbnail}" style="width: 70px; height: 70px; border-radius: 10px; object-fit: cover; background: white;">
+                    <div style="flex: 1;">
+                        <h4 style="color: #fff; font-size: 0.85rem; margin: 0 0 5px 0;">${p.name}</h4>
+                        <div style="color: #4ade80; font-weight: bold; font-size: 1rem;">${p.price}</div>
+                        <div style="color: #a259ff; font-size: 0.7rem;">المصدر: ${p.source}</div>
+                    </div>
+                    <a href="${p.link}" target="_blank" style="background: #a259ff; color: white; padding: 8px 12px; border-radius: 8px; text-decoration: none; font-size: 0.75rem; font-weight: bold;">شراء</a>
+                </div>
+            `).join('');
         }
-
-    } catch (error) {
-        console.error("خطأ في الاتصال:", error);
-        alert("حدث خطأ في الاتصال بالسيرفر. تأكد أن السيرفر في Render ليس في وضع النوم (Sleep Mode).");
+    } catch (e) {
+        alert("حدث خطأ أثناء عرض النتائج");
     } finally {
-        btn.disabled = false;
-        btnText.innerText = "قارن الأسعار";
-        loader.style.display = 'none';
+        btn.innerHTML = '⚖️ قارن الأسعار';
+        btn.style.opacity = '1';
     }
 }
 </script>
+
+<style>
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+</style>
 </body>  
 </html>

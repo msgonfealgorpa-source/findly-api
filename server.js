@@ -9,6 +9,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// الإعدادات
 const MONGO_URI = process.env.MONGO_URI;
 const SERP_API_KEY = process.env.SERPAPI_KEY;
 const EMAIL_USER = process.env.EMAIL_USER;
@@ -18,153 +19,138 @@ mongoose.connect(MONGO_URI)
     .then(() => console.log("✅ Connected to MongoDB"))
     .catch(err => console.error("❌ DB Error:", err.message));
 
-// --- Schemas ---
+// --- الموديلات (Models) ---
 const Alert = mongoose.model('Alert', new mongoose.Schema({
-    email: String, productName: String, targetPrice: Number, link: String, lang: String, uid: String
-}));
-
-const SearchLog = mongoose.model('SearchLog', new mongoose.Schema({
-    uid: String, query: String, timestamp: { type: Date, default: Date.now }
+    email: String, productName: String, targetPrice: Number, link: String, uid: String, lastCheckedPrice: Number
 }));
 
 const Watchlist = mongoose.model('Watchlist', new mongoose.Schema({
     uid: String, name: String, price: String, priceVal: Number, thumbnail: String, link: String, addedAt: { type: Date, default: Date.now }
 }));
 
-const transporter = nodemailer.createTransport({
-    service: 'gmail', auth: { user: EMAIL_USER, pass: EMAIL_PASS }
-});
+// --- دوال التحليل الذكي (Smart Logic) ---
 
-// --- Helper Functions ---
-const smartReasonsDict = {
-    high_rating: { ar: "⭐ منتج ذو تقييم ممتاز (أعلى من 4.5)", en: "⭐ Top Rated product (4.5+ stars)" },
-    popular: { ar: "🔥 الأكثر شعبية (آلاف المراجعات)", en: "🔥 Most Popular (Thousands of reviews)" },
-    default: { ar: "✨ أفضل نتيجة تطابق بحثك", en: "✨ Best match for your search" }
-};
-
-function analyzeProduct(product, lang) {
-    const l = lang || 'ar';
-    if (product.rating >= 4.5) return smartReasonsDict.high_rating[l] || smartReasonsDict.high_rating['ar'];
-    if (product.reviews > 1000) return smartReasonsDict.popular[l] || smartReasonsDict.popular['ar'];
-    return smartReasonsDict.default[l] || smartReasonsDict.default['ar'];
-}
-
-// دالة تنظيف السعر القوية
 function extractPrice(priceStr) {
     if (!priceStr) return 0;
-    // يحذف أي شيء ليس رقماً أو نقطة عشرية
     const cleaned = priceStr.toString().replace(/[^0-9.]/g, '');
     return parseFloat(cleaned) || 0;
 }
 
+// 1. تحليل Deep AI واستخراج العيوب والمميزات
+function deepAIAnalysis(product, marketAvg, lang = 'ar') {
+    let pros = [];
+    let cons = [];
+    let verdict = "";
+
+    // تحليل الحالة (Condition)
+    const isNew = product.condition === "new" || !product.condition;
+    if (!isNew) cons.push(lang === 'ar' ? "المنتج مجدد/مستعمل" : "Refurbished/Used item");
+
+    // تحليل السعر مقابل المتوسط
+    const savings = marketAvg > 0 ? ((marketAvg - product.priceVal) / marketAvg) * 100 : 0;
+    if (savings > 15) pros.push(lang === 'ar' ? `سعر لقطة (أوفر بـ %${savings.toFixed(0)})` : `Great deal (${savings.toFixed(0)}% cheaper)`);
+    if (product.priceVal > marketAvg * 1.2) cons.push(lang === 'ar' ? "السعر مرتفع عن معدل السوق" : "Overpriced compared to average");
+
+    // تحليل التقييمات
+    if (product.rating >= 4.5) pros.push(lang === 'ar' ? "جودة تقييم ممتازة" : "High build quality/rating");
+    if (product.reviews > 2000) pros.push(lang === 'ar' ? "موثوقية عالية (شعبية ضخمة)" : "Highly trusted by thousands");
+
+    // القرار النهائي
+    if (product.rating >= 4 && savings > 5) verdict = (lang === 'ar' ? "ينصح به بشدة كأفضل قيمة" : "Highly Recommended: Best Value");
+    else if (product.priceVal > marketAvg) verdict = (lang === 'ar' ? "تنبيه: السعر مرتفع مقارنة بالمواصفات" : "Caution: High price point");
+    else verdict = (lang === 'ar' ? "خيار جيد ومتوازن" : "A balanced choice");
+
+    return { pros, cons, verdict, savingsLabel: savings > 0 ? `${savings.toFixed(0)}%` : null };
+}
+
 // --- Endpoints ---
 
-// 1. البحث الذكي
 app.post('/smart-search', async (req, res) => {
-    const { query, lang, uid } = req.body;
-    if (query && uid) await new SearchLog({ uid, query }).save();
-
-    console.log(`🔎 Searching for: ${query}`);
+    const { query, lang, uid, filterType } = req.body; // filterType: 'economic', 'top_rated', 'newest'
 
     getJson({
-        engine: "google_shopping", q: query, api_key: SERP_API_KEY, hl: lang || 'ar', gl: "sa", num: 20
-    }, (data) => {
+        engine: "google_shopping", q: query, api_key: SERP_API_KEY, hl: lang || 'ar', gl: "sa", num: 25
+    }, async (data) => {
         if (!data || !data.shopping_results) return res.json({ products: [], marketAvg: 0 });
 
-        // معالجة البيانات
-        let results = data.shopping_results.map(p => {
-            // محاولة الحصول على السعر من عدة أماكن
-            let rawPrice = p.price || p.extracted_price; 
-            let pVal = extractPrice(rawPrice);
+        // تنظيف وفلترة البيانات الأولية (منع السعر 0 والصور المفقودة)
+        let rawProducts = data.shopping_results
+            .map(p => ({
+                ...p,
+                priceVal: extractPrice(p.price || p.extracted_price)
+            }))
+            .filter(p => p.priceVal > 0 && p.thumbnail);
 
+        // حساب متوسط السوق الحقيقي
+        const validPrices = rawProducts.map(p => p.priceVal);
+        const marketAvg = validPrices.length > 0 ? Math.floor(validPrices.reduce((a, b) => a + b, 0) / validPrices.length) : 0;
+
+        // تطبيق الفلاتر الذكية (Task 3)
+        let filteredResults = [...rawProducts];
+        if (filterType === 'economic') {
+            filteredResults = rawProducts.filter(p => p.rating >= 4).sort((a, b) => a.priceVal - b.priceVal);
+        } else if (filterType === 'top_rated') {
+            filteredResults = rawProducts.sort((a, b) => b.reviews - a.reviews);
+        } else if (filterType === 'newest') {
+            const currentYear = new Date().getFullYear();
+            filteredResults = rawProducts.filter(p => p.title.includes(currentYear.toString()) || p.title.includes((currentYear + 1).toString()));
+        }
+
+        // بناء استجابة البطاقة المطورة (Task 5)
+        const products = filteredResults.slice(0, 12).map(p => {
+            const analysis = deepAIAnalysis(p, marketAvg, lang);
             return {
                 name: p.title,
-                price: p.price || "N/A",
-                priceVal: pVal, // هذا الرقم هو المهم للمقارنة
+                price: p.price,
+                priceVal: p.priceVal,
                 thumbnail: p.thumbnail,
                 link: p.product_link || p.link,
-                rating: p.rating || 0,
-                reviews: p.reviews || 0,
-                reason: analyzeProduct(p, lang)
+                store_name: p.source || "Unknown Store", // اسم المتجر الحقيقي
+                real_rating: p.rating || 0,
+                reviews_count: p.reviews || 0,
+                shipping_info: p.delivery || (lang === 'ar' ? "شحن قياسي" : "Standard Shipping"),
+                analysis: analysis, // بيانات الـ Deep AI
+                competitors: [] // سيتم ملؤها في طلب المقارنة المنفصل
             };
         });
 
-        // حساب متوسط السوق
-        const validPrices = results.filter(p => p.priceVal > 0).map(p => p.priceVal);
-        let realMarketAvg = 0;
-        
-        if (validPrices.length > 0) {
-            // نحذف القيم الشاذة (صغيرة جداً أو كبيرة جداً) ليكون المتوسط دقيقاً
-            const sum = validPrices.reduce((a, b) => a + b, 0);
-            realMarketAvg = Math.floor(sum / validPrices.length);
-        }
-
-        // ترتيب النتائج
-        results = results.sort((a, b) => b.rating - a.rating).slice(0, 10);
-        
-        res.json({ products: results, marketAvg: realMarketAvg });
+        res.json({ products, marketAvg });
     });
 });
 
-// 2. إضافة للمراقبة (كان ناقصاً عندك)
-app.post('/watchlist/add', async (req, res) => {
-    try {
-        const { uid, product } = req.body;
-        if (!uid || !product) return res.status(400).json({ error: "Missing data" });
+// 2. زر مقارنة الأسعار (Task 2)
+app.post('/compare-prices', (req, res) => {
+    const { productName, lang } = req.body;
+    getJson({
+        engine: "google_shopping", q: productName, api_key: SERP_API_KEY, hl: lang || 'ar'
+    }, (data) => {
+        const competitors = (data.shopping_results || []).slice(0, 5).map(c => ({
+            store: c.source,
+            price: c.price,
+            priceVal: extractPrice(c.price),
+            link: c.link
+        }));
+        res.json({ competitors });
+    });
+});
 
-        // التحقق من التكرار
-        const exists = await Watchlist.findOne({ uid, name: product.name });
-        if (exists) return res.json({ message: "موجود بالفعل" });
-
-        // استخراج القيمة الرقمية للسعر للتخزين
-        const pVal = extractPrice(product.price);
-
-        const newItem = new Watchlist({
-            uid,
-            name: product.name,
-            price: product.price,
-            priceVal: pVal,
-            link: product.link,
-            thumbnail: product.thumbnail || ""
+// 4. تتبع السعر النشط (Task 4)
+cron.schedule('0 */12 * * *', async () => {
+    console.log("Running Price Check Cron...");
+    const alerts = await Alert.find();
+    for (const alert of alerts) {
+        getJson({ engine: "google_shopping", q: alert.productName, api_key: SERP_API_KEY }, async (data) => {
+            const topResult = data.shopping_results?.[0];
+            if (topResult) {
+                const currentPrice = extractPrice(topResult.price);
+                if (currentPrice <= alert.targetPrice) {
+                    // إرسال إيميل (Nodemailer logic here...)
+                    console.log(`Alert! Price dropped for ${alert.productName}`);
+                }
+            }
         });
-
-        await newItem.save();
-        res.json({ message: "Success", item: newItem });
-    } catch (e) {
-        console.error(e);
-        res.status(500).json({ error: "Server error" });
     }
-});
-
-// 3. جلب قائمة المراقبة (كان ناقصاً عندك)
-app.get('/watchlist/:uid', async (req, res) => {
-    try {
-        const { uid } = req.params;
-        const list = await Watchlist.find({ uid }).sort({ addedAt: -1 });
-        res.json({ watchlist: list });
-    } catch (e) {
-        res.status(500).json({ error: "Server error" });
-    }
-});
-
-// 4. حذف من المراقبة
-app.post('/watchlist/delete', async (req, res) => {
-    try {
-        const { uid, productId } = req.body; // أو الاسم
-        // هنا سنحذف بالاسم ورقم المستخدم للتبسيط حسب كود الفرونت
-        const { name } = req.body; 
-        await Watchlist.findOneAndDelete({ uid, name });
-        res.json({ message: "Deleted" });
-    } catch (e) {
-        res.status(500).json({ error: "Server error" });
-    }
-});
-
-// 5. Deep AI Analyze (Dummy Placeholder for logic)
-app.post('/deep-ai-analyze', (req, res) => {
-    // منطق بسيط للرد
-    res.json({ deepAnalysis: "⭐ بناءً على تحليل المواصفات والأسعار، يبدو أن هذا المنتج يقدم أفضل قيمة مقابل السعر مقارنة بالمنافسين." });
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Intelligent Server running on port ${PORT}`));

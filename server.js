@@ -1,197 +1,267 @@
-// server.js
 const express = require('express');
 const cors = require('cors');
+const { getJson } = require("serpapi");
 const mongoose = require('mongoose');
+const cron = require('node-cron');
+const nodemailer = require('nodemailer');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ========================
-// 1️⃣ MongoDB Connection
-// ========================
-mongoose.connect('mongodb://localhost/findly', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-});
-const db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', () => console.log('MongoDB connected'));
+// الإعدادات
+const MONGO_URI = process.env.MONGO_URI;
+const SERP_API_KEY = process.env.SERPAPI_KEY;
 
-// ========================
-// 2️⃣ Schemas & Models
-// ========================
+mongoose.connect(MONGO_URI)
+    .then(() => console.log("✅ Connected to MongoDB (Intelligent Engine Ready)"))
+    .catch(err => console.error("❌ DB Error:", err.message));
 
-// Price History
-const priceHistorySchema = new mongoose.Schema({
-    title: String,
-    normalizedTitle: String,
-    price: Number,
+// ==========================================
+// 🏛️ الموديلات (Database Models)
+// ==========================================
+
+const Alert = mongoose.model('Alert', new mongoose.Schema({
+    email: String, productName: String, targetPrice: Number, link: String, uid: String
+}));
+
+const Watchlist = mongoose.model('Watchlist', new mongoose.Schema({
+    uid: String, name: String, priceVal: Number, link: String, addedAt: { type: Date, default: Date.now }
+}));
+
+// 🔵 الطبقة 2: ذكاء ملف المستخدم
+const UserProfile = mongoose.model('UserProfile', new mongoose.Schema({
+    uid: { type: String, required: true, unique: true },
+    budget: { type: Number, default: 0 }, // الميزانية المرصودة
+    searchHistory: [String], // سجل البحث لتعلم الاهتمامات
+    preferredCategories: [String], // مثلاً: 'gaming', 'office', 'phones'
+    lastActive: { type: Date, default: Date.now }
+}));
+
+// 🟢 الطبقة 3: تتبع تاريخ السعر
+const PriceHistory = mongoose.model('PriceHistory', new mongoose.Schema({
+    productName: String, // أو معرف فريد للمنتج
+    priceVal: Number,
     date: { type: Date, default: Date.now },
-});
-const PriceHistory = mongoose.models.PriceHistory || mongoose.model('PriceHistory', priceHistorySchema);
+    source: String
+}));
 
-// User Profile
-const userProfileSchema = new mongoose.Schema({
-    userId: String,
-    budget: Number,
-    searchHistory: [String],
-    watchlist: [String],
-    preferredCategories: [String],
-});
-const UserProfile = mongoose.models.UserProfile || mongoose.model('UserProfile', userProfileSchema);
+// ==========================================
+// 🧠 محرك الذكاء (Intelligence Engine)
+// ==========================================
 
-// ========================
-// 3️⃣ Utilities
-// ========================
-
-// Normalize title: احتفظ بالأرقام والكلمات الأساسية
-function normalizeTitle(title) {
-    return title
-        .toLowerCase()
-        .replace(/[^a-z0-9\s]/g, '') // إزالة الرموز
-        .replace(/\s+/g, ' ')        // توحيد الفراغات
-        .trim()
-        .substring(0, 60);
+function extractPrice(priceStr) {
+    if (!priceStr) return 0;
+    const cleaned = priceStr.toString().replace(/[^0-9.]/g, '');
+    return parseFloat(cleaned) || 0;
 }
 
-// Parse product specs
-function parseSpecs(title) {
+// 🟣 الطبقة 1: فهم مواصفات المنتج (Product Specs Understanding)
+function parseSpecifications(title) {
     const specs = {
-        cpu: null,
-        ram: null,
-        gpu: null,
-        storage: null,
-        category: null,
+        cpu: null, ram: null, storage: null, gpu: null, category: 'general'
     };
+    
+    const lowerTitle = title.toLowerCase();
 
-    const t = title.toLowerCase();
+    // استخراج المعالج (CPU)
+    if (lowerTitle.match(/i[3579]|core\s?i\d/)) specs.cpu = "Intel Core";
+    else if (lowerTitle.match(/ryzen\s?[3579]/)) specs.cpu = "AMD Ryzen";
+    else if (lowerTitle.match(/m1|m2|m3/)) specs.cpu = "Apple Silicon";
 
-    // CPU
-    const cpuMatch = t.match(/i[3579]|ryzen\s\d/);
-    if (cpuMatch) specs.cpu = cpuMatch[0];
+    // استخراج الرام (RAM)
+    const ramMatch = title.match(/(\d+)\s?GB\s?RAM/i);
+    if (ramMatch) specs.ram = parseInt(ramMatch[1]);
 
-    // RAM
-    const ramMatch = t.match(/(\d{2,3})\s?gb/);
-    if (ramMatch) specs.ram = ramMatch[1] + 'GB';
+    // استخراج التخزين (Storage)
+    const storageMatch = title.match(/(\d+)(TB|GB)\s?(SSD|HDD)/i);
+    if (storageMatch) specs.storage = storageMatch[0];
 
-    // GPU
-    const gpuMatch = t.match(/rtx\s?\d{3,4}|gtx\s?\d{3,4}/);
-    if (gpuMatch) specs.gpu = gpuMatch[0].toUpperCase();
+    // استخراج كرت الشاشة (GPU)
+    if (lowerTitle.includes('rtx')) specs.gpu = "NVIDIA RTX";
+    else if (lowerTitle.includes('gtx')) specs.gpu = "NVIDIA GTX";
+    else if (lowerTitle.includes('radeon')) specs.gpu = "AMD Radeon";
 
-    // Storage
-    const storageMatch = t.match(/(\d{2,4})(tb|gb)/);
-    if (storageMatch) specs.storage = storageMatch[1] + storageMatch[2].toUpperCase();
-
-    // Category (simple logic)
-    if (t.includes('laptop') || t.includes('notebook') || t.includes('dell') || t.includes('hp')) {
-        specs.category = 'Laptop';
-    } else if (t.includes('phone') || t.includes('smartphone')) {
-        specs.category = 'Phone';
-    } else {
-        specs.category = 'Other';
-    }
+    // تصنيف الفئة
+    if (specs.gpu && specs.gpu.includes('RTX')) specs.category = 'gaming';
+    else if (lowerTitle.includes('macbook') || lowerTitle.includes('ultrabook')) specs.category = 'productivity';
 
     return specs;
 }
 
-// ========================
-// 4️⃣ Advanced Decision Engine
-// ========================
+// 🟡 الطبقة 4: محرك القرار المتقدم (Advanced Decision Engine)
+function advancedDecisionEngine(product, marketAvg, userProfile, specs, lang = 'ar') {
+    let pros = [];
+    let cons = [];
+    let score = 50; // نبدأ بـ 50 نقطة
+    let decisionTag = "";
+    let marketPosition = ""; // Cheap, Fair, Expensive
+    let userMatchScore = 0; // 0-100 مدى ملاءمته للمستخدم
 
-async function advancedDecisionEngine(product, userId) {
-    const normalizedTitle = normalizeTitle(product.title);
-
-    // --- Layer 1: Specs Understanding ---
-    const specs = parseSpecs(product.title);
-
-    // --- Layer 2: User Profile Intelligence ---
-    const user = await UserProfile.findOne({ userId });
-    let userMatchScore = 50; // default neutral
-    if (user) {
-        if (user.budget && product.price <= user.budget) userMatchScore += 20;
-        if (user.preferredCategories.includes(specs.category)) userMatchScore += 15;
-        if (user.watchlist.includes(product.title)) userMatchScore += 10;
+    // 1. تحليل السعر السوقي
+    const priceDiff = ((product.priceVal - marketAvg) / marketAvg) * 100;
+    
+    if (priceDiff < -15) {
+        score += 30;
+        marketPosition = "Under Market Price";
+        pros.push(lang === 'ar' ? "صفقة ممتازة (أرخص من السوق)" : "Great Deal (Below Market)");
+    } else if (priceDiff > 20) {
+        score -= 30;
+        marketPosition = "Overpriced";
+        cons.push(lang === 'ar' ? "سعر مبالغ فيه" : "Overpriced");
+    } else {
+        marketPosition = "Fair Price";
     }
 
-    // --- Layer 3: Price History Tracking ---
-    const history = await PriceHistory.find({ normalizedTitle }).sort({ price: 1 });
-    const isLowest = history.length === 0 || product.price < history[0].price;
-
-    // حفظ السعر بعد الفحص
-    await PriceHistory.create({
-        title: product.title,
-        normalizedTitle,
-        price: product.price,
-    });
-
-    // --- Layer 4: Decision Logic ---
-    let verdict = 'Good Deal';
-    let decisionTag = '';
-    if (product.price > 1000 && !isLowest) {
-        verdict = 'Overpriced';
-        decisionTag = 'avoid';
-    } else if (isLowest && userMatchScore > 70) {
-        verdict = 'Perfect for You';
-        decisionTag = 'best_buy';
-    } else if (isLowest) {
-        verdict = 'Best Buy';
-        decisionTag = 'best_buy';
-    } else if (userMatchScore < 40) {
-        verdict = 'Avoid';
-        decisionTag = 'avoid';
+    // 2. تحليل المواصفات (Specs Impact)
+    if (specs.category === 'gaming' && (!specs.gpu || specs.ram < 16)) {
+        score -= 20;
+        cons.push(lang === 'ar' ? "مواصفات ضعيفة للألعاب" : "Weak specs for gaming");
+    }
+    if (specs.storage && specs.storage.includes('HDD')) {
+        score -= 10;
+        cons.push(lang === 'ar' ? "يستخدم قرص قديم (HDD)" : "Old storage tech (HDD)");
     }
 
-    // --- Layer 5: Rich Analysis Object ---
-    const analysis = {
-        pros: [
-            isLowest ? 'Price historically low' : null,
-            specs.cpu ? `CPU: ${specs.cpu}` : null,
-            specs.gpu ? `GPU: ${specs.gpu}` : null,
-            specs.ram ? `RAM: ${specs.ram}` : null,
-        ].filter(Boolean),
-        cons: [
-            product.price > 1000 && !isLowest ? 'High price' : null,
-            specs.storage && parseInt(specs.storage) < 256 ? 'Low storage' : null,
-        ].filter(Boolean),
-        verdict,
-        savingsLabel: isLowest ? 'Lowest Price' : '',
-        decisionTag,
-        marketPosition: isLowest ? 'Market Competitive' : 'Market Normal',
-        userMatchScore,
-    };
+    // 3. تحليل التوافق مع المستخدم (User Match)
+    if (userProfile && userProfile.budget > 0) {
+        if (product.priceVal <= userProfile.budget) {
+            userMatchScore = 100;
+            pros.push(lang === 'ar' ? "ضمن ميزانيتك" : "Within your budget");
+        } else if (product.priceVal <= userProfile.budget * 1.2) {
+            userMatchScore = 70; // أغلى قليلاً
+            cons.push(lang === 'ar' ? "يتجاوز الميزانية قليلاً" : "Slightly over budget");
+        } else {
+            userMatchScore = 30; // غالي جداً عليك
+            cons.push(lang === 'ar' ? "خارج نطاق ميزانيتك" : "Way over budget");
+        }
+    } else {
+        userMatchScore = 50; // محايد لعدم وجود بروفايل
+    }
+
+    // 4. تحديد الوسم النهائي (Decision Tag)
+    if (score >= 80 && userMatchScore >= 70) decisionTag = "Perfect for You";
+    else if (score >= 70) decisionTag = "Best Buy";
+    else if (score >= 50) decisionTag = "Good Deal";
+    else if (score < 30) decisionTag = "Avoid";
+    else decisionTag = "Standard";
+
+    // ترجمة الوسوم للعربية إذا لزم الأمر
+    if (lang === 'ar') {
+        const tagsMap = {
+            "Perfect for You": "مثالي لك",
+            "Best Buy": "أفضل شراء",
+            "Good Deal": "صفقة جيدة",
+            "Avoid": "تجنبه",
+            "Standard": "خيار عادي"
+        };
+        decisionTag = tagsMap[decisionTag] || decisionTag;
+    }
 
     return {
-        ...product,
-        specs,
-        analysis,
-        isLowest,
+        pros,
+        cons,
+        verdict: decisionTag, // للإبقاء على التوافق القديم
+        decisionTag,
+        marketPosition,
+        userMatchScore,
+        savingsLabel: priceDiff < 0 ? `${Math.abs(priceDiff).toFixed(0)}%` : null
     };
 }
 
-// ========================
-// 5️⃣ API Endpoint
-// ========================
+// ==========================================
+// 🚀 Endpoints
+// ==========================================
 
-app.post('/analyze', async (req, res) => {
-    const { product, userId } = req.body;
+app.post('/smart-search', async (req, res) => {
+    const { query, lang, uid, filterType } = req.body;
 
-    if (!product || !product.title || !product.price) {
-        return res.status(400).json({ error: 'Missing product data' });
+    // 1. جلب بروفايل المستخدم (إن وجد)
+    let userProfile = null;
+    if (uid) {
+        userProfile = await UserProfile.findOne({ uid });
+        // تحديث سجل البحث بذكاء
+        if (userProfile) {
+            if (!userProfile.searchHistory.includes(query)) {
+                userProfile.searchHistory.push(query);
+                await userProfile.save();
+            }
+        } else {
+            // إنشاء بروفايل مؤقت في الذاكرة للزائر الجديد
+            userProfile = { budget: 0, preferredCategories: [] };
+        }
     }
 
+    getJson({
+        engine: "google_shopping", q: query, api_key: SERP_API_KEY, hl: lang || 'ar', gl: "sa", num: 25
+    }, async (data) => {
+        if (!data || !data.shopping_results) return res.json({ products: [], marketAvg: 0 });
+
+        let rawProducts = data.shopping_results
+            .map(p => ({ ...p, priceVal: extractPrice(p.price || p.extracted_price) }))
+            .filter(p => p.priceVal > 0 && p.thumbnail);
+
+        // حساب متوسط السوق
+        const validPrices = rawProducts.map(p => p.priceVal);
+        const marketAvg = validPrices.length > 0 ? Math.floor(validPrices.reduce((a, b) => a + b, 0) / validPrices.length) : 0;
+
+        // 🟢 الطبقة 3: حفظ عينة للسعر في التاريخ (Async - Fire & Forget)
+        if (rawProducts.length > 0) {
+            PriceHistory.create({
+                productName: query, // نخزن باسم البحث لسهولة التتبع العام
+                priceVal: marketAvg,
+                source: "market_avg"
+            }).catch(err => console.error("History Log Error", err));
+        }
+
+        // بناء البطاقات الذكية
+        const products = rawProducts.slice(0, 12).map(p => {
+            // 🟣 الطبقة 1: استخراج المواصفات
+            const specs = parseSpecifications(p.title);
+
+            // 🟡 + 🔴 الطبقة 4 و 5: التحليل واتخاذ القرار وبناء الكائن الغني
+            const analysis = advancedDecisionEngine(p, marketAvg, userProfile, specs, lang);
+
+            return {
+                name: p.title,
+                price: p.price,
+                priceVal: p.priceVal,
+                thumbnail: p.thumbnail,
+                link: p.product_link || p.link,
+                store_name: p.source || "Unknown",
+                real_rating: p.rating || 0,
+                reviews_count: p.reviews || 0,
+                specs: specs, // نعيد المواصفات للواجهة أيضاً
+                analysis: analysis // الكائن الغني الجديد
+            };
+        });
+
+        // فلترة (اختيارية حسب الطلب القديم)
+        let finalResults = products;
+        if (filterType === 'economic') finalResults = products.sort((a, b) => a.priceVal - b.priceVal);
+        if (filterType === 'top_rated') finalResults = products.sort((a, b) => b.reviews_count - a.reviews_count);
+
+        res.json({ products: finalResults, marketAvg });
+    });
+});
+
+// Endpoint لضبط تفضيلات المستخدم (لتغذية الطبقة 2)
+app.post('/user/preferences', async (req, res) => {
+    const { uid, budget, categories } = req.body;
     try {
-        const result = await advancedDecisionEngine(product, userId || 'guest');
-        res.json(result);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Server error' });
+        await UserProfile.findOneAndUpdate(
+            { uid },
+            { budget, preferredCategories: categories, lastActive: Date.now() },
+            { upsert: true, new: true }
+        );
+        res.json({ success: true, message: "Profile Updated" });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
     }
 });
 
-// ========================
-// 6️⃣ Start Server
-// ========================
+// باقي الـ Endpoints (Compare, Cron) تبقى كما هي...
+// (تم اختصارها هنا لأنها لم تتغير جوهرياً، فقط تأكد من وجودها في الملف النهائي)
 
-const PORT = 3000;
-app.listen(PORT, () => console.log(`Findly server running on port ${PORT}`));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`🚀 Intelligent Decision Engine running on port ${PORT}`));

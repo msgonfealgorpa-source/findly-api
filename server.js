@@ -1,180 +1,197 @@
+// server.js
 const express = require('express');
 const cors = require('cors');
-const { getJson } = require("serpapi");
 const mongoose = require('mongoose');
-const cron = require('node-cron');
-const nodemailer = require('nodemailer');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// الإعدادات
-const MONGO_URI = process.env.MONGO_URI;
-const SERP_API_KEY = process.env.SERPAPI_KEY;
-const EMAIL_USER = process.env.EMAIL_USER;
-const EMAIL_PASS = process.env.EMAIL_PASS;
+// ========================
+// 1️⃣ MongoDB Connection
+// ========================
+mongoose.connect('mongodb://localhost/findly', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+});
+const db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', () => console.log('MongoDB connected'));
 
-mongoose.connect(MONGO_URI)
-    .then(() => console.log("✅ Connected to MongoDB"))
-    .catch(err => console.error("❌ DB Error:", err.message));
+// ========================
+// 2️⃣ Schemas & Models
+// ========================
 
-// --- الموديلات (Models) ---
-const Alert = mongoose.model('Alert', new mongoose.Schema({
-    email: String, productName: String, targetPrice: Number, link: String, uid: String, lastCheckedPrice: Number
-}));
+// Price History
+const priceHistorySchema = new mongoose.Schema({
+    title: String,
+    normalizedTitle: String,
+    price: Number,
+    date: { type: Date, default: Date.now },
+});
+const PriceHistory = mongoose.models.PriceHistory || mongoose.model('PriceHistory', priceHistorySchema);
 
-const Watchlist = mongoose.model('Watchlist', new mongoose.Schema({
-    uid: String, name: String, price: String, priceVal: Number, thumbnail: String, link: String, addedAt: { type: Date, default: Date.now }
-}));
+// User Profile
+const userProfileSchema = new mongoose.Schema({
+    userId: String,
+    budget: Number,
+    searchHistory: [String],
+    watchlist: [String],
+    preferredCategories: [String],
+});
+const UserProfile = mongoose.models.UserProfile || mongoose.model('UserProfile', userProfileSchema);
 
-// --- دوال التحليل الذكي (Smart Logic) ---
+// ========================
+// 3️⃣ Utilities
+// ========================
 
-function extractPrice(priceStr) {
-    if (!priceStr) return 0;
-    const cleaned = priceStr.toString().replace(/[^0-9.]/g, '');
-    return parseFloat(cleaned) || 0;
+// Normalize title: احتفظ بالأرقام والكلمات الأساسية
+function normalizeTitle(title) {
+    return title
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, '') // إزالة الرموز
+        .replace(/\s+/g, ' ')        // توحيد الفراغات
+        .trim()
+        .substring(0, 60);
 }
 
-function deepAIAnalysis(product, marketAvg, lang = 'ar') {
-    let pros = [];
-    let cons = [];
-    let verdict = "";
+// Parse product specs
+function parseSpecs(title) {
+    const specs = {
+        cpu: null,
+        ram: null,
+        gpu: null,
+        storage: null,
+        category: null,
+    };
 
-    const priceVal = product.priceVal;
+    const t = title.toLowerCase();
 
-    if (priceVal > 0 && marketAvg > 0) {
-        if (priceVal < marketAvg * 0.9) {
-            pros.push(lang === 'ar' ? "سعر لقطة (أرخص من السوق)" : "Great price (Below market)");
-        } else if (priceVal > marketAvg * 1.1) {
-            cons.push(lang === 'ar' ? "السعر مرتفع حالياً" : "Price is high right now");
-        }
-    }
+    // CPU
+    const cpuMatch = t.match(/i[3579]|ryzen\s\d/);
+    if (cpuMatch) specs.cpu = cpuMatch[0];
 
-    // تحليل بناءً على التقييم الحقيقي القادم من جوجل
-    if (product.rating >= 4.5) {
-        pros.push(lang === 'ar' ? "تقييم ممتاز من المستخدمين" : "Excellent user ratings");
-    } else if (product.rating > 0 && product.rating < 3.5) {
-        cons.push(lang === 'ar' ? "تقييمات سلبية لبعض المشترين" : "Some negative feedback");
-    }
+    // RAM
+    const ramMatch = t.match(/(\d{2,3})\s?gb/);
+    if (ramMatch) specs.ram = ramMatch[1] + 'GB';
 
-    if (pros.length > cons.length) {
-        verdict = lang === 'ar' ? "ننصح بالشراء الآن" : "Highly Recommended";
-    } else if (cons.length > pros.length) {
-        verdict = lang === 'ar' ? "انتظر انخفاض السعر أو ابحث عن بديل" : "Wait for drop or look for alternatives";
+    // GPU
+    const gpuMatch = t.match(/rtx\s?\d{3,4}|gtx\s?\d{3,4}/);
+    if (gpuMatch) specs.gpu = gpuMatch[0].toUpperCase();
+
+    // Storage
+    const storageMatch = t.match(/(\d{2,4})(tb|gb)/);
+    if (storageMatch) specs.storage = storageMatch[1] + storageMatch[2].toUpperCase();
+
+    // Category (simple logic)
+    if (t.includes('laptop') || t.includes('notebook') || t.includes('dell') || t.includes('hp')) {
+        specs.category = 'Laptop';
+    } else if (t.includes('phone') || t.includes('smartphone')) {
+        specs.category = 'Phone';
     } else {
-        verdict = lang === 'ar' ? "صفقة عادلة" : "Fair Deal";
+        specs.category = 'Other';
     }
 
-    return { pros, cons, verdict };
+    return specs;
 }
 
-// --- المسارات (Endpoints) ---
+// ========================
+// 4️⃣ Advanced Decision Engine
+// ========================
 
-// 1. البحث الذكي (Smart Search)
-app.post('/smart-search', async (req, res) => {
-    const { query, lang } = req.body;
+async function advancedDecisionEngine(product, userId) {
+    const normalizedTitle = normalizeTitle(product.title);
 
-    getJson({
-        engine: "google_shopping",
-        q: query,
-        api_key: SERP_API_KEY,
-        hl: lang || 'ar',
-        gl: "sa"
-    }, (data) => {
-        if (!data || !data.shopping_results) {
-            return res.json({ products: [], marketAvg: 0 });
-        }
+    // --- Layer 1: Specs Understanding ---
+    const specs = parseSpecs(product.title);
 
-        const rawProducts = data.shopping_results.map(p => ({
-            ...p,
-            priceVal: extractPrice(p.price)
-        }));
+    // --- Layer 2: User Profile Intelligence ---
+    const user = await UserProfile.findOne({ userId });
+    let userMatchScore = 50; // default neutral
+    if (user) {
+        if (user.budget && product.price <= user.budget) userMatchScore += 20;
+        if (user.preferredCategories.includes(specs.category)) userMatchScore += 15;
+        if (user.watchlist.includes(product.title)) userMatchScore += 10;
+    }
 
-        const prices = rawProducts.map(p => p.priceVal).filter(p => p > 0);
-        const marketAvg = prices.length > 0 ? prices.reduce((a, b) => a + b, 0) / prices.length : 0;
+    // --- Layer 3: Price History Tracking ---
+    const history = await PriceHistory.find({ normalizedTitle }).sort({ price: 1 });
+    const isLowest = history.length === 0 || product.price < history[0].price;
 
-        const products = rawProducts.slice(0, 10).map(p => {
-            return {
-                name: p.title,
-                price: p.price,
-                priceVal: p.priceVal,
-                thumbnail: p.thumbnail,
-                link: p.link,
-                store_name: p.source,
-                rating: p.rating || 0,
-                reviews: p.reviews || 0,
-                snippet: p.snippet || "",
-                analysis: deepAIAnalysis(p, marketAvg, lang)
-            };
-        });
-
-        res.json({ products, marketAvg });
+    // حفظ السعر بعد الفحص
+    await PriceHistory.create({
+        title: product.title,
+        normalizedTitle,
+        price: product.price,
     });
-});
 
-// 2. زر مقارنة الأسعار (Real Comparison)
-app.post('/compare-prices', (req, res) => {
-    const { productName, lang } = req.body;
-    getJson({
-        engine: "google_shopping",
-        q: productName,
-        api_key: SERP_API_KEY,
-        hl: lang || 'ar',
-        gl: "sa"
-    }, (data) => {
-        const competitors = (data.shopping_results || []).slice(0, 8).map(c => ({
-            store: c.source,
-            price: c.price,
-            priceVal: extractPrice(c.price),
-            link: c.link,
-            rating: c.rating || null // تقييم المتجر الحقيقي
-        }));
-        res.json({ competitors });
-    });
-});
+    // --- Layer 4: Decision Logic ---
+    let verdict = 'Good Deal';
+    let decisionTag = '';
+    if (product.price > 1000 && !isLowest) {
+        verdict = 'Overpriced';
+        decisionTag = 'avoid';
+    } else if (isLowest && userMatchScore > 70) {
+        verdict = 'Perfect for You';
+        decisionTag = 'best_buy';
+    } else if (isLowest) {
+        verdict = 'Best Buy';
+        decisionTag = 'best_buy';
+    } else if (userMatchScore < 40) {
+        verdict = 'Avoid';
+        decisionTag = 'avoid';
+    }
 
-// 3. قائمة المراقبة (Watchlist)
-app.get('/watchlist/:uid', async (req, res) => {
+    // --- Layer 5: Rich Analysis Object ---
+    const analysis = {
+        pros: [
+            isLowest ? 'Price historically low' : null,
+            specs.cpu ? `CPU: ${specs.cpu}` : null,
+            specs.gpu ? `GPU: ${specs.gpu}` : null,
+            specs.ram ? `RAM: ${specs.ram}` : null,
+        ].filter(Boolean),
+        cons: [
+            product.price > 1000 && !isLowest ? 'High price' : null,
+            specs.storage && parseInt(specs.storage) < 256 ? 'Low storage' : null,
+        ].filter(Boolean),
+        verdict,
+        savingsLabel: isLowest ? 'Lowest Price' : '',
+        decisionTag,
+        marketPosition: isLowest ? 'Market Competitive' : 'Market Normal',
+        userMatchScore,
+    };
+
+    return {
+        ...product,
+        specs,
+        analysis,
+        isLowest,
+    };
+}
+
+// ========================
+// 5️⃣ API Endpoint
+// ========================
+
+app.post('/analyze', async (req, res) => {
+    const { product, userId } = req.body;
+
+    if (!product || !product.title || !product.price) {
+        return res.status(400).json({ error: 'Missing product data' });
+    }
+
     try {
-        const list = await Watchlist.find({ uid: req.params.uid });
-        res.json({ watchlist: list });
-    } catch (e) { res.status(500).json({ error: e.message }); }
-});
-
-app.post('/watchlist/add', async (req, res) => {
-    try {
-        const { uid, product } = req.body;
-        const newItem = new Watchlist({ ...product, uid });
-        await newItem.save();
-        res.json({ message: "Added to watchlist" });
-    } catch (e) { res.status(500).json({ error: e.message }); }
-});
-
-app.post('/watchlist/remove', async (req, res) => {
-    try {
-        const { uid, name } = req.body;
-        await Watchlist.deleteOne({ uid, name });
-        res.json({ message: "Removed" });
-    } catch (e) { res.status(500).json({ error: e.message }); }
-});
-
-// 4. تتبع السعر النشط (Cron Job)
-cron.schedule('0 */12 * * *', async () => {
-    console.log("Running Price Check Cron...");
-    const alerts = await Alert.find();
-    for (const alert of alerts) {
-        getJson({ engine: "google_shopping", q: alert.productName, api_key: SERP_API_KEY }, async (data) => {
-            const topResult = data.shopping_results?.[0];
-            if (topResult) {
-                const currentPrice = extractPrice(topResult.price);
-                if (currentPrice <= alert.targetPrice) {
-                    console.log(`Price alert triggered for ${alert.productName}`);
-                }
-            }
-        });
+        const result = await advancedDecisionEngine(product, userId || 'guest');
+        res.json(result);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server error' });
     }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+// ========================
+// 6️⃣ Start Server
+// ========================
+
+const PORT = 3000;
+app.listen(PORT, () => console.log(`Findly server running on port ${PORT}`));

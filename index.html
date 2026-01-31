@@ -1044,90 +1044,56 @@
         <button onclick="closeAbout()" style="margin-top:20px; background:var(--primary); color:white; border:none; padding:10px 30px; border-radius:12px; cursor:pointer; font-weight:bold; width:100%;">إغلاق</button>
     </div>
 </div>
-
-    <script>
-/**
- * وظيفة البحث والمقارنة الحكيمة
- * ترتبط بمسارات السيرفر: /smart-search و /deep-ai-analyze
- */
+<script>
 async function executeComparison() {
-    // 1. جلب العناصر من الواجهة
-    const searchInput = document.querySelector('input[type="text"]') || document.querySelector('.search-input');
+    const searchInput = document.querySelector('input[type="text"]');
     const btn = document.getElementById('compareBtn');
+    const btnText = document.getElementById('btnText');
     const loader = document.getElementById('loader');
-    
-    // التأكد من أن المستخدم كتب شيئاً
+
+    // 1. رابط سيرفرك الفعلي على Render
+    const API_URL = 'https://findly-api.onrender.com';
+
     if (!searchInput || !searchInput.value.trim()) {
-        alert("يرجى كتابة اسم المنتج في مربع البحث أولاً.");
+        alert("اكتب اسم المنتج أولاً في خانة البحث");
         return;
     }
 
-    const query = searchInput.value;
-
-    // 2. تحديث حالة الزر (بدء التحميل)
+    // 2. تحديث شكل الزر عند الضغط
     btn.disabled = true;
-    if(loader) loader.style.display = 'inline-block';
-    btn.style.opacity = '0.7';
+    btnText.innerText = "جاري التحليل...";
+    loader.style.display = 'inline-block';
 
     try {
-        // 3. طلب البيانات من مسار البحث الذكي (SerpApi)
-        const response = await fetch('http://localhost:3000/smart-search', {
+        // 3. الاتصال بالسيرفر (المقارنة الذكية)
+        const response = await fetch(`${API_URL}/smart-search`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                query: query,
+                query: searchInput.value,
                 lang: 'ar',
-                uid: 'user_findly_sage'
+                uid: 'user_findly'
             })
         });
 
         const data = await response.json();
 
         if (data.products && data.products.length > 0) {
-            // إظهار منطقة النتائج (تأكد من وجود div بهذا الـ ID تحت الأزرار)
-            const resultsArea = document.getElementById('comparisonResults');
-            if (resultsArea) resultsArea.style.display = 'block';
-
-            // 4. عرض المنتجات في الواجهة
-            const grid = document.getElementById('productsGrid');
-            if (grid) {
-                grid.innerHTML = data.products.map(p => `
-                    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 12px; margin-bottom: 10px; display: flex; align-items: center; gap: 15px;">
-                        <img src="${p.thumbnail}" width="50" style="border-radius: 8px;">
-                        <div style="flex: 1;">
-                            <div style="font-size: 0.85rem; color: #fff; margin-bottom: 4px;">${p.name}</div>
-                            <div style="color: #4ade80; font-weight: bold; font-size: 0.9rem;">${p.price}</div>
-                        </div>
-                        <a href="${p.link}" target="_blank" style="background: rgba(162, 89, 255, 0.2); color: #d1b3ff; padding: 5px 12px; border-radius: 8px; text-decoration: none; font-size: 0.75rem; border: 1px solid #a259ff;">متجر ${p.source}</a>
-                    </div>
-                `).join('');
-            }
-
-            // 5. جلب التحليل العميق من الذكاء الاصطناعي
-            const aiResponse = await fetch('http://localhost:3000/deep-ai-analyze', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ products: data.products, query: query, lang: 'ar' })
-            });
-            const aiData = await aiResponse.json();
+            alert("تم جلب " + data.products.length + " نتيجة بنجاح!");
+            console.log("نتائج المقارنة:", data.products);
             
-            const aiBox = document.getElementById('aiAnalysis');
-            if (aiBox) {
-                aiBox.style.display = 'block';
-                aiBox.innerHTML = `<div style="color: #a259ff; font-weight: bold; margin-bottom: 5px;">✨ تحليل الحكيم:</div><p style="font-size: 0.85rem; color: #ccc; margin: 0;">${aiData.deepAnalysis}</p>`;
-            }
+            // هنا يمكنك إضافة كود لعرض النتائج في قائمة أسفل الزر
         } else {
-            alert("لم يتم العثور على نتائج، جرب كلمة بحث أخرى.");
+            alert("لم يجد المستشار الحكيم نتائج لهذه الكلمة، حاول مرة أخرى.");
         }
 
     } catch (error) {
         console.error("خطأ في الاتصال:", error);
-        alert("فشل الاتصال بالسيرفر. تأكد من تشغيل server.js");
+        alert("حدث خطأ في الاتصال بالسيرفر. تأكد أن السيرفر في Render ليس في وضع النوم (Sleep Mode).");
     } finally {
-        // إعادة الزر لحالته الطبيعية
         btn.disabled = false;
-        if(loader) loader.style.display = 'none';
-        btn.style.opacity = '1';
+        btnText.innerText = "قارن الأسعار";
+        loader.style.display = 'none';
     }
 }
 </script>

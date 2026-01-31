@@ -733,11 +733,10 @@
                                 <div class="btn-group">  
                                     <a href="${p.link}" target="_blank" class="action-btn buy-now">${d.buy} 🛒</a>  
                                     <button class="action-btn watch-later" onclick="addToWatch('${safeName}', '${safePrice}', '${p.link}')">${d.watch} 🔔</button>
-                                    <button class="action-btn compare-btn" onclick="openComparison('${safeName}', ${priceVal})"><i class="fa-solid fa-code-compare"></i> ${d.compare}</button>
-                                </div>  
-                            </div>`;  
-                    }, index * 100);  
-                });  
+
+<button class="action-btn compare-btn" onclick="openComparison('${safeName}', ${priceVal}, ${data.marketAvg})">
+    <i class="fa-solid fa-code-compare"></i> ${d.compare}
+</button>
                   
                 attempts--; localStorage.setItem('findly_attempts', attempts); update();  
             } else { status.style.display = "block"; status.innerHTML = "No results found"; }  
@@ -745,35 +744,44 @@
     }  
 
     // --- 4. وظائف المقارنة و Watchlist ---
-    function openComparison(name, price) {
-        if (!price || price === 0) return alert("لا يمكن مقارنة منتج بدون سعر محدد");
-        
-        const modal = document.getElementById('comp-modal');
-        const content = document.getElementById('comp-content');
-        document.getElementById('comp-product-name').innerText = name;
-        modal.style.display = 'flex';
-        
-        // محاكاة بيانات السوق للمقارنة
-        const marketAvg = Math.floor(price * 1.15); // متوسط السوق أغلى قليلاً
-        const lowest = Math.floor(price * 0.95);
-        
-        content.innerHTML = `
-            <div class="comp-bar-container">
-                <div class="comp-label"><span>هذا المنتج</span> <span>${price}</span></div>
-                <div class="comp-bar"><div class="comp-fill" style="width: ${Math.min((price / marketAvg)*100, 100)}%; background:#10b981;"></div></div>
-            </div>
-            <div class="comp-bar-container">
-                <div class="comp-label"><span>متوسط السوق</span> <span>${marketAvg}</span></div>
-                <div class="comp-bar"><div class="comp-fill" style="width: 100%; background:#64748b;"></div></div>
-            </div>
-            
-            <p style="color:#cbd5e1; font-size:0.85rem; margin-top:20px;">
-                <i class="fa-solid fa-chart-line" style="color:#10b981;"></i> 
-                السعر الحالي يعتبر <strong>ممتازاً</strong> مقارنة بالمتاجر المنافسة التي تعرض نفس المنتج بمتوسط ${marketAvg}.
-            </p>
-        `;
-    }
+    
+function openComparison(name, price, serverAvg) {
+    const modal = document.getElementById('comp-modal');
+    const content = document.getElementById('comp-content');
+    document.getElementById('comp-product-name').innerText = name;
+    modal.style.display = 'flex';
 
+    // استخدام المتوسط القادم من السيرفر، أو استخدام السعر نفسه كاحتياط
+    let marketAvg = serverAvg > 0 ? serverAvg : price;
+    
+    // التعامل مع حالة السعر غير المعروف
+    let displayPrice = (price > 0) ? price : "غير متوفر";
+    let chartWidth = (price > 0) ? Math.min((price / marketAvg) * 100, 100) : 0;
+    
+    // تحديد لون الشريط بناءً على المقارنة (أخضر إذا أرخص، أحمر إذا أغلى)
+    let barColor = (price <= marketAvg) ? '#10b981' : '#ef4444'; 
+    let statusText = (price <= marketAvg) ? 'صفقة ممتازة (أقل من المتوسط)' : 'سعر مرتفع قليلاً عن المتوسط';
+
+    content.innerHTML = `
+        <div class="comp-bar-container">
+            <div class="comp-label"><span>هذا المنتج</span> <span>${displayPrice}</span></div>
+            <div class="comp-bar">
+                <div class="comp-fill" style="width: ${chartWidth}%; background:${barColor};"></div>
+            </div>
+        </div>
+        <div class="comp-bar-container">
+            <div class="comp-label"><span>متوسط السوق الحقيقي</span> <span>${marketAvg}</span></div>
+            <div class="comp-bar">
+                <div class="comp-fill" style="width: 100%; background:#64748b;"></div>
+            </div>
+        </div>
+        
+        <p style="color:#cbd5e1; font-size:0.85rem; margin-top:20px;">
+            <i class="fa-solid fa-chart-line" style="color:${barColor};"></i> 
+            تحليل البيانات: ${statusText}، حيث يبلغ متوسط سعر هذا المنتج في السوق حالياً <strong>${marketAvg}</strong>.
+        </p>
+    `;
+}
     async function addToWatch(n, p, l) {
         if (!currentUserUID) return;
         const newItem = { name: n, price: p, link: l };

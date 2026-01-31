@@ -734,12 +734,22 @@
                                     <a href="${p.link}" target="_blank" class="action-btn buy-now">${d.buy} 🛒</a>  
                                     <button class="action-btn watch-later" onclick="addToWatch('${safeName}', '${safePrice}', '${p.link}')">${d.watch} 🔔</button>
 
-<button class="action-btn compare-btn" onclick="openComparison('${safeName}', ${priceVal}, ${data.marketAvg})">
-    <i class="fa-solid fa-code-compare"></i> ${d.compare}
-</button>
-                  
-                attempts--; localStorage.setItem('findly_attempts', attempts); update();  
-            } else { status.style.display = "block"; status.innerHTML = "No results found"; }  
+                                    <button class="action-btn compare-btn" onclick="openComparison('${safeName}', ${priceVal}, ${data.marketAvg})">
+                                        <i class="fa-solid fa-code-compare"></i> ${d.compare}
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }, 100 * index);
+                });
+
+                attempts--; 
+                localStorage.setItem('findly_attempts', attempts); 
+                update();  
+            } else { 
+                status.style.display = "block"; 
+                status.innerHTML = "No results found"; 
+            }  
         } catch (e) { status.style.display = "block"; status.innerHTML = "Server Error"; console.error(e); }  
     }  
 

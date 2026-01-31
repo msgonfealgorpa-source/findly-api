@@ -1055,11 +1055,10 @@ async function executeComparison() {
     const resultsArea = document.getElementById('comparisonResults');
 
     if (!searchInput.value.trim()) {
-        alert(dict[lang].welcome + " " + "يرجى كتابة اسم المنتج أولاً");
+        alert("يرجى كتابة اسم المنتج أولاً");
         return;
     }
 
-    // تجهيز الواجهة للتحميل
     loader.style.display = 'inline-block';
     btnText.innerText = "...جاري التحليل";
     grid.innerHTML = "";
@@ -1080,46 +1079,41 @@ async function executeComparison() {
         if (data.products && data.products.length > 0) {
             resultsArea.style.display = 'block';
 
-            // رسم المنتجات بناءً على تحليل السيرفر
-            // لاحظ استخدام علامة الـ Backtick ( ` ) في السطر التالي لضمان تلوين الكود وعمله
-            // رسم المنتجات بناءً على تحليل السيرفر
             grid.innerHTML = data.products.map((p, index) => {
                 const isBest = index === 0;
-                const analysisText = p.analysis || "تحليل المستشار: خيار ممتاز بناءً على السعر الحالي وتقييمات المتجر.";
+                // التأكد من وجود نص التحليل
+                const analysisText = p.analysis || "تحليل المستشار: خيار ممتاز بناءً على السعر الحالي.";
 
+                // انظر هنا: نفتح بـ ` ونغلق بـ ` في النهاية حصراً
                 return `
                 <div class="product-card" style="margin-top:10px; border: ${isBest ? '1px solid var(--primary)' : '1px solid var(--glass-border)'}; position: relative; display: block;">
-                    ${isBest ? `<span style="background:var(--primary); color:white; padding:2px 10px; border-radius:10px; font-size:0.7rem; position:absolute; top:10px; left:10px; z-index:10;">أفضل سعر ✨</span>` : ''}
+                    ${isBest ? `<span style="background:var(--primary); color:white; padding:2px 10px; border-radius:10px; font-size:0.7rem; position:absolute; top:10px; left:10px;">أفضل سعر ✨</span>` : ''}
                     
                     <div style="display: flex; gap: 12px; align-items: center; padding: 10px;">
-                        <img src="${p.thumbnail}" onerror="this.src='https://via.placeholder.com/150'" style="width: 70px; height: 70px; border-radius: 12px; background: white; object-fit: contain;">
-                        <div class="card-details" style="text-align: right; flex: 1;">
-                            <h3 style="font-size:0.9rem; margin-bottom:5px; color: #fff;">${p.name}</h3>
-                            <div class="price" style="color:#10b981; font-size:1.1rem; font-weight:800;">${p.price}</div>
-                            <div style="font-size:0.8rem; color:var(--text-muted);">المصدر: ${p.source}</div>
+                        <img src="${p.thumbnail}" onerror="this.src='https://via.placeholder.com/150'" style="width: 70px; height: 70px; border-radius: 8px; object-fit: contain; background: white;">
+                        <div style="text-align: right; flex: 1;">
+                            <h3 style="font-size:0.9rem; margin:0; color: #fff;">${p.name}</h3>
+                            <div style="color:#10b981; font-weight:800; margin-top: 5px;">${p.price}</div>
+                            <div style="font-size:0.75rem; color:var(--text-muted);">${p.source}</div>
                         </div>
+                        <a href="${p.link}" target="_blank" class="action-btn buy-now" style="text-decoration:none; padding: 6px 12px; font-size: 0.8rem;">شراء</a>
                     </div>
 
-                    <div class="analysis-engine" style="background:rgba(139, 92, 246, 0.1); padding:10px; border-radius: 0 0 15px 15px; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.75rem; color: #cbd5e1;">
-                        <span style="color: var(--primary); font-weight: bold;">⚖️ تحليل المقارنة:</span>
-                        <p style="margin: 5px 0 0 0; line-height: 1.5;">${analysisText}</p>
+                    <div class="analysis-engine" style="background:rgba(139, 92, 246, 0.1); padding:10px; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.75rem; color: #cbd5e1;">
+                        <strong style="color: var(--primary);">⚖️ تحليل المقارنة:</strong>
+                        <p style="margin: 5px 0 0 0; line-height: 1.4;">${analysisText}</p>
                     </div>
-                </div>`;
+                </div>`; // إغلاق بـ ` صحيح تماماً هنا
             }).join('');
-            // تمرير الشاشة للنتائج تلقائياً
-            resultsArea.scrollIntoView({ behavior: 'smooth' });
-        } else {
-            alert("لم نجد نتائج دقيقة، حاول تغيير كلمات البحث");
-        }
 
+            resultsArea.scrollIntoView({ behavior: 'smooth' });
+        }
     } catch (error) {
-        console.error("Error:", error);
-        alert(dict[lang].slow || "فشل الاتصال بالسيرفر");
+        console.error("Fetch Error:", error);
     } finally {
         loader.style.display = 'none';
         btnText.innerText = "قارن الأسعار";
     }
 }
-<script>
 </body>  
 </html>

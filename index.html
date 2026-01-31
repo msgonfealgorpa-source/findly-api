@@ -24,7 +24,7 @@
         --text: #f8fafc;
         --text-muted: #94a3b8;
         --gradient: linear-gradient(135deg, #6366F1, #A855F7);
-        --compare-color: #0ea5e9;
+        --compare-color: #0ea5e9; /* لون زر المقارنة */
     }
 
     .light-mode {
@@ -325,7 +325,7 @@
     }
     .watch-later:hover { background: rgba(139, 92, 246, 0.1); }
 
-    /* --- Compare Button --- */
+    /* --- زر المقارنة الجديد --- */
     .compare-btn {
         background: rgba(14, 165, 233, 0.1); 
         border: 1px solid var(--compare-color); 
@@ -519,7 +519,8 @@
         </h3>
         <p id="comp-product-name" style="color:#fff; font-weight:bold; margin-bottom:20px; font-size:1.1rem;"></p>
         
-        <div id="comp-content"></div>
+        <div id="comp-content">
+            </div>
 
         <button onclick="document.getElementById('comp-modal').style.display='none'" class="action-btn buy-now" style="width:100%; margin-top:20px;">تم</button>
     </div>
@@ -695,9 +696,10 @@
 
             if (data.products && data.products.length > 0) {  
                 
-                // 2. إذا كان Deep AI مفعلاً
+                // 2. إذا كان Deep AI مفعلاً، نقوم بطلب التحليل
                 if (isDeep) {
                     deepCon.innerHTML = `<div class="deep-result-box" style="text-align:center;"><i class="fa-solid fa-brain fa-pulse"></i> جاري التحليل العميق...</div>`;
+                    
                     fetch(`${API}/deep-ai-analyze`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -707,12 +709,13 @@
                     .then(dRes => {
                         deepCon.innerHTML = `<div class="deep-result-box"><i class="fa-solid fa-wand-magic-sparkles"></i> <strong>Deep AI Decision:</strong><br><br>${dRes.deepAnalysis}</div>`;
                     })
-                    .catch(e => { deepCon.innerHTML = ""; });
+                    .catch(e => {
+                        deepCon.innerHTML = ""; // إخفاء في حال الخطأ
+                    });
                 }
 
                 // 3. عرض المنتجات
                 data.products.forEach((p, index) => {  
-                    // السعر الرقمي القادم من السيرفر
                     let priceVal = p.priceVal || 0;  
                     let budgetAlert = (userBudget > 0 && priceVal > userBudget) ? `<div class="budget-error"><i class="fa-solid fa-triangle-exclamation"></i> ${d.over} ($${userBudget})</div>` : "";  
                     
@@ -747,56 +750,50 @@
                 status.style.display = "block"; 
                 status.innerHTML = "No results found"; 
             }  
-        } catch (e) { status.style.display = "block"; status.innerHTML = "Server Error (Check Connection)"; console.error(e); }  
+        } catch (e) { status.style.display = "block"; status.innerHTML = "Server Error"; console.error(e); }  
     }  
 
     // --- 4. وظائف المقارنة و Watchlist ---
     
-    function openComparison(name, price, serverAvg) {
-        const modal = document.getElementById('comp-modal');
-        const content = document.getElementById('comp-content');
-        document.getElementById('comp-product-name').innerText = name;
-        modal.style.display = 'flex';
+function openComparison(name, price, serverAvg) {
+    const modal = document.getElementById('comp-modal');
+    const content = document.getElementById('comp-content');
+    document.getElementById('comp-product-name').innerText = name;
+    modal.style.display = 'flex';
 
-        let marketAvg = serverAvg > 0 ? serverAvg : price;
-        let displayPrice = (price > 0) ? price : "غير متوفر";
-        
-        // حساب النسبة المئوية للشريط
-        let chartWidth = (price > 0 && marketAvg > 0) ? Math.min((price / marketAvg) * 100, 100) : 0;
-        
-        let barColor = (price <= marketAvg) ? '#10b981' : '#ef4444'; 
-        let statusText = (price <= marketAvg) ? 'صفقة ممتازة (أقل من المتوسط)' : 'سعر مرتفع قليلاً عن المتوسط';
+    // استخدام المتوسط القادم من السيرفر، أو استخدام السعر نفسه كاحتياط
+    let marketAvg = serverAvg > 0 ? serverAvg : price;
+    
+    // التعامل مع حالة السعر غير المعروف
+    let displayPrice = (price > 0) ? price : "غير متوفر";
+    let chartWidth = (price > 0) ? Math.min((price / marketAvg) * 100, 100) : 0;
+    
+    // تحديد لون الشريط بناءً على المقارنة (أخضر إذا أرخص، أحمر إذا أغلى)
+    let barColor = (price <= marketAvg) ? '#10b981' : '#ef4444'; 
+    let statusText = (price <= marketAvg) ? 'صفقة ممتازة (أقل من المتوسط)' : 'سعر مرتفع قليلاً عن المتوسط';
 
-        if (marketAvg === 0) {
-            statusText = "لا تتوفر بيانات كافية عن السوق حالياً";
-            barColor = "#64748b";
-        }
-
-        content.innerHTML = `
-            <div class="comp-bar-container">
-                <div class="comp-label"><span>هذا المنتج</span> <span>${displayPrice}</span></div>
-                <div class="comp-bar">
-                    <div class="comp-fill" style="width: ${chartWidth}%; background:${barColor};"></div>
-                </div>
+    content.innerHTML = `
+        <div class="comp-bar-container">
+            <div class="comp-label"><span>هذا المنتج</span> <span>${displayPrice}</span></div>
+            <div class="comp-bar">
+                <div class="comp-fill" style="width: ${chartWidth}%; background:${barColor};"></div>
             </div>
-            <div class="comp-bar-container">
-                <div class="comp-label"><span>متوسط السوق الحقيقي</span> <span>${marketAvg || 'غير معروف'}</span></div>
-                <div class="comp-bar">
-                    <div class="comp-fill" style="width: 100%; background:#64748b;"></div>
-                </div>
+        </div>
+        <div class="comp-bar-container">
+            <div class="comp-label"><span>متوسط السوق الحقيقي</span> <span>${marketAvg}</span></div>
+            <div class="comp-bar">
+                <div class="comp-fill" style="width: 100%; background:#64748b;"></div>
             </div>
-            
-            <p style="color:#cbd5e1; font-size:0.85rem; margin-top:20px;">
-                <i class="fa-solid fa-chart-line" style="color:${barColor};"></i> 
-                تحليل البيانات: ${statusText}.
-            </p>
-        `;
-    }
-
+        </div>
+        
+        <p style="color:#cbd5e1; font-size:0.85rem; margin-top:20px;">
+            <i class="fa-solid fa-chart-line" style="color:${barColor};"></i> 
+            تحليل البيانات: ${statusText}، حيث يبلغ متوسط سعر هذا المنتج في السوق حالياً <strong>${marketAvg}</strong>.
+        </p>
+    `;
+}
     async function addToWatch(n, p, l) {
         if (!currentUserUID) return;
-        
-        // إعداد البيانات كما ينتظرها السيرفر الجديد
         const newItem = { name: n, price: p, link: l };
         
         try {
@@ -805,55 +802,27 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ uid: currentUserUID, product: newItem })
             });
-            
-            if(!res.ok) throw new Error("Server Error");
-
             const data = await res.json();
             if(data.message === "موجود بالفعل") { alert("⚠️ المنتج موجود بالفعل في قائمتك"); return; }
             
-            // تحديث محلي
             watchList.push(newItem);
             localStorage.setItem('findly_watch', JSON.stringify(watchList));
             update();
             alert("✅ تمت الإضافة لـ Watchlist بنجاح");
-        } catch (e) { 
-            console.error(e);
-            alert("خطأ في الاتصال بالسيرفر"); 
-        }
+        } catch (e) { alert("خطأ في الاتصال بالسيرفر"); }
     }
 
     async function fetchWatchlistFromServer() {
         if(!currentUserUID) return;
         try {
             const res = await fetch(`${API}/watchlist/${currentUserUID}`);
-            if(!res.ok) return;
             const data = await res.json();
             if(data.watchlist) {
                 watchList = data.watchlist;
                 localStorage.setItem('findly_watch', JSON.stringify(watchList));
                 update();
             }
-        } catch(e) { console.log("Offline mode or Server Sleep"); }
-    }
-
-    async function removeFromWatch(index) {
-        // حذف من الواجهة
-        const item = watchList[index];
-        watchList.splice(index, 1);
-        localStorage.setItem('findly_watch', JSON.stringify(watchList));
-        toggleWatchList();
-        update();
-
-        // محاولة الحذف من السيرفر (اختياري، لضمان التزامن)
-        if(currentUserUID && item) {
-            try {
-                await fetch(`${API}/watchlist/delete`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ uid: currentUserUID, name: item.name })
-                });
-            } catch(e) { console.log("Delete sync failed"); }
-        }
+        } catch(e) { console.log("Offline mode"); }
     }
 
     // --- 5. تحديث الواجهة ---  
@@ -925,6 +894,8 @@
             });  
         }  
     }  
+
+    function removeFromWatch(index) { watchList.splice(index, 1); localStorage.setItem('findly_watch', JSON.stringify(watchList)); toggleWatchList(); update(); }  
 
     function startVoice() {  
         if (!('webkitSpeechRecognition' in window)) { alert("المتصفح لا يدعم الصوت"); return; }  

@@ -6,267 +6,103 @@ const cron = require('node-cron');
 const nodemailer = require('nodemailer');
 
 const app = express();
-
-// إعدادات CORS للسماح للواجهة بالاتصال
 app.use(cors());
 app.use(express.json());
 
-// --- 1. إعدادات المتغيرات ---
 const MONGO_URI = process.env.MONGO_URI;
 const SERP_API_KEY = process.env.SERPAPI_KEY;
 const EMAIL_USER = process.env.EMAIL_USER;
 const EMAIL_PASS = process.env.EMAIL_PASS;
 
-if (!MONGO_URI || !SERP_API_KEY) {
-    console.error("❌ تحذير: MONGO_URI أو SERPAPI_KEY غير معرف في إعدادات البيئة!");
-}
-
-// الاتصال بقاعدة البيانات
 mongoose.connect(MONGO_URI)
-    .then(() => console.log("✅ تم الاتصال بنجاح بـ MongoDB Atlas"))
-    .catch(err => console.error("❌ خطأ في الاتصال بقاعدة البيانات:", err.message));
+    .then(() => console.log("✅ Connected to MongoDB"))
+    .catch(err => console.error("❌ DB Error:", err.message));
 
-// --- 2. مخططات قاعدة البيانات (Schemas) ---
+// --- Schemas ---
+const Alert = mongoose.model('Alert', new mongoose.Schema({
+    email: String, productName: String, targetPrice: Number, link: String, lang: String, uid: String
+}));
 
-// أ. مخطط التنبيهات (للأسعار)
-const AlertSchema = new mongoose.Schema({
-    email: String,
-    productName: String,
-    targetPrice: Number,
-    link: String,
-    lang: String,
-    uid: String
-});
-const Alert = mongoose.model('Alert', AlertSchema);
+const SearchLog = mongoose.model('SearchLog', new mongoose.Schema({
+    uid: String, query: String, timestamp: { type: Date, default: Date.now }
+}));
 
-// ب. مخطط سجل البحث (جديد - لدعم التاريخ والترند)
-const SearchLogSchema = new mongoose.Schema({
-    uid: String,       // معرف المستخدم
-    query: String,     // كلمة البحث
-    timestamp: { type: Date, default: Date.now } // وقت البحث
-});
-const SearchLog = mongoose.model('SearchLog', SearchLogSchema);
-// أضف هذا تحت Alert model
-const WatchlistSchema = new mongoose.Schema({
-    uid: String,
-    name: String, // اسم المنتج
-    price: String,
-    thumbnail: String,
-    link: String,
-    addedAt: { type: Date, default: Date.now }
-});
-const Watchlist = mongoose.model('Watchlist', WatchlistSchema);
-// إعدادات البريد الإلكتروني
+const Watchlist = mongoose.model('Watchlist', new mongoose.Schema({
+    uid: String, name: String, price: String, thumbnail: String, link: String, addedAt: { type: Date, default: Date.now }
+}));
+
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: { 
-        user: EMAIL_USER, 
-        pass: EMAIL_PASS 
-    }
+    service: 'gmail', auth: { user: EMAIL_USER, pass: EMAIL_PASS }
 });
 
-// --- 3. دوال مساعدة ---
+// --- Helper Functions ---
 const smartReasonsDict = {
     high_rating: { ar: "⭐ منتج ذو تقييم ممتاز (أعلى من 4.5)", en: "⭐ Top Rated product (4.5+ stars)" },
     popular: { ar: "🔥 الأكثر شعبية (آلاف المراجعات)", en: "🔥 Most Popular (Thousands of reviews)" },
-    budget: { ar: "💰 خيار اقتصادي ومناسب للميزانية", en: "💰 Budget-friendly choice" },
     default: { ar: "✨ أفضل نتيجة تطابق بحثك", en: "✨ Best match for your search" }
 };
 
 function analyzeProduct(product, lang) {
     const l = lang || 'ar';
-    const rating = product.rating || 0;
-    const reviews = product.reviews || 0;
-    if (rating >= 4.5) return smartReasonsDict.high_rating[l] || smartReasonsDict.high_rating['ar'];
-    if (reviews > 1000) return smartReasonsDict.popular[l] || smartReasonsDict.popular['ar'];
+    if (product.rating >= 4.5) return smartReasonsDict.high_rating[l] || smartReasonsDict.high_rating['ar'];
+    if (product.reviews > 1000) return smartReasonsDict.popular[l] || smartReasonsDict.popular['ar'];
     return smartReasonsDict.default[l] || smartReasonsDict.default['ar'];
 }
 
-// --- 4. نقاط النهاية (API Endpoints) ---
+// --- Endpoints ---
 
-// أ. مسار البحث الذكي (يخزن البحث في التاريخ أيضاً)
 app.post('/smart-search', async (req, res) => {
     const { query, lang, uid } = req.body; 
-    const currentLang = lang || 'ar';
+    if (query && uid) await new SearchLog({ uid, query }).save();
 
-    console.log(`🔎 بحث جديد: "${query}" | المستخدم: ${uid || 'Guest'}`);
-
-    // 1. حفظ عملية البحث في قاعدة البيانات (للسجل والترند)
-    if (query && uid) {
-        try {
-            // نحفظ البحث كعملية جديدة
-            await new SearchLog({ uid, query }).save();
-        } catch (err) {
-            console.error("⚠️ فشل حفظ السجل:", err.message);
-        }
-    }
-
-    // 2. طلب البيانات من SerpApi
     getJson({
-        engine: "google_shopping",
-        q: query,
-        api_key: SERP_API_KEY,
-        hl: currentLang,
-        gl: "sa",
-        num: 20
+        engine: "google_shopping", q: query, api_key: SERP_API_KEY, hl: lang || 'ar', gl: "sa", num: 20
     }, (data) => {
         if (!data || !data.shopping_results) return res.json({ products: [] });
-
-        let processedProducts = data.shopping_results.map(p => {
-            const priceClean = p.price ? parseFloat(p.price.toString().replace(/[^0-9.]/g, '')) : 0;
-            return {
-                name: p.title,
-                price: p.price,
-                priceVal: priceClean,
-                thumbnail: p.thumbnail,
-                link: p.product_link || p.link,
-                rating: p.rating || 0,
-                reviews: p.reviews || 0,
-                source: p.source
-            };
-        });
-
-        // ترتيب حسب التقييم
-        processedProducts.sort((a, b) => b.rating - a.rating);
-
-        const finalResults = processedProducts.slice(0, 8).map(p => ({
-            ...p,
-            reason: analyzeProduct(p, currentLang)
-        }));
-
-        res.json({ products: finalResults });
+        let results = data.shopping_results.map(p => ({
+            name: p.title, price: p.price,
+            priceVal: p.price ? parseFloat(p.price.toString().replace(/[^0-9.]/g, '')) : 0,
+            thumbnail: p.thumbnail, link: p.product_link || p.link,
+            rating: p.rating || 0, reviews: p.reviews || 0, reason: analyzeProduct(p, lang)
+        })).sort((a, b) => b.rating - a.rating).slice(0, 8);
+        res.json({ products: results });
     });
 });
 
-// ب. مسار جلب سجل البحث لمستخدم معين (جديد)
-app.get('/history/:uid', async (req, res) => {
-    try {
-        const { uid } = req.params;
-        // نأتي بآخر عمليات البحث، ونزيل التكرار يدوياً أو عبر التجميع
-        // هنا سنأتي بآخر 10 عمليات بحث مرتبة زمنياً
-        const logs = await SearchLog.find({ uid })
-                                    .sort({ timestamp: -1 })
-                                    .limit(20);
-        
-        // تصفية التكرار (لإظهار الكلمة مرة واحدة فقط في القائمة)
-        const uniqueQueries = [];
-        const uniqueSet = new Set();
-        
-        logs.forEach(log => {
-            if (!uniqueSet.has(log.query)) {
-                uniqueSet.add(log.query);
-                uniqueQueries.push(log);
-            }
-        });
-
-        res.json({ history: uniqueQueries.slice(0, 5) }); // إرجاع أحدث 5 عمليات فريدة
-    } catch (error) {
-        console.error("History Error:", error);
-        res.status(500).json({ history: [] });
-    }
-});
-
-// ج. مسار جلب "التريند" (أكثر الكلمات بحثاً) (جديد)
-app.get('/trending', async (req, res) => {
-    try {
-        // تجميع البيانات لمعرفة الكلمات الأكثر تكراراً
-        const trends = await SearchLog.aggregate([
-            { "$group": { "_id": "$query", "count": { "$sum": 1 } } }, // تجميع حسب الكلمة وعدها
-            { "$sort": { "count": -1 } }, // الترتيب من الأكثر تكراراً
-            { "$limit": 5 } // أخذ أول 5
-        ]);
-
-        const trendingKeywords = trends.map(t => t._id);
-        res.json({ trending: trendingKeywords });
-    } catch (error) {
-        console.error("Trending Error:", error);
-        res.status(500).json({ trending: [] });
-    }
-});
-
-// د. مسار حفظ التنبيهات
-app.post('/set-alert', async (req, res) => {
-    try {
-        console.log("📥 طلب مراقبة جديد لـ:", req.body.productName);
-        const alert = new Alert(req.body);
-        await alert.save(); 
-        res.status(200).send({ message: "تم حفظ التنبيه بنجاح" });
-    } catch (e) {
-        console.error("❌ فشل حفظ التنبيه:", e.message);
-        res.status(500).send({ error: "خطأ في السيرفر عند الحفظ" });
-    }
-});
-
-// --- 5. المهام المجدولة (Cron Job) ---
-cron.schedule('0 */6 * * *', async () => {
-    console.log("⏰ جاري فحص الأسعار...");
-    const alerts = await Alert.find();
-    
-    for (let alert of alerts) {
-        getJson({
-            engine: "google_shopping",
-            q: alert.productName,
-            api_key: SERP_API_KEY,
-            hl: alert.lang || 'ar'
-        }, async (data) => {
-            if (data.shopping_results && data.shopping_results.length > 0) {
-                const currentPrice = parseFloat(data.shopping_results[0].price.toString().replace(/[^0-9.]/g, ''));
-                if (currentPrice <= alert.targetPrice) {
-                    const mailOptions = {
-                        from: 'Findly AI',
-                        to: alert.email,
-                        subject: alert.lang === 'en' ? '🚨 Price Drop Alert!' : '🚨 تنبيه: انخفاض السعر!',
-                        text: `${alert.productName}\nNew Price: ${data.shopping_results[0].price}\nLink: ${alert.link}`
-                    };
-                    try {
-                        await transporter.sendMail(mailOptions);
-                        await Alert.findByIdAndDelete(alert._id);
-                        console.log(`✅ تم إرسال إيميل لـ ${alert.email} وحذف التنبيه.`);
-                    } catch (mailErr) {
-                        console.error(`❌ خطأ في إرسال الإيميل: ${mailErr.message}`);
-                    }
-                }
-            }
-        });
-    }
-});
-// --- مسارات الـ Watchlist و Deep AI ---
-
-// مسار إضافة منتج للمفضلة
 app.post('/watchlist/add', async (req, res) => {
-    try {
-        const { uid, product } = req.body;
-        // نتحقق أولاً إذا كان المنتج موجود مسبقاً لنفس المستخدم
-        const exists = await Watchlist.findOne({ uid, link: product.link });
-        if (exists) return res.status(200).json({ message: "موجود بالفعل" });
-
-        const item = new Watchlist({ uid, ...product });
-        await item.save();
-        res.status(200).json({ message: "تمت الإضافة للمفضلة" });
-    } catch (err) { res.status(500).json({ error: "فشل الحفظ" }); }
+    const { uid, product } = req.body;
+    const exists = await Watchlist.findOne({ uid, link: product.link });
+    if (exists) return res.json({ message: "موجود بالفعل" });
+    await new Watchlist({ uid, ...product }).save();
+    res.json({ message: "تمت الإضافة" });
 });
 
-// مسار جلب المفضلة
 app.get('/watchlist/:uid', async (req, res) => {
-    try {
-        const items = await Watchlist.find({ uid: req.params.uid }).sort({ addedAt: -1 });
-        res.json({ watchlist: items });
-    } catch (err) { res.status(500).json({ error: "فشل الجلب" }); }
+    const items = await Watchlist.find({ uid: req.params.uid }).sort({ addedAt: -1 });
+    res.json({ watchlist: items });
 });
 
-// مسار تحليل Deep AI
+// Deep AI Endpoint
 app.post('/deep-ai-analyze', (req, res) => {
     const { products, query, lang } = req.body;
     if (!products || products.length === 0) return res.json({ deepAnalysis: "" });
-
-    const bestPrice = products.reduce((min, p) => p.priceVal < min.priceVal ? p : min, products[0]);
+    
+    // Logic to find best value and quality
+    const bestPrice = products.reduce((min, p) => (p.priceVal > 0 && p.priceVal < min.priceVal) ? p : min, products[0]);
     const bestRated = products.reduce((max, p) => p.rating > max.rating ? p : max, products[0]);
-
+    
     const analysis = {
-        ar: `🔍 تحليل Findly العميق لـ "${query}":\n\nأفضل قيمة مقابل سعر هو "${bestPrice.name}" بسعر ${bestPrice.price}. \nأما إذا كنت تبحث عن الجودة، فننصح بـ "${bestRated.name}" لتقييمه المرتفع (${bestRated.rating}⭐).`,
-        en: `🔍 Findly Deep Analysis for "${query}":\n\nBest value is "${bestPrice.name}" at ${bestPrice.price}. \nFor top quality, we recommend "${bestRated.name}" with a rating of (${bestRated.rating}⭐).`
+        ar: `🔍 <strong>تحليل Findly الذكي:</strong><br>قمنا بمسح السوق من أجلك. إذا كنت تبحث عن التوفير، فإن <strong>"${bestPrice.name}"</strong> هو الخيار الأذكى بسعر (${bestPrice.price}).<br>أما إذا كنت تبحث عن الأداء والجودة، فنحن نرشح <strong>"${bestRated.name}"</strong> بتقييم ${bestRated.rating} نجوم.`,
+        en: `🔍 <strong>Findly Smart Analysis:</strong><br>We scanned the market. For savings, <strong>"${bestPrice.name}"</strong> is the smart choice at (${bestPrice.price}).<br>For quality, we recommend <strong>"${bestRated.name}"</strong> with a ${bestRated.rating} star rating.`
     };
+    
     res.json({ deepAnalysis: analysis[lang] || analysis['ar'] });
 });
+
+app.post('/set-alert', async (req, res) => {
+    await new Alert(req.body).save();
+    res.send({ message: "Alert set" });
+});
+
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Findly Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Server on port ${PORT}`));

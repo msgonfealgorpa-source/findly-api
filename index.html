@@ -1048,52 +1048,76 @@
 </div>
 <script>
 async function executeComparison() {
-    const searchInput = document.querySelector('input[type="text"]');
-    const btn = document.getElementById('compareBtn');
+    const searchInput = document.getElementById('s-input'); // استخدام ID الحقل الخاص بك
+    const btnText = document.getElementById('btnText');
+    const loader = document.getElementById('loader');
     const grid = document.getElementById('productsGrid');
     const resultsArea = document.getElementById('comparisonResults');
 
-    if (!searchInput.value.trim()) return;
+    if (!searchInput.value.trim()) {
+        alert(dict[lang].welcome + " يرجى كتابة اسم المنتج أولاً");
+        return;
+    }
 
-    // حالة التحميل
-    btn.innerHTML = '🔍 جاري البحث...';
-    btn.style.opacity = '0.7';
+    // تجهيز الواجهة للتحميل
+    loader.style.display = 'inline-block';
+    btnText.innerText = "جاري التحليل...";
+    grid.innerHTML = ""; 
 
     try {
-        const response = await fetch('https://findly-api.onrender.com/smart-search', {
+        const response = await fetch(`${API}/smart-search`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ query: searchInput.value, lang: 'ar' })
+            body: JSON.stringify({
+                query: searchInput.value,
+                lang: lang,
+                uid: currentUserUID || 'guest'
+            })
         });
 
         const data = await response.json();
 
         if (data.products && data.products.length > 0) {
             resultsArea.style.display = 'block';
-            // تحويل البيانات إلى كروت زجاجية
-            grid.innerHTML = data.products.map(p => `
-                <div style="background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; padding: 15px; display: flex; align-items: center; gap: 15px; animation: fadeIn 0.5s ease;">
-                    <img src="${p.thumbnail}" style="width: 70px; height: 70px; border-radius: 10px; object-fit: cover; background: white;">
-                    <div style="flex: 1;">
-                        <h4 style="color: #fff; font-size: 0.85rem; margin: 0 0 5px 0;">${p.name}</h4>
-                        <div style="color: #4ade80; font-weight: bold; font-size: 1rem;">${p.price}</div>
-                        <div style="color: #a259ff; font-size: 0.7rem;">المصدر: ${p.source}</div>
+            
+            // رسم المنتجات بناءً على تحليل السيرفر
+            grid.innerHTML = data.products.map((p, index) => {
+                // ذكاء المقارنة: السيرفر يرسل أرخص منتج أولاً عادةً
+                const isBest = index === 0; 
+                return `
+                <div class="product-card" style="margin-top:10px; border: ${isBest ? '1px solid var(--primary)' : '1px solid var(--glass-border)'}">
+                    ${isBest ? '<span style="background:var(--primary); color:white; padding:2px 10px; border-radius:10px; font-size:0.7rem; position:absolute; top:10px; left:10px;">أفضل خيار ✨</span>' : ''}
+                    <img src="${p.thumbnail}" onerror="this.src='https://via.placeholder.com/150'">
+                    <div class="card-details" style="text-align:right; padding:10px;">
+                        <h3 style="font-size:1rem; margin-bottom:5px;">${p.name}</h3>
+                        <div class="price" style="color:#10b981; font-size:1.2rem; font-weight:800;">${p.price}</div>
+                        <div style="font-size:0.8rem; color:var(--text-muted);">المصدر: ${p.source}</div>
+                        
+                        <div class="analysis-engine" style="background:rgba(139, 92, 246, 0.05); padding:8px; border-radius:8px; margin-top:10px;">
+                            <span class="analysis-label">⚖️ تحليل المقارنة:</span>
+                            ${p.analysis || "منتج موثوق بناءً على تقييمات المتجر."}
+                        </div>
                     </div>
-                    <a href="${p.link}" target="_blank" style="background: #a259ff; color: white; padding: 8px 12px; border-radius: 8px; text-decoration: none; font-size: 0.75rem; font-weight: bold;">شراء</a>
-                </div>
-            `).join('');
+                    <div class="btn-group" style="padding:10px;">
+                        <a href="${p.link}" target="_blank" class="action-btn buy-now" style="text-decoration:none;">${dict[lang].buy}</a>
+                    </div>
+                </div>`;
+            }).join('');
+            
+            // تمرير الشاشة للنتائج تلقائياً
+            resultsArea.scrollIntoView({ behavior: 'smooth' });
+        } else {
+            alert("لم نجد نتائج دقيقة، حاول تغيير كلمات البحث");
         }
-    } catch (e) {
-        alert("حدث خطأ أثناء عرض النتائج");
+
+    } catch (error) {
+        console.error("Error:", error);
+        alert(dict[lang].slow);
     } finally {
-        btn.innerHTML = '⚖️ قارن الأسعار';
-        btn.style.opacity = '1';
+        loader.style.display = 'none';
+        btnText.innerText = "قارن الأسعار";
     }
 }
-</script>
-
-<style>
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-</style>
+<script>
 </body>  
 </html>

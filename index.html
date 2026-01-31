@@ -365,57 +365,7 @@
         color: var(--primary);
         text-shadow: 0 0 10px var(--primary-glow);
     }
-    
-
-<style>
-    .findly-native-tag {
-        /* إزالة أي خلفية بيضاء افتراضية */
-        background: rgba(255, 255, 255, 0.05) !important; 
-        color: #e0e0e0 !important;
-        /* حدود رمادية شفافة مثل البقية */
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        
-        padding: 6px 14px;
-        border-radius: 10px; /* نفس انحناء أزرار موقعك */
-        font-size: 0.8rem;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        transition: 0.3s;
-        backdrop-filter: blur(5px);
-        margin: 4px;
-        outline: none;
-    }
-
-    /* التفاعل عند اللمس - سيتوهج خفيفاً مثل البقية */
-    .findly-native-tag:hover {
-        background: rgba(162, 89, 255, 0.1) !important;
-        border-color: rgba(162, 89, 255, 0.5) !important;
-        color: #fff !important;
-    }
-
-    .tag-icon {
-        font-size: 0.85rem;
-        opacity: 0.9;
-    }
-
-    /* لودر بنفسجي متناسق مع هوية Findly */
-    .tag-loader {
-        width: 12px;
-        height: 12px;
-        border: 2px solid rgba(255,255,255,0.1);
-        border-top: 2px solid #a259ff;
-        border-radius: 50%;
-        animation: spin-tag 0.8s linear infinite;
-    }
-
-    @keyframes spin-tag { 
-        0% { transform: rotate(0deg); } 
-        100% { transform: rotate(360deg); } 
-    }
-</style>
-    
+    </style>
 </head>  
 <body>
 <header>  
@@ -479,44 +429,6 @@
         </div>
     </div>
 
-<div style="text-align: center; margin: 15px 0;">
-    <button id="compareBtn" onclick="executeComparison()" class="findly-native-tag">
-        <span id="btnIcon">⚖️</span>
-        <span id="btnText">قارن الأسعار</span>
-        <div id="loader" class="tag-loader" style="display: none;"></div>
-    </button>
-<div id="comparisonResults" style="display: none; width: 95%; margin: 20px auto;">
-    <div id="productsGrid" style="display: grid; grid-template-columns: 1fr; gap: 15px;"></div>
-</div> 
-       <style>
-    .findly-native-tag {
-        background: rgba(255, 255, 255, 0.05) !important;
-        color: #e0e0e0 !important;
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        padding: 6px 14px;
-        border-radius: 10px;
-        font-size: 0.8rem;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        backdrop-filter: blur(5px);
-        transition: 0.3s;
-        outline: none;
-    }
-    .findly-native-tag:hover {
-        background: rgba(162, 89, 255, 0.1) !important;
-        border-color: rgba(162, 89, 255, 0.5) !important;
-    }
-    .tag-loader {
-        width: 12px; height: 12px;
-        border: 2px solid rgba(255,255,255,0.1);
-        border-top: 2px solid #a259ff;
-        border-radius: 50%;
-        animation: spin-tag 0.8s linear infinite;
-    }
-    @keyframes spin-tag { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-</style>
     <div class="cat-grid">  
         <div class="cat-card" onclick="quickSearch('ألعاب')"><i class="fa-solid fa-gamepad"></i><span id="cat-game"></span></div>  
         <div class="cat-card" onclick="quickSearch('جمال')"><i class="fa-solid fa-sparkles"></i><span id="cat-beauty"></span></div>  
@@ -1021,6 +933,30 @@
     }  
 
     // تشغيل عند التحميل  
-<script>  
+    update();  
+
+</script>
+<footer style="margin-top: 50px; padding: 30px 5%; border-top: 1px solid var(--glass-border); text-align: center;">
+    <div style="display: flex; justify-content: center; gap: 25px; margin-bottom: 15px;">
+        <a href="privacy.html" class="footer-link">سياسة الخصوصية</a>
+        <a href="terms.html" class="footer-link">شروط الاستخدام</a>
+        <a href="javascript:void(0)" onclick="openAbout()" class="footer-link">من نحن</a>
+    </div>
+    <p style="color: var(--text-muted); font-size: 0.75rem; opacity: 0.6;">
+        © 2026 Findly Sage. جميع الحقوق محفوظة.
+    </p>
+</footer>
+
+<div id="about-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:9999; justify-content:center; align-items:center; backdrop-filter: blur(5px);">
+    <div style="background:#161b22; width:90%; max-width:400px; padding:25px; border-radius:24px; border:1px solid var(--glass-border); text-align:center;">
+        <i class="fa-solid fa-wand-magic-sparkles" style="font-size:3rem; color:var(--primary); margin-bottom:15px;"></i>
+        <h2 style="color:#fff; margin-bottom:10px;">Findly Sage</h2>
+        <p style="color:var(--text-muted); line-height:1.6; font-size:0.9rem;">
+            مساعدك الذكي للتسوق. نستخدم الذكاء الاصطناعي لتحليل المنتجات وترشيح الأفضل لك بناءً على الجودة والسعر.
+        </p>
+        <button onclick="closeAbout()" style="margin-top:20px; background:var(--primary); color:white; border:none; padding:10px 30px; border-radius:12px; cursor:pointer; font-weight:bold; width:100%;">إغلاق</button>
+    </div>
+</div>
+
 </body>  
 </html>

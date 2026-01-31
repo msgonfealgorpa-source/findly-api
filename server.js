@@ -50,59 +50,42 @@ function analyzeProduct(product, lang) {
 }
 
 // --- Endpoints ---
-
 app.post('/smart-search', async (req, res) => {
-    const { query, lang, uid } = req.body; 
+    const { query, lang, uid } = req.body;
     if (query && uid) await new SearchLog({ uid, query }).save();
 
     getJson({
         engine: "google_shopping", q: query, api_key: SERP_API_KEY, hl: lang || 'ar', gl: "sa", num: 20
     }, (data) => {
-        if (!data || !data.shopping_results) return res.json({ products: [] });
+        if (!data || !data.shopping_results) return res.json({ products: [], marketAvg: 0 });
+
+        // 1. تنظيف ومعالجة البيانات
         let results = data.shopping_results.map(p => ({
-            name: p.title, price: p.price,
+            name: p.title,
+            price: p.price,
+            // استخراج الرقم فقط من النص (مثلاً "$100" تصبح 100)
             priceVal: p.price ? parseFloat(p.price.toString().replace(/[^0-9.]/g, '')) : 0,
-            thumbnail: p.thumbnail, link: p.product_link || p.link,
-            rating: p.rating || 0, reviews: p.reviews || 0, reason: analyzeProduct(p, lang)
-        })).sort((a, b) => b.rating - a.rating).slice(0, 8);
-        res.json({ products: results });
+            thumbnail: p.thumbnail,
+            link: p.product_link || p.link,
+            rating: p.rating || 0,
+            reviews: p.reviews || 0,
+            reason: analyzeProduct(p, lang)
+        }));
+
+        // 2. تصفية المنتجات التي لها سعر صالح فقط
+        const validPrices = results.filter(p => p.priceVal > 0).map(p => p.priceVal);
+
+        // 3. حساب متوسط السوق الحقيقي (Real Market Average)
+        let realMarketAvg = 0;
+        if (validPrices.length > 0) {
+            const sum = validPrices.reduce((a, b) => a + b, 0);
+            realMarketAvg = Math.floor(sum / validPrices.length);
+        }
+
+        // ترتيب النتائج حسب التقييم وإرسال المتوسط معها
+        results = results.sort((a, b) => b.rating - a.rating).slice(0, 8);
+        
+        // إرسال المنتجات + متوسط السعر الحقيقي
+        res.json({ products: results, marketAvg: realMarketAvg });
     });
 });
-
-app.post('/watchlist/add', async (req, res) => {
-    const { uid, product } = req.body;
-    const exists = await Watchlist.findOne({ uid, link: product.link });
-    if (exists) return res.json({ message: "موجود بالفعل" });
-    await new Watchlist({ uid, ...product }).save();
-    res.json({ message: "تمت الإضافة" });
-});
-
-app.get('/watchlist/:uid', async (req, res) => {
-    const items = await Watchlist.find({ uid: req.params.uid }).sort({ addedAt: -1 });
-    res.json({ watchlist: items });
-});
-
-// Deep AI Endpoint
-app.post('/deep-ai-analyze', (req, res) => {
-    const { products, query, lang } = req.body;
-    if (!products || products.length === 0) return res.json({ deepAnalysis: "" });
-    
-    // Logic to find best value and quality
-    const bestPrice = products.reduce((min, p) => (p.priceVal > 0 && p.priceVal < min.priceVal) ? p : min, products[0]);
-    const bestRated = products.reduce((max, p) => p.rating > max.rating ? p : max, products[0]);
-    
-    const analysis = {
-        ar: `🔍 <strong>تحليل Findly الذكي:</strong><br>قمنا بمسح السوق من أجلك. إذا كنت تبحث عن التوفير، فإن <strong>"${bestPrice.name}"</strong> هو الخيار الأذكى بسعر (${bestPrice.price}).<br>أما إذا كنت تبحث عن الأداء والجودة، فنحن نرشح <strong>"${bestRated.name}"</strong> بتقييم ${bestRated.rating} نجوم.`,
-        en: `🔍 <strong>Findly Smart Analysis:</strong><br>We scanned the market. For savings, <strong>"${bestPrice.name}"</strong> is the smart choice at (${bestPrice.price}).<br>For quality, we recommend <strong>"${bestRated.name}"</strong> with a ${bestRated.rating} star rating.`
-    };
-    
-    res.json({ deepAnalysis: analysis[lang] || analysis['ar'] });
-});
-
-app.post('/set-alert', async (req, res) => {
-    await new Alert(req.body).save();
-    res.send({ message: "Alert set" });
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Server on port ${PORT}`));

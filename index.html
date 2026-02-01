@@ -477,6 +477,18 @@ async function runSearch() {
     const d = dict[lang] || dict['ar'];
     const userBudget = parseFloat(localStorage.getItem('fb')) || 0;
 
+    data.results.forEach((p, index) => {
+    resCon.innerHTML += `
+        <div class="product-card">
+            <img src="${p.thumbnail || ''}">
+            <h3>${p.name}</h3>
+            <div class="price">${p.price || 'N/A'}</div>
+            <div class="analysis-engine">${p.smartReason}</div>
+            <div class="btn-group">
+                <a href="${p.link}" target="_blank" class="buy-now">شراء الآن</a>
+            </div>
+        </div>`;
+});
     if (attempts <= 0) { 
         status.style.display = "block";
         status.innerHTML = d.noAttempts;

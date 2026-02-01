@@ -8,7 +8,7 @@ const nodemailer = require('nodemailer');
 const app = express();
 app.use(cors());
 app.use(express.json());
-
+app.use(express.static('./')); // لعرض ملف index.html والملفات المرافقة له
 // --- استدعاء المتغيرات من رندر ---
 const MONGO_URI = process.env.MONGO_URI;
 const SERP_API_KEY = process.env.SERPAPI_KEY;

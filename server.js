@@ -158,10 +158,8 @@ cron.schedule('0 */12 * * *', async () => {
         });
     }
 });
-
-// تحديد المنفذ: رندر يعطينا منفذ ديناميكي عبر process.env.PORT
+// أضف هذا في نهاية ملف server (1).js تماماً
 const PORT = process.env.PORT || 3000;
-
 app.listen(PORT, () => {
-    console.log(`🚀 السيرفر انطلق بنجاح على المنفذ ${PORT}`);
+    console.log(`✅ Server is running on port ${PORT}`);
 });

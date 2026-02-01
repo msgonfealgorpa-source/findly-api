@@ -37,20 +37,20 @@ const transporter = nodemailer.createTransport({
 
 // --- Helper Functions ---
 const smartReasonsDict = {
-    high_rating: { ar: "⭐ منتج ذو تقييم ممتاز (أعلى من 4.5)", en: "⭐ Top Rated product (4.5+ stars)" },
-    popular: { ar: "🔥 الأكثر شعبية (آلاف المراجعات)", en: "🔥 Most Popular (Thousands of reviews)" },
-    default: { ar: "✨ أفضل نتيجة تطابق بحثك", en: "✨ Best match for your search" }
+    high_rating: { ar: "تقييمات ممتازة من المشترين", en: "Excellent customer ratings" },
+    best_value: { ar: "أفضل قيمة مقابل السعر حالياً", en: "Best value for money right now" },
+    trusted_store: { ar: "متجر موثوق وذو سمعة طيبة", en: "Trusted and reputable store" },
+    price_drop: { ar: "انخفاض ملحوظ في السعر", en: "Significant price drop detected" }
 };
 
 function analyzeProduct(product, lang) {
-    const l = lang || 'ar';
-    if (product.rating >= 4.5) return smartReasonsDict.high_rating[l] || smartReasonsDict.high_rating['ar'];
-    if (product.reviews > 1000) return smartReasonsDict.popular[l] || smartReasonsDict.popular['ar'];
-    return smartReasonsDict.default[l] || smartReasonsDict.default['ar'];
+    if (product.rating >= 4.5 && product.reviews > 100) return smartReasonsDict.high_rating[lang];
+    if (product.price && product.price.includes('sale')) return smartReasonsDict.price_drop[lang];
+    return smartReasonsDict.best_value[lang];
 }
 
-// --- Endpoints ---
-app.post('/smart-search', async (req, res) => {
+// --- Routes ---
+app.post('/search', async (req, res) => {
     const { query, lang, uid } = req.body;
     if (query && uid) await new SearchLog({ uid, query }).save();
 
@@ -82,10 +82,52 @@ app.post('/smart-search', async (req, res) => {
             realMarketAvg = Math.floor(sum / validPrices.length);
         }
 
-        // ترتيب النتائج حسب التقييم وإرسال المتوسط معها
-        results = results.sort((a, b) => b.rating - a.rating).slice(0, 8);
-        
-        // إرسال المنتجات + متوسط السعر الحقيقي
-        res.json({ products: results, marketAvg: realMarketAvg });
+        res.json({
+            products: results,
+            marketAvg: realMarketAvg
+        });
     });
 });
+
+app.post('/alerts', async (req, res) => {
+    try {
+        const newAlert = new Alert(req.body);
+        await newAlert.save();
+        res.json({ success: true });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// --- Background Task (Price Tracker) ---
+cron.schedule('0 */12 * * *', async () => {
+    console.log("🔍 Checking price alerts...");
+    const alerts = await Alert.find();
+
+    for (const alert of alerts) {
+        getJson({
+            engine: "google_shopping", q: alert.productName, api_key: SERP_API_KEY, num: 5
+        }, async (data) => {
+            if (!data.shopping_results) return;
+
+            for (const p of data.shopping_results) {
+                const currentPrice = p.price ? parseFloat(p.price.toString().replace(/[^0-9.]/g, '')) : 999999;
+                
+                if (currentPrice <= alert.targetPrice) {
+                    // Send Email
+                    const mailOptions = {
+                        from: EMAIL_USER,
+                        to: alert.email,
+                        subject: alert.lang === 'ar' ? 'انخفاض في السعر!' : 'Price Drop Alert!',
+                        text: `المنتج: ${alert.productName} متوفر الآن بسعر ${currentPrice}. الرابط: ${alert.link}`
+                    };
+                    transporter.sendMail(mailOptions);
+                    // Remove alert after notification
+                    await Alert.findByIdAndDelete(alert._id);
+                    break;
+                }
+            }
+        });
+    }
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

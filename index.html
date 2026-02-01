@@ -1,7 +1,3 @@
-
-
-
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl" id="main-html">
 <head>
@@ -451,6 +447,53 @@
     @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
+    /* --- New Intelligence Layers Styles --- */
+    .decision-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        padding: 5px 12px;
+        border-radius: 12px;
+        font-weight: 800;
+        font-size: 0.8rem;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        z-index: 10;
+    }
+    .tag-perfect { background: linear-gradient(135deg, #10b981, #059669); color: white; }
+    .tag-good { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
+    .tag-avoid { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+    .tag-normal { background: rgba(0,0,0,0.6); color: white; backdrop-filter: blur(4px); }
+
+    .specs-row {
+        display: flex;
+        gap: 5px;
+        margin: 10px 0;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+    .spec-pill {
+        background: rgba(139, 92, 246, 0.1);
+        border: 1px solid rgba(139, 92, 246, 0.2);
+        color: var(--text-muted);
+        font-size: 0.7rem;
+        padding: 2px 8px;
+        border-radius: 6px;
+    }
+    .match-score-bar {
+        height: 4px;
+        background: #334155;
+        border-radius: 2px;
+        margin: 10px 0;
+        overflow: hidden;
+        position: relative;
+    }
+    .match-fill {
+        height: 100%;
+        background: var(--gradient);
+        width: 0%;
+        transition: width 1s ease;
+    }
+
     </style>
 </head>  
 <body>
@@ -464,9 +507,6 @@
                 <div class="lang-item" onclick="setLang('ar')">العربية</div>  
                 <div class="lang-item" onclick="setLang('en')">English</div>  
                 <div class="lang-item" onclick="setLang('fr')">Français</div>  
-                <div class="lang-item" onclick="setLang('de')">Deutsch</div>  
-                <div class="lang-item" onclick="setLang('es')">Español</div>  
-                <div class="lang-item" onclick="setLang('tr')">Türkçe</div>  
             </div>  
         </div>  
         <button class="tool-btn" onclick="toggleWatchList()">  
@@ -536,10 +576,7 @@
         <h3 style="color:var(--compare-color); margin-top:0; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;">
             <i class="fa-solid fa-chart-pie"></i> <span id="txt-comp-title">تحليل السوق</span>
         </h3>
-        
-        <div id="comp-content">
-            </div>
-
+        <div id="comp-content"></div>
         <button onclick="document.getElementById('comp-modal').style.display='none'" class="action-btn buy-now" style="width:100%; margin-top:20px;">إغلاق</button>
     </div>
 </div>
@@ -588,53 +625,6 @@
 </div>  
 
 <script>  
-    /* --- New Intelligence Layers Styles --- */
-.decision-badge {
-    position: absolute;
-    top: 15px;
-    right: 15px; /* أو left حسب الرغبة */
-    padding: 5px 12px;
-    border-radius: 12px;
-    font-weight: 800;
-    font-size: 0.8rem;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    z-index: 10;
-}
-.tag-perfect { background: linear-gradient(135deg, #10b981, #059669); color: white; }
-.tag-good { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
-.tag-avoid { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
-.tag-normal { background: rgba(0,0,0,0.6); color: white; backdrop-filter: blur(4px); }
-
-.specs-row {
-    display: flex;
-    gap: 5px;
-    margin: 10px 0;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-}
-.spec-pill {
-    background: rgba(139, 92, 246, 0.1);
-    border: 1px solid rgba(139, 92, 246, 0.2);
-    color: var(--text-muted);
-    font-size: 0.7rem;
-    padding: 2px 8px;
-    border-radius: 6px;
-}
-.match-score-bar {
-    height: 4px;
-    background: #334155;
-    border-radius: 2px;
-    margin: 10px 0;
-    overflow: hidden;
-    position: relative;
-}
-.match-fill {
-    height: 100%;
-    background: var(--gradient);
-    width: 0%;
-    transition: width 1s ease;
-}
-    
     // --- 1. إعدادات Firebase ---  
    const firebaseConfig = {  
         apiKey: "AIzaSyCI_q5lkgRY4133ua4RlG5TeiCqJ5N5KTU",  
@@ -714,14 +704,10 @@
         }  
     }  
 
-    // --- القواميس المترجمة بالكامل ---
     const dict = {  
         ar: { title: "مستشارك الحكيم", sub: "دليلك الذكي للتسوق المثالي", energy: "طاقة العقل", welcome: "مرحباً،", game: "ألعاب", beauty: "جمال", home: "منزل ذكي", c1: "هواتف", c2: "لابتوب", c4: "ساعات", p_head: "الملف الشخصي", buy: "شراء", watch: "مراقبة", compare: "مقارنة", over: "يتجاوز ميزانيتك!", cheap: "اقتصادي", top: "الأعلى تقييماً", new: "حديث جداً", deep: "تحليل ذكي (Deep AI)", watchTitle: "قائمة المراقبة", why: "لماذا اخترنا هذا؟", slow: "السيرفر يستيقظ.. انتظر ثوانٍ", noAttempts: "⚠️ استنفدت محاولاتك!", compTitle: "تحليل السوق الشامل", rating: "التقييم", reviews: "مراجعات", market_high: "أعلى سعر سوقي", market_low: "أقل سعر منافس", competitors: "مقارنة المتاجر" },  
         en: { title: "Sage Advisor", sub: "Your smart shopping guide", energy: "Sage Energy", welcome: "Welcome,", game: "Gaming", beauty: "Beauty", home: "Smart Home", c1: "Phones", c2: "Laptops", c4: "Watches", p_head: "Profile", buy: "Buy", watch: "Watch", compare: "Compare", over: "Over Budget!", cheap: "Budget", top: "Top Rated", new: "Newest", deep: "Deep AI Mode", watchTitle: "Watch List", why: "Why this choice?", slow: "Server waking up.. wait", noAttempts: "⚠️ No attempts left!", compTitle: "Market Analysis", rating: "Rating", reviews: "Reviews", market_high: "Market High", market_low: "Market Low", competitors: "Store Comparison" },
-        fr: { title: "Sage Conseiller", sub: "Votre guide d'achat intelligent", energy: "Énergie Sage", welcome: "Bienvenue,", game: "Jeux", beauty: "Beauté", home: "Maison", c1: "Téléphones", c2: "Portables", c4: "Montres", p_head: "Profil", buy: "Acheter", watch: "Suivre", compare: "Comparer", over: "Hors budget!", cheap: "Économique", top: "Mieux noté", new: "Nouveau", deep: "Mode IA Profond", watchTitle: "Liste de surveillance", why: "Pourquoi ce choix?", slow: "Serveur en réveil...", noAttempts: "⚠️ Plus de tentatives!", compTitle: "Analyse du marché", rating: "Évaluation", reviews: "Avis", market_high: "Prix Élevé", market_low: "Prix Bas", competitors: "Comparaison" },
-        de: { title: "Weiser Berater", sub: "Ihr intelligenter Einkaufsführer", energy: "Sage Energie", welcome: "Willkommen,", game: "Spiele", beauty: "Schönheit", home: "Smart Home", c1: "Handys", c2: "Laptops", c4: "Uhren", p_head: "Profil", buy: "Kaufen", watch: "Beobachten", compare: "Vergleichen", over: "Über Budget!", cheap: "Günstig", top: "Bestbewertet", new: "Neu", deep: "Deep AI Modus", watchTitle: "Beobachtungsliste", why: "Warum diese Wahl?", slow: "Server wacht auf...", noAttempts: "⚠️ Keine Versuche mehr!", compTitle: "Marktanalyse", rating: "Bewertung", reviews: "Rezensionen", market_high: "Markthoch", market_low: "Markttief", competitors: "Händlervergleich" },
-        es: { title: "Consejero Sabio", sub: "Tu guía de compras inteligente", energy: "Energía Sabia", welcome: "Hola,", game: "Juegos", beauty: "Belleza", home: "Casa", c1: "Móviles", c2: "Portátiles", c4: "Relojes", p_head: "Perfil", buy: "Comprar", watch: "Seguir", compare: "Comparar", over: "¡Sobre presupuesto!", cheap: "Económico", top: "Mejor valorado", new: "Nuevo", deep: "Modo IA Profunda", watchTitle: "Lista de seguimiento", why: "¿Por qué esta elección?", slow: "Servidor despertando...", noAttempts: "⚠️ ¡Sin intentos!", compTitle: "Análisis de mercado", rating: "Clasificación", reviews: "Reseñas", market_high: "Precio Alto", market_low: "Precio Bajo", competitors: "Comparación" },
-        tr: { title: "Bilge Danışman", sub: "Akıllı alışveriş rehberiniz", energy: "Bilge Enerji", welcome: "Hoş geldiniz,", game: "Oyun", beauty: "Güzellik", home: "Ev", c1: "Telefonlar", c2: "Laptoplar", c4: "Saatler", p_head: "Profil", buy: "Satın Al", watch: "İzle", compare: "Karşılaştır", over: "Bütçe Aşıldı!", cheap: "Ekonomik", top: "En İyiler", new: "Yeni", deep: "Derin Yapay Zeka", watchTitle: "İzleme Listesi", why: "Neden bu seçim?", slow: "Sunucu uyanıyor...", noAttempts: "⚠️ Hakkınız kalmadı!", compTitle: "Pazar Analizi", rating: "Puan", reviews: "İncelemeler", market_high: "Piyasa Yüksek", market_low: "Piyasa Düşük", competitors: "Mağaza Karşılaştırması" }
+        fr: { title: "Sage Conseiller", sub: "Votre guide d'achat intelligent", energy: "Énergie Sage", welcome: "Bienvenue,", game: "Jeux", beauty: "Beauté", home: "Maison", c1: "Téléphones", c2: "Portables", c4: "Montres", p_head: "Profil", buy: "Acheter", watch: "Suivre", compare: "Comparer", over: "Hors budget!", cheap: "Économique", top: "Mieux noté", new: "Nouveau", deep: "Mode IA Profond", watchTitle: "Liste de surveillance", why: "Pourquoi ce choix?", slow: "Serveur en réveil...", noAttempts: "⚠️ Plus de tentatives!", compTitle: "Analyse du marché", rating: "Évaluation", reviews: "Avis", market_high: "Prix Élevé", market_low: "Prix Bas", competitors: "Comparaison" }
     };  
 
     // Toggle Deep AI
@@ -733,28 +719,24 @@
         else box.classList.remove('active-mode');
     }
 
-    // Helper to extract numbers from strings like "$250" or "250 USD"
     function extractPrice(priceInput) {
         if (!priceInput) return 0;
         if (typeof priceInput === 'number') return priceInput;
         let str = priceInput.toString();
-        // Remove everything except numbers and dots
         let num = parseFloat(str.replace(/[^0-9.]/g, ''));
         return isNaN(num) ? 0 : num;
     }
 
     // --- 3. دالة البحث الرئيسية ---  
-    async function runSearch() {  
+    async function runSearch(filterType = 'smart') {  
         if (!currentUserUID) { alert("يجب عليك تسجيل الدخول أولاً لتفعيل محرك الذكاء!"); toggleAuthModal(); return; }  
 
         let q = document.getElementById('s-input').value;  
         const status = document.getElementById('status');  
         const resCon = document.getElementById('results');  
+        const deepMode = document.getElementById('ai-deep-mode').checked;
         const d = dict[lang] || dict['ar'];  
         
-        // جلب الميزانية المحفوظة لإرسالها في حال لم تكن في قاعدة البيانات بعد
-        let userBudget = localStorage.getItem('fb') ? parseFloat(localStorage.getItem('fb')) : 0;  
-
         if (attempts <= 0) { status.style.display = "block"; status.innerHTML = d.noAttempts; return; }  
         if (!q) return;  
 
@@ -763,12 +745,14 @@
         resCon.innerHTML = "";  
 
         try {  
-            // إرسال الطلب للسيرفر (تم تحديث البيانات المرسلة)
             const res = await fetch(`${API}/smart-search`, {  
                 method: 'POST',  
                 headers: { 'Content-Type': 'application/json' },  
-                // نرسل UID ونوع الفلتر ليقوم السيرفر بالتحليل
-                body: JSON.stringify({ query: q, lang: lang, uid: currentUserUID, filterType: 'smart' })  
+                body: JSON.stringify({ 
+                    query: q, lang: lang, uid: currentUserUID, 
+                    filterType: filterType, 
+                    deepMode: deepMode 
+                })  
             });  
             const data = await res.json();  
             status.style.display = "none";  
@@ -777,43 +761,37 @@
                 
                 data.products.forEach((p, index) => {  
                     let priceVal = p.priceVal || extractPrice(p.price); 
-                    
-                    // --- قراءة بيانات التحليل الجديد (الطبقة 5) ---
                     const analysis = p.analysis || {};
                     const decisionTag = analysis.decisionTag || "Standard";
                     const userScore = analysis.userMatchScore || 50;
                     const specs = p.specs || {};
 
-                    // تحديد لون ولصقة القرار
                     let tagClass = "tag-normal";
                     let tagIcon = "";
                     if (decisionTag === "Perfect for You" || decisionTag === "مثالي لك") { tagClass = "tag-perfect"; tagIcon = "✨"; }
                     else if (decisionTag === "Best Buy" || decisionTag === "أفضل شراء") { tagClass = "tag-good"; tagIcon = "🔥"; }
                     else if (decisionTag === "Avoid" || decisionTag === "تجنبه") { tagClass = "tag-avoid"; tagIcon = "⚠️"; }
 
-                    // تجهيز HTML المواصفات (الطبقة 1)
                     let specsHTML = "";
                     if(specs.cpu) specsHTML += `<span class="spec-pill"><i class="fa-solid fa-microchip"></i> ${specs.cpu}</span>`;
                     if(specs.ram) specsHTML += `<span class="spec-pill">RAM ${specs.ram}GB</span>`;
                     if(specs.gpu) specsHTML += `<span class="spec-pill"><i class="fa-solid fa-display"></i> ${specs.gpu}</span>`;
 
-                    // تجهيز اسم ورابط آمن
                     const safeName = p.name.replace(/'/g, "\\'").replace(/"/g, "&quot;");
                     const safePrice = p.priceVal;
                     let mAvg = data.marketAvg || (priceVal * 1.1);
+
+                    // نمرر البيانات الحقيقية لدالة المقارنة
+                    const compArgs = `'${safeName}', ${safePrice}, ${mAvg}, ${p.real_rating}, ${p.reviews_count}, '${analysis.marketPosition}'`;
 
                     setTimeout(() => {  
                         resCon.innerHTML += `  
                             <div class="product-card">  
                                 <div class="decision-badge ${tagClass}">${tagIcon} ${decisionTag}</div>
-
                                 <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/150'">  
                                 <h3>${p.name}</h3>  
-                                
                                 <div class="specs-row">${specsHTML}</div>
-
                                 <div class="price">${p.price || 'N/A'}</div>  
-                                
                                 <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:2px;">توافق مع ملفك: ${userScore}%</div>
                                 <div class="match-score-bar"><div class="match-fill" style="width:${userScore}%"></div></div>
 
@@ -826,7 +804,7 @@
                                 <div class="btn-group">  
                                     <a href="${p.link}" target="_blank" class="action-btn buy-now">${d.buy} 🛒</a>  
                                     <button class="action-btn watch-later" onclick="addToWatch('${safeName}', '${p.price}', '${p.link}')">${d.watch} 🔔</button>
-                                    <button class="action-btn compare-btn" onclick="openComparison('${safeName}', ${safePrice}, ${mAvg})">
+                                    <button class="action-btn compare-btn" onclick="openComparison(${compArgs})">
                                         <i class="fa-solid fa-code-compare"></i> ${d.compare}
                                     </button>
                                 </div>
@@ -851,99 +829,92 @@
 
     // --- 4. وظائف المقارنة المتقدمة و Watchlist ---
     
-function openComparison(name, price, serverAvg) {
-    const modal = document.getElementById('comp-modal');
-    const content = document.getElementById('comp-content');
-    const d = dict[lang] || dict['ar'];
-    document.getElementById('txt-comp-title').innerText = d.compTitle;
-    modal.style.display = 'flex';
+    // تم التحديث: تستقبل بيانات حقيقية الآن
+    function openComparison(name, price, serverAvg, realRating, realReviews, marketPos) {
+        const modal = document.getElementById('comp-modal');
+        const content = document.getElementById('comp-content');
+        const d = dict[lang] || dict['ar'];
+        document.getElementById('txt-comp-title').innerText = d.compTitle;
+        modal.style.display = 'flex';
 
-    // 1. Data Cleaning
-    let marketAvg = (serverAvg > 0) ? serverAvg : price;
-    if(marketAvg === 0) marketAvg = 1; 
-    let displayPrice = (price > 0) ? price.toFixed(2) : "N/A";
+        // 1. Data Cleaning
+        let marketAvg = (serverAvg > 0) ? serverAvg : price;
+        if(marketAvg === 0) marketAvg = 1; 
+        let displayPrice = (price > 0) ? price.toFixed(2) : "N/A";
 
-    // 2. Simulated Metrics (Since API doesn't send specific store data yet)
-    let marketHigh = (marketAvg * 1.15).toFixed(2);
-    let marketLow = (marketAvg * 0.92).toFixed(2);
-    let rating = (Math.random() * (5.0 - 4.0) + 4.0).toFixed(1); // Random 4.0-5.0
-    let reviewCount = Math.floor(Math.random() * 500) + 50;
-
-    // 3. Logic for Stars
-    let starsHTML = '';
-    for(let i=0; i<5; i++) {
-        if(i < Math.floor(rating)) starsHTML += '<i class="fa-solid fa-star"></i>';
-        else if (i < rating) starsHTML += '<i class="fa-solid fa-star-half-stroke"></i>';
-        else starsHTML += '<i class="fa-regular fa-star"></i>';
-    }
-
-    // 4. Comparison Table (Logic: Where does THIS product stand?)
-    let verdict = "";
-    let verdictClass = "";
-    if (price <= marketAvg) {
-        verdict = d.cheap + " (Excellent)";
-        verdictClass = "badge-success";
-    } else {
-        verdict = "Standard Price";
-        verdictClass = "badge-danger";
-    }
-
-    // 5. Build HTML
-    content.innerHTML = `
-        <div class="comp-header">
-            <div style="text-align: right;">
-                <div style="font-weight:bold; font-size:1rem; color:#fff; margin-bottom:5px;">${name.substring(0, 40)}...</div>
-                <div class="stars">${starsHTML} <span style="color:#94a3b8; font-size:0.7rem;">(${reviewCount} ${d.reviews})</span></div>
-            </div>
-            <div style="text-align: left;">
-                <div style="font-size:1.4rem; font-weight:bold; color:var(--primary);">${displayPrice}</div>
-            </div>
-        </div>
-
-        <div class="comp-stat-grid">
-            <div class="comp-stat-box">
-                <div class="comp-stat-val">${rating}/5</div>
-                <div class="comp-stat-lbl">${d.rating}</div>
-            </div>
-            <div class="comp-stat-box">
-                <div class="comp-stat-val">${marketAvg.toFixed(2)}</div>
-                <div class="comp-stat-lbl">Global Avg</div>
-            </div>
-        </div>
-
-        <h4 style="color:var(--text-muted); margin: 15px 0 5px 0; font-size:0.9rem;">${d.competitors}</h4>
+        // 2. Real Metrics from Server
+        let rating = realRating || 0;
+        let reviewCount = realReviews || 0;
         
-        <div style="background:rgba(255,255,255,0.03); border-radius:12px; padding:10px;">
-            <div class="comp-row">
-                <span><i class="fa-solid fa-store" style="color:#ef4444;"></i> Global Market (High)</span>
-                <span style="font-weight:bold;">${marketHigh}</span>
-            </div>
-            <div class="comp-row">
-                <span><i class="fa-solid fa-store" style="color:#f59e0b;"></i> Global Market (Avg)</span>
-                <span style="font-weight:bold;">${marketAvg.toFixed(2)}</span>
-            </div>
-            <div class="comp-row" style="background:rgba(16, 185, 129, 0.1); border-radius:8px; padding:8px;">
-                <span><i class="fa-solid fa-check-circle" style="color:#10b981;"></i> <strong>Findly Deal</strong></span>
-                <span style="font-weight:bold; color:#10b981;">${displayPrice}</span>
-            </div>
-             <div class="comp-row">
-                <span><i class="fa-solid fa-store" style="color:#3b82f6;"></i> Local Vendors (Low)</span>
-                <span style="font-weight:bold;">${marketLow}</span>
-            </div>
-        </div>
+        let marketHigh = (marketAvg * 1.15).toFixed(2);
+        let marketLow = (marketAvg * 0.90).toFixed(2);
 
-        <div style="margin-top:20px; text-align:center;">
-            <span class="badge ${verdictClass}" style="font-size:0.9rem; padding:8px 20px;">${verdict}</span>
-        </div>
-    `;
-}
+        // 3. Logic for Stars
+        let starsHTML = '';
+        for(let i=0; i<5; i++) {
+            if(i < Math.floor(rating)) starsHTML += '<i class="fa-solid fa-star"></i>';
+            else if (i < rating) starsHTML += '<i class="fa-solid fa-star-half-stroke"></i>';
+            else starsHTML += '<i class="fa-regular fa-star"></i>';
+        }
 
-    // Fix: Improved Watchlist with Local Fallback
+        // 4. Verdict Logic (Server Side Data)
+        let verdict = marketPos || "Standard Price";
+        let verdictClass = (verdict === "Under Market" || verdict === "أرخص من السوق") ? "badge-success" : "badge-danger";
+
+        // 5. Build HTML
+        content.innerHTML = `
+            <div class="comp-header">
+                <div style="text-align: right;">
+                    <div style="font-weight:bold; font-size:1rem; color:#fff; margin-bottom:5px;">${name.substring(0, 40)}...</div>
+                    <div class="stars">${starsHTML} <span style="color:#94a3b8; font-size:0.7rem;">(${reviewCount} ${d.reviews})</span></div>
+                </div>
+                <div style="text-align: left;">
+                    <div style="font-size:1.4rem; font-weight:bold; color:var(--primary);">${displayPrice}</div>
+                </div>
+            </div>
+
+            <div class="comp-stat-grid">
+                <div class="comp-stat-box">
+                    <div class="comp-stat-val">${rating}/5</div>
+                    <div class="comp-stat-lbl">${d.rating}</div>
+                </div>
+                <div class="comp-stat-box">
+                    <div class="comp-stat-val">${marketAvg.toFixed(2)}</div>
+                    <div class="comp-stat-lbl">Global Avg</div>
+                </div>
+            </div>
+
+            <h4 style="color:var(--text-muted); margin: 15px 0 5px 0; font-size:0.9rem;">${d.competitors}</h4>
+            
+            <div style="background:rgba(255,255,255,0.03); border-radius:12px; padding:10px;">
+                <div class="comp-row">
+                    <span><i class="fa-solid fa-store" style="color:#ef4444;"></i> Global Market (High)</span>
+                    <span style="font-weight:bold;">${marketHigh}</span>
+                </div>
+                <div class="comp-row">
+                    <span><i class="fa-solid fa-store" style="color:#f59e0b;"></i> Global Market (Avg)</span>
+                    <span style="font-weight:bold;">${marketAvg.toFixed(2)}</span>
+                </div>
+                <div class="comp-row" style="background:rgba(16, 185, 129, 0.1); border-radius:8px; padding:8px;">
+                    <span><i class="fa-solid fa-check-circle" style="color:#10b981;"></i> <strong>Findly Deal</strong></span>
+                    <span style="font-weight:bold; color:#10b981;">${displayPrice}</span>
+                </div>
+                 <div class="comp-row">
+                    <span><i class="fa-solid fa-store" style="color:#3b82f6;"></i> Local Vendors (Low)</span>
+                    <span style="font-weight:bold;">${marketLow}</span>
+                </div>
+            </div>
+
+            <div style="margin-top:20px; text-align:center;">
+                <span class="badge ${verdictClass}" style="font-size:0.9rem; padding:8px 20px;">${verdict}</span>
+            </div>
+        `;
+    }
+
     async function addToWatch(n, p, l) {
         if (!currentUserUID) { alert("Please login first"); return; }
         const newItem = { name: n, price: p, link: l };
         
-        // محاولة الحفظ في السيرفر أولاً
         try {
             const res = await fetch(`${API}/watchlist/add`, {
                 method: 'POST',
@@ -954,17 +925,13 @@ function openComparison(name, price, serverAvg) {
             
             if(data.message === "موجود بالفعل") { alert("⚠️ المنتج موجود بالفعل في قائمتك"); return; }
             
-            // نجاح السيرفر
             watchList.push(newItem);
             localStorage.setItem('findly_watch', JSON.stringify(watchList));
             update();
             alert("✅ تمت الإضافة لـ Watchlist بنجاح");
 
         } catch (e) { 
-            // فشل السيرفر: الحفظ محلياً
             console.warn("Server offline, saving locally.");
-            
-            // تحقق من التكرار محلياً
             const exists = watchList.some(item => item.name === newItem.name);
             if(exists) {
                 alert("⚠️ المنتج موجود بالفعل (Local Mode)");
@@ -1011,7 +978,6 @@ function openComparison(name, price, serverAvg) {
         document.getElementById('r-count').innerText = attempts;  
         document.getElementById('greeting').innerText = `${d.welcome} ${localStorage.getItem('fn') || 'User'} 👋`;  
 
-        // Update Compare Modal Title if open
         const compTitle = document.getElementById('txt-comp-title');
         if(compTitle) compTitle.innerText = d.compTitle;
 
@@ -1027,7 +993,7 @@ function openComparison(name, price, serverAvg) {
         if (type === 'cheap') input.value += " cheap price";
         if (type === 'top-rated') input.value += " top rated";
         if (type === 'new') input.value += " 2026";
-        runSearch();
+        runSearch(type);
     }
 
     function setLang(l) { lang = l; localStorage.setItem('findly_lang', l); document.getElementById('l-menu').style.display = 'none'; update(); }  
@@ -1043,7 +1009,6 @@ function openComparison(name, price, serverAvg) {
         if(n) localStorage.setItem('fn', n);
         if(b) localStorage.setItem('fb', b);
 
-        // --- التحديث الجديد: إرسال التفضيلات للسيرفر (الطبقة 2) ---
         if (currentUserUID && b) {
             try {
                 await fetch(`${API}/user/preferences`, {
@@ -1052,7 +1017,7 @@ function openComparison(name, price, serverAvg) {
                     body: JSON.stringify({ 
                         uid: currentUserUID, 
                         budget: parseFloat(b),
-                        categories: [] // يمكن تطويرها لاحقاً لإرسال الفئات المفضلة
+                        categories: [] 
                     })
                 });
                 console.log("✅ Profile synced with Intelligent Engine");

@@ -10,7 +10,7 @@ app.use(cors());
 app.use(express.json());
 
 // الإعدادات
-const MONGO_URI = process.env.MONGO_URI;
+const MONGO_URI = https://findly-api.onrender.com;
 const SERP_API_KEY = process.env.SERPAPI_KEY;
 
 mongoose.connect(MONGO_URI)

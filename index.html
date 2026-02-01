@@ -601,18 +601,7 @@ async function runSearch() {
             }
         }
 
-      data.results.forEach((p, index) => {
-    resCon.innerHTML += `
-        <div class="product-card">
-            <img src="${p.thumbnail || ''}">
-            <h3>${p.name}</h3>
-            <div class="price">${p.price || 'N/A'}</div>
-            <div class="analysis-engine">${p.smartReason}</div>
-            <div class="btn-group">
-                <a href="${p.link}" target="_blank" class="buy-now">شراء الآن</a>
-            </div>
-        </div>`;
-});
+      
       
         function startVoice() {
             const mic = document.getElementById('mic-btn');

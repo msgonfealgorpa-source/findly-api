@@ -507,27 +507,35 @@
 
                 // FIXED: Server returns 'results' not 'products'
                 if (data.results && data.results.length > 0) {
+                    resCon.innerHTML = ""; // تنظيف النتائج السابقة
                     data.results.forEach((p, index) => {
-                        // Safe Price Logic
+                        // معالجة السعر وتحويله لرقم
                         let cleanPrice = p.price ? p.price.toString().replace(/[^\d.]/g, '') : "0"; 
                         let priceVal = parseFloat(cleanPrice);
                         let budgetAlert = (userBudget > 0 && priceVal > userBudget) ? `<div class="budget-error">⚠️ ${d.over} (${userBudget}$)</div>` : "";
                         
-                        // FIXED: Using p.smartReason from server
-                        setTimeout(() => {
-                            resCon.innerHTML += `
-                                <div class="product-card">
-                                    ${budgetAlert}
-                                    <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/150'">
-                                    <h3>${p.name}</h3>
-                                    <div class="price">${p.price || 'N/A'}</div>
-                                    <div class="analysis-engine"><span class="analysis-label"><i class="fa-solid fa-brain"></i> ${d.why}</span>${p.smartReason || 'Best match found based on your search.'}</div>
-                                    <div class="btn-group">
-                                        <a href="${p.link}" target="_blank" class="action-btn buy-now">${d.buy}</a>
-                                        <button class="action-btn watch-later" onclick="addToWatch('${p.name.replace(/'/g, "\\'")}', '${p.price}', '${p.link}')">${d.watch}</button>
-                                    </div>
-                                </div>`;
-                        }, index * 100);
+                        // إنشاء البطاقة
+                        const card = document.createElement('div');
+                        card.className = 'product-card';
+                        card.innerHTML = `
+                            ${budgetAlert}
+                            <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/150'">
+                            <h3>${p.name}</h3>
+                            <div class="price">${p.price || 'N/A'}</div>
+                            
+                            <div class="analysis-engine" style="background: rgba(139, 92, 246, 0.1); border-radius: 12px; padding: 10px; margin: 10px 0; border: 1px dashed var(--primary);">
+                                <span class="analysis-label"><i class="fa-solid fa-brain"></i> ${d.why || 'تحليل ذكي:'}</span>
+                                <p style="font-size: 0.85rem; margin-top: 5px; color: var(--text);">${p.smartReason || 'أفضل خيار تم العثور عليه لبحثك'}</p>
+                            </div>
+
+                            <div class="btn-group">
+                                <a href="${p.link}" target="_blank" class="action-btn buy-now">${d.buy}</a>
+                                <button class="action-btn watch-later" onclick="addToWatch('${p.name.replace(/'/g, "\\'")}', '${priceVal}', '${p.link}')">
+                                    <i class="fa-solid fa-bell"></i> ${d.watch}
+                                </button>
+                            </div>
+                        `;
+                        resCon.appendChild(card);
                     });
                     
                     attempts--;
@@ -542,52 +550,7 @@
                 status.style.display = "block";
                 status.innerHTML = `<i class="fa-solid fa-clock-rotate-left"></i> ${d.slow}`;
             }
-        }
-
-        async function addToWatch(name, price, link) {
-            const promptMsg = {
-                ar: "أدخل إيميلك لتفعيل التنبيه:",
-                en: "Enter email for alert:",
-            };
-
-            // Using simple prompt as per original code style
-            const userEmail = prompt(promptMsg[lang] || promptMsg['ar']);
-
-            if (userEmail && userEmail.includes("@")) {
-                let uid = localStorage.getItem('findly_uid');
-                
-                // FIXED: Matching the server's Watchlist Schema expectation
-                // Note: Server has /watchlist route but cron looks at 'Alert' model.
-                // We will send to /watchlist to save the item.
-                try {
-                    const response = await fetch(`${API}/watchlist`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            uid: uid,
-                            name: name,
-                            price: price,
-                            thumbnail: "", // Optional
-                            link: link,
-                            email: userEmail // Sending email even if schema might not use it immediately, for future compatibility
-                        })
-                    });
-
-                    if (response.ok) {
-                        watchList.push({ name, price, link });
-                        localStorage.setItem('findly_watch', JSON.stringify(watchList));
-                        update();
-                        alert(lang === 'ar' ? "تمت الإضافة للقائمة!" : "Added to watchlist!");
-                    } else {
-                        alert("Server Error");
-                    }
-                } catch (error) {
-                    console.error("Error:", error);
-                    alert("Connection failed");
-                }
-            }
-        }
-
+        
         function startVoice() {
             const mic = document.getElementById('mic-btn');
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -606,8 +569,31 @@
         }
 
         // --- UI & Helper Functions ---
-
-        function saveSet() {
+async function addToWatch(name, price, link) {
+    const userEmail = prompt(lang === 'ar' ? "أدخل إيميلك لتفعيل التنبيه:" : "Enter email for alert:");
+    if (userEmail && userEmail.includes("@")) {
+        let uid = localStorage.getItem('findly_uid');
+        try {
+            const response = await fetch(`${API}/alert`, { // المسار الصحيح هو /alert
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    uid: uid,
+                    email: userEmail,
+                    productName: name,
+                    targetPrice: parseFloat(price),
+                    link: link,
+                    lang: lang
+                })
+            });
+            if (response.ok) {
+                alert(lang === 'ar' ? "✅ تم تفعيل المراقبة!" : "✅ Alert activated!");
+            }
+        } catch (e) { alert("Error connecting to server"); }
+    }
+}
+        
+            function saveSet() {
             localStorage.setItem('fn', document.getElementById('in-name').value);
             localStorage.setItem('fb', document.getElementById('in-budget').value);
             document.getElementById('p-modal').style.display = 'none';

@@ -489,7 +489,6 @@
             status.innerHTML = '<i class="fa-solid fa-microchip fa-spin"></i> Finding Best Deals...';
             resCon.innerHTML = "";
 
-            // Generate or Retrieve UID for history
             let uid = localStorage.getItem('findly_uid');
             if(!uid) {
                 uid = 'user_' + Math.random().toString(36).substr(2, 9);
@@ -497,7 +496,6 @@
             }
 
             try {
-                // FIXED: Changed to GET method and correct params to match server.js
                 const res = await fetch(`${API}/search?q=${encodeURIComponent(q)}&uid=${uid}&lang=${lang}`, {
                     method: 'GET'
                 });
@@ -505,27 +503,29 @@
                 const data = await res.json();
                 status.style.display = "none";
 
-                // FIXED: Server returns 'results' not 'products'
                 if (data.results && data.results.length > 0) {
-                    resCon.innerHTML = ""; // تنظيف النتائج السابقة
+                    resCon.innerHTML = ""; 
+
                     data.results.forEach((p, index) => {
-                        // معالجة السعر وتحويله لرقم
                         let cleanPrice = p.price ? p.price.toString().replace(/[^\d.]/g, '') : "0"; 
                         let priceVal = parseFloat(cleanPrice);
                         let budgetAlert = (userBudget > 0 && priceVal > userBudget) ? `<div class="budget-error">⚠️ ${d.over} (${userBudget}$)</div>` : "";
                         
-                        // إنشاء البطاقة
                         const card = document.createElement('div');
                         card.className = 'product-card';
+                        card.style.animationDelay = `${index * 0.1}s`;
+
                         card.innerHTML = `
                             ${budgetAlert}
                             <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/150'">
                             <h3>${p.name}</h3>
                             <div class="price">${p.price || 'N/A'}</div>
                             
-                            <div class="analysis-engine" style="background: rgba(139, 92, 246, 0.1); border-radius: 12px; padding: 10px; margin: 10px 0; border: 1px dashed var(--primary);">
-                                <span class="analysis-label"><i class="fa-solid fa-brain"></i> ${d.why || 'تحليل ذكي:'}</span>
-                                <p style="font-size: 0.85rem; margin-top: 5px; color: var(--text);">${p.smartReason || 'أفضل خيار تم العثور عليه لبحثك'}</p>
+                            <div class="analysis-engine" style="background: rgba(139, 92, 246, 0.1); border: 1px dashed var(--primary); padding: 10px; border-radius: 12px; margin: 10px 0;">
+                                <span class="analysis-label" style="color: var(--primary); font-weight: bold; font-size: 0.8rem;">
+                                    <i class="fa-solid fa-brain"></i> ${d.why || 'تحليل ذكي:'}
+                                </span>
+                                <p style="font-size: 0.8rem; margin-top: 5px; color: var(--text);">${p.smartReason || 'أفضل خيار تم العثور عليه لبحثك.'}</p>
                             </div>
 
                             <div class="btn-group">
@@ -550,7 +550,40 @@
                 status.style.display = "block";
                 status.innerHTML = `<i class="fa-solid fa-clock-rotate-left"></i> ${d.slow}`;
             }
-        
+        }
+
+        async function addToWatch(name, price, link) {
+            const promptMsg = {
+                ar: "أدخل إيميلك لتفعيل التنبيه:",
+                en: "Enter email for alert:",
+            };
+            const userEmail = prompt(promptMsg[lang] || promptMsg['ar']);
+
+            if (userEmail && userEmail.includes("@")) {
+                let uid = localStorage.getItem('findly_uid');
+                try {
+                    const response = await fetch(`${API}/alert`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            uid: uid,
+                            email: userEmail,
+                            productName: name,
+                            targetPrice: parseFloat(price) * 0.95,
+                            link: link,
+                            lang: lang
+                        })
+                    });
+                    if (response.ok) {
+                        alert(lang === 'ar' ? "✅ تم تفعيل المراقبة!" : "✅ Alert activated!");
+                        watchList.push({ name, price: price + "$", link });
+                        localStorage.setItem('findly_watch', JSON.stringify(watchList));
+                        update();
+                    }
+                } catch (error) { console.error("Error:", error); }
+            }
+        }
+
         function startVoice() {
             const mic = document.getElementById('mic-btn');
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -567,31 +600,6 @@
             recognition.onend = () => mic.classList.remove('mic-active');
             recognition.start();
         }
-
-        // --- UI & Helper Functions ---
-async function addToWatch(name, price, link) {
-    const userEmail = prompt(lang === 'ar' ? "أدخل إيميلك لتفعيل التنبيه:" : "Enter email for alert:");
-    if (userEmail && userEmail.includes("@")) {
-        let uid = localStorage.getItem('findly_uid');
-        try {
-            const response = await fetch(`${API}/alert`, { // المسار الصحيح هو /alert
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    uid: uid,
-                    email: userEmail,
-                    productName: name,
-                    targetPrice: parseFloat(price),
-                    link: link,
-                    lang: lang
-                })
-            });
-            if (response.ok) {
-                alert(lang === 'ar' ? "✅ تم تفعيل المراقبة!" : "✅ Alert activated!");
-            }
-        } catch (e) { alert("Error connecting to server"); }
-    }
-}
         
             function saveSet() {
             localStorage.setItem('fn', document.getElementById('in-name').value);

@@ -588,8 +588,55 @@
 </div>  
 
 <script>  
+    /* --- New Intelligence Layers Styles --- */
+.decision-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px; /* أو left حسب الرغبة */
+    padding: 5px 12px;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 0.8rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    z-index: 10;
+}
+.tag-perfect { background: linear-gradient(135deg, #10b981, #059669); color: white; }
+.tag-good { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
+.tag-avoid { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+.tag-normal { background: rgba(0,0,0,0.6); color: white; backdrop-filter: blur(4px); }
+
+.specs-row {
+    display: flex;
+    gap: 5px;
+    margin: 10px 0;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+.spec-pill {
+    background: rgba(139, 92, 246, 0.1);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    color: var(--text-muted);
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 6px;
+}
+.match-score-bar {
+    height: 4px;
+    background: #334155;
+    border-radius: 2px;
+    margin: 10px 0;
+    overflow: hidden;
+    position: relative;
+}
+.match-fill {
+    height: 100%;
+    background: var(--gradient);
+    width: 0%;
+    transition: width 1s ease;
+}
+    
     // --- 1. إعدادات Firebase ---  
-    const firebaseConfig = {  
+   const firebaseConfig = {  
         apiKey: "AIzaSyCI_q5lkgRY4133ua4RlG5TeiCqJ5N5KTU",  
         authDomain: "findly-ede17.firebaseapp.com",  
         projectId: "findly-ede17",  
@@ -698,81 +745,88 @@
 
     // --- 3. دالة البحث الرئيسية ---  
     async function runSearch() {  
-        if (!currentUserUID) { alert("يجب عليك تسجيل الدخول أولاً!"); toggleAuthModal(); return; }  
+        if (!currentUserUID) { alert("يجب عليك تسجيل الدخول أولاً لتفعيل محرك الذكاء!"); toggleAuthModal(); return; }  
 
         let q = document.getElementById('s-input').value;  
         const status = document.getElementById('status');  
         const resCon = document.getElementById('results');  
-        const deepCon = document.getElementById('deep-ai-container');
-        const isDeep = document.getElementById('ai-deep-mode').checked;
         const d = dict[lang] || dict['ar'];  
-          
+        
+        // جلب الميزانية المحفوظة لإرسالها في حال لم تكن في قاعدة البيانات بعد
         let userBudget = localStorage.getItem('fb') ? parseFloat(localStorage.getItem('fb')) : 0;  
 
         if (attempts <= 0) { status.style.display = "block"; status.innerHTML = d.noAttempts; return; }  
         if (!q) return;  
 
         status.style.display = "block";  
-        status.innerHTML = '<i class="fa-solid fa-microchip fa-spin"></i> Analyzing...';  
+        status.innerHTML = '<i class="fa-solid fa-microchip fa-spin"></i> Smart Engine Analyzing...';  
         resCon.innerHTML = "";  
-        deepCon.innerHTML = "";
 
         try {  
-            // 1. جلب المنتجات
+            // إرسال الطلب للسيرفر (تم تحديث البيانات المرسلة)
             const res = await fetch(`${API}/smart-search`, {  
                 method: 'POST',  
                 headers: { 'Content-Type': 'application/json' },  
-                body: JSON.stringify({ query: q, lang: lang, uid: currentUserUID })  
+                // نرسل UID ونوع الفلتر ليقوم السيرفر بالتحليل
+                body: JSON.stringify({ query: q, lang: lang, uid: currentUserUID, filterType: 'smart' })  
             });  
             const data = await res.json();  
             status.style.display = "none";  
 
             if (data.products && data.products.length > 0) {  
                 
-                // 2. إذا كان Deep AI مفعلاً، نقوم بطلب التحليل
-                if (isDeep) {
-                    deepCon.innerHTML = `<div class="deep-result-box" style="text-align:center;"><i class="fa-solid fa-brain fa-pulse"></i> جاري التحليل العميق...</div>`;
-                    
-                    fetch(`${API}/deep-ai-analyze`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ products: data.products, query: q, lang: lang })
-                    })
-                    .then(r => r.json())
-                    .then(dRes => {
-                        deepCon.innerHTML = `<div class="deep-result-box"><i class="fa-solid fa-wand-magic-sparkles"></i> <strong>Deep AI Decision:</strong><br><br>${dRes.deepAnalysis}</div>`;
-                    })
-                    .catch(e => {
-                        deepCon.innerHTML = ""; // إخفاء في حال الخطأ
-                    });
-                }
-
-                // 3. عرض المنتجات
                 data.products.forEach((p, index) => {  
-                    // Fix: Extract price if priceVal is missing
                     let priceVal = p.priceVal || extractPrice(p.price); 
                     
-                    let budgetAlert = (userBudget > 0 && priceVal > userBudget) ? `<div class="budget-error"><i class="fa-solid fa-triangle-exclamation"></i> ${d.over} ($${userBudget})</div>` : "";  
-                    
+                    // --- قراءة بيانات التحليل الجديد (الطبقة 5) ---
+                    const analysis = p.analysis || {};
+                    const decisionTag = analysis.decisionTag || "Standard";
+                    const userScore = analysis.userMatchScore || 50;
+                    const specs = p.specs || {};
+
+                    // تحديد لون ولصقة القرار
+                    let tagClass = "tag-normal";
+                    let tagIcon = "";
+                    if (decisionTag === "Perfect for You" || decisionTag === "مثالي لك") { tagClass = "tag-perfect"; tagIcon = "✨"; }
+                    else if (decisionTag === "Best Buy" || decisionTag === "أفضل شراء") { tagClass = "tag-good"; tagIcon = "🔥"; }
+                    else if (decisionTag === "Avoid" || decisionTag === "تجنبه") { tagClass = "tag-avoid"; tagIcon = "⚠️"; }
+
+                    // تجهيز HTML المواصفات (الطبقة 1)
+                    let specsHTML = "";
+                    if(specs.cpu) specsHTML += `<span class="spec-pill"><i class="fa-solid fa-microchip"></i> ${specs.cpu}</span>`;
+                    if(specs.ram) specsHTML += `<span class="spec-pill">RAM ${specs.ram}GB</span>`;
+                    if(specs.gpu) specsHTML += `<span class="spec-pill"><i class="fa-solid fa-display"></i> ${specs.gpu}</span>`;
+
+                    // تجهيز اسم ورابط آمن
                     const safeName = p.name.replace(/'/g, "\\'").replace(/"/g, "&quot;");
-                    const safePrice = p.price.toString().replace(/'/g, "\\'");
-                    
-                    // Pass serverAvg or estimate it based on current price if missing
+                    const safePrice = p.priceVal;
                     let mAvg = data.marketAvg || (priceVal * 1.1);
 
                     setTimeout(() => {  
                         resCon.innerHTML += `  
                             <div class="product-card">  
-                                ${budgetAlert}  
+                                <div class="decision-badge ${tagClass}">${tagIcon} ${decisionTag}</div>
+
                                 <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/150'">  
                                 <h3>${p.name}</h3>  
+                                
+                                <div class="specs-row">${specsHTML}</div>
+
                                 <div class="price">${p.price || 'N/A'}</div>  
-                                <div class="analysis-engine"><span class="analysis-label"><i class="fa-solid fa-brain"></i> ${d.why}</span>${p.reason}</div>  
+                                
+                                <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:2px;">توافق مع ملفك: ${userScore}%</div>
+                                <div class="match-score-bar"><div class="match-fill" style="width:${userScore}%"></div></div>
+
+                                <div class="analysis-engine">
+                                    <span class="analysis-label"><i class="fa-solid fa-brain"></i> تحليل السيرفر:</span>
+                                    ${analysis.pros && analysis.pros.length > 0 ? `<span style="color:#10b981">✔ ${analysis.pros[0]}</span>` : p.store_name}
+                                    ${analysis.cons && analysis.cons.length > 0 ? `<br><span style="color:#ef4444">✘ ${analysis.cons[0]}</span>` : ''}
+                                </div>  
+
                                 <div class="btn-group">  
                                     <a href="${p.link}" target="_blank" class="action-btn buy-now">${d.buy} 🛒</a>  
-                                    <button class="action-btn watch-later" onclick="addToWatch('${safeName}', '${safePrice}', '${p.link}')">${d.watch} 🔔</button>
-
-                                    <button class="action-btn compare-btn" onclick="openComparison('${safeName}', ${priceVal}, ${mAvg})">
+                                    <button class="action-btn watch-later" onclick="addToWatch('${safeName}', '${p.price}', '${p.link}')">${d.watch} 🔔</button>
+                                    <button class="action-btn compare-btn" onclick="openComparison('${safeName}', ${safePrice}, ${mAvg})">
                                         <i class="fa-solid fa-code-compare"></i> ${d.compare}
                                     </button>
                                 </div>
@@ -786,10 +840,14 @@
                 update();  
             } else { 
                 status.style.display = "block"; 
-                status.innerHTML = "No results found"; 
+                status.innerHTML = "No intelligent results found."; 
             }  
-        } catch (e) { status.style.display = "block"; status.innerHTML = "Server Error (Try again)"; console.error(e); }  
-    }  
+        } catch (e) { 
+            status.style.display = "block"; 
+            status.innerHTML = "Server Error (Check Connection)"; 
+            console.error(e); 
+        }  
+    }
 
     // --- 4. وظائف المقارنة المتقدمة و Watchlist ---
     
@@ -981,11 +1039,29 @@ function openComparison(name, price, serverAvg) {
     async function saveSet() {
         const n = document.getElementById('in-name').value;
         const b = document.getElementById('in-budget').value;
+        
         if(n) localStorage.setItem('fn', n);
         if(b) localStorage.setItem('fb', b);
+
+        // --- التحديث الجديد: إرسال التفضيلات للسيرفر (الطبقة 2) ---
+        if (currentUserUID && b) {
+            try {
+                await fetch(`${API}/user/preferences`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        uid: currentUserUID, 
+                        budget: parseFloat(b),
+                        categories: [] // يمكن تطويرها لاحقاً لإرسال الفئات المفضلة
+                    })
+                });
+                console.log("✅ Profile synced with Intelligent Engine");
+            } catch (e) { console.warn("Sync failed, working locally"); }
+        }
+
         update();
         document.getElementById('p-modal').style.display = 'none';
-        alert("✅ تم حفظ الإعدادات بنجاح");
+        alert("✅ تم حفظ الإعدادات وتحديث محرك الذكاء");
     }
 
     function toggleWatchList() {  

@@ -1,251 +1,152 @@
 const express = require('express');
 const cors = require('cors');
-const { getJson } = require("serpapi"); // تأكد من تثبيت: npm install serpapi
+const { getJson } = require("serpapi");
 const mongoose = require('mongoose');
-require('dotenv').config(); // تأكد من تثبيت: npm install dotenv
+require('dotenv').config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// --- إعدادات قاعدة البيانات ---
-// هام: يجب وضع رابط المونجو الحقيقي هنا أو في ملف .env
+// ==========================================
+// ⚠️ هام جداً: ضع رابط المونجو الخاص بك هنا
+// ==========================================
 const MONGO_URI = process.env.MONGO_URI || "mongodb+srv://YOUR_USER:YOUR_PASS@cluster0.mongodb.net/findlyDB?retryWrites=true&w=majority";
-const SERP_API_KEY = process.env.SERPAPI_KEY || "YOUR_SERPAPI_KEY_HERE";
+const SERP_API_KEY = process.env.SERPAPI_KEY || "YOUR_SERPAPI_KEY"; 
 
+// الاتصال بقاعدة البيانات
 mongoose.connect(MONGO_URI)
-    .then(() => console.log("✅ Connected to MongoDB (Intelligent Engine Ready)"))
-    .catch(err => console.error("❌ DB Error:", err.message));
+    .then(() => console.log("✅ DB Connected (Advisor Engine Ready)"))
+    .catch(err => console.error("❌ DB Connection Error:", err.message));
 
-// ==========================================
-// 🏛️ الموديلات (Database Models)
-// ==========================================
-
-// موديل قائمة المراقبة
+// --- Schemas ---
 const Watchlist = mongoose.model('Watchlist', new mongoose.Schema({
     uid: { type: String, required: true },
     name: String,
-    price: String, // تخزين السعر كنص للعرض
+    price: String,
+    image: String, // أضفنا الصورة هنا لتظهر في القائمة
     link: String,
     addedAt: { type: Date, default: Date.now }
 }));
 
-// موديل ملف المستخدم (الطبقة 2)
 const UserProfile = mongoose.model('UserProfile', new mongoose.Schema({
     uid: { type: String, required: true, unique: true },
     budget: { type: Number, default: 0 },
     searchHistory: [String],
-    preferredCategories: [String],
-    lastActive: { type: Date, default: Date.now }
+    preferredCategories: [String]
 }));
 
-// موديل تاريخ الأسعار (الطبقة 3)
-const PriceHistory = mongoose.model('PriceHistory', new mongoose.Schema({
-    productName: String,
-    priceVal: Number,
-    date: { type: Date, default: Date.now },
-    source: String
-}));
-
-// ==========================================
-// 🧠 محرك الذكاء (Intelligence Engine)
-// ==========================================
-
-function extractPrice(priceStr) {
-    if (!priceStr) return 0;
-    // تحويل "$1,200.00" إلى 1200.00
-    const cleaned = priceStr.toString().replace(/[^0-9.]/g, '');
-    return parseFloat(cleaned) || 0;
+// --- Helper Functions ---
+function getGeoLocation(lang) {
+    const map = { 'ar': 'sa', 'en': 'us', 'fr': 'fr', 'de': 'de', 'es': 'es', 'it': 'it', 'ru': 'ru' };
+    return map[lang] || 'us';
 }
 
-// 🟣 الطبقة 1: فهم مواصفات المنتج
-function parseSpecifications(title) {
-    const specs = { cpu: null, ram: null, storage: null, gpu: null, category: 'general' };
-    const lowerTitle = title.toLowerCase();
-
-    if (lowerTitle.match(/i[3579]|core\s?i\d/)) specs.cpu = "Intel Core";
-    else if (lowerTitle.match(/ryzen\s?[3579]/)) specs.cpu = "AMD Ryzen";
-    else if (lowerTitle.match(/m1|m2|m3/)) specs.cpu = "Apple Silicon";
-
-    const ramMatch = title.match(/(\d+)\s?GB\s?RAM/i);
-    if (ramMatch) specs.ram = parseInt(ramMatch[1]);
-
-    const storageMatch = title.match(/(\d+)(TB|GB)\s?(SSD|HDD)/i);
-    if (storageMatch) specs.storage = storageMatch[0];
-
-    if (lowerTitle.includes('rtx')) specs.gpu = "NVIDIA RTX";
-    else if (lowerTitle.includes('gtx')) specs.gpu = "NVIDIA GTX";
-    else if (lowerTitle.includes('radeon')) specs.gpu = "AMD Radeon";
-
-    if (specs.gpu && specs.gpu.includes('RTX')) specs.category = 'gaming';
-    else if (lowerTitle.includes('macbook') || lowerTitle.includes('ultrabook')) specs.category = 'productivity';
-
-    return specs;
-}
-
-// 🟡 الطبقة 4: محرك القرار المتقدم
-function advancedDecisionEngine(product, marketAvg, userProfile, specs, lang = 'ar', deepMode = false) {
-    let pros = [];
-    let cons = [];
+function analyzeProduct(product, marketAvg, lang) {
     let score = 50;
-    let decisionTag = "";
-    let marketPosition = "Fair Price";
-    let userMatchScore = 50;
-
-    // 1. تحليل السعر
-    const priceDiff = ((product.priceVal - marketAvg) / marketAvg) * 100;
+    let reasons = [];
     
-    if (priceDiff < -10) {
-        score += 25;
-        marketPosition = "Under Market";
-        pros.push(lang === 'ar' ? "أرخص من متوسط السوق" : "Below market average");
-    } else if (priceDiff > 15) {
-        score -= 25;
-        marketPosition = "Overpriced";
-        cons.push(lang === 'ar' ? "أعلى من سعر السوق المعتاد" : "Higher than market avg");
-    }
+    // تحليل السعر
+    const priceVal = product.priceVal || 0;
+    const diff = marketAvg > 0 ? ((priceVal - marketAvg) / marketAvg) * 100 : 0;
 
-    // 2. تحليل المواصفات (إذا كان Deep Mode مفعلاً نزيد الدقة)
-    if (deepMode) {
-        if (specs.category === 'gaming' && (!specs.gpu)) {
-            score -= 30;
-            cons.push(lang === 'ar' ? "لا يصلح للألعاب الحديثة" : "Not for modern gaming");
-        }
-    }
+    if (diff < -15) { score += 30; reasons.push("Great Deal (Low Price)"); }
+    else if (diff > 20) { score -= 20; reasons.push("High Price"); }
+    else { score += 10; reasons.push("Standard Market Price"); }
 
-    // 3. تحليل التوافق مع ميزانية المستخدم
-    if (userProfile && userProfile.budget > 0) {
-        if (product.priceVal <= userProfile.budget) {
-            userMatchScore = 95;
-            pros.push(lang === 'ar' ? "مناسب لميزانيتك تماماً" : "Fits your budget perfectly");
-            score += 10;
-        } else if (product.priceVal <= userProfile.budget * 1.15) {
-            userMatchScore = 75;
-            cons.push(lang === 'ar' ? "يتجاوز ميزانيتك قليلاً" : "Slightly over budget");
-        } else {
-            userMatchScore = 40;
-            cons.push(lang === 'ar' ? "غالي جداً بالنسبة لميزانيتك" : "Way over budget");
-            score -= 10;
-        }
-    }
+    // تحليل المتجر
+    if (product.rating >= 4.5) { score += 20; reasons.push("Trusted Seller"); }
+    
+    // تصنيف
+    let label = "Normal";
+    if (score > 80) label = "Top Pick 🏆";
+    else if (score > 60) label = "Good Value ✅";
+    else if (score < 40) label = "Overpriced ⚠️";
 
-    // 4. القرار النهائي
-    if (score >= 80 && userMatchScore >= 70) decisionTag = "Perfect for You";
-    else if (score >= 65) decisionTag = "Best Buy";
-    else if (score >= 45) decisionTag = "Good Deal";
-    else if (score < 30) decisionTag = "Avoid";
-    else decisionTag = "Standard";
-
-    // ترجمة الوسوم
-    if (lang === 'ar') {
-        const tagsMap = {
-            "Perfect for You": "مثالي لك", "Best Buy": "أفضل شراء",
-            "Good Deal": "صفقة جيدة", "Avoid": "تجنبه", "Standard": "خيار عادي"
-        };
-        decisionTag = tagsMap[decisionTag] || decisionTag;
-    }
-
-    return {
-        pros, cons, decisionTag, marketPosition, userMatchScore,
-        savingsLabel: priceDiff < 0 ? `${Math.abs(priceDiff).toFixed(0)}%` : null
-    };
+    return { score, label, reasons, diff: Math.round(diff) };
 }
 
-// ==========================================
-// 🚀 Endpoints
-// ==========================================
+// --- Endpoints ---
 
-// 1. البحث الذكي
+// 1. البحث الذكي (محسن ليدعم اللغات بدقة)
 app.post('/smart-search', async (req, res) => {
     const { query, lang, uid, filterType, deepMode } = req.body;
+    const geoLocation = getGeoLocation(lang);
+
+    console.log(`🔍 Searching: ${query} [${lang}-${geoLocation}]`);
 
     try {
-        // جلب البروفايل أو إنشاء وهمي
-        let userProfile = uid ? await UserProfile.findOne({ uid }) : null;
-        if (!userProfile) userProfile = { budget: 0, preferredCategories: [] };
-
-        // تحديث سجل البحث
-        if (userProfile && uid && !userProfile.searchHistory?.includes(query)) {
-            if(userProfile.searchHistory) userProfile.searchHistory.push(query);
-            // حفظ التحديث إذا كان مسجلاً
-            if(uid) await UserProfile.updateOne({ uid }, { $push: { searchHistory: query } }); 
+        // حفظ سجل البحث
+        if(uid) {
+            await UserProfile.updateOne(
+                { uid }, 
+                { $push: { searchHistory: query }, $set: { lastActive: Date.now() } },
+                { upsert: true }
+            );
         }
 
-        // استدعاء SerpApi
         getJson({
-            engine: "google_shopping", q: query, api_key: SERP_API_KEY, hl: lang || 'ar', gl: "sa", num: 20
-        }, async (data) => {
+            engine: "google_shopping", 
+            q: query, 
+            api_key: SERP_API_KEY, 
+            hl: lang || 'en', // فرض لغة النتائج
+            gl: geoLocation, // فرض دولة البحث للحصول على عملة ومتاجر صحيحة
+            num: 15
+        }, (data) => {
             if (!data || !data.shopping_results) return res.json({ products: [], marketAvg: 0 });
 
-            let rawProducts = data.shopping_results
-                .map(p => ({ ...p, priceVal: extractPrice(p.price || p.extracted_price) }))
-                .filter(p => p.priceVal > 0 && p.thumbnail);
+            // استخراج وتحليل
+            let rawProducts = data.shopping_results.map(p => ({
+                ...p,
+                priceVal: p.extracted_price || (parseFloat((p.price || "0").replace(/[^0-9.]/g, '')))
+            })).filter(p => p.priceVal > 0);
 
-            // حساب متوسط السوق
-            const validPrices = rawProducts.map(p => p.priceVal);
-            const marketAvg = validPrices.length > 0 ? 
-                Math.floor(validPrices.reduce((a, b) => a + b, 0) / validPrices.length) : 0;
+            // حساب متوسط السعر للسوق الحالية
+            const sum = rawProducts.reduce((acc, curr) => acc + curr.priceVal, 0);
+            const marketAvg = rawProducts.length ? sum / rawProducts.length : 0;
 
-            // بناء النتائج
             let products = rawProducts.map(p => {
-                const specs = parseSpecifications(p.title);
-                const analysis = advancedDecisionEngine(p, marketAvg, userProfile, specs, lang, deepMode);
-
+                const analysis = analyzeProduct(p, marketAvg, lang);
                 return {
                     name: p.title,
                     price: p.price,
                     priceVal: p.priceVal,
                     thumbnail: p.thumbnail,
                     link: p.product_link || p.link,
-                    store_name: p.source || "Unknown Store",
-                    real_rating: p.rating || 0, // البيانات الحقيقية
-                    reviews_count: p.reviews || 0, // البيانات الحقيقية
-                    specs: specs,
+                    source: p.source || "Unknown Store",
+                    rating: p.rating || 0,
+                    reviews: p.reviews || 0,
+                    delivery: p.delivery || (lang==='ar' ? "شحن غير محدد" : "Shipping N/A"), // جلب معلومات الشحن
                     analysis: analysis
                 };
             });
 
             // تطبيق الفلاتر
             if (filterType === 'cheap') products.sort((a, b) => a.priceVal - b.priceVal);
-            if (filterType === 'top-rated') products.sort((a, b) => b.real_rating - a.real_rating);
-            
-            res.json({ products: products.slice(0, 15), marketAvg });
+            if (filterType === 'top-rated') products.sort((a, b) => b.rating - a.rating);
+
+            res.json({ products, marketAvg });
         });
     } catch (e) {
         console.error(e);
-        res.status(500).json({ error: "Server Error" });
+        res.status(500).json({ error: "Internal Server Error" });
     }
 });
 
-// 2. تحديث التفضيلات
-app.post('/user/preferences', async (req, res) => {
-    const { uid, budget, categories } = req.body;
-    if(!uid) return res.status(400).json({error: "No UID"});
-    try {
-        await UserProfile.findOneAndUpdate(
-            { uid },
-            { budget, preferredCategories: categories, lastActive: Date.now() },
-            { upsert: true, new: true }
-        );
-        res.json({ success: true, message: "Profile Updated" });
-    } catch (e) {
-        res.status(500).json({ error: e.message });
-    }
-});
-
-// 3. إضافة للمراقبة (Watchlist Add) - تم الإصلاح
+// 2. إضافة للمراقبة (تم الإصلاح: يقبل الصورة الآن)
 app.post('/watchlist/add', async (req, res) => {
     const { uid, product } = req.body;
-    if (!uid || !product) return res.status(400).json({ error: "Missing data" });
+    if (!uid || !product) return res.status(400).json({ error: "Missing Fields" });
 
     try {
         const exists = await Watchlist.findOne({ uid, name: product.name });
-        if (exists) return res.json({ message: "موجود بالفعل" });
+        if (exists) return res.json({ success: false, message: "Exists" });
 
         await Watchlist.create({
             uid,
             name: product.name,
             price: product.price,
+            image: product.thumbnail, // حفظ الصورة
             link: product.link
         });
         res.json({ success: true, message: "Added" });
@@ -254,15 +155,34 @@ app.post('/watchlist/add', async (req, res) => {
     }
 });
 
-// 4. جلب قائمة المراقبة (Watchlist Get) - تم الإصلاح
+// 3. جلب القائمة
 app.get('/watchlist/:uid', async (req, res) => {
     try {
-        const list = await Watchlist.find({ uid: req.params.uid });
+        const list = await Watchlist.find({ uid: req.params.uid }).sort({ addedAt: -1 });
         res.json({ watchlist: list });
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
 });
 
+// 4. حذف من القائمة
+app.delete('/watchlist/:id', async (req, res) => {
+    try {
+        await Watchlist.findByIdAndDelete(req.params.id);
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// 5. تحديث البروفايل
+app.post('/user/preferences', async (req, res) => {
+    const { uid, budget } = req.body;
+    try {
+        await UserProfile.findOneAndUpdate({ uid }, { budget }, { upsert: true });
+        res.json({ success: true });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Intelligent Decision Engine running on port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Advisor Engine running on port ${PORT}`));

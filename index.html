@@ -696,99 +696,94 @@
     async function runSearch() {  
         if (!currentUserUID) { alert("يجب عليك تسجيل الدخول أولاً!"); toggleAuthModal(); return; }  
 
-        let q = document.getElementById('s-input').value;  
-        const status = document.getElementById('status');  
-        const resCon = document.getElementById('results');  
-        const deepCon = document.getElementById('deep-ai-container');
-        const isDeep = document.getElementById('ai-deep-mode').checked;
-        const d = dict[lang] || dict['ar'];  
-          
-        let userBudget = localStorage.getItem('fb') ? parseFloat(localStorage.getItem('fb')) : 0;  
+        async function runSearch() {
+    let q = document.getElementById('s-input').value;
+    const status = document.getElementById('status');
+    const resCon = document.getElementById('results');
+    const d = dict[lang] || dict['ar'];
+    const userBudget = parseFloat(localStorage.getItem('fb')) || 0;
 
-        if (attempts <= 0) { status.style.display = "block"; status.innerHTML = d.noAttempts; return; }  
-        if (!q) return;  
+    if (attempts <= 0) { 
+        status.style.display = "block";
+        status.innerHTML = d.noAttempts;
+        return; 
+    }
+    if (!q) return;
 
-        status.style.display = "block";  
-        status.innerHTML = '<i class="fa-solid fa-microchip fa-spin"></i> Analyzing...';  
-        resCon.innerHTML = "";  
-        deepCon.innerHTML = "";
+    status.style.display = "block";
+    status.innerHTML = '<i class="fa-solid fa-microchip fa-spin"></i> Finding Best Deals...';
+    resCon.innerHTML = "";
 
-        try {  
-            // 1. جلب المنتجات
-            const res = await fetch(`${API}/smart-search`, {  
-                method: 'POST',  
-                headers: { 'Content-Type': 'application/json' },  
-                body: JSON.stringify({ query: q, lang: lang, uid: currentUserUID })  
-            });  
-            const data = await res.json();  
-            status.style.display = "none";  
+    // Generate or Retrieve UID for history
+    let uid = localStorage.getItem('findly_uid');
+    if(!uid) {
+        uid = 'user_' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('findly_uid', uid);
+    }
 
-            if (data.products && data.products.length > 0) {  
-                
-                // 2. إذا كان Deep AI مفعلاً، نقوم بطلب التحليل
-                if (isDeep) {
-                    deepCon.innerHTML = `<div class="deep-result-box" style="text-align:center;"><i class="fa-solid fa-brain fa-pulse"></i> جاري التحليل العميق...</div>`;
-                    
-                    fetch(`${API}/deep-ai-analyze`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ products: data.products, query: q, lang: lang })
-                    })
-                    .then(r => r.json())
-                    .then(dRes => {
-                        deepCon.innerHTML = `<div class="deep-result-box"><i class="fa-solid fa-wand-magic-sparkles"></i> <strong>Deep AI Decision:</strong><br><br>${dRes.deepAnalysis}</div>`;
-                    })
-                    .catch(e => {
-                        deepCon.innerHTML = ""; // إخفاء في حال الخطأ
-                    });
-                }
+    try {
+        const res = await fetch(`${API}/search?q=${encodeURIComponent(q)}&uid=${uid}&lang=${lang}`, { method: 'GET' });
+        const data = await res.json();
+        status.style.display = "none";
 
-                // 3. عرض المنتجات
-                data.products.forEach((p, index) => {  
-                    // Fix: Extract price if priceVal is missing
-                    let priceVal = p.priceVal || extractPrice(p.price); 
-                    
-                    let budgetAlert = (userBudget > 0 && priceVal > userBudget) ? `<div class="budget-error"><i class="fa-solid fa-triangle-exclamation"></i> ${d.over} ($${userBudget})</div>` : "";  
-                    
-                    const safeName = p.name.replace(/'/g, "\\'").replace(/"/g, "&quot;");
-                    const safePrice = p.price.toString().replace(/'/g, "\\'");
-                    
-                    // Pass serverAvg or estimate it based on current price if missing
-                    let mAvg = data.marketAvg || (priceVal * 1.1);
+        if (data.results && data.results.length > 0) {
 
-                    setTimeout(() => {  
-                        resCon.innerHTML += `  
-                            <div class="product-card">  
-                                ${budgetAlert}  
-                                <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/150'">  
-                                <h3>${p.name}</h3>  
-                                <div class="price">${p.price || 'N/A'}</div>  
-                                <div class="analysis-engine"><span class="analysis-label"><i class="fa-solid fa-brain"></i> ${d.why}</span>${p.reason}</div>  
-                                <div class="btn-group">  
-                                    <a href="${p.link}" target="_blank" class="action-btn buy-now">${d.buy} 🛒</a>  
-                                    <button class="action-btn watch-later" onclick="addToWatch('${safeName}', '${safePrice}', '${p.link}')">${d.watch} 🔔</button>
+            // حساب متوسط وأدنى سعر للسوق داخل النتائج
+            const prices = data.results.map(i => parseFloat(i.price?.toString().replace(/[^0-9.]/g, '')) || 0).filter(p => p>0);
+            const avgPrice = prices.reduce((a,b)=>a+b,0)/(prices.length||1);
+            const minPrice = Math.min(...prices);
 
-                                    <button class="action-btn compare-btn" onclick="openComparison('${safeName}', ${priceVal}, ${mAvg})">
-                                        <i class="fa-solid fa-code-compare"></i> ${d.compare}
-                                    </button>
-                                </div>
+            data.results.forEach((p, index) => {
+                let cleanPrice = p.price ? p.price.toString().replace(/[^\d.]/g, '') : "0"; 
+                let priceVal = parseFloat(cleanPrice);
+                let budgetAlert = (userBudget > 0 && priceVal > userBudget) ? `<div class="budget-error">⚠️ ${d.over} (${userBudget}$)</div>` : "";
+
+                // تحليلات إضافية
+                let analysisHTML = `
+                    <div class="analysis-engine">
+                        <span class="analysis-label"><i class="fa-solid fa-brain"></i> ${d.why}</span>
+                        ${p.smartReason || 'Best match found based on your search.'}
+                        <ul style="margin-top:5px; padding-left: 18px; font-size:0.8rem;">
+                            <li>السعر الحالي: ${p.price || 'N/A'}</li>
+                            <li>متوسط سعر السوق: ${avgPrice.toFixed(2)}</li>
+                            <li>أقل سعر متاح: ${minPrice}</li>
+                            <li>المصدر: ${p.source || 'N/A'}</li>
+                            <li>التقييم: ${p.rating || 'N/A'} (${p.reviews || 0} مراجعات)</li>
+                        </ul>
+                    </div>
+                `;
+
+                setTimeout(() => {
+                    resCon.innerHTML += `
+                        <div class="product-card">
+                            ${budgetAlert}
+                            <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/150'">
+                            <h3>${p.name}</h3>
+                            <div class="price">${p.price || 'N/A'}</div>
+                            ${analysisHTML}
+                            <div class="btn-group">
+                                <a href="${p.link}" target="_blank" class="action-btn buy-now">${d.buy}</a>
+                                <button class="action-btn watch-later" onclick="addToWatch('${p.name.replace(/'/g, "\\'")}', '${p.price}', '${p.link}')">${d.watch}</button>
                             </div>
-                        `;
-                    }, 100 * index);
-                });
+                        </div>`;
+                }, index * 100);
+            });
 
-                attempts--; 
-                localStorage.setItem('findly_attempts', attempts); 
-                update();  
-            } else { 
-                status.style.display = "block"; 
-                status.innerHTML = "No results found"; 
-            }  
-        } catch (e) { status.style.display = "block"; status.innerHTML = "Server Error (Try again)"; console.error(e); }  
-    }  
+            attempts--;
+            localStorage.setItem('findly_attempts', attempts);
+            update();
+        } else {
+            status.style.display = "block";
+            status.innerHTML = "No results found / لا توجد نتائج";
+        }
+    } catch (e) {
+        console.error(e);
+        status.style.display = "block";
+        status.innerHTML = `<i class="fa-solid fa-clock-rotate-left"></i> ${d.slow}`;
+    }
+}
 
-    // --- 4. وظائف المقارنة المتقدمة و Watchlist ---
-    
+                
 function openComparison(name, price, serverAvg) {
     const modal = document.getElementById('comp-modal');
     const content = document.getElementById('comp-content');

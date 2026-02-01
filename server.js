@@ -159,5 +159,9 @@ cron.schedule('0 */12 * * *', async () => {
     }
 });
 
+// تحديد المنفذ: رندر يعطينا منفذ ديناميكي عبر process.env.PORT
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Findly Intelligence Engine is Active on Port ${PORT}`));
+
+app.listen(PORT, () => {
+    console.log(`🚀 السيرفر انطلق بنجاح على المنفذ ${PORT}`);
+});

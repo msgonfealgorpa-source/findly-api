@@ -1,245 +1,86 @@
-const express = require('express');
-const cors = require('cors');
-const { getJson } = require('serpapi');
-const mongoose = require('mongoose');
-const cron = require('node-cron');
-const nodemailer = require('nodemailer');
+async function runSearch() {
+    let q = document.getElementById('s-input').value;
+    const status = document.getElementById('status');
+    const resCon = document.getElementById('results');
+    const d = dict[lang] || dict['ar'];
+    const userBudget = parseFloat(localStorage.getItem('fb')) || 0;
 
-const app = express();
-app.use(cors());
-app.use(express.json());
+    if (attempts <= 0) { 
+        status.style.display = "block";
+        status.innerHTML = d.noAttempts;
+        return; 
+    }
+    if (!q) return;
 
-// ================= ENV (تأكد من وجود هذه القيم في Render) =================
-const MONGO_URI = process.env.MONGO_URI;
-const SERP_API_KEY = process.env.SERPAPI_KEY; // مفتاح SerpApi الخاص بك
-const EMAIL_USER = process.env.EMAIL_USER;
-const EMAIL_PASS = process.env.EMAIL_PASS;
+    status.style.display = "block";
+    status.innerHTML = '<i class="fa-solid fa-microchip fa-spin"></i> Finding Best Deals...';
+    resCon.innerHTML = "";
 
-// ================= DB CONNECTION ==================
-mongoose.connect(MONGO_URI)
-  .then(() => console.log('✅ MongoDB Connected'))
-  .catch(err => console.error('❌ DB Error:', err.message));
-
-// ================= SCHEMAS =============
-const Alert = mongoose.model('Alert', new mongoose.Schema({
-  email: String,
-  productName: String,
-  targetPrice: Number,
-  link: String,
-  lang: String,
-  uid: String,
-  createdAt: { type: Date, default: Date.now }
-}));
-
-const SearchLog = mongoose.model('SearchLog', new mongoose.Schema({
-  uid: String,
-  query: String,
-  timestamp: { type: Date, default: Date.now }
-}));
-
-const Watchlist = mongoose.model('Watchlist', new mongoose.Schema({
-  uid: String,
-  name: String,
-  price: String,
-  thumbnail: String,
-  link: String,
-  addedAt: { type: Date, default: Date.now }
-}));
-
-// ================= EMAIL CONFIG ===============
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: { user: EMAIL_USER, pass: EMAIL_PASS }
-});
-
-// ================= INTELLIGENCE ENGINE =================
-function ProductIntelligenceEngine(item, allItems, { market = 'us' } = {}) {
-  // إصلاح استخراج السعر
-  const cleanPrice = (p) => {
-    if (!p) return 0;
-    return parseFloat(p.toString().replace(/[^0-9.]/g, '')) || 0;
-  };
-
-  // إصلاح استخراج الرابط (حل مشكلة 404)
-  // SerpApi يعيد أحياناً link أو product_link أو offer_link
-  const directLink = item.link || item.product_link || item.offer_link || '#';
-
-  const price = cleanPrice(item.price);
-  const rating = Number(item.rating || 0);
-  const reviews = Number(item.reviews || 0);
-  const source = (item.source || '').toLowerCase();
-
-  // تحليل السوق
-  const prices = allItems.map(i => cleanPrice(i.price)).filter(p => p > 0);
-  const avgPrice = prices.reduce((a, b) => a + b, 0) / (prices.length || 1);
-  const minPrice = Math.min(...prices) || price;
-
-  // منطق التقييم الذكي
-  let valueScoreNum = (rating * 20) + Math.min(reviews / 50, 20);
-  if (avgPrice > 0) {
-      valueScoreNum += Math.max(((avgPrice - price) / avgPrice) * 40, 0);
-  }
-  valueScoreNum = Math.min(Math.round(valueScoreNum), 100);
-
-  // المتاجر الموثوقة حسب المنطقة
-  const trustedStores = {
-    us: ['amazon', 'walmart', 'bestbuy', 'ebay'],
-    sa: ['amazon', 'noon', 'jarir', 'extra'], // السعودية
-    ae: ['amazon', 'noon', 'sharaf dg'], // الإمارات
-    eg: ['amazon', 'noon', 'b.tech'], // مصر
-    eu: ['amazon', 'mediamarkt', 'fnac']
-  }[market] || ['amazon'];
-
-  const isTrusted = trustedStores.some(s => source.includes(s));
-  
-  let trustScoreNum = (isTrusted ? 50 : 20) + Math.min(reviews / 30, 30) + (rating >= 4 ? 20 : 0);
-  trustScoreNum = Math.min(trustScoreNum, 100);
-
-  const verdict =
-    valueScoreNum >= 80 && trustScoreNum >= 70
-      ? { emoji: '💎', title: 'Excellent Buy', summary: 'High value & trusted seller' }
-      : valueScoreNum >= 60
-      ? { emoji: '🔥', title: 'Smart Choice', summary: 'Good price point' }
-      : { emoji: '⚖️', title: 'Fair Deal', summary: 'Standard market price' };
-
-  return {
-    name: item.title,
-    price: item.price,
-    cleanPrice: price, // للسيرفر
-    thumbnail: item.thumbnail,
-    link: directLink, // الرابط المصحح
-    source: item.source,
-    verdict,
-    trustScore: { score: trustScoreNum, label: isTrusted ? 'Trusted' : 'Normal' },
-    smartReason: verdict.summary
-  };
-}
-
-// ================= SEARCH ROUTE =================
-app.get('/search', async (req, res) => {
-  const { q, uid, lang = 'en' } = req.query;
-  
-  if (!q) return res.status(400).json({ error: 'Query required' });
-
-  // تسجيل البحث
-  if (uid) SearchLog.create({ uid, query: q }).catch(() => {});
-
-  // خريطة لتحديد موقع البحث بناء على لغة المستخدم لضمان نتائج محلية
-  const geoMap = {
-      'ar': { gl: 'sa', hl: 'ar' }, // السعودية للعربية (أكبر سوق)
-      'en': { gl: 'us', hl: 'en' },
-      'fr': { gl: 'fr', hl: 'fr' },
-      'de': { gl: 'de', hl: 'de' },
-      'es': { gl: 'es', hl: 'es' },
-      'tr': { gl: 'tr', hl: 'tr' }
-  };
-
-  const settings = geoMap[lang] || geoMap['en'];
-
-  console.log(`🔎 Searching for: ${q} in ${settings.gl}`);
-
-  getJson({
-    engine: 'google_shopping',
-    q,
-    api_key: SERP_API_KEY,
-    gl: settings.gl, // الدولة
-    hl: settings.hl, // اللغة
-    num: 20 // تم زيادة النتائج إلى 20
-  }, (data) => {
-    if (!data) return res.status(500).json({ error: "SerpApi Error" });
-    
-    const items = data.shopping_results || [];
-    const results = items.map(item =>
-      ProductIntelligenceEngine(item, items, { market: settings.gl })
-    );
-    res.json({ query: q, results });
-  });
-});
-
-// ================= WATCHLIST & ALERTS =================
-// مسار واحد يضيف للقائمة وللتنبيهات
-app.post('/watchlist', async (req, res) => {
-  try {
-    const { uid, name, price, link, email } = req.body;
-
-    // 1. الحفظ في قائمة المراقبة للعرض في الواجهة
-    const existing = await Watchlist.findOne({ uid, name });
-    if (!existing) {
-        await new Watchlist({ uid, name, price, link }).save();
+    // Generate or Retrieve UID for history
+    let uid = localStorage.getItem('findly_uid');
+    if(!uid) {
+        uid = 'user_' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('findly_uid', uid);
     }
 
-    // 2. إذا وجد إيميل، نقوم بإنشاء تنبيه سعري
-    if (email && email.includes('@')) {
-        const cleanP = parseFloat(price.toString().replace(/[^0-9.]/g, '')) || 0;
-        await new Alert({
-            email,
-            productName: name,
-            targetPrice: cleanP * 0.95, // تنبيه إذا انخفض السعر 5%
-            link,
-            uid
-        }).save();
-    }
-
-    res.json({ success: true, message: "Added to watchlist & alerts" });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: e.message });
-  }
-});
-
-app.get('/watchlist/:uid', async (req, res) => {
-  const list = await Watchlist.find({ uid: req.params.uid }).sort({ addedAt: -1 });
-  res.json(list);
-});
-
-// حذف عنصر من القائمة
-app.delete('/watchlist/:id', async (req, res) => {
     try {
-        await Watchlist.findByIdAndDelete(req.params.id);
-        res.json({ success: true });
-    } catch(e) {
-        res.status(500).json({ error: "Failed to delete" });
-    }
-});
+        const res = await fetch(`${API}/search?q=${encodeURIComponent(q)}&uid=${uid}&lang=${lang}`, { method: 'GET' });
+        const data = await res.json();
+        status.style.display = "none";
 
-// ================= CRON JOB (التنبيهات) =================
-cron.schedule('0 10 * * *', async () => { // كل يوم الساعة 10 صباحاً
-  console.log('⏰ Checking prices for alerts...');
-  const alerts = await Alert.find();
-  
-  for (const alert of alerts) {
-    getJson({
-      engine: 'google_shopping',
-      q: alert.productName,
-      api_key: SERP_API_KEY,
-      num: 1
-    }, async (data) => {
-      const p = data.shopping_results?.[0];
-      if (p) {
-        const current = parseFloat(p.price?.replace(/[^0-9.]/g, '')) || 999999;
-        
-        if (current <= alert.targetPrice) {
-          await transporter.sendMail({
-            from: EMAIL_USER,
-            to: alert.email,
-            subject: `🔥 Price Drop: ${alert.productName}`,
-            html: `
-                <h2>Great News!</h2>
-                <p>The price for <b>${alert.productName}</b> has dropped to <b>${p.price}</b>.</p>
-                <p>Target was: ${alert.targetPrice}</p>
-                <a href="${p.link}" style="padding:10px 20px; background:#8b5cf6; color:white; text-decoration:none; border-radius:5px;">Buy Now</a>
-            `
-          });
-          // نحذف التنبيه بعد الإرسال أو نحدث السعر المستهدف (هنا نحذفه)
-          await Alert.findByIdAndDelete(alert._id);
+        if (data.results && data.results.length > 0) {
+
+            // حساب متوسط وأدنى سعر للسوق داخل النتائج
+            const prices = data.results.map(i => parseFloat(i.price?.toString().replace(/[^0-9.]/g, '')) || 0).filter(p => p>0);
+            const avgPrice = prices.reduce((a,b)=>a+b,0)/(prices.length||1);
+            const minPrice = Math.min(...prices);
+
+            data.results.forEach((p, index) => {
+                let cleanPrice = p.price ? p.price.toString().replace(/[^\d.]/g, '') : "0"; 
+                let priceVal = parseFloat(cleanPrice);
+                let budgetAlert = (userBudget > 0 && priceVal > userBudget) ? `<div class="budget-error">⚠️ ${d.over} (${userBudget}$)</div>` : "";
+
+                // تحليلات إضافية
+                let analysisHTML = `
+                    <div class="analysis-engine">
+                        <span class="analysis-label"><i class="fa-solid fa-brain"></i> ${d.why}</span>
+                        ${p.smartReason || 'Best match found based on your search.'}
+                        <ul style="margin-top:5px; padding-left: 18px; font-size:0.8rem;">
+                            <li>السعر الحالي: ${p.price || 'N/A'}</li>
+                            <li>متوسط سعر السوق: ${avgPrice.toFixed(2)}</li>
+                            <li>أقل سعر متاح: ${minPrice}</li>
+                            <li>المصدر: ${p.source || 'N/A'}</li>
+                            <li>التقييم: ${p.rating || 'N/A'} (${p.reviews || 0} مراجعات)</li>
+                        </ul>
+                    </div>
+                `;
+
+                setTimeout(() => {
+                    resCon.innerHTML += `
+                        <div class="product-card">
+                            ${budgetAlert}
+                            <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/150'">
+                            <h3>${p.name}</h3>
+                            <div class="price">${p.price || 'N/A'}</div>
+                            ${analysisHTML}
+                            <div class="btn-group">
+                                <a href="${p.link}" target="_blank" class="action-btn buy-now">${d.buy}</a>
+                                <button class="action-btn watch-later" onclick="addToWatch('${p.name.replace(/'/g, "\\'")}', '${p.price}', '${p.link}')">${d.watch}</button>
+                            </div>
+                        </div>`;
+                }, index * 100);
+            });
+
+            attempts--;
+            localStorage.setItem('findly_attempts', attempts);
+            update();
+        } else {
+            status.style.display = "block";
+            status.innerHTML = "No results found / لا توجد نتائج";
         }
-      }
-    });
-  }
-});
-
-// ================= START =================
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () =>
-  console.log(`🚀 Smart Intelligence Server running on ${PORT}`)
-);
+    } catch (e) {
+        console.error(e);
+        status.style.display = "block";
+        status.innerHTML = `<i class="fa-solid fa-clock-rotate-left"></i> ${d.slow}`;
+    }
+}

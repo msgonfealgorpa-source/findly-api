@@ -692,10 +692,7 @@
         return isNaN(num) ? 0 : num;
     }
 
-    // --- 3. دالة البحث الرئيسية ---  
-    async function runSearch() {  
-        if (!currentUserUID) { alert("يجب عليك تسجيل الدخول أولاً!"); toggleAuthModal(); return; }  
-
+    
         async function runSearch() {
     let q = document.getElementById('s-input').value;
     const status = document.getElementById('status');

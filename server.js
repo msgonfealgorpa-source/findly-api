@@ -9,16 +9,19 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// --- إعدادات البيئة (Render Environment Variables) ---
+// تأكد من إضافة هذه القيم في لوحة تحكم Render
 const MONGO_URI = process.env.MONGO_URI;
 const SERP_API_KEY = process.env.SERPAPI_KEY;
 const EMAIL_USER = process.env.EMAIL_USER;
 const EMAIL_PASS = process.env.EMAIL_PASS;
 
+// الاتصال بقاعدة البيانات MongoDB
 mongoose.connect(MONGO_URI)
     .then(() => console.log("✅ Connected to MongoDB"))
     .catch(err => console.error("❌ DB Error:", err.message));
 
-// --- Schemas ---
+// --- النماذج (Schemas) ---
 const Alert = mongoose.model('Alert', new mongoose.Schema({
     email: String, productName: String, targetPrice: Number, link: String, lang: String, uid: String
 }));
@@ -31,96 +34,150 @@ const Watchlist = mongoose.model('Watchlist', new mongoose.Schema({
     uid: String, name: String, price: String, thumbnail: String, link: String, addedAt: { type: Date, default: Date.now }
 }));
 
+// إعداد خدمة البريد الإلكتروني للتنبيهات
 const transporter = nodemailer.createTransport({
-    service: 'gmail', auth: { user: EMAIL_USER, pass: EMAIL_PASS }
+    service: 'gmail',
+    auth: { user: EMAIL_USER, pass: EMAIL_PASS }
 });
 
-// --- Helper Functions ---
-const smartReasonsDict = {
-    high_rating: { ar: "تقييمات ممتازة من المشترين", en: "Excellent customer ratings" },
-    best_value: { ar: "أفضل قيمة مقابل السعر حالياً", en: "Best value for money right now" },
-    trusted_store: { ar: "متجر موثوق وذو سمعة طيبة", en: "Trusted and reputable store" },
-    price_drop: { ar: "انخفاض ملحوظ في السعر", en: "Significant price drop detected" }
-};
+/**
+ * 🚀 محرك الذكاء خماسي الطبقات (5-Layer Intelligence Engine)
+ * الطبقة 1: تنظيف البيانات وتحليل الأرقام.
+ * الطبقة 2: مقارنة إحصائية بأسعار السوق.
+ * الطبقة 3: فحص موثوقية المصدر والتقييمات.
+ * الطبقة 4: حساب "نقاط القيمة" للمنتج.
+ * الطبقة 5: صياغة نصيحة بشرية ذكية (عربي/إنجليزي).
+ */
+function runFiveLayerIntelligence(item, allItems, lang) {
+    const isAr = lang === 'ar';
+    
+    // [1] استخراج البيانات وتحويل الأسعار لأرقام قابلة للحساب
+    const price = parseFloat(item.price?.toString().replace(/[^0-9.]/g, '')) || 0;
+    const rating = parseFloat(item.rating) || 0;
+    const reviews = parseInt(item.reviews) || 0;
+    const source = (item.source || "").toLowerCase();
 
-function analyzeProduct(product, lang) {
-    if (product.rating >= 4.5 && product.reviews > 100) return smartReasonsDict.high_rating[lang];
-    if (product.price && product.price.includes('sale')) return smartReasonsDict.price_drop[lang];
-    return smartReasonsDict.best_value[lang];
+    // [2] تحليل السوق (Market Benchmark)
+    const validPrices = allItems.map(i => parseFloat(i.price?.toString().replace(/[^0-9.]/g, ''))).filter(p => p > 0);
+    const avgPrice = validPrices.reduce((a, b) => a + b, 0) / (validPrices.length || 1);
+    const minPrice = Math.min(...validPrices);
+
+    // [3] منطق الذكاء لاتخاذ القرار
+    const isLowest = price <= minPrice && price > 0;
+    const isTrusted = source.includes('amazon') || source.includes('noon') || source.includes('jarir') || source.includes('extra');
+    const isHighValue = price < (avgPrice * 0.85); // أرخص من المتوسط بـ 15%
+
+    // [4] صياغة النتيجة النهائية (خمس حالات ذكاء رئيسية)
+    if (isLowest && rating >= 4.5) 
+        return isAr ? "💎 لقطة خرافية: هذا هو السعر الأقل وبأعلى تقييم جودة!" : "💎 Ultimate Find: Lowest price with top-tier quality!";
+    
+    if (isLowest) 
+        return isAr ? "💰 السعر الأفضل: أرخص خيار متاح حالياً لميزانيتك." : "💰 Best Budget: The cheapest current option for you.";
+    
+    if (isHighValue && isTrusted) 
+        return isAr ? "🔥 صفقة ذكية: سعر منافس جداً من متجر موثوق." : "🔥 Smart Deal: Highly competitive price from a trusted store.";
+    
+    if (rating >= 4.7 && reviews > 100) 
+        return isAr ? "👑 الأكثر ثقة: تقييمات ممتازة من مئات المشترين قبلك." : "👑 Most Trusted: Excellent reviews from hundreds of buyers.";
+    
+    if (source.includes('amazon') || source.includes('noon'))
+        return isAr ? "✅ شحن سريع: متوفر من خلال مخازن الشحن السريع." : "✅ Fast Shipping: Available via express delivery fulfillment.";
+
+    return isAr ? "🔎 خيار جيد: منتج مناسب لمواصفات بحثك." : "🔎 Solid Choice: Matches your search parameters.";
 }
 
-// --- Routes ---
-app.post('/search', async (req, res) => {
-    const { query, lang, uid } = req.body;
-    if (query && uid) await new SearchLog({ uid, query }).save();
+// --- المسارات (Routes) ---
 
-    getJson({
-        engine: "google_shopping", q: query, api_key: SERP_API_KEY, hl: lang || 'ar', gl: "sa", num: 20
-    }, (data) => {
-        if (!data || !data.shopping_results) return res.json({ products: [], marketAvg: 0 });
+// المسار الرئيسي للبحث (المدعوم بالذكاء)
+app.get('/search', async (req, res) => {
+    const { q, uid, lang = 'ar' } = req.query;
+    if (!q) return res.status(400).json({ error: "Query is required" });
 
-        // 1. تنظيف ومعالجة البيانات
-        let results = data.shopping_results.map(p => ({
-            name: p.title,
-            price: p.price,
-            // استخراج الرقم فقط من النص (مثلاً "$100" تصبح 100)
-            priceVal: p.price ? parseFloat(p.price.toString().replace(/[^0-9.]/g, '')) : 0,
-            thumbnail: p.thumbnail,
-            link: p.product_link || p.link,
-            rating: p.rating || 0,
-            reviews: p.reviews || 0,
-            reason: analyzeProduct(p, lang)
-        }));
+    // تسجيل عمليات البحث لتحليل اهتمامات المستخدم مستقبلاً
+    if (uid) SearchLog.create({ uid, query: q }).catch(() => {});
 
-        // 2. تصفية المنتجات التي لها سعر صالح فقط
-        const validPrices = results.filter(p => p.priceVal > 0).map(p => p.priceVal);
+    try {
+        getJson({
+            engine: "google_shopping",
+            q: q,
+            api_key: SERP_API_KEY,
+            hl: lang,
+            gl: lang === 'ar' ? 'sa' : 'us', // استهداف السعودية للغة العربية
+            direct_link: true
+        }, (data) => {
+            if (data.error) return res.status(500).json({ error: data.error });
 
-        // 3. حساب متوسط السوق الحقيقي (Real Market Average)
-        let realMarketAvg = 0;
-        if (validPrices.length > 0) {
-            const sum = validPrices.reduce((a, b) => a + b, 0);
-            realMarketAvg = Math.floor(sum / validPrices.length);
-        }
+            const rawItems = data.shopping_results || [];
+            
+            // تطبيق محرك الذكاء الخماسي على كل نتيجة
+            const results = rawItems.map(item => ({
+                name: item.title,
+                price: item.price,
+                thumbnail: item.thumbnail,
+                link: item.link,
+                source: item.source,
+                rating: item.rating || 0,
+                reviews: item.reviews || 0,
+                smartReason: runFiveLayerIntelligence(item, rawItems, lang)
+            }));
 
-        res.json({
-            products: results,
-            marketAvg: realMarketAvg
+            res.json({ results });
         });
-    });
+    } catch (err) {
+        res.status(500).json({ error: "Intelligence Engine Error" });
+    }
 });
 
-app.post('/alerts', async (req, res) => {
+// قائمة المتابعة
+app.post('/watchlist', async (req, res) => {
     try {
-        const newAlert = new Alert(req.body);
-        await newAlert.save();
+        const item = new Watchlist(req.body);
+        await item.save();
         res.json({ success: true });
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// --- Background Task (Price Tracker) ---
+app.get('/watchlist/:uid', async (req, res) => {
+    const list = await Watchlist.find({ uid: req.params.uid }).sort({ addedAt: -1 });
+    res.json(list);
+});
+
+// نظام التنبيهات بالبريد
+app.post('/alerts', async (req, res) => {
+    try {
+        const alert = new Alert(req.body);
+        await alert.save();
+        res.json({ success: true });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// --- مهمة الخلفية (Price Tracking Bot) ---
+// يعمل كل 12 ساعة لفحص تغيرات الأسعار وإرسال إيميلات
 cron.schedule('0 */12 * * *', async () => {
-    console.log("🔍 Checking price alerts...");
+    console.log("🤖 Price Bot: Scanning for drops...");
     const alerts = await Alert.find();
 
     for (const alert of alerts) {
         getJson({
-            engine: "google_shopping", q: alert.productName, api_key: SERP_API_KEY, num: 5
+            engine: "google_shopping", q: alert.productName, api_key: SERP_API_KEY, num: 3
         }, async (data) => {
             if (!data.shopping_results) return;
 
             for (const p of data.shopping_results) {
-                const currentPrice = p.price ? parseFloat(p.price.toString().replace(/[^0-9.]/g, '')) : 999999;
+                const currentPrice = parseFloat(p.price?.toString().replace(/[^0-9.]/g, '')) || 999999;
                 
-                if (currentPrice <= alert.targetPrice) {
-                    // Send Email
-                    const mailOptions = {
+                if (currentPrice > 0 && currentPrice <= alert.targetPrice) {
+                    transporter.sendMail({
                         from: EMAIL_USER,
                         to: alert.email,
-                        subject: alert.lang === 'ar' ? 'انخفاض في السعر!' : 'Price Drop Alert!',
-                        text: `المنتج: ${alert.productName} متوفر الآن بسعر ${currentPrice}. الرابط: ${alert.link}`
-                    };
-                    transporter.sendMail(mailOptions);
-                    // Remove alert after notification
+                        subject: alert.lang === 'ar' ? '🚨 هبط السعر! فرصة شراء' : '🚨 Price Drop Found!',
+                        html: `<div dir="${alert.lang === 'ar' ? 'rtl' : 'ltr'}">
+                                <h3>وجدنا لك سعراً أفضل!</h3>
+                                <p>المنتج: ${alert.productName}</p>
+                                <p>السعر الجديد: <b>${p.price}</b></p>
+                                <a href="${p.link}">اضغط هنا للشراء فوراً</a>
+                               </div>`
+                    });
                     await Alert.findByIdAndDelete(alert._id);
                     break;
                 }
@@ -130,4 +187,4 @@ cron.schedule('0 */12 * * *', async () => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Findly Intelligence Server Active on Port ${PORT}`));

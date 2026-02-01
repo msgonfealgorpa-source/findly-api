@@ -536,10 +536,10 @@ async function runSearch() {
                             <div class="price">${p.price || 'N/A'}</div>
                             ${analysisHTML}
                             <div class="btn-group">
-                                <a href="${p.link}" target="_blank" class="action-btn buy-now">${d.buy}</a>
-                                <button class="action-btn watch-later" onclick="addToWatch('${p.name.replace(/'/g, "\\'")}', '${p.price}', '${p.link}')">${d.watch}</button>
-                            </div>
-                        </div>`;
+    <a href="${p.link}" target="_blank" class="action-btn buy-now">${d.buy}</a>
+    <button class="action-btn watch-later" onclick="addToWatch('${p.name.replace(/'/g, "\\'")}', '${p.price}', '${p.link}')">${d.watch}</button>
+</div>
+        </div>      
                 }, index * 100);
             });
 

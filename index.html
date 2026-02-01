@@ -171,12 +171,12 @@
         
         .ai-toggle input { width: 20px; height: 20px; accent-color: var(--primary); cursor: pointer; }
 
-        /* --- Search Input Styling (FIXED) --- */
+        /* --- Search Input Styling --- */
         .search-wrapper { position: relative; max-width: 600px; margin: 0 auto 20px; }
         
         .search-input {
             width: 100%;
-            padding: 18px 60px; /* Padding for icons */
+            padding: 18px 60px;
             border-radius: 24px;
             border: 2px solid var(--glass-border);
             background: var(--bg-card);
@@ -202,7 +202,7 @@
             cursor: pointer; 
             font-size: 1.4rem; 
             transition: 0.3s;
-            z-index: 10; /* Ensure it stays on top */
+            z-index: 10;
         }
         
         .mic-active { color: #ef4444; text-shadow: 0 0 10px #ef4444; animation: pulse 1s infinite; }
@@ -223,7 +223,7 @@
             display: flex; 
             align-items: center; 
             justify-content: center;
-            z-index: 10; /* Ensure it stays on top */
+            z-index: 10;
         }
         
         .send-btn:hover { transform: translateY(-50%) scale(1.05); box-shadow: 0 0 15px var(--primary-glow); }
@@ -428,6 +428,25 @@
         </div>
     </div>
 
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-analytics.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCI_q5lkgRY4133ua4RlG5TeiCqJ5N5KTU",
+            authDomain: "findly-ede17.firebaseapp.com",
+            projectId: "findly-ede17",
+            storageBucket: "findly-ede17.firebasestorage.app",
+            messagingSenderId: "503212830017",
+            appId: "1:503212830017:web:9afb64c19822bbe7f645c0",
+            measurementId: "G-X1Q3WDP50N"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        console.log("🔥 Findly Firebase Active");
+    </script>
+
     <script>
         // Server URL - Must match your Render URL
         const API = "https://findly-api.onrender.com";
@@ -467,28 +486,34 @@
             if (!q) return;
 
             status.style.display = "block";
-            status.innerHTML = '<i class="fa-solid fa-microchip fa-spin"></i> Analyzing...';
+            status.innerHTML = '<i class="fa-solid fa-microchip fa-spin"></i> Finding Best Deals...';
             resCon.innerHTML = "";
 
+            // Generate or Retrieve UID for history
+            let uid = localStorage.getItem('findly_uid');
+            if(!uid) {
+                uid = 'user_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('findly_uid', uid);
+            }
+
             try {
-                // Connection to Backend
-                const res = await fetch(`${API}/smart-search`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query: q, lang: lang })
+                // FIXED: Changed to GET method and correct params to match server.js
+                const res = await fetch(`${API}/search?q=${encodeURIComponent(q)}&uid=${uid}&lang=${lang}`, {
+                    method: 'GET'
                 });
                 
                 const data = await res.json();
                 status.style.display = "none";
 
-                if (data.products && data.products.length > 0) {
-                    data.products.forEach((p, index) => {
+                // FIXED: Server returns 'results' not 'products'
+                if (data.results && data.results.length > 0) {
+                    data.results.forEach((p, index) => {
                         // Safe Price Logic
                         let cleanPrice = p.price ? p.price.toString().replace(/[^\d.]/g, '') : "0"; 
                         let priceVal = parseFloat(cleanPrice);
                         let budgetAlert = (userBudget > 0 && priceVal > userBudget) ? `<div class="budget-error">⚠️ ${d.over} (${userBudget}$)</div>` : "";
                         
-                        // Using timeout for animation effect
+                        // FIXED: Using p.smartReason from server
                         setTimeout(() => {
                             resCon.innerHTML += `
                                 <div class="product-card">
@@ -496,7 +521,7 @@
                                     <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/150'">
                                     <h3>${p.name}</h3>
                                     <div class="price">${p.price || 'N/A'}</div>
-                                    <div class="analysis-engine"><span class="analysis-label"><i class="fa-solid fa-brain"></i> ${d.why}</span>${p.reason}</div>
+                                    <div class="analysis-engine"><span class="analysis-label"><i class="fa-solid fa-brain"></i> ${d.why}</span>${p.smartReason || 'Best match found based on your search.'}</div>
                                     <div class="btn-group">
                                         <a href="${p.link}" target="_blank" class="action-btn buy-now">${d.buy}</a>
                                         <button class="action-btn watch-later" onclick="addToWatch('${p.name.replace(/'/g, "\\'")}', '${p.price}', '${p.link}')">${d.watch}</button>
@@ -521,29 +546,30 @@
 
         async function addToWatch(name, price, link) {
             const promptMsg = {
-                ar: "أدخل إيميلك لتفعيل تنبيه انخفاض السعر العملي:",
-                en: "Enter email for real price drop alerts:",
-                fr: "Entrez votre e-mail pour les alertes:",
-                de: "E-Mail für Preisalarme eingeben:",
-                es: "Correo electrónico para alertas:",
-                tr: "Fiyat alarmı için e-posta girin:"
+                ar: "أدخل إيميلك لتفعيل التنبيه:",
+                en: "Enter email for alert:",
             };
 
+            // Using simple prompt as per original code style
             const userEmail = prompt(promptMsg[lang] || promptMsg['ar']);
 
             if (userEmail && userEmail.includes("@")) {
-                const numericPrice = parseFloat(price.replace(/[^0-9.]/g, ''));
-
+                let uid = localStorage.getItem('findly_uid');
+                
+                // FIXED: Matching the server's Watchlist Schema expectation
+                // Note: Server has /watchlist route but cron looks at 'Alert' model.
+                // We will send to /watchlist to save the item.
                 try {
-                    const response = await fetch(`${API}/set-alert`, {
+                    const response = await fetch(`${API}/watchlist`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            email: userEmail,
-                            productName: name,
-                            targetPrice: numericPrice,
+                            uid: uid,
+                            name: name,
+                            price: price,
+                            thumbnail: "", // Optional
                             link: link,
-                            lang: lang
+                            email: userEmail // Sending email even if schema might not use it immediately, for future compatibility
                         })
                     });
 
@@ -551,14 +577,13 @@
                         watchList.push({ name, price, link });
                         localStorage.setItem('findly_watch', JSON.stringify(watchList));
                         update();
-                        const successMsg = lang === 'ar' ? "تم تفعيل التنبيه! سنراقب السعر." : "Alert activated! Monitoring price.";
-                        alert(successMsg);
+                        alert(lang === 'ar' ? "تمت الإضافة للقائمة!" : "Added to watchlist!");
                     } else {
-                        alert("Error connecting to server / خطأ في السيرفر");
+                        alert("Server Error");
                     }
                 } catch (error) {
                     console.error("Error:", error);
-                    alert("Connection failed / فشل الاتصال");
+                    alert("Connection failed");
                 }
             }
         }
@@ -566,7 +591,7 @@
         function startVoice() {
             const mic = document.getElementById('mic-btn');
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) return; // Restored original logic (removed alert)
+            if (!SpeechRecognition) return;
             
             const recognition = new SpeechRecognition();
             recognition.lang = (lang==='ar'?'ar-SA':lang==='fr'?'fr-FR':lang==='de'?'de-DE':lang==='tr'?'tr-TR':lang==='es'?'es-ES':'en-US');

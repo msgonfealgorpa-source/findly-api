@@ -148,6 +148,9 @@ cron.schedule('0 */12 * * *', async () => {
   }
 });
 
+app.get('/', (req, res) => {
+  res.send('✅ Findly Smart Server is running');
+});
 // ================= START =================
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () =>

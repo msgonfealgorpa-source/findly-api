@@ -9,7 +9,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ================= ENV =================
+// ================= ENV VARIABLES =================
+// تأكد من وضع هذه المتغيرات في إعدادات Render
 const MONGO_URI = process.env.MONGO_URI;
 const SERP_API_KEY = process.env.SERP_API_KEY;
 const EMAIL_USER = process.env.EMAIL_USER;
@@ -25,14 +26,11 @@ const SUPPORTED_LANGS = {
   tr: { hl: 'tr', gl: 'tr' }
 };
 
-// ================= DB ==================
+// ================= DB CONNECTION ==================
 mongoose.connect(MONGO_URI)
   .then(() => console.log('✅ MongoDB Connected'))
   .catch(err => console.error('❌ DB Error:', err.message));
 
-app.get('/search', async (req, res) => {
-  const { q, uid, lang = 'en' } = req.query;
-  console.log("Search request:", { q, uid, lang });
 // ================= SCHEMAS =================
 const Alert = mongoose.model('Alert', new mongoose.Schema({
   email: String,
@@ -58,13 +56,14 @@ const Watchlist = mongoose.model('Watchlist', new mongoose.Schema({
   addedAt: { type: Date, default: Date.now }
 }));
 
-// ================= EMAIL =================
+// ================= EMAIL TRANSPORTER =================
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: { user: EMAIL_USER, pass: EMAIL_PASS }
 });
 
-// ================= INTELLIGENCE ENGINE =================
+// ================= INTELLIGENCE ENGINE (CORE LOGIC) =================
+// تم الحفاظ على هذا المنطق كاملاً كما طلبت
 function ProductIntelligenceEngine(item, allItems, { market = 'us' } = {}) {
   const cleanPrice = (p) =>
     parseFloat(p?.toString().replace(/[^0-9.]/g, '')) || 0;
@@ -186,12 +185,17 @@ function ProductIntelligenceEngine(item, allItems, { market = 'us' } = {}) {
   };
 }
 
-// ================= SEARCH ROUTE =================
+// ================= API ROUTES =================
+
+// Search Route
 app.get('/search', async (req, res) => {
   const { q, uid, lang = 'en' } = req.query;
+  console.log("Search request:", { q, uid, lang });
+
   if (!q) return res.status(400).json({ error: 'Query required' });
 
-  if (uid) SearchLog.create({ uid, query: q }).catch(() => {});
+  // Log search asynchronously
+  if (uid) SearchLog.create({ uid, query: q }).catch(err => console.error("Log Error:", err));
 
   const langConfig = SUPPORTED_LANGS[lang] || SUPPORTED_LANGS.en;
 
@@ -203,15 +207,20 @@ app.get('/search', async (req, res) => {
     gl: langConfig.gl,
     num: 10
   }, (data) => {
-    const items = data.shopping_results || [];
-    const results = items.map(item =>
-      ProductIntelligenceEngine(item, items, { market: langConfig.gl })
-    );
-    res.json({ query: q, results });
+    try {
+      const items = data.shopping_results || [];
+      const results = items.map(item =>
+        ProductIntelligenceEngine(item, items, { market: langConfig.gl })
+      );
+      res.json({ query: q, results });
+    } catch (error) {
+      console.error("Processing Error:", error);
+      res.status(500).json({ error: "Failed to process results" });
+    }
   });
 });
 
-// ================= WATCHLIST =================
+// Watchlist Route
 app.post('/watchlist', async (req, res) => {
   try {
     await new Watchlist(req.body).save();
@@ -222,23 +231,32 @@ app.post('/watchlist', async (req, res) => {
 });
 
 app.get('/watchlist/:uid', async (req, res) => {
-  const list = await Watchlist.find({ uid: req.params.uid }).sort({ addedAt: -1 });
-  res.json(list);
-});
-
-// ================= ALERTS =================
-app.post('/alerts', async (req, res) => {
   try {
-    await new Alert(req.body).save();
-    res.json({ success: true });
+    const list = await Watchlist.find({ uid: req.params.uid }).sort({ addedAt: -1 });
+    res.json(list);
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
 });
 
-// ================= CRON =================
+// Alerts Route
+app.post('/alerts', async (req, res) => {
+  try {
+    // التأكد من حفظ البيانات بالشكل الصحيح
+    await new Alert(req.body).save();
+    console.log("Alert Saved:", req.body.email);
+    res.json({ success: true });
+  } catch (e) {
+    console.error("Alert Error:", e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// ================= CRON JOB (Periodic Checks) =================
 cron.schedule('0 */12 * * *', async () => {
+  console.log("Running Price Check Cron Job...");
   const alerts = await Alert.find();
+  
   for (const alert of alerts) {
     const langConfig = SUPPORTED_LANGS[alert.lang] || SUPPORTED_LANGS.en;
 
@@ -252,14 +270,22 @@ cron.schedule('0 */12 * * *', async () => {
     }, async (data) => {
       for (const p of data.shopping_results || []) {
         const current = parseFloat(p.price?.replace(/[^0-9.]/g, '')) || 999999;
+        // مقارنة السعر
         if (current <= alert.targetPrice) {
           await transporter.sendMail({
             from: EMAIL_USER,
             to: alert.email,
-            subject: '🚨 Price Drop Found!',
-            html: `<p>${alert.productName}<br><b>${p.price}</b><br><a href="${p.link}">Buy Now</a></p>`
+            subject: '🚨 Findly Alert: Price Drop Found!',
+            html: `
+              <h2>Good News!</h2>
+              <p>The product <b>${alert.productName}</b> has dropped to your target price.</p>
+              <p>Current Price: <b>${p.price}</b></p>
+              <br>
+              <a href="${p.link}" style="background:#8b5cf6; color:white; padding:10px 20px; text-decoration:none; border-radius:5px;">Buy Now</a>
+            `
           });
-          await Alert.findByIdAndDelete(alert._id);
+          console.log(`Email sent to ${alert.email}`);
+          await Alert.findByIdAndDelete(alert._id); // حذف التنبيه بعد الإرسال
           break;
         }
       }
@@ -267,13 +293,13 @@ cron.schedule('0 */12 * * *', async () => {
   }
 });
 
-// ================= ROOT =================
+// ================= ROOT ROUTE =================
 app.get('/', (req, res) => {
   res.setHeader('Content-Type', 'text/html');
-  res.send('<h1>✅ Findly Smart Server is running</h1><p>Use /search API</p>');
+  res.send('<h1>✅ Findly Smart Server is running</h1><p>Ready to serve requests.</p>');
 });
 
-// ================= START =================
+// ================= START SERVER =================
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () =>
   console.log(`🚀 Smart Intelligence Server running on ${PORT}`)

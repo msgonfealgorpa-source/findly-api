@@ -470,70 +470,82 @@
         };
 
         async function runSearch() {
-    let q = document.getElementById('s-input').value;
+    let q = document.getElementById('s-input').value.trim();
     const status = document.getElementById('status');
     const resCon = document.getElementById('results');
     const d = dict[lang] || dict['ar'];
-    const userBudget = parseFloat(localStorage.getItem('fb')) || 0;
 
     if (!q) return;
 
-    // تجهيز الواجهة
     status.style.display = "block";
     status.innerHTML = `<i class="fa-solid fa-microchip fa-spin"></i> ${lang === 'ar' ? 'جاري تحليل البيانات ذكياً...' : 'Analyzing with Findly Brain...'}`;
     resCon.innerHTML = "";
 
     try {
-        const response = await fetch(`${API}/search?q=${encodeURIComponent(q)}&uid=${localStorage.getItem('findly_uid') || 'guest'}&lang=${lang}`);
+        const response = await fetch(
+          `${API}/search?q=${encodeURIComponent(q)}&uid=${localStorage.getItem('findly_uid') || 'guest'}`
+        );
         const data = await response.json();
         status.style.display = "none";
 
-        if (data.results && data.results.length > 0) {
-            data.results.forEach((p, index) => {
-                // الربط مع "عقل" السيرفر - السطر 115 في server.js
-                const v = p.verdict || { emoji: "💡", title: "تحليل", summary: "جاري المعالجة" };
-                const t = p.timing || { recommendation: "انتظر", reason: "غير معروف" };
-                const score = p.valueScore || { score: 0 };
-                const trust = p.trustScore || { riskLevel: "متوسط" };
-
-                setTimeout(() => {
-                    resCon.innerHTML += `
-                        <div class="product-card" style="border: 1px solid var(--glass-border); position: relative;">
-                            <div style="position: absolute; top: 12px; left: 12px; background: var(--gradient); color: white; padding: 4px 10px; border-radius: 10px; font-size: 0.7rem; font-weight: bold; z-index: 5;">
-                                ${v.emoji} ${v.title}
-                            </div>
-                            
-                            <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/150'">
-                            <h3>${p.name}</h3>
-                            <div class="price">${p.price || 'N/A'}</div>
-
-                            <div class="analysis-engine" style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 12px; margin: 10px 0;">
-                                <p style="font-size: 0.85rem; margin-bottom: 8px;"><b>🤖 التحليل:</b> ${v.summary}</p>
-                                <p style="font-size: 0.8rem; margin: 4px 0;"><b>📅 التوقيت:</b> ${t.recommendation}</p>
-                                <p style="font-size: 0.8rem; margin: 4px 0;"><b>🛡️ الثقة:</b> ${trust.riskLevel}</p>
-                                
-                                <div style="margin-top: 10px;">
-                                    <div style="height: 6px; width: 100%; background: #334155; border-radius: 10px; overflow: hidden;">
-                                        <div style="width: ${score.score}%; height: 100%; background: var(--gradient);"></div>
-                                    </div>
-                                    <small style="font-size: 0.65rem; display: block; margin-top: 4px; opacity: 0.8;">قيمة الصفقة الذكية: ${score.score}%</small>
-                                </div>
-                            </div>
-
-                            <div class="btn-group">
-                                <a href="${p.link}" target="_blank" class="action-btn buy-now">${d.buy}</a>
-                                <button onclick="addToWatch('${p.name.replace(/'/g, "\\'")}', '${p.price}', '${p.link}')" class="action-btn watch-later">${d.watch}</button>
-                            </div>
-                        </div>`;
-                }, index * 100);
-            });
-            update();
-        } else {
-            status.innerHTML = "No results found.";
+        if (!data.results || !data.results.length) {
+            status.innerHTML = "❌ لا توجد نتائج";
+            return;
         }
-    } catch (error) {
-        console.error("Fetch error:", error);
-        status.innerHTML = "⚠️ خطأ في الاتصال بالسيرفر";
+
+        data.results.forEach((p, index) => {
+
+            const v = p.verdict ?? { emoji: "🤖", title: "تحليل", summary: "غير متوفر" };
+            const t = p.timing ?? { recommendation: "غير معروف", reason: "" };
+            const score = Math.min(Number(p.valueScore?.score || 0), 100);
+            const trust = p.trustScore ?? { riskLevel: "غير معروف", reasons: [] };
+            const market = p.marketPosition ?? {};
+            const risk = p.riskAnalysis ?? {};
+
+            setTimeout(() => {
+                resCon.innerHTML += `
+                <div class="product-card">
+
+                    <div class="badge">
+                        ${v.emoji} ${v.title}
+                    </div>
+
+                    <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/150'">
+                    <h3>${p.name || '—'}</h3>
+                    <div class="price">${p.price || 'N/A'}</div>
+
+                    <div class="analysis-engine">
+                        <p><b>🤖 التحليل:</b> ${v.summary}</p>
+                        <p><b>📅 التوقيت:</b> ${t.recommendation}</p>
+                        <small>${t.reason || ''}</small>
+
+                        <p><b>🛡️ الثقة:</b> ${trust.riskLevel}</p>
+                        ${trust.reasons?.map(r => `<small>✔ ${r}</small>`).join("")}
+
+                        ${market.label ? `<p><b>💰 السوق:</b> ${market.label}</p>` : ''}
+
+                        ${risk.warnings?.length ? 
+                          `<p class="warn">⚠ ${risk.warnings.join(' • ')}</p>` : ''}
+
+                        <div class="score-bar">
+                            <div class="bar" style="width:${score}%"></div>
+                        </div>
+                        <small>قيمة الصفقة الذكية: ${score}%</small>
+                    </div>
+
+                    <div class="btn-group">
+                        <a href="${p.link}" target="_blank" class="action-btn buy-now">${d.buy}</a>
+                        <button onclick="addToWatch('${p.name?.replace(/'/g, "\\'")}', '${p.price}', '${p.link}')" class="action-btn watch-later">${d.watch}</button>
+                    </div>
+                </div>`;
+            }, index * 120);
+        });
+
+        update();
+
+    } catch (err) {
+        console.error(err);
+        status.innerHTML = "⚠️ فشل الاتصال بالسيرفر";
     }
 }
         

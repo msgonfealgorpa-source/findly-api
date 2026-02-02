@@ -501,97 +501,39 @@
                 const data = await res.json();
                 status.style.display = "none";
 
-                if (data.results && data.results.length > 0) {
-                    data.results.forEach((p, index) => {
-                        let cleanPrice = p.price ? p.price.toString().replace(/[^\d.]/g, '') : "0"; 
-                        let priceVal = parseFloat(cleanPrice);
-                        let budgetAlert = (userBudget > 0 && priceVal > userBudget) ? `<div class="budget-error">⚠️ ${d.over} (${userBudget}$)</div>` : "";
-                        
-                        // هنا الربط الصحيح مع بيانات السيرفر الذكية
-                        const v = p.verdict; 
-                        const t = p.timing;
 
-                        setTimeout(() => {
-                            resCon.innerHTML += `
-                                <div class="product-card">
-                                    ${budgetAlert}
-                                    <div style="position: absolute; top: 10px; left: 10px; background: var(--gradient); padding: 5px 12px; border-radius: 12px; font-size: 0.7rem; color: white; font-weight: bold; z-index: 5;">
-                                        ${v.emoji} ${v.title}
-                                    </div>
-                                    <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/150'">
-                                    <h3>${p.name}</h3>
-                                    <div class="price">${p.price || 'N/A'}</div>
-                                    <div class="analysis-engine">
-                                        <span class="analysis-label"><i class="fa-solid fa-brain"></i> ${d.why}</span>
-                                        <p style="margin: 5px 0;"><b>الخلاصة:</b> ${v.summary}</p>
-                                        <p style="margin: 5px 0;"><b>التوقيت:</b> ${t.recommendation} (${t.reason})</p>
-                                    </div>
-                                    <div class="btn-group">
-                                        <a href="${p.link}" target="_blank" class="action-btn buy-now">${d.buy}</a>
-                                        <button class="action-btn watch-later" onclick="addToWatch('${p.name.replace(/'/g, "\\'")}', '${p.price}', '${p.link}')">${d.watch}</button>
-                                    </div>
-                                </div>`;
-                        }, index * 100);
-                    });
-                    
-                    attempts--;
-                    localStorage.setItem('findly_attempts', attempts);
-                    update();
-                } else {
-                    status.style.display = "block";
-                    status.innerHTML = "No results found / لا توجد نتائج";
-                }
-            } catch (e) {
-                console.error(e);
-                status.style.display = "block";
-                status.innerHTML = `<i class="fa-solid fa-clock-rotate-left"></i> ${d.slow}`;
-            }
-        }
-        
-            async function addToWatch(name, price, link) {
-            const promptMsg = {
-                ar: "أدخل إيميلك لتفعيل التنبيه:",
-                en: "Enter email for alert:",
-            };
+                // داخل دالة runSearch في ملف index.html
+data.results.forEach((p, index) => {
+    // جلب بيانات "العقل" من السيرفر
+    const v = p.verdict; 
+    const t = p.timing;
+    const val = p.valueScore;
 
-            // Using simple prompt as per original code style
-            const userEmail = prompt(promptMsg[lang] || promptMsg['ar']);
-
-            if (userEmail && userEmail.includes("@")) {
-                let uid = localStorage.getItem('findly_uid');
-                
-                // FIXED: Matching the server's Watchlist Schema expectation
-                // Note: Server has /watchlist route but cron looks at 'Alert' model.
-                // We will send to /watchlist to save the item.
-                try {
-                    const response = await fetch(`${API}/watchlist`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            uid: uid,
-                            name: name,
-                            price: price,
-                            thumbnail: "", // Optional
-                            link: link,
-                            email: userEmail // Sending email even if schema might not use it immediately, for future compatibility
-                        })
-                    });
-
-                    if (response.ok) {
-                        watchList.push({ name, price, link });
-                        localStorage.setItem('findly_watch', JSON.stringify(watchList));
-                        update();
-                        alert(lang === 'ar' ? "تمت الإضافة للقائمة!" : "Added to watchlist!");
-                    } else {
-                        alert("Server Error");
-                    }
-                } catch (error) {
-                    console.error("Error:", error);
-                    alert("Connection failed");
-                }
-            }
-        }
-
+    setTimeout(() => {
+        resCon.innerHTML += `
+            <div class="product-card">
+                <div style="position: absolute; top: 10px; left: 10px; background: var(--gradient); padding: 5px 10px; border-radius: 10px; font-size: 0.7rem; color: white; font-weight: bold; z-index: 5;">
+                    ${v.emoji} ${v.title}
+                </div>
+                <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/150'">
+                <h3>${p.name}</h3>
+                <div class="price">${p.price || 'N/A'}</div>
+                <div class="analysis-engine">
+                    <span class="analysis-label"><i class="fa-solid fa-brain"></i> ${d.why}</span>
+                    <p style="margin: 5px 0;"><b>الخلاصة:</b> ${v.summary}</p>
+                    <p style="margin: 5px 0;"><b>نصيحة:</b> ${t.recommendation} (${t.reason})</p>
+                    <div style="margin-top:8px; height:5px; width:100%; background:rgba(255,255,255,0.1); border-radius:5px;">
+                        <div style="width:${val.score}%; height:100%; background:var(--primary); border-radius:5px;"></div>
+                    </div>
+                    <small>القيمة مقابل السعر: ${val.score}%</small>
+                </div>
+                <div class="btn-group">
+                    <a href="${p.link}" target="_blank" class="action-btn buy-now">${d.buy}</a>
+                    <button class="action-btn watch-later" onclick="addToWatch('${p.name.replace(/'/g, "\\'")}', '${p.price}', '${p.link}')">${d.watch}</button>
+                </div>
+            </div>`;
+    }, index * 100);
+});
         function startVoice() {
             const mic = document.getElementById('mic-btn');
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -611,6 +553,37 @@
 
         // --- UI & Helper Functions ---
 
+        async function addToWatch(name, price, link) {
+    const userEmail = prompt(lang === 'ar' ? "أدخل إيميلك للتنبيه عند انخفاض السعر:" : "Enter email for price alerts:");
+    if (!userEmail || !userEmail.includes("@")) return;
+
+    let uid = localStorage.getItem('findly_uid');
+    let targetPrice = parseFloat(price.replace(/[^\d.]/g, '')) * 0.9; // تنبيه عند خصم 10%
+
+    try {
+        const response = await fetch(`${API}/alerts`, { // السيرفر يستخدم /alerts للتنبيهات
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                email: userEmail,
+                productName: name,
+                targetPrice: targetPrice,
+                link: link,
+                lang: lang,
+                uid: uid
+            })
+        });
+
+        if (response.ok) {
+            alert(lang === 'ar' ? "تم تفعيل التنبيه بنجاح! سيصلك إيميل عند انخفاض السعر." : "Alert activated! We'll email you on price drops.");
+            update();
+        } else {
+            alert("Server Error: " + response.status);
+        }
+    } catch (error) {
+        alert("Connection failed");
+    }
+}
         function saveSet() {
             localStorage.setItem('fn', document.getElementById('in-name').value);
             localStorage.setItem('fb', document.getElementById('in-budget').value);

@@ -252,3 +252,10 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () =>
   console.log(`🚀 Smart Intelligence Server running on ${PORT}`)
 );
+// أضف هذا في server.js ليعمل الرابط بنجاح
+app.get('/', (req, res) => {
+    res.send('Findly Intelligence Engine is Active! 🚀');
+});
+
+// تأكد أن هذا السطر موجود في بداية الملف (مهم جداً للاتصال بالواجهة)
+app.use(cors());

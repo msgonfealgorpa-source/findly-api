@@ -469,8 +469,6 @@
             tr: { title: "Bilge Danışman", sub: "Akıllı alışveriş rehberiniz", energy: "Bilge Enerji", welcome: "Hoş geldiniz,", game: "Oyunlar", beauty: "Güzellik", home: "Akıllı Ev", c1: "Telefonlar", c2: "Laptoplar", c4: "Saatler", p_head: "Profil", buy: "Satın Al 🛒", watch: "Fiyatı İzle 🔔", over: "Bütçe Aşıldı!", cheap: "Ekonomik", top: "En İyi", new: "Yeni", deep: "Yapay Zeka Analiz", watchTitle: "İzleme Listesi", why: "Neden bu seçim?", slow: "Sunucu uyanıyor.. bekleyin", noAttempts: "⚠️ Deneme kalmadı!" }
         };
 
-        // --- Core Functions ---
-
         async function runSearch() {
             let q = document.getElementById('s-input').value;
             const status = document.getElementById('status');
@@ -489,7 +487,6 @@
             status.innerHTML = '<i class="fa-solid fa-microchip fa-spin"></i> Finding Best Deals...';
             resCon.innerHTML = "";
 
-            // Generate or Retrieve UID for history
             let uid = localStorage.getItem('findly_uid');
             if(!uid) {
                 uid = 'user_' + Math.random().toString(36).substr(2, 9);
@@ -497,7 +494,6 @@
             }
 
             try {
-                // FIXED: Changed to GET method and correct params to match server.js
                 const res = await fetch(`${API}/search?q=${encodeURIComponent(q)}&uid=${uid}&lang=${lang}`, {
                     method: 'GET'
                 });
@@ -505,51 +501,52 @@
                 const data = await res.json();
                 status.style.display = "none";
 
-                // FIXED: Server returns 'results' not 'products'
                 if (data.results && data.results.length > 0) {
-                    // داخل دالة runSearch في ملف index.html
-
-  
-                   data.results.forEach((p, index) => {
+                    data.results.forEach((p, index) => {
                         let cleanPrice = p.price ? p.price.toString().replace(/[^\d.]/g, '') : "0"; 
                         let priceVal = parseFloat(cleanPrice);
                         let budgetAlert = (userBudget > 0 && priceVal > userBudget) ? `<div class="budget-error">⚠️ ${d.over} (${userBudget}$)</div>` : "";
                         
-                        // استخراج البيانات الذكية من السيرفر
+                        // هنا الربط الصحيح مع بيانات السيرفر الذكية
                         const v = p.verdict; 
-                        const timing = p.timing;
-                        const trust = p.trustScore;
+                        const t = p.timing;
 
                         setTimeout(() => {
                             resCon.innerHTML += `
                                 <div class="product-card">
                                     ${budgetAlert}
-                                    <div style="position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.6); padding: 5px 10px; border-radius: 10px; font-size: 0.8rem; color: white;">
+                                    <div style="position: absolute; top: 10px; left: 10px; background: var(--gradient); padding: 5px 12px; border-radius: 12px; font-size: 0.7rem; color: white; font-weight: bold; z-index: 5;">
                                         ${v.emoji} ${v.title}
                                     </div>
                                     <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/150'">
                                     <h3>${p.name}</h3>
                                     <div class="price">${p.price || 'N/A'}</div>
-                                    
                                     <div class="analysis-engine">
                                         <span class="analysis-label"><i class="fa-solid fa-brain"></i> ${d.why}</span>
-                                        <p><b>💡 الخلاصة:</b> ${v.summary}</p>
-                                        <p><b>🕒 التوقيت:</b> ${timing.recommendation} (${timing.reason})</p>
-                                        <p><b>🛡️ الثقة:</b> ${trust.riskLevel} - ${trust.reasons[0]}</p>
-                                        <div style="margin-top:5px; height:4px; width:100%; background:#334155; border-radius:2px;">
-                                            <div style="width:${p.valueScore.score}%; height:100%; background:var(--primary); border-radius:2px;"></div>
-                                        </div>
-                                        <small>درجة القيمة: ${p.valueScore.score}/100</small>
+                                        <p style="margin: 5px 0;"><b>الخلاصة:</b> ${v.summary}</p>
+                                        <p style="margin: 5px 0;"><b>التوقيت:</b> ${t.recommendation} (${t.reason})</p>
                                     </div>
-
                                     <div class="btn-group">
                                         <a href="${p.link}" target="_blank" class="action-btn buy-now">${d.buy}</a>
                                         <button class="action-btn watch-later" onclick="addToWatch('${p.name.replace(/'/g, "\\'")}', '${p.price}', '${p.link}')">${d.watch}</button>
                                     </div>
                                 </div>`;
                         }, index * 100);
-                    }); 
+                    });
                     
+                    attempts--;
+                    localStorage.setItem('findly_attempts', attempts);
+                    update();
+                } else {
+                    status.style.display = "block";
+                    status.innerHTML = "No results found / لا توجد نتائج";
+                }
+            } catch (e) {
+                console.error(e);
+                status.style.display = "block";
+                status.innerHTML = `<i class="fa-solid fa-clock-rotate-left"></i> ${d.slow}`;
+            }
+        }
         
             async function addToWatch(name, price, link) {
             const promptMsg = {

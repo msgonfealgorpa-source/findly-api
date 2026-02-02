@@ -687,6 +687,61 @@
 
         // Init
         window.onload = update;
+    <script>
+    // ... الكود الموجود مسبقاً (مثل تعريف lang و watchList) ...
+
+    async function askAdvisor() {
+        // 1. الحصول على قيمة البحث من الحقل (تأكد أن id المدخل هو search-input)
+        const queryInput = document.querySelector('.search-input'); 
+        const query = queryInput ? queryInput.value : "";
+        
+        if (!query) return; // منع البحث الفارغ
+
+        // 2. تغيير النص مؤقتاً لإعلام المستخدم أن "المستشار" يفكر
+        const headText = document.getElementById('p-head');
+        headText.innerText = (lang === 'ar') ? "جاري تحليل البيانات واستشارة الخبراء..." : "Analyzing data and consulting experts...";
+
+        try {
+            // 3. الاتصال بالسيرفر (رابط Render الخاص بك)
+            const response = await fetch('https://findly-api.onrender.com/api/consult', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ 
+                    query: query, 
+                    lang: lang,
+                    deepSearch: true // تفعيل ميزة البحث العميق تلقائياً للمستشار
+                })
+            });
+
+            const data = await response.json();
+
+            // 4. عرض رسالة المستشار الذكية في العنصر p-head
+            // استخدمت التنسيق الذي يتناسب مع تصميم الـ Glassmorphism في ملفك
+            headText.innerHTML = `
+                <div style="background: var(--gradient); padding: 20px; border-radius: 15px; margin-top: 10px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); border: 1px solid var(--glass-border);">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                        <i class="fas fa-robot" style="font-size: 1.5rem;"></i>
+                        <strong style="font-size: 1.1rem;">${lang === 'ar' ? 'نصيحة فايندلي الذكية' : 'Findly Smart Advice'}</strong>
+                    </div>
+                    <p style="margin: 0; line-height: 1.6; font-weight: 300;">${data.advisor_message}</p>
+                </div>
+            `;
+            
+            // 5. عرض نتائج البحث الحقيقية (الروابط)
+            // تأكد من وجود دالة تدعى renderResults تقوم برسم الروابط في القائمة
+            if (typeof renderResults === "function") {
+                renderResults(data.results);
+            }
+
+        } catch (error) {
+            console.error("Error:", error);
+            headText.innerText = (lang === 'ar') ? "عذراً، حدث خطأ في الاتصال بالمستشار." : "Sorry, could not connect to the advisor.";
+        }
+    }
+
+    // لربط الدالة بزر البحث (العدسة) أو زر Enter
+    document.querySelector('.search-btn').addEventListener('click', askAdvisor);
+</script>
     </script>
 </body>
 </html>

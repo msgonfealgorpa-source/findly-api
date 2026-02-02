@@ -470,70 +470,73 @@
         };
 
         async function runSearch() {
-            let q = document.getElementById('s-input').value;
-            const status = document.getElementById('status');
-            const resCon = document.getElementById('results');
-            const d = dict[lang] || dict['ar'];
-            const userBudget = parseFloat(localStorage.getItem('fb')) || 0;
+    let q = document.getElementById('s-input').value;
+    const status = document.getElementById('status');
+    const resCon = document.getElementById('results');
+    const d = dict[lang] || dict['ar'];
+    const userBudget = parseFloat(localStorage.getItem('fb')) || 0;
 
-            if (attempts <= 0) { 
-                status.style.display = "block";
-                status.innerHTML = d.noAttempts;
-                return; 
-            }
-            if (!q) return;
+    if (!q) return;
 
-            status.style.display = "block";
-            status.innerHTML = '<i class="fa-solid fa-microchip fa-spin"></i> Finding Best Deals...';
-            resCon.innerHTML = "";
+    // تجهيز الواجهة
+    status.style.display = "block";
+    status.innerHTML = `<i class="fa-solid fa-microchip fa-spin"></i> ${lang === 'ar' ? 'جاري تحليل البيانات ذكياً...' : 'Analyzing with Findly Brain...'}`;
+    resCon.innerHTML = "";
 
-            let uid = localStorage.getItem('findly_uid');
-            if(!uid) {
-                uid = 'user_' + Math.random().toString(36).substr(2, 9);
-                localStorage.setItem('findly_uid', uid);
-            }
+    try {
+        const response = await fetch(`${API}/search?q=${encodeURIComponent(q)}&uid=${localStorage.getItem('findly_uid') || 'guest'}&lang=${lang}`);
+        const data = await response.json();
+        status.style.display = "none";
 
-            try {
-                const res = await fetch(`${API}/search?q=${encodeURIComponent(q)}&uid=${uid}&lang=${lang}`, {
-                    method: 'GET'
-                });
-                
-                const data = await res.json();
-                status.style.display = "none";
+        if (data.results && data.results.length > 0) {
+            data.results.forEach((p, index) => {
+                // الربط مع "عقل" السيرفر - السطر 115 في server.js
+                const v = p.verdict || { emoji: "💡", title: "تحليل", summary: "جاري المعالجة" };
+                const t = p.timing || { recommendation: "انتظر", reason: "غير معروف" };
+                const score = p.valueScore || { score: 0 };
+                const trust = p.trustScore || { riskLevel: "متوسط" };
 
+                setTimeout(() => {
+                    resCon.innerHTML += `
+                        <div class="product-card" style="border: 1px solid var(--glass-border); position: relative;">
+                            <div style="position: absolute; top: 12px; left: 12px; background: var(--gradient); color: white; padding: 4px 10px; border-radius: 10px; font-size: 0.7rem; font-weight: bold; z-index: 5;">
+                                ${v.emoji} ${v.title}
+                            </div>
+                            
+                            <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/150'">
+                            <h3>${p.name}</h3>
+                            <div class="price">${p.price || 'N/A'}</div>
 
-                // داخل دالة runSearch في ملف index.html
-data.results.forEach((p, index) => {
-    // جلب بيانات "العقل" من السيرفر
-    const v = p.verdict; 
-    const t = p.timing;
-    const val = p.valueScore;
+                            <div class="analysis-engine" style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 12px; margin: 10px 0;">
+                                <p style="font-size: 0.85rem; margin-bottom: 8px;"><b>🤖 التحليل:</b> ${v.summary}</p>
+                                <p style="font-size: 0.8rem; margin: 4px 0;"><b>📅 التوقيت:</b> ${t.recommendation}</p>
+                                <p style="font-size: 0.8rem; margin: 4px 0;"><b>🛡️ الثقة:</b> ${trust.riskLevel}</p>
+                                
+                                <div style="margin-top: 10px;">
+                                    <div style="height: 6px; width: 100%; background: #334155; border-radius: 10px; overflow: hidden;">
+                                        <div style="width: ${score.score}%; height: 100%; background: var(--gradient);"></div>
+                                    </div>
+                                    <small style="font-size: 0.65rem; display: block; margin-top: 4px; opacity: 0.8;">قيمة الصفقة الذكية: ${score.score}%</small>
+                                </div>
+                            </div>
 
-    setTimeout(() => {
-        resCon.innerHTML += `
-            <div class="product-card">
-                <div style="position: absolute; top: 10px; left: 10px; background: var(--gradient); padding: 5px 10px; border-radius: 10px; font-size: 0.7rem; color: white; font-weight: bold; z-index: 5;">
-                    ${v.emoji} ${v.title}
-                </div>
-                <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/150'">
-                <h3>${p.name}</h3>
-                <div class="price">${p.price || 'N/A'}</div>
-                <div class="analysis-engine">
-                    <span class="analysis-label"><i class="fa-solid fa-brain"></i> ${d.why}</span>
-                    <p style="margin: 5px 0;"><b>الخلاصة:</b> ${v.summary}</p>
-                    <p style="margin: 5px 0;"><b>نصيحة:</b> ${t.recommendation} (${t.reason})</p>
-                    <div style="margin-top:8px; height:5px; width:100%; background:rgba(255,255,255,0.1); border-radius:5px;">
-                        <div style="width:${val.score}%; height:100%; background:var(--primary); border-radius:5px;"></div>
-                    </div>
-                    <small>القيمة مقابل السعر: ${val.score}%</small>
-                </div>
-                <div class="btn-group">
-                    <a href="${p.link}" target="_blank" class="action-btn buy-now">${d.buy}</a>
-                    <button class="action-btn watch-later" onclick="addToWatch('${p.name.replace(/'/g, "\\'")}', '${p.price}', '${p.link}')">${d.watch}</button>
-                </div>
-            </div>`;
-    }, index * 100);
-});
+                            <div class="btn-group">
+                                <a href="${p.link}" target="_blank" class="action-btn buy-now">${d.buy}</a>
+                                <button onclick="addToWatch('${p.name.replace(/'/g, "\\'")}', '${p.price}', '${p.link}')" class="action-btn watch-later">${d.watch}</button>
+                            </div>
+                        </div>`;
+                }, index * 100);
+            });
+            update();
+        } else {
+            status.innerHTML = "No results found.";
+        }
+    } catch (error) {
+        console.error("Fetch error:", error);
+        status.innerHTML = "⚠️ خطأ في الاتصال بالسيرفر";
+    }
+}
+        
         function startVoice() {
             const mic = document.getElementById('mic-btn');
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;

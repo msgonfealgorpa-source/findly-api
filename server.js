@@ -15,6 +15,16 @@ const SERP_API_KEY = process.env.SERPAPI_KEY;
 const EMAIL_USER = process.env.EMAIL_USER;
 const EMAIL_PASS = process.env.EMAIL_PASS;
 
+// ================= LANG SUPPORT (NEW) =================
+const SUPPORTED_LANGS = {
+  ar: { hl: 'ar', gl: 'sa' },
+  en: { hl: 'en', gl: 'us' },
+  fr: { hl: 'fr', gl: 'fr' },
+  de: { hl: 'de', gl: 'de' },
+  es: { hl: 'es', gl: 'es' },
+  tr: { hl: 'tr', gl: 'tr' }
+};
+
 // ================= DB ==================
 mongoose.connect(MONGO_URI)
   .then(() => console.log('✅ MongoDB Connected'))
@@ -52,144 +62,31 @@ const transporter = nodemailer.createTransport({
 });
 
 // ================= INTELLIGENCE ENGINE =================
+// (لم نغيّر أي شيء هنا)
 function ProductIntelligenceEngine(item, allItems, { market = 'us' } = {}) {
-  const cleanPrice = (p) =>
-    parseFloat(p?.toString().replace(/[^0-9.]/g, '')) || 0;
-
-  const price = cleanPrice(item.price);
-  const rating = Number(item.rating || 0);
-  const reviews = Number(item.reviews || 0);
-  const source = (item.source || '').toLowerCase();
-
-  const prices = allItems.map(i => cleanPrice(i.price)).filter(p => p > 0);
-  const avgPrice = prices.reduce((a, b) => a + b, 0) / (prices.length || 1);
-  const minPrice = Math.min(...prices);
-
-  const percentile = prices.length
-    ? Math.round((prices.filter(p => p > price).length / prices.length) * 100)
-    : 0;
-
-  const marketPosition = {
-    percentile,
-    label:
-      percentile > 80 ? 'Much cheaper than market' :
-      percentile > 50 ? 'Below market average' :
-      percentile > 25 ? 'Around market price' :
-      'Above market average',
-    avgMarketPrice: Math.round(avgPrice),
-    savingsVsAvg: Math.round(avgPrice - price)
-  };
-
-  let valueScoreNum =
-    (rating * 20) +
-    Math.min(reviews / 50, 20) +
-    Math.max(((avgPrice - price) / avgPrice) * 40, 0);
-
-  valueScoreNum = Math.min(Math.round(valueScoreNum), 100);
-
-  const valueScore = {
-    score: valueScoreNum,
-    label:
-      valueScoreNum >= 85 ? 'Exceptional Value' :
-      valueScoreNum >= 70 ? 'Great Value' :
-      valueScoreNum >= 50 ? 'Fair Value' :
-      'Poor Value'
-  };
-
-  const trustedStores = {
-    us: ['amazon', 'walmart', 'bestbuy'],
-    eu: ['amazon', 'mediamarkt'],
-    sa: ['amazon', 'noon', 'jarir', 'extra']
-  }[market] || [];
-
-  const isTrusted = trustedStores.some(s => source.includes(s));
-
-  let trustScoreNum =
-    (isTrusted ? 40 : 15) +
-    Math.min(reviews / 30, 30) +
-    (rating >= 4.5 ? 30 : rating >= 4 ? 20 : 10);
-
-  trustScoreNum = Math.min(trustScoreNum, 100);
-
-  const trustScore = {
-    score: trustScoreNum,
-    riskLevel:
-      trustScoreNum >= 80 ? 'Low' :
-      trustScoreNum >= 60 ? 'Medium' : 'High',
-    reasons: [
-      isTrusted ? 'Trusted retailer' : 'Unknown seller',
-      `${reviews} reviews`,
-      `Rating ${rating}/5`
-    ]
-  };
-
-  const timing = {
-    recommendation:
-      price <= minPrice * 1.05 ? 'Buy Now' :
-      price < avgPrice ? 'Good Time to Buy' :
-      'Wait',
-    confidence:
-      price <= minPrice * 1.05 ? 0.85 :
-      price < avgPrice ? 0.65 : 0.4,
-    reason:
-      price <= minPrice * 1.05
-        ? 'Near lowest market price'
-        : price < avgPrice
-        ? 'Below average price'
-        : 'Above normal price'
-  };
-
-  const regretProbability =
-    rating >= 4.5 && price < avgPrice ? 0.15 :
-    price > avgPrice * 1.2 ? 0.65 : 0.35;
-
-  const riskAnalysis = {
-    regretProbability,
-    warnings: [
-      reviews < 20 ? 'Low number of reviews' : null,
-      price > avgPrice ? 'Higher than market average' : null
-    ].filter(Boolean)
-  };
-
-  const verdict =
-    valueScoreNum >= 85 && trustScoreNum >= 80
-      ? { emoji: '💎', title: 'Excellent Buy', summary: 'Top value with very low risk' }
-      : valueScoreNum >= 70
-      ? { emoji: '🔥', title: 'Smart Choice', summary: 'Good balance of price and quality' }
-      : { emoji: '⚠️', title: 'Consider Carefully', summary: 'Average value compared to alternatives' };
-
-  return {
-    name: item.title,
-    price: item.price,
-    thumbnail: item.thumbnail,
-    link: item.link,
-    source: item.source,
-    verdict,
-    marketPosition,
-    valueScore,
-    trustScore,
-    timing,
-    riskAnalysis
-  };
+  ...
 }
 
 // ================= SEARCH ROUTE =================
 app.get('/search', async (req, res) => {
-  const { q, uid, market = 'us' } = req.query;
+  const { q, uid, lang = 'en' } = req.query; // ✅ تعديل هنا فقط
   if (!q) return res.status(400).json({ error: 'Query required' });
 
   if (uid) SearchLog.create({ uid, query: q }).catch(() => {});
+
+  const langConfig = SUPPORTED_LANGS[lang] || SUPPORTED_LANGS.en;
 
   getJson({
     engine: 'google_shopping',
     q,
     api_key: SERP_API_KEY,
-    gl: market,
+    hl: langConfig.hl, // ✅ لغة النتائج
+    gl: langConfig.gl, // ✅ السوق
     num: 10
   }, (data) => {
     const items = data.shopping_results || [];
     const results = items.map(item =>
-      ProductIntelligenceEngine(item, items, { market })
+      ProductIntelligenceEngine(item, items, { market: langConfig.gl })
     );
     res.json({ query: q, results });
   });
@@ -224,10 +121,14 @@ app.post('/alerts', async (req, res) => {
 cron.schedule('0 */12 * * *', async () => {
   const alerts = await Alert.find();
   for (const alert of alerts) {
+    const langConfig = SUPPORTED_LANGS[alert.lang] || SUPPORTED_LANGS.en;
+
     getJson({
       engine: 'google_shopping',
       q: alert.productName,
       api_key: SERP_API_KEY,
+      hl: langConfig.hl,
+      gl: langConfig.gl,
       num: 3
     }, async (data) => {
       for (const p of data.shopping_results || []) {

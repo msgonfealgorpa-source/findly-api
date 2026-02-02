@@ -445,11 +445,7 @@
         const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
         console.log("🔥 Findly Firebase Active");
-    </script>
-
-    <script>
-        // Server URL - Must match your Render URL
-        // هام: هذا الرابط يجب أن يكون رابط السيرفر الذي قمت برفعه
+    
         const API = "https://findly-api.onrender.com";
         
         // State Management
@@ -469,27 +465,6 @@
             es: { title: "Asesor Sabio", sub: "Tu guía de compras inteligente", energy: "Energía Sabia", welcome: "Bienvenido,", game: "Juegos", beauty: "Belleza", home: "Hogar Intelig.", c1: "Móviles", c2: "Portátiles", c4: "Relojes", p_head: "Perfil", buy: "Comprar 🛒", watch: "Vigilar 🔔", over: "Fuera de presupuesto", cheap: "Económico", top: "Mejor valorado", new: "Nuevo", deep: "Modo de análisis IA", watchTitle: "Lista de vigilancia", why: "¿Por qué esta elección?", slow: "El servidor está despertando..", noAttempts: "⚠️ ¡No quedan intentos!" },
             tr: { title: "Bilge Danışman", sub: "Akıllı alışveriş rehberiniz", energy: "Bilge Enerji", welcome: "Hoş geldiniz,", game: "Oyunlar", beauty: "Güzellik", home: "Akıllı Ev", c1: "Telefonlar", c2: "Laptoplar", c4: "Saatler", p_head: "Profil", buy: "Satın Al 🛒", watch: "Fiyatı İzle 🔔", over: "Bütçe Aşıldı!", cheap: "Ekonomik", top: "En İyi", new: "Yeni", deep: "Yapay Zeka Analiz", watchTitle: "İzleme Listesi", why: "Neden bu seçim?", slow: "Sunucu uyanıyor.. bekleyin", noAttempts: "⚠️ Deneme kalmadı!" }
         };
-
-        // ============================================
-        // ⚠️ تأكد أن هذا الرابط هو رابط سيرفرك في Render
-        const API = "https://findly-api.onrender.com"; 
-        // ============================================
-
-        let lang = 'ar'; 
-
-        async function runSearch() {
-            const q = document.getElementById('s-input').value.trim();
-            const status = document.getElementById('status');
-            const resCon = document.getElementById('results');
-            
-            if (!q) return;
-
-            // إظهار حالة التحميل
-            status.style.display = "block";
-            status.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> جاري الاتصال بالسيرفر والتحليل...`;
-            resCon.innerHTML = "";
-
-            try {
                 // إضافة timeout لتجنب الانتظار الطويل
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 ثانية

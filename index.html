@@ -486,85 +486,78 @@
         
 
                     async function runSearch() {
-            let q = document.getElementById('s-input').value.trim();
-            const status = document.getElementById('status');
-            const resCon = document.getElementById('results');
-            
-            if (!q) return;
+    let q = document.getElementById('s-input').value.trim();
+    const status = document.getElementById('status');
+    const resCon = document.getElementById('results');
+    if (!q) return;
 
-            // إظهار حالة الانتظار
-            status.style.display = "block";
-            status.innerHTML = `<i class="fa-solid fa-microchip fa-spin"></i> ${lang === 'ar' ? 'جاري إيقاظ العقل الذكي (قد يستغرق دقيقة)...' : 'Waking up the Brain (might take a min)...'}`;
-            
-            resCon.innerHTML = ""; 
+    status.style.display = "block";
+    status.innerHTML = `<i class="fa-solid fa-microchip fa-spin"></i> ${lang === 'ar' ? 'جاري التحليل الشامل...' : 'Full Analysis...'}`;
+    resCon.innerHTML = ""; 
 
-            try {
-                const apiUrl = `${API}/search?q=${encodeURIComponent(q)}&uid=${localStorage.getItem('findly_uid') || 'guest'}&lang=${lang}`;
-                console.log("Connecting to:", apiUrl);
+    try {
+        const apiUrl = `${API}/search?q=${encodeURIComponent(q)}&uid=${localStorage.getItem('findly_uid') || 'guest'}&lang=${lang}`;
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+        status.style.display = "none";
 
-                const response = await fetch(apiUrl);
-                
-                if (!response.ok) {
-                    throw new Error(`Server Error: ${response.status}`);
-                }
-
-                const data = await response.json();
-                status.style.display = "none";
-
-                if (!data.results || !data.results.length) {
-                    status.innerHTML = lang === 'ar' ? "❌ لا توجد نتائج مطابقة" : "❌ No results found";
-                    return;
-                }
-
-                const frag = document.createDocumentFragment();
-
-                data.results.forEach((p) => {
-                    const div = document.createElement('div');
-                    div.className = "product-card";
-
-                    const v = p.verdict ?? { emoji: "🤖", title: "تحليل", summary: "غير متوفر" };
-                    const t = p.timing ?? { recommendation: "غير معروف", reason: "" };
-                    const score = Math.min(Number(p.valueScore?.score || 0), 100);
-                    const trust = p.trustScore ?? { riskLevel: "غير معروف", reasons: [] };
-                    const market = p.marketPosition ?? {};
-                    const risk = p.riskAnalysis ?? {};
-
-                    div.innerHTML = `
-                        <div class="badge">${v.emoji} ${v.title}</div>
-                        <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/150'">
-                        <h3>${p.name || '—'}</h3>
-                        <div class="price">${p.price || 'N/A'}</div>
-                        <div class="analysis-engine">
-                            <p><b>🤖 التحليل:</b> ${v.summary}</p>
-                            <p><b>📅 التوقيت:</b> ${t.recommendation}</p>
-                            <small>${t.reason || ''}</small>
-                            <p><b>🛡️ الثقة:</b> ${trust.riskLevel}</p>
-                            ${trust.reasons?.map(r => `<small>✔ ${r}</small>`).join("")}
-                            ${market.label ? `<p><b>💰 السوق:</b> ${market.label}</p>` : ''}
-                            ${risk.warnings?.length ? `<p class="warn">⚠ ${risk.warnings.join(' • ')}</p>` : ''}
-                            <div class="score-bar"><div class="bar" style="width:${score}%"></div></div>
-                            <small>قيمة الصفقة الذكية: ${score}%</small>
-                        </div>
-                        <div class="btn-group">
-                            <a href="${p.link?.startsWith('http') ? p.link : 'https://' + p.link}" target="_blank" rel="noopener noreferrer" class="action-btn buy-now">
-   شراء الآن
-</a>
-                            <button onclick="addToWatch('${p.name?.replace(/'/g, "\\'")}', '${p.price}', '${p.link}')" class="action-btn watch-later">${dict[lang].watch}</button>
-                        </div>
-                    `;
-
-                    frag.appendChild(div);
-                });
-
-                resCon.appendChild(frag); 
-
-            } catch (err) {
-                console.error("Full Error Details:", err);
-                status.innerHTML = lang === 'ar' 
-                    ? `❌ خطأ في الاتصال: ${err.message}` 
-                    : `❌ Connection Error: ${err.message}`;
-            }
+        if (!data.results || !data.results.length) {
+            status.innerHTML = "❌ لا توجد نتائج";
+            return;
         }
+
+        const userBudget = parseFloat(localStorage.getItem('user_budget')) || 5; 
+        const topFive = data.results.slice(0, 5); // عرض أفضل 5 فقط
+        const frag = document.createDocumentFragment();
+
+        topFive.forEach((p) => {
+            const div = document.createElement('div');
+            const productPrice = parseFloat(String(p.price).replace(/[^0-9.]/g, '')) || 0;
+            const isOverBudget = productPrice > userBudget;
+            div.className = `product-card ${isOverBudget ? 'over-budget' : ''}`;
+
+            // استرجاع كل بيانات السيرفر التي كانت موجودة
+            const v = p.verdict ?? { emoji: "🤖", title: "تحليل", summary: "غير متوفر" };
+            const t = p.timing ?? { recommendation: "غير معروف", reason: "" };
+            const score = Math.min(Number(p.valueScore?.score || 0), 100);
+            const trust = p.trustScore ?? { riskLevel: "غير معروف", reasons: [] };
+            const market = p.marketPosition ?? {};
+            const risk = p.riskAnalysis ?? {};
+            const cleanLink = p.link && p.link.trim() !== '' ? (p.link.startsWith('http') ? p.link : 'https://' + p.link) : '#';
+
+            div.innerHTML = `
+                <div class="badge">${v.emoji} ${v.title}</div>
+                <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/150'">
+                <h3>${p.name || '—'}</h3>
+                <div class="price">
+                    <span style="${isOverBudget ? 'color: red; font-weight: bold;' : ''}">${p.price || 'N/A'}</span>
+                    ${isOverBudget ? `<br><span class="budget-alert">⚠️ يتجاوز ميزانيتك</span>` : ''}
+                </div>
+                <div class="analysis-engine">
+                    <p><b>🤖 التحليل:</b> ${v.summary}</p>
+                    <p><b>📅 التوقيت:</b> ${t.recommendation}</p>
+                    <small>${t.reason || ''}</small>
+                    <p><b>🛡️ الثقة:</b> ${trust.riskLevel}</p>
+                    ${trust.reasons?.map(r => `<small>✔ ${r}</small>`).join("")}
+                    ${market.label ? `<p><b>💰 السوق:</b> ${market.label}</p>` : ''}
+                    ${risk.warnings?.length ? `<p class="warn">⚠ ${risk.warnings.join(' • ')}</p>` : ''}
+                    <div class="score-bar"><div class="bar" style="width:${score}%"></div></div>
+                </div>
+                <div class="btn-group">
+                    <a href="${cleanLink}" target="_blank" class="action-btn buy-now">شراء الآن</a>
+                    <button onclick="openComparisonModal('${p.name}', '${p.price}', '${score}')" class="action-btn compare-btn">
+                         <i class="fa-solid fa-chart-simple"></i> تحليل السعر
+                    </button>
+                    <button onclick="addToWatch('${p.name?.replace(/'/g, "\\'")}', '${p.price}', '${cleanLink}')" class="action-btn watch-later">${dict[lang].watch}</button>
+                </div>
+            `;
+            frag.appendChild(div);
+        });
+        resCon.appendChild(frag); 
+    } catch (err) { status.innerHTML = `❌ خطأ: ${err.message}`; }
+}
+
+                    
         
         // This function matches the server Alert schema
         async function addToWatch(name, price, link) {
@@ -675,6 +668,37 @@
             document.getElementById('main-html').dir = (lang === 'ar') ? 'rtl' : 'ltr';
         }
 
+       
+function openComparisonModal(name, price, score) {
+    // إنشاء عنصر Modal إذا لم يكن موجوداً
+    let modal = document.getElementById('analysisModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'analysisModal';
+        modal.className = 'analysis-modal';
+        document.body.appendChild(modal);
+    }
+
+    modal.innerHTML = `
+        <div class="modal-content">
+            <h2>📊 تحليل المنتج الذكي</h2>
+            <hr>
+            <p><b>المنتج:</b> ${name}</p>
+            <p><b>السعر الحالي:</b> ${price}</p>
+            <p><b>كفاءة الصفقة:</b> ${score}%</p>
+            <div style="background: #f0f0f0; padding: 10px; border-radius: 10px; margin-top: 10px;">
+                <p>💡 هذا المنتج يتم تحليله بناءً على معطيات السوق الحالية وتوافر البدائل.</p>
+            </div>
+            <button onclick="document.getElementById('analysisModal').style.display='none'" 
+                    style="margin-top: 20px; width: 100%; padding: 10px; background: #333; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                إغلاق التحليل
+            </button>
+        </div>
+    `;
+    modal.style.display = 'block';
+}
+
+        
         // Init
         window.onload = update;
         // Expose addToWatch needed for inline HTML onclick

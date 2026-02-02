@@ -64,9 +64,21 @@ const transporter = nodemailer.createTransport({
 // ================= INTELLIGENCE ENGINE =================
 // (لم نغيّر أي شيء هنا)
 function ProductIntelligenceEngine(item, allItems, { market = 'us' } = {}) {
-  ...
+  // placeholder مؤقت لتجنب توقف السيرفر
+  return {
+    name: item.title || 'Unknown',
+    price: item.price || 'N/A',
+    thumbnail: item.thumbnail || '',
+    link: item.link || '',
+    source: item.source || '',
+    verdict: { emoji: "💡", title: "تحليل", summary: "جارٍ المعالجة" },
+    marketPosition: {},
+    valueScore: { score: 0 },
+    trustScore: { riskLevel: "متوسط" },
+    timing: { recommendation: "انتظر", reason: "غير معروف" },
+    riskAnalysis: {}
+  };
 }
-
 // ================= SEARCH ROUTE =================
 app.get('/search', async (req, res) => {
   const { q, uid, lang = 'en' } = req.query; // ✅ تعديل هنا فقط

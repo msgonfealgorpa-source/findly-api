@@ -1,92 +1,64 @@
+// server.js
 const express = require('express');
-const axios = require('axios');
+const cors = require('cors');
+const { getJson } = require('serpapi');
 const mongoose = require('mongoose');
-const { Configuration, OpenAIApi } = require("openai"); // اختياري لتعزيز الاستشارة
+const nodemailer = require('nodemailer');
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 
-// --- الطبقة 1: طبقة الفهم والإدراك (Intent Analysis) ---
-// وظيفتها: فهم هل يبحث المستخدم عن منتج للشراء أم معلومة تقنية أم نصيحة طبية.
-function analyzeIntent(query) {
-    const keywords = {
-        shopping: ['سعر', 'شراء', 'افضل', 'ارخص', 'buy', 'price'],
-        advice: ['كيف', 'لماذا', 'نصيحة', 'طريقة', 'how', 'why']
-    };
-    if (keywords.shopping.some(k => query.includes(k))) return 'CONSULTANT_SHOPPER';
-    return 'KNOWLEDGE_SAGE';
-}
+// الاتصال بقاعدة البيانات
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('✅ Connected to MongoDB Intelligence Node'))
+  .catch(err => console.error('❌ DB Error:', err));
 
-// --- الطبقة 2: طبقة استقاء البيانات (Multi-Source Fetching) ---
-async function fetchRichData(query, lang) {
-    // جلب بيانات من SerpApi (نتائج جوجل)
-    const googleResults = await axios.get('https://serpapi.com/search', {
-        params: { q: query, api_key: "YOUR_SERPAPI_KEY", hl: lang }
-    });
-    return googleResults.data;
-}
+// تعريف المخططات (Schemas)
+const SearchLog = mongoose.model('SearchLog', new mongoose.Schema({
+    uid: String, query: String, timestamp: { type: Date, default: Date.now }
+}));
 
-// --- الطبقة 3: طبقة التصفية والمنطق (Logic & Filtering) ---
-function refineResults(rawItems) {
-    return rawItems.map(item => ({
-        title: item.title,
-        link: item.link,
-        snippet: item.snippet,
-        isVerified: item.displayed_link.includes('.gov') || item.displayed_link.includes('.edu'),
-        richSnippet: item.rich_snippet || null
-    }));
-}
-
-// --- الطبقة 4: طبقة الاستشارة الذكية (Consultancy Layer) ---
-// وظيفتها: صياغة "رأي" السيرفر بناءً على النتائج
-function generateAdvice(results, intent, lang) {
-    if (intent === 'CONSULTANT_SHOPPER') {
-        return lang === 'ar' 
-            ? "بناءً على مراجعات السوق، هذا المنتج يعتبر خياراً ممتازاً للفئة المتوسطة. أنصحك بالتركيز على ضمان الوكيل."
-            : "Based on market reviews, this is a top-tier choice for mid-range budgets. Focus on warranty.";
-    }
-    return lang === 'ar' ? "إليك ملخص شامل للأبحاث حول موضوعك..." : "Here is a summary of the latest research...";
-}
-
-// --- الطبقة 5: طبقة الذاكرة (Persistence Layer - MongoDB) ---
-const SearchSchema = new mongoose.Schema({
-    query: String,
-    advice: String,
-    intent: String,
-    date: { type: Date, default: Date.now }
-});
-const Insight = mongoose.model('Insight', SearchSchema);
-
-// --- نقطة النهاية الرئيسية (The Master Endpoint) ---
-app.post('/api/consult', async (req, res) => {
-    const { query, lang } = req.body;
+// ================= محرك ذكاء المنتجات (Intelligence Engine) =================
+function calculateIntelligence(item, allItems, market = 'sa') {
+    const cleanPrice = (p) => parseFloat(p?.toString().replace(/[^0-9.]/g, '')) || 0;
+    const price = cleanPrice(item.price);
+    const prices = allItems.map(i => cleanPrice(i.price)).filter(p => p > 0);
+    const avgPrice = prices.reduce((a, b) => a + b, 0) / (prices.length || 1);
     
-    try {
-        // 1. تحليل النية
-        const intent = analyzeIntent(query);
-        
-        // 2. جلب البيانات
-        const rawData = await fetchRichData(query, lang);
-        
-        // 3. تكرير البيانات
-        const refined = refineResults(rawData.organic_results || []);
-        
-        // 4. توليد الاستشارة
-        const advice = generateAdvice(refined, intent, lang);
-        
-        // 5. الحفظ في MongoDB
-        const entry = new Insight({ query, advice, intent });
-        await entry.save();
+    // حساب التوفير والتقييم
+    const savings = Math.round(avgPrice - price);
+    const score = Math.min(Math.round((Number(item.rating || 0) * 20) + (savings > 0 ? 20 : 0)), 100);
 
-        res.json({
-            success: true,
-            intent: intent,
-            advisor_message: advice, // هذا ما سيجعل تطبيقك "مستشاراً"
-            results: refined
-        });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+    return {
+        ...item,
+        intelligence: {
+            verdict: price < avgPrice ? { emoji: '🔥', title: 'صفقة رابحة' } : { emoji: '⚖️', title: 'سعر عادل' },
+            marketStatus: `متوسط السعر في السوق: ${Math.round(avgPrice)}`,
+            score: score,
+            advice: price < avgPrice ? "هذا المنتج أرخص من أغلب المنافسين حالياً." : "السعر ضمن النطاق الطبيعي، تأكد من المميزات."
+        }
+    };
+}
+
+// ================= مسار البحث (Search Route) =================
+app.get('/api/search', async (req, res) => {
+    const { q, uid, lang = 'ar' } = req.query;
+    
+    if (uid) SearchLog.create({ uid, query: q });
+
+    getJson({
+        engine: "google_shopping",
+        q: q,
+        api_key: process.env.SERPAPI_KEY,
+        hl: lang,
+        gl: "sa"
+    }, (data) => {
+        const rawItems = data.shopping_results || [];
+        const smartResults = rawItems.map(item => calculateIntelligence(item, rawItems));
+        res.json({ results: smartResults });
+    });
 });
 
-app.listen(3000, () => console.log("Advisor Server Running..."));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`🚀 Findly Intelligence Active on Port ${PORT}`));

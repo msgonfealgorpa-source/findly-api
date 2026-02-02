@@ -7,9 +7,23 @@ const nodemailer = require('nodemailer');
 
 const app = express();
 
-// تفعيل CORS للسماح للواجهة بالاتصال
-app.use(cors());
+const express = require('express');
+const cors = require('cors');
+// ... باقي الـ require كما هي ...
+
+const app = express();
+
+// ================= تعديل جذري لـ CORS =================
+// هذا التعديل يسمح للواجهة بالاتصال من أي مكان سواء من اللابتوب أو الهاتف
+app.use(cors({
+    origin: '*', // السماح لجميع المصادر
+    methods: ['GET', 'POST'], // السماح بالقراءة والكتابة
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(express.json());
+
+// ... (اترك باقي الكود كما هو) ...
 
 // ================= ENV VARIABLES =================
 // تأكد أن هذه المتغيرات موجودة في Render Environment Variables

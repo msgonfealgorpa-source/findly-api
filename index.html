@@ -692,6 +692,263 @@
         return isNaN(num) ? 0 : num;
     }
 
+
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" id="main-html">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Findly Sage Ultimate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* --- كل الستايلات الأصلية الخاصة بك (أبقينا عليها بالكامل) --- */
+        :root {
+            --primary: #8b5cf6;
+            --primary-glow: rgba(139, 92, 246, 0.5);
+            --bg-dark: #020617;
+            --bg-card: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --gradient: linear-gradient(135deg, #6366F1, #A855F7);
+        }
+
+        .light-mode {
+            --bg-dark: #f8fafc;
+            --bg-card: rgba(255, 255, 255, 0.9);
+            --glass-border: rgba(0, 0, 0, 0.1);
+            --text: #1e293b;
+            --text-muted: #64748b;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text);
+            font-family: 'Readex Pro', sans-serif;
+            margin: 0;
+            transition: background 0.4s ease;
+            min-height: 100vh;
+        }
+
+        /* --- Header --- */
+        header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 5%; background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(16px); border-bottom: 1px solid var(--glass-border);
+            position: sticky; top: 0; z-index: 1000;
+        }
+
+        .logo { font-size: 1.5rem; font-weight: 800; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        .header-tools { display: flex; gap: 10px; align-items: center; }
+
+        .tool-btn {
+            background: var(--bg-card); border: 1px solid var(--glass-border);
+            color: var(--text); width: 40px; height: 40px; border-radius: 12px;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: 0.3s; position: relative;
+        }
+
+        /* --- الأقسام الأصلية التي كانت موجودة (Categories & Tags) --- */
+        .search-area { padding: 40px 5%; text-align: center; max-width: 900px; margin: 0 auto; }
+        .search-input-wrapper { position: relative; max-width: 600px; margin: 0 auto 30px; }
+        .s-input {
+            width: 100%; padding: 18px 50px; border-radius: 24px;
+            border: 2px solid var(--glass-border); background: var(--bg-card);
+            color: var(--text); font-size: 1.1rem; text-align: center; transition: 0.3s;
+        }
+
+        .tag-cloud { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 30px; }
+        .tag {
+            padding: 8px 16px; border-radius: 20px; background: rgba(139, 92, 246, 0.1);
+            border: 1px solid var(--glass-border); font-size: 0.85rem; cursor: pointer; transition: 0.3s;
+        }
+        .tag:hover { background: var(--primary); color: white; transform: translateY(-3px); }
+
+        .category-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 15px; margin-bottom: 40px; }
+        .cat-card {
+            background: var(--bg-card); border: 1px solid var(--glass-border);
+            padding: 15px; border-radius: 20px; cursor: pointer; transition: 0.3s;
+        }
+        .cat-card:hover { border-color: var(--primary); transform: scale(1.05); }
+
+        /* --- البطاقة الغنية (إصلاح الرابط والبيانات) --- */
+        .product-card {
+            background: var(--bg-card); border: 1px solid var(--glass-border);
+            border-radius: 24px; padding: 20px; margin-top: 25px; overflow: hidden;
+            text-align: right; position: relative; animation: slideUp 0.5s ease;
+        }
+        .buy-link {
+            background: var(--gradient); color: white; text-decoration: none;
+            display: block; padding: 12px; border-radius: 15px; font-weight: bold;
+            text-align: center; margin-top: 15px;
+        }
+
+        /* --- نافذة تسجيل الدخول (الميزة الجديدة) --- */
+        .auth-overlay {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+            z-index: 5000; align-items: center; justify-content: center; backdrop-filter: blur(10px);
+        }
+        .auth-card {
+            background: #1e293b; padding: 30px; border-radius: 25px; width: 90%; max-width: 400px;
+            border: 1px solid var(--primary); text-align: center;
+        }
+        .auth-input {
+            width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px;
+            border: 1px solid var(--glass-border); background: #0f172a; color: white;
+        }
+        .user-avatar { width: 35px; height: 35px; border-radius: 50%; cursor: pointer; border: 2px solid var(--primary); display: none; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">Findly <i class="fa-solid fa-wand-magic-sparkles"></i></div>
+        <div class="header-tools">
+            <button class="tool-btn" onclick="toggleMode()"><i class="fa-solid fa-circle-half-stroke"></i></button>
+            <button class="tool-btn" onclick="toggleLang()"><i class="fa-solid fa-language"></i></button>
+            <button class="tool-btn" onclick="showWatchlist()">
+                <i class="fa-solid fa-bell"></i>
+                <span id="watch-badge" style="position:absolute; top:-5px; right:-5px; background:red; color:white; font-size:0.6rem; border-radius:50%; padding:2px 5px; display:none;">0</span>
+            </button>
+            <button id="auth-btn" class="tool-btn" style="width:auto; padding:0 15px;" onclick="toggleAuthModal()">Login</button>
+            <img id="user-pfp" class="user-avatar" onclick="logout()">
+        </div>
+    </header>
+
+    <main class="search-area">
+        <h1 id="txt-title" style="font-size: 2.5rem; margin-bottom: 10px; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">مستشارك الحكيم</h1>
+        <p id="txt-sub" style="color:var(--text-muted); margin-bottom: 30px;">دليلك الذكي للتسوق المثالي</p>
+
+        <div class="search-input-wrapper">
+            <input type="text" id="s-input" class="s-input" placeholder="عن ماذا تبحث اليوم؟">
+            <button onclick="runSearch()" style="position:absolute; left:10px; top:10px; height:40px; width:40px; border-radius:50%; border:none; background:var(--gradient); color:white; cursor:pointer;">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+        </div>
+
+        <div class="tag-cloud">
+            <div class="tag" onclick="fillSearch('Iphone 15')">📱 Iphone 15</div>
+            <div class="tag" onclick="fillSearch('Playstation 5')">🎮 PS5</div>
+            <div class="tag" onclick="fillSearch('Nike Shoes')">👟 Nike</div>
+            <div class="tag" onclick="fillSearch('Macbook M3')">💻 Macbook</div>
+        </div>
+
+        <div class="category-grid">
+            <div class="cat-card" onclick="fillSearch('Electronics')">🕹️ <p>Electronics</p></div>
+            <div class="cat-card" onclick="fillSearch('Fashion')">👔 <p>Fashion</p></div>
+            <div class="cat-card" onclick="fillSearch('Home')">🏠 <p>Home</p></div>
+            <div class="cat-card" onclick="fillSearch('Beauty')">💄 <p>Beauty</p></div>
+        </div>
+
+        <div id="status"></div>
+        <div id="results"></div>
+    </main>
+
+    <div id="auth-overlay" class="auth-overlay">
+        <div class="auth-card">
+            <h2 id="auth-title">تسجيل الدخول</h2>
+            <input type="email" id="auth-email" class="auth-input" placeholder="البريد الإلكتروني">
+            <input type="password" id="auth-pass" class="auth-input" placeholder="كلمة المرور">
+            <button class="buy-link" style="width:100%; border:none; cursor:pointer;" onclick="emailAuth()">دخول / تسجيل</button>
+            <div style="margin:15px 0;">أو</div>
+            <button onclick="googleAuth()" style="width:100%; padding:10px; border-radius:10px; border:1px solid #ccc; background:white; color:black; cursor:pointer; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:10px;">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20"> Google
+            </button>
+            <p onclick="toggleAuthModal()" style="margin-top:15px; color:red; cursor:pointer;">إلغاء</p>
+        </div>
+    </div>
+
+    <footer style="text-align:center; padding:40px; color:var(--text-muted); border-top:1px solid var(--glass-border);">
+        <div>
+            <a href="#" style="color:inherit; text-decoration:none;">Privacy Policy</a> | 
+            <a href="#" style="color:inherit; text-decoration:none;">Terms of Service</a>
+        </div>
+        <p>© 2026 Findly Sage - All Rights Reserved</p>
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCI_q5lkgRY4133ua4RlG5TeiCqJ5N5KTU",
+            authDomain: "findly-ede17.firebaseapp.com",
+            projectId: "findly-ede17",
+            storageBucket: "findly-ede17.firebasestorage.app",
+            messagingSenderId: "503212830017",
+            appId: "1:503212830017:web:9afb64c19822bbe7f645c0"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        window.googleAuth = () => {
+            signInWithPopup(auth, provider).then(res => toggleAuthModal()).catch(err => alert(err.message));
+        };
+
+        window.emailAuth = () => {
+            const email = document.getElementById('auth-email').value;
+            const pass = document.getElementById('auth-pass').value;
+            signInWithEmailAndPassword(auth, email, pass).then(() => toggleAuthModal()).catch(() => {
+                createUserWithEmailAndPassword(auth, email, pass).then(() => toggleAuthModal()).catch(err => alert(err.message));
+            });
+        };
+
+        window.logout = () => { if(confirm("Logout?")) signOut(auth); };
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                window.currentUser = user;
+                document.getElementById('auth-btn').style.display = 'none';
+                document.getElementById('user-pfp').style.display = 'block';
+                document.getElementById('user-pfp').src = user.photoURL || 'https://ui-avatars.com/api/?name='+user.email;
+            } else {
+                window.currentUser = null;
+                document.getElementById('auth-btn').style.display = 'flex';
+                document.getElementById('user-pfp').style.display = 'none';
+            }
+        });
+    </script>
+
+    <script>
+        // --- المنطق الأساسي (إصلاح البحث والنتائج) ---
+        let lang = 'ar';
+        const API = "https://findly-api.onrender.com";
+
+        function toggleAuthModal() {
+            const el = document.getElementById('auth-overlay');
+            el.style.display = (el.style.display === 'flex') ? 'none' : 'flex';
+        }
+
+        function fillSearch(val) {
+            document.getElementById('s-input').value = val;
+            runSearch();
+        }
+
+        async function runSearch() {
+            const q = document.getElementById('s-input').value;
+            if(!q) return;
+            
+            const resultsDiv = document.getElementById('results');
+            const status = document.getElementById('status');
+            
+            status.innerHTML = `<p style="color:var(--primary)">جاري البحث بعمق عن أفضل النتائج...</p>`;
+            resultsDiv.innerHTML = "";
+
+            try {
+                
+
+        
+    
+
+
     
         async function runSearch() {
     let q = document.getElementById('s-input').value;

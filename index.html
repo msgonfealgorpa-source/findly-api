@@ -473,53 +473,79 @@
 
         // --- Core Functions ---
 
-        
-// دالة البحث الذكي الجديدة
-async function performSmartSearch() {
-    const query = document.querySelector('.search-input').value;
-    const pHead = document.getElementById('p-head');
-    
-    if(!query) return;
+        async function runSearch() {
+            let q = document.getElementById('s-input').value;
+            const status = document.getElementById('status');
+            const resCon = document.getElementById('results');
+            const d = dict[lang] || dict['ar'];
+            const userBudget = parseFloat(localStorage.getItem('fb')) || 0;
 
-    pHead.innerText = "جاري تحليل السوق ومقارنة الأسعار...";
+            if (attempts <= 0) { 
+                status.style.display = "block";
+                status.innerHTML = d.noAttempts;
+                return; 
+            }
+            if (!q) return;
 
-    try {
-        const response = await fetch(`https://findly-api.onrender.com/api/search?q=${query}&lang=${lang}`);
-        const data = await response.json();
+            status.style.display = "block";
+            status.innerHTML = '<i class="fa-solid fa-microchip fa-spin"></i> Finding Best Deals...';
+            resCon.innerHTML = "";
 
-        // عرض نصيحة المستشار العامة (من أول نتيجة ذكية)
-        if(data.results.length > 0) {
-            const topSense = data.results[0].intelligence;
-            pHead.innerHTML = `
-                <div class="advisor-box">
-                    <span>${topSense.verdict.emoji} ${topSense.verdict.title}</span>
-                    <p>${topSense.advice} - ${topSense.marketStatus}</p>
-                </div>
-            `;
-            
-            // استدعاء دالة رسم الكروت
-            renderSmartCards(data.results);
+            // Generate or Retrieve UID for history
+            let uid = localStorage.getItem('findly_uid');
+            if(!uid) {
+                uid = 'user_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('findly_uid', uid);
+            }
+
+            try {
+                // FIXED: Changed to GET method and correct params to match server.js
+                const res = await fetch(`${API}/search?q=${encodeURIComponent(q)}&uid=${uid}&lang=${lang}`, {
+                    method: 'GET'
+                });
+                
+                const data = await res.json();
+                status.style.display = "none";
+
+                // FIXED: Server returns 'results' not 'products'
+                if (data.results && data.results.length > 0) {
+                    data.results.forEach((p, index) => {
+                        // Safe Price Logic
+                        let cleanPrice = p.price ? p.price.toString().replace(/[^\d.]/g, '') : "0"; 
+                        let priceVal = parseFloat(cleanPrice);
+                        let budgetAlert = (userBudget > 0 && priceVal > userBudget) ? `<div class="budget-error">⚠️ ${d.over} (${userBudget}$)</div>` : "";
+                        
+                        // FIXED: Using p.smartReason from server
+                        setTimeout(() => {
+                            resCon.innerHTML += `
+                                <div class="product-card">
+                                    ${budgetAlert}
+                                    <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/150'">
+                                    <h3>${p.name}</h3>
+                                    <div class="price">${p.price || 'N/A'}</div>
+                                    <div class="analysis-engine"><span class="analysis-label"><i class="fa-solid fa-brain"></i> ${d.why}</span>${p.smartReason || 'Best match found based on your search.'}</div>
+                                    <div class="btn-group">
+                                        <a href="${p.link}" target="_blank" class="action-btn buy-now">${d.buy}</a>
+                                        <button class="action-btn watch-later" onclick="addToWatch('${p.name.replace(/'/g, "\\'")}', '${p.price}', '${p.link}')">${d.watch}</button>
+                                    </div>
+                                </div>`;
+                        }, index * 100);
+                    });
+                    
+                    attempts--;
+                    localStorage.setItem('findly_attempts', attempts);
+                    update();
+                } else {
+                    status.style.display = "block";
+                    status.innerHTML = "No results found / لا توجد نتائج";
+                }
+            } catch (e) {
+                console.error(e);
+                status.style.display = "block";
+                status.innerHTML = `<i class="fa-solid fa-clock-rotate-left"></i> ${d.slow}`;
+            }
         }
-    } catch (e) {
-        pHead.innerText = "خطأ في الاتصال بنظام الذكاء.";
-    }
-}
 
-// دالة عرض الكروت بتصميم المستشار
-function renderSmartCards(items) {
-    const container = document.getElementById('results-list'); // تأكد من وجوده في HTML
-    container.innerHTML = items.map(item => `
-        <div class="result-card">
-            <div class="score-badge">${item.intelligence.score}% جودة القيمة</div>
-            <img src="${item.thumbnail}" alt="">
-            <h3>${item.title}</h3>
-            <p class="price">${item.price}</p>
-            <div class="source">المصدر: ${item.source}</div>
-            <a href="${item.link}" target="_blank" class="buy-link">اذهب للمتجر</a>
-        </div>
-    `).join('');
-}
-        
         async function addToWatch(name, price, link) {
             const promptMsg = {
                 ar: "أدخل إيميلك لتفعيل التنبيه:",
@@ -661,61 +687,6 @@ function renderSmartCards(items) {
 
         // Init
         window.onload = update;
-    <script>
-    // ... الكود الموجود مسبقاً (مثل تعريف lang و watchList) ...
-
-    async function askAdvisor() {
-        // 1. الحصول على قيمة البحث من الحقل (تأكد أن id المدخل هو search-input)
-        const queryInput = document.querySelector('.search-input'); 
-        const query = queryInput ? queryInput.value : "";
-        
-        if (!query) return; // منع البحث الفارغ
-
-        // 2. تغيير النص مؤقتاً لإعلام المستخدم أن "المستشار" يفكر
-        const headText = document.getElementById('p-head');
-        headText.innerText = (lang === 'ar') ? "جاري تحليل البيانات واستشارة الخبراء..." : "Analyzing data and consulting experts...";
-
-        try {
-            // 3. الاتصال بالسيرفر (رابط Render الخاص بك)
-            const response = await fetch('https://findly-api.onrender.com/api/consult', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ 
-                    query: query, 
-                    lang: lang,
-                    deepSearch: true // تفعيل ميزة البحث العميق تلقائياً للمستشار
-                })
-            });
-
-            const data = await response.json();
-
-            // 4. عرض رسالة المستشار الذكية في العنصر p-head
-            // استخدمت التنسيق الذي يتناسب مع تصميم الـ Glassmorphism في ملفك
-            headText.innerHTML = `
-                <div style="background: var(--gradient); padding: 20px; border-radius: 15px; margin-top: 10px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); border: 1px solid var(--glass-border);">
-                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-                        <i class="fas fa-robot" style="font-size: 1.5rem;"></i>
-                        <strong style="font-size: 1.1rem;">${lang === 'ar' ? 'نصيحة فايندلي الذكية' : 'Findly Smart Advice'}</strong>
-                    </div>
-                    <p style="margin: 0; line-height: 1.6; font-weight: 300;">${data.advisor_message}</p>
-                </div>
-            `;
-            
-            // 5. عرض نتائج البحث الحقيقية (الروابط)
-            // تأكد من وجود دالة تدعى renderResults تقوم برسم الروابط في القائمة
-            if (typeof renderResults === "function") {
-                renderResults(data.results);
-            }
-
-        } catch (error) {
-            console.error("Error:", error);
-            headText.innerText = (lang === 'ar') ? "عذراً، حدث خطأ في الاتصال بالمستشار." : "Sorry, could not connect to the advisor.";
-        }
-    }
-
-    // لربط الدالة بزر البحث (العدسة) أو زر Enter
-    document.querySelector('.search-btn').addEventListener('click', askAdvisor);
-</script>
     </script>
 </body>
 </html>

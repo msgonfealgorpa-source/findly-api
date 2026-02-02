@@ -449,6 +449,7 @@
 
     <script>
         // Server URL - Must match your Render URL
+        // هام: هذا الرابط يجب أن يكون رابط السيرفر الذي قمت برفعه
         const API = "https://findly-api.onrender.com";
         
         // State Management
@@ -469,108 +470,109 @@
             tr: { title: "Bilge Danışman", sub: "Akıllı alışveriş rehberiniz", energy: "Bilge Enerji", welcome: "Hoş geldiniz,", game: "Oyunlar", beauty: "Güzellik", home: "Akıllı Ev", c1: "Telefonlar", c2: "Laptoplar", c4: "Saatler", p_head: "Profil", buy: "Satın Al 🛒", watch: "Fiyatı İzle 🔔", over: "Bütçe Aşıldı!", cheap: "Ekonomik", top: "En İyi", new: "Yeni", deep: "Yapay Zeka Analiz", watchTitle: "İzleme Listesi", why: "Neden bu seçim?", slow: "Sunucu uyanıyor.. bekleyin", noAttempts: "⚠️ Deneme kalmadı!" }
         };
 
-        
-    
         async function runSearch() {
-    let q = document.getElementById('s-input').value.trim();
-    const status = document.getElementById('status');
-    const resCon = document.getElementById('results');
-    const d = dict[lang] || dict['ar'];
+            let q = document.getElementById('s-input').value.trim();
+            const status = document.getElementById('status');
+            const resCon = document.getElementById('results');
+            const d = dict[lang] || dict['ar'];
 
-    if (!q) return;
+            if (!q) return;
 
-    status.style.display = "block";
-    status.innerHTML = `<i class="fa-solid fa-microchip fa-spin"></i> ${lang === 'ar' ? 'جاري تحليل البيانات ذكياً...' : 'Analyzing with Findly Brain...'}`;
-    
-    resCon.innerHTML = ""; // تنظيف النتائج مرة واحدة فقط
+            status.style.display = "block";
+            status.innerHTML = `<i class="fa-solid fa-microchip fa-spin"></i> ${lang === 'ar' ? 'جاري تحليل البيانات ذكياً...' : 'Analyzing with Findly Brain...'}`;
+            
+            resCon.innerHTML = ""; // تنظيف النتائج مرة واحدة فقط
 
-    try {
-        const response = await fetch(`${API}/search?q=${encodeURIComponent(q)}&uid=${localStorage.getItem('findly_uid') || 'guest'}&lang=${lang}`);
-        const data = await response.json();
-        status.style.display = "none";
+            try {
+                // Fetch from the corrected Server API
+                const response = await fetch(`${API}/search?q=${encodeURIComponent(q)}&uid=${localStorage.getItem('findly_uid') || 'guest'}&lang=${lang}`);
+                const data = await response.json();
+                status.style.display = "none";
 
-        if (!data.results || !data.results.length) {
-            status.innerHTML = "❌ لا توجد نتائج";
-            return;
+                if (!data.results || !data.results.length) {
+                    status.innerHTML = "❌ لا توجد نتائج";
+                    return;
+                }
+
+                const frag = document.createDocumentFragment();
+
+                data.results.forEach((p, index) => {
+                    const div = document.createElement('div');
+                    div.className = "product-card";
+
+                    // The logic here is preserved exactly as requested
+                    const v = p.verdict ?? { emoji: "🤖", title: "تحليل", summary: "غير متوفر" };
+                    const t = p.timing ?? { recommendation: "غير معروف", reason: "" };
+                    const score = Math.min(Number(p.valueScore?.score || 0), 100);
+                    const trust = p.trustScore ?? { riskLevel: "غير معروف", reasons: [] };
+                    const market = p.marketPosition ?? {};
+                    const risk = p.riskAnalysis ?? {};
+
+                    div.innerHTML = `
+                        <div class="badge">${v.emoji} ${v.title}</div>
+                        <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/150'">
+                        <h3>${p.name || '—'}</h3>
+                        <div class="price">${p.price || 'N/A'}</div>
+                        <div class="analysis-engine">
+                            <p><b>🤖 التحليل:</b> ${v.summary}</p>
+                            <p><b>📅 التوقيت:</b> ${t.recommendation}</p>
+                            <small>${t.reason || ''}</small>
+                            <p><b>🛡️ الثقة:</b> ${trust.riskLevel}</p>
+                            ${trust.reasons?.map(r => `<small>✔ ${r}</small>`).join("")}
+                            ${market.label ? `<p><b>💰 السوق:</b> ${market.label}</p>` : ''}
+                            ${risk.warnings?.length ? `<p class="warn">⚠ ${risk.warnings.join(' • ')}</p>` : ''}
+                            <div class="score-bar"><div class="bar" style="width:${score}%"></div></div>
+                            <small>قيمة الصفقة الذكية: ${score}%</small>
+                        </div>
+                        <div class="btn-group">
+                            <a href="${p.link}" target="_blank" class="action-btn buy-now">${dict[lang].buy}</a>
+                            <button onclick="addToWatch('${p.name?.replace(/'/g, "\\'")}', '${p.price}', '${p.link}')" class="action-btn watch-later">${dict[lang].watch}</button>
+                        </div>
+                    `;
+
+                    frag.appendChild(div);
+                });
+
+                resCon.appendChild(frag); // نضيف كل النتائج مرة واحدة لتجنب الرجفة
+
+            } catch (err) {
+                console.error(err);
+                status.innerHTML = lang === 'ar' ? "❌ حدث خطأ أثناء الاتصال بالسيرفر" : "❌ Error fetching results";
+            }
         }
-
-        const frag = document.createDocumentFragment();
-
-        data.results.forEach((p, index) => {
-            const div = document.createElement('div');
-            div.className = "product-card";
-
-            const v = p.verdict ?? { emoji: "🤖", title: "تحليل", summary: "غير متوفر" };
-            const t = p.timing ?? { recommendation: "غير معروف", reason: "" };
-            const score = Math.min(Number(p.valueScore?.score || 0), 100);
-            const trust = p.trustScore ?? { riskLevel: "غير معروف", reasons: [] };
-            const market = p.marketPosition ?? {};
-            const risk = p.riskAnalysis ?? {};
-
-            div.innerHTML = `
-                <div class="badge">${v.emoji} ${v.title}</div>
-                <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/150'">
-                <h3>${p.name || '—'}</h3>
-                <div class="price">${p.price || 'N/A'}</div>
-                <div class="analysis-engine">
-                    <p><b>🤖 التحليل:</b> ${v.summary}</p>
-                    <p><b>📅 التوقيت:</b> ${t.recommendation}</p>
-                    <small>${t.reason || ''}</small>
-                    <p><b>🛡️ الثقة:</b> ${trust.riskLevel}</p>
-                    ${trust.reasons?.map(r => `<small>✔ ${r}</small>`).join("")}
-                    ${market.label ? `<p><b>💰 السوق:</b> ${market.label}</p>` : ''}
-                    ${risk.warnings?.length ? `<p class="warn">⚠ ${risk.warnings.join(' • ')}</p>` : ''}
-                    <div class="score-bar"><div class="bar" style="width:${score}%"></div></div>
-                    <small>قيمة الصفقة الذكية: ${score}%</small>
-                </div>
-                <div class="btn-group">
-                    <a href="${p.link}" target="_blank" class="action-btn buy-now">${dict[lang].buy}</a>
-                    <button onclick="addToWatch('${p.name?.replace(/'/g, "\\'")}', '${p.price}', '${p.link}')" class="action-btn watch-later">${dict[lang].watch}</button>
-                </div>
-            `;
-
-            frag.appendChild(div);
-        });
-
-        resCon.appendChild(frag); // نضيف كل النتائج مرة واحدة لتجنب الرجفة
-
-    } catch (err) {
-        console.error(err);
-        status.innerHTML = lang === 'ar' ? "❌ حدث خطأ أثناء الاتصال بالسيرفر" : "❌ Error fetching results";
-    }
-}
         
-      async function addToWatch(name, price, link) {
-    const userEmail = prompt(lang === 'ar' ? "أدخل إيميلك للتنبيه عند انخفاض السعر:" : "Enter email for price alerts:");
-    if (!userEmail || !userEmail.includes("@")) return;
+        // This function matches the server Alert schema
+        async function addToWatch(name, price, link) {
+            const userEmail = prompt(lang === 'ar' ? "أدخل إيميلك للتنبيه عند انخفاض السعر:" : "Enter email for price alerts:");
+            if (!userEmail || !userEmail.includes("@")) return;
 
-    let uid = localStorage.getItem('findly_uid');
-    let targetPrice = parseFloat(price.replace(/[^\d.]/g, '')) * 0.9; // تنبيه عند خصم 10%
+            let uid = localStorage.getItem('findly_uid');
+            let targetPrice = parseFloat(price.replace(/[^\d.]/g, '')) * 0.9; // تنبيه عند خصم 10%
 
-    try {
-        const response = await fetch(`${API}/alerts`, { // السيرفر يستخدم /alerts للتنبيهات
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                email: userEmail,
-                productName: name,
-                targetPrice: targetPrice,
-                link: link,
-                lang: lang,
-                uid: uid
-            })
-        });
+            try {
+                const response = await fetch(`${API}/alerts`, { // Matches server route
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: userEmail,
+                        productName: name,
+                        targetPrice: targetPrice,
+                        link: link,
+                        lang: lang,
+                        uid: uid
+                    })
+                });
 
-        if (response.ok) {
-            alert(lang === 'ar' ? "تم تفعيل التنبيه بنجاح! سيصلك إيميل عند انخفاض السعر." : "Alert activated! We'll email you on price drops.");
-            update();
-        } else {
-            alert("Server Error: " + response.status);
+                if (response.ok) {
+                    alert(lang === 'ar' ? "تم تفعيل التنبيه بنجاح! سيصلك إيميل عند انخفاض السعر." : "Alert activated! We'll email you on price drops.");
+                    update();
+                } else {
+                    alert("Server Error: " + response.status);
+                }
+            } catch (error) {
+                alert("Connection failed");
+            }
         }
-    } catch (error) {
-        alert("Connection failed");
-    }
-}
         
         function saveSet() {
             localStorage.setItem('fn', document.getElementById('in-name').value);
@@ -650,6 +652,8 @@
 
         // Init
         window.onload = update;
+        // Expose addToWatch needed for inline HTML onclick
+        window.addToWatch = addToWatch; 
     </script>
 </body>
 </html>

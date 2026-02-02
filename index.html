@@ -545,7 +545,52 @@
                 status.innerHTML = `<i class="fa-solid fa-clock-rotate-left"></i> ${d.slow}`;
             }
         }
+// دالة البحث الذكي الجديدة
+async function performSmartSearch() {
+    const query = document.querySelector('.search-input').value;
+    const pHead = document.getElementById('p-head');
+    
+    if(!query) return;
 
+    pHead.innerText = "جاري تحليل السوق ومقارنة الأسعار...";
+
+    try {
+        const response = await fetch(`https://findly-api.onrender.com/api/search?q=${query}&lang=${lang}`);
+        const data = await response.json();
+
+        // عرض نصيحة المستشار العامة (من أول نتيجة ذكية)
+        if(data.results.length > 0) {
+            const topSense = data.results[0].intelligence;
+            pHead.innerHTML = `
+                <div class="advisor-box">
+                    <span>${topSense.verdict.emoji} ${topSense.verdict.title}</span>
+                    <p>${topSense.advice} - ${topSense.marketStatus}</p>
+                </div>
+            `;
+            
+            // استدعاء دالة رسم الكروت
+            renderSmartCards(data.results);
+        }
+    } catch (e) {
+        pHead.innerText = "خطأ في الاتصال بنظام الذكاء.";
+    }
+}
+
+// دالة عرض الكروت بتصميم المستشار
+function renderSmartCards(items) {
+    const container = document.getElementById('results-list'); // تأكد من وجوده في HTML
+    container.innerHTML = items.map(item => `
+        <div class="result-card">
+            <div class="score-badge">${item.intelligence.score}% جودة القيمة</div>
+            <img src="${item.thumbnail}" alt="">
+            <h3>${item.title}</h3>
+            <p class="price">${item.price}</p>
+            <div class="source">المصدر: ${item.source}</div>
+            <a href="${item.link}" target="_blank" class="buy-link">اذهب للمتجر</a>
+        </div>
+    `).join('');
+}
+        
         async function addToWatch(name, price, link) {
             const promptMsg = {
                 ar: "أدخل إيميلك لتفعيل التنبيه:",

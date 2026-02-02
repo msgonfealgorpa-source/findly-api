@@ -483,8 +483,8 @@
 
     try {
         const response = await fetch(
-          `${API}/search?q=${encodeURIComponent(q)}&uid=${localStorage.getItem('findly_uid') || 'guest'}`
-        );
+  `${API}/search?q=${encodeURIComponent(q)}&uid=${localStorage.getItem('findly_uid') || 'guest'}&lang=${lang}`
+);
         const data = await response.json();
         status.style.display = "none";
 
@@ -503,51 +503,44 @@
             const risk = p.riskAnalysis ?? {};
 
             setTimeout(() => {
-                resCon.innerHTML += `
-                <div class="product-card">
+                resCon.innerHTML = ""; // تنظيف النتائج
+const frag = document.createDocumentFragment();
 
-                    <div class="badge">
-                        ${v.emoji} ${v.title}
-                    </div>
+data.results.forEach((p) => {
+    const div = document.createElement('div');
+    div.className = "product-card";
+    const v = p.verdict ?? { emoji: "🤖", title: "تحليل", summary: "غير متوفر" };
+    const t = p.timing ?? { recommendation: "غير معروف", reason: "" };
+    const score = Math.min(Number(p.valueScore?.score || 0), 100);
+    const trust = p.trustScore ?? { riskLevel: "غير معروف", reasons: [] };
+    const market = p.marketPosition ?? {};
+    const risk = p.riskAnalysis ?? {};
 
-                    <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/150'">
-                    <h3>${p.name || '—'}</h3>
-                    <div class="price">${p.price || 'N/A'}</div>
+    div.innerHTML = `
+        <div class="badge">${v.emoji} ${v.title}</div>
+        <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/150'">
+        <h3>${p.name || '—'}</h3>
+        <div class="price">${p.price || 'N/A'}</div>
+        <div class="analysis-engine">
+            <p><b>🤖 التحليل:</b> ${v.summary}</p>
+            <p><b>📅 التوقيت:</b> ${t.recommendation}</p>
+            <small>${t.reason || ''}</small>
+            <p><b>🛡️ الثقة:</b> ${trust.riskLevel}</p>
+            ${trust.reasons?.map(r => `<small>✔ ${r}</small>`).join("")}
+            ${market.label ? `<p><b>💰 السوق:</b> ${market.label}</p>` : ''}
+            ${risk.warnings?.length ? `<p class="warn">⚠ ${risk.warnings.join(' • ')}</p>` : ''}
+            <div class="score-bar"><div class="bar" style="width:${score}%"></div></div>
+            <small>قيمة الصفقة الذكية: ${score}%</small>
+        </div>
+        <div class="btn-group">
+            <a href="${p.link}" target="_blank" class="action-btn buy-now">${dict[lang].buy}</a>
+            <button onclick="addToWatch('${p.name?.replace(/'/g, "\\'")}', '${p.price}', '${p.link}')" class="action-btn watch-later">${dict[lang].watch}</button>
+        </div>
+    `;
+    frag.appendChild(div);
+});
 
-                    <div class="analysis-engine">
-                        <p><b>🤖 التحليل:</b> ${v.summary}</p>
-                        <p><b>📅 التوقيت:</b> ${t.recommendation}</p>
-                        <small>${t.reason || ''}</small>
-
-                        <p><b>🛡️ الثقة:</b> ${trust.riskLevel}</p>
-                        ${trust.reasons?.map(r => `<small>✔ ${r}</small>`).join("")}
-
-                        ${market.label ? `<p><b>💰 السوق:</b> ${market.label}</p>` : ''}
-
-                        ${risk.warnings?.length ? 
-                          `<p class="warn">⚠ ${risk.warnings.join(' • ')}</p>` : ''}
-
-                        <div class="score-bar">
-                            <div class="bar" style="width:${score}%"></div>
-                        </div>
-                        <small>قيمة الصفقة الذكية: ${score}%</small>
-                    </div>
-
-                    <div class="btn-group">
-                        <a href="${p.link}" target="_blank" class="action-btn buy-now">${d.buy}</a>
-                        <button onclick="addToWatch('${p.name?.replace(/'/g, "\\'")}', '${p.price}', '${p.link}')" class="action-btn watch-later">${d.watch}</button>
-                    </div>
-                </div>`;
-            }, index * 120);
-        });
-
-        update();
-
-    } catch (err) {
-        console.error(err);
-        status.innerHTML = "⚠️ فشل الاتصال بالسيرفر";
-    }
-}
+resCon.appendChild(frag); // نضيف كل النتائج مرة واحدة
         
         function startVoice() {
             const mic = document.getElementById('mic-btn');

@@ -469,37 +469,7 @@
             tr: { title: "Bilge Danışman", sub: "Akıllı alışveriş rehberiniz", energy: "Bilge Enerji", welcome: "Hoş geldiniz,", game: "Oyunlar", beauty: "Güzellik", home: "Akıllı Ev", c1: "Telefonlar", c2: "Laptoplar", c4: "Saatler", p_head: "Profil", buy: "Satın Al 🛒", watch: "Fiyatı İzle 🔔", over: "Bütçe Aşıldı!", cheap: "Ekonomik", top: "En İyi", new: "Yeni", deep: "Yapay Zeka Analiz", watchTitle: "İzleme Listesi", why: "Neden bu seçim?", slow: "Sunucu uyanıyor.. bekleyin", noAttempts: "⚠️ Deneme kalmadı!" }
         };
 
-        async function addToWatch(name, price, link) {
-    const userEmail = prompt(lang === 'ar' ? "أدخل إيميلك للتنبيه عند انخفاض السعر:" : "Enter email for price alerts:");
-    if (!userEmail || !userEmail.includes("@")) return;
-
-    let uid = localStorage.getItem('findly_uid');
-    let targetPrice = parseFloat(price.replace(/[^\d.]/g, '')) * 0.9; // تنبيه عند خصم 10%
-
-    try {
-        const response = await fetch(`${API}/alerts`, { // السيرفر يستخدم /alerts للتنبيهات
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                email: userEmail,
-                productName: name,
-                targetPrice: targetPrice,
-                link: link,
-                lang: lang,
-                uid: uid
-            })
-        });
-
-        if (response.ok) {
-            alert(lang === 'ar' ? "تم تفعيل التنبيه بنجاح! سيصلك إيميل عند انخفاض السعر." : "Alert activated! We'll email you on price drops.");
-            update();
-        } else {
-            alert("Server Error: " + response.status);
-        }
-    } catch (error) {
-        alert("Connection failed");
-    }
-}
+        
     
         async function runSearch() {
     let q = document.getElementById('s-input').value.trim();
@@ -567,6 +537,38 @@
     } catch (err) {
         console.error(err);
         status.innerHTML = lang === 'ar' ? "❌ حدث خطأ أثناء الاتصال بالسيرفر" : "❌ Error fetching results";
+    }
+}
+        
+      async function addToWatch(name, price, link) {
+    const userEmail = prompt(lang === 'ar' ? "أدخل إيميلك للتنبيه عند انخفاض السعر:" : "Enter email for price alerts:");
+    if (!userEmail || !userEmail.includes("@")) return;
+
+    let uid = localStorage.getItem('findly_uid');
+    let targetPrice = parseFloat(price.replace(/[^\d.]/g, '')) * 0.9; // تنبيه عند خصم 10%
+
+    try {
+        const response = await fetch(`${API}/alerts`, { // السيرفر يستخدم /alerts للتنبيهات
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                email: userEmail,
+                productName: name,
+                targetPrice: targetPrice,
+                link: link,
+                lang: lang,
+                uid: uid
+            })
+        });
+
+        if (response.ok) {
+            alert(lang === 'ar' ? "تم تفعيل التنبيه بنجاح! سيصلك إيميل عند انخفاض السعر." : "Alert activated! We'll email you on price drops.");
+            update();
+        } else {
+            alert("Server Error: " + response.status);
+        }
+    } catch (error) {
+        alert("Connection failed");
     }
 }
         

@@ -1,86 +1,254 @@
-async function runSearch() {
-    let q = document.getElementById('s-input').value;
-    const status = document.getElementById('status');
-    const resCon = document.getElementById('results');
-    const d = dict[lang] || dict['ar'];
-    const userBudget = parseFloat(localStorage.getItem('fb')) || 0;
+const express = require('express');
+const cors = require('cors');
+const { getJson } = require('serpapi');
+const mongoose = require('mongoose');
+const cron = require('node-cron');
+const nodemailer = require('nodemailer');
 
-    if (attempts <= 0) { 
-        status.style.display = "block";
-        status.innerHTML = d.noAttempts;
-        return; 
-    }
-    if (!q) return;
+const app = express();
+app.use(cors());
+app.use(express.json());
 
-    status.style.display = "block";
-    status.innerHTML = '<i class="fa-solid fa-microchip fa-spin"></i> Finding Best Deals...';
-    resCon.innerHTML = "";
+// ================= ENV =================
+const MONGO_URI = process.env.MONGO_URI;
+const SERP_API_KEY = process.env.SERPAPI_KEY;
+const EMAIL_USER = process.env.EMAIL_USER;
+const EMAIL_PASS = process.env.EMAIL_PASS;
 
-    // Generate or Retrieve UID for history
-    let uid = localStorage.getItem('findly_uid');
-    if(!uid) {
-        uid = 'user_' + Math.random().toString(36).substr(2, 9);
-        localStorage.setItem('findly_uid', uid);
-    }
+// ================= DB ==================
+mongoose.connect(MONGO_URI)
+  .then(() => console.log('✅ MongoDB Connected'))
+  .catch(err => console.error('❌ DB Error:', err.message));
 
-    try {
-        const res = await fetch(`${API}/search?q=${encodeURIComponent(q)}&uid=${uid}&lang=${lang}`, { method: 'GET' });
-        const data = await res.json();
-        status.style.display = "none";
+// ================= SCHEMAS =============
+const Alert = mongoose.model('Alert', new mongoose.Schema({
+  email: String,
+  productName: String,
+  targetPrice: Number,
+  link: String,
+  lang: String,
+  uid: String
+}));
 
-        if (data.results && data.results.length > 0) {
+const SearchLog = mongoose.model('SearchLog', new mongoose.Schema({
+  uid: String,
+  query: String,
+  timestamp: { type: Date, default: Date.now }
+}));
 
-            // حساب متوسط وأدنى سعر للسوق داخل النتائج
-            const prices = data.results.map(i => parseFloat(i.price?.toString().replace(/[^0-9.]/g, '')) || 0).filter(p => p>0);
-            const avgPrice = prices.reduce((a,b)=>a+b,0)/(prices.length||1);
-            const minPrice = Math.min(...prices);
+const Watchlist = mongoose.model('Watchlist', new mongoose.Schema({
+  uid: String,
+  name: String,
+  price: String,
+  thumbnail: String,
+  link: String,
+  addedAt: { type: Date, default: Date.now }
+}));
 
-            data.results.forEach((p, index) => {
-                let cleanPrice = p.price ? p.price.toString().replace(/[^\d.]/g, '') : "0"; 
-                let priceVal = parseFloat(cleanPrice);
-                let budgetAlert = (userBudget > 0 && priceVal > userBudget) ? `<div class="budget-error">⚠️ ${d.over} (${userBudget}$)</div>` : "";
+// ================= EMAIL ===============
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: { user: EMAIL_USER, pass: EMAIL_PASS }
+});
 
-                // تحليلات إضافية
-                let analysisHTML = `
-                    <div class="analysis-engine">
-                        <span class="analysis-label"><i class="fa-solid fa-brain"></i> ${d.why}</span>
-                        ${p.smartReason || 'Best match found based on your search.'}
-                        <ul style="margin-top:5px; padding-left: 18px; font-size:0.8rem;">
-                            <li>السعر الحالي: ${p.price || 'N/A'}</li>
-                            <li>متوسط سعر السوق: ${avgPrice.toFixed(2)}</li>
-                            <li>أقل سعر متاح: ${minPrice}</li>
-                            <li>المصدر: ${p.source || 'N/A'}</li>
-                            <li>التقييم: ${p.rating || 'N/A'} (${p.reviews || 0} مراجعات)</li>
-                        </ul>
-                    </div>
-                `;
+// ================= INTELLIGENCE ENGINE =================
+function ProductIntelligenceEngine(item, allItems, { market = 'us' } = {}) {
+  const cleanPrice = (p) =>
+    parseFloat(p?.toString().replace(/[^0-9.]/g, '')) || 0;
 
-                setTimeout(() => {
-                    resCon.innerHTML += `
-                        <div class="product-card">
-                            ${budgetAlert}
-                            <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/150'">
-                            <h3>${p.name}</h3>
-                            <div class="price">${p.price || 'N/A'}</div>
-                            ${analysisHTML}
-                            <div class="btn-group">
-                                <a href="${p.link}" target="_blank" class="action-btn buy-now">${d.buy}</a>
-                                <button class="action-btn watch-later" onclick="addToWatch('${p.name.replace(/'/g, "\\'")}', '${p.price}', '${p.link}')">${d.watch}</button>
-                            </div>
-                        </div>`;
-                }, index * 100);
-            });
+  const price = cleanPrice(item.price);
+  const rating = Number(item.rating || 0);
+  const reviews = Number(item.reviews || 0);
+  const source = (item.source || '').toLowerCase();
 
-            attempts--;
-            localStorage.setItem('findly_attempts', attempts);
-            update();
-        } else {
-            status.style.display = "block";
-            status.innerHTML = "No results found / لا توجد نتائج";
-        }
-    } catch (e) {
-        console.error(e);
-        status.style.display = "block";
-        status.innerHTML = `<i class="fa-solid fa-clock-rotate-left"></i> ${d.slow}`;
-    }
+  const prices = allItems.map(i => cleanPrice(i.price)).filter(p => p > 0);
+  const avgPrice = prices.reduce((a, b) => a + b, 0) / (prices.length || 1);
+  const minPrice = Math.min(...prices);
+
+  const percentile = prices.length
+    ? Math.round((prices.filter(p => p > price).length / prices.length) * 100)
+    : 0;
+
+  const marketPosition = {
+    percentile,
+    label:
+      percentile > 80 ? 'Much cheaper than market' :
+      percentile > 50 ? 'Below market average' :
+      percentile > 25 ? 'Around market price' :
+      'Above market average',
+    avgMarketPrice: Math.round(avgPrice),
+    savingsVsAvg: Math.round(avgPrice - price)
+  };
+
+  let valueScoreNum =
+    (rating * 20) +
+    Math.min(reviews / 50, 20) +
+    Math.max(((avgPrice - price) / avgPrice) * 40, 0);
+
+  valueScoreNum = Math.min(Math.round(valueScoreNum), 100);
+
+  const valueScore = {
+    score: valueScoreNum,
+    label:
+      valueScoreNum >= 85 ? 'Exceptional Value' :
+      valueScoreNum >= 70 ? 'Great Value' :
+      valueScoreNum >= 50 ? 'Fair Value' :
+      'Poor Value'
+  };
+
+  const trustedStores = {
+    us: ['amazon', 'walmart', 'bestbuy'],
+    eu: ['amazon', 'mediamarkt'],
+    sa: ['amazon', 'noon', 'jarir', 'extra']
+  }[market] || [];
+
+  const isTrusted = trustedStores.some(s => source.includes(s));
+
+  let trustScoreNum =
+    (isTrusted ? 40 : 15) +
+    Math.min(reviews / 30, 30) +
+    (rating >= 4.5 ? 30 : rating >= 4 ? 20 : 10);
+
+  trustScoreNum = Math.min(trustScoreNum, 100);
+
+  const trustScore = {
+    score: trustScoreNum,
+    riskLevel:
+      trustScoreNum >= 80 ? 'Low' :
+      trustScoreNum >= 60 ? 'Medium' : 'High',
+    reasons: [
+      isTrusted ? 'Trusted retailer' : 'Unknown seller',
+      `${reviews} reviews`,
+      `Rating ${rating}/5`
+    ]
+  };
+
+  const timing = {
+    recommendation:
+      price <= minPrice * 1.05 ? 'Buy Now' :
+      price < avgPrice ? 'Good Time to Buy' :
+      'Wait',
+    confidence:
+      price <= minPrice * 1.05 ? 0.85 :
+      price < avgPrice ? 0.65 : 0.4,
+    reason:
+      price <= minPrice * 1.05
+        ? 'Near lowest market price'
+        : price < avgPrice
+        ? 'Below average price'
+        : 'Above normal price'
+  };
+
+  const regretProbability =
+    rating >= 4.5 && price < avgPrice ? 0.15 :
+    price > avgPrice * 1.2 ? 0.65 : 0.35;
+
+  const riskAnalysis = {
+    regretProbability,
+    warnings: [
+      reviews < 20 ? 'Low number of reviews' : null,
+      price > avgPrice ? 'Higher than market average' : null
+    ].filter(Boolean)
+  };
+
+  const verdict =
+    valueScoreNum >= 85 && trustScoreNum >= 80
+      ? { emoji: '💎', title: 'Excellent Buy', summary: 'Top value with very low risk' }
+      : valueScoreNum >= 70
+      ? { emoji: '🔥', title: 'Smart Choice', summary: 'Good balance of price and quality' }
+      : { emoji: '⚠️', title: 'Consider Carefully', summary: 'Average value compared to alternatives' };
+
+  return {
+    name: item.title,
+    price: item.price,
+    thumbnail: item.thumbnail,
+    link: item.link,
+    source: item.source,
+    verdict,
+    marketPosition,
+    valueScore,
+    trustScore,
+    timing,
+    riskAnalysis
+  };
 }
+
+// ================= SEARCH ROUTE =================
+app.get('/search', async (req, res) => {
+  const { q, uid, market = 'us' } = req.query;
+  if (!q) return res.status(400).json({ error: 'Query required' });
+
+  if (uid) SearchLog.create({ uid, query: q }).catch(() => {});
+
+  getJson({
+    engine: 'google_shopping',
+    q,
+    api_key: SERP_API_KEY,
+    gl: market,
+    num: 10
+  }, (data) => {
+    const items = data.shopping_results || [];
+    const results = items.map(item =>
+      ProductIntelligenceEngine(item, items, { market })
+    );
+    res.json({ query: q, results });
+  });
+});
+
+// ================= WATCHLIST =================
+app.post('/watchlist', async (req, res) => {
+  try {
+    await new Watchlist(req.body).save();
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.get('/watchlist/:uid', async (req, res) => {
+  const list = await Watchlist.find({ uid: req.params.uid }).sort({ addedAt: -1 });
+  res.json(list);
+});
+
+// ================= ALERTS =================
+app.post('/alerts', async (req, res) => {
+  try {
+    await new Alert(req.body).save();
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// ================= CRON =================
+cron.schedule('0 */12 * * *', async () => {
+  const alerts = await Alert.find();
+  for (const alert of alerts) {
+    getJson({
+      engine: 'google_shopping',
+      q: alert.productName,
+      api_key: SERP_API_KEY,
+      num: 3
+    }, async (data) => {
+      for (const p of data.shopping_results || []) {
+        const current = parseFloat(p.price?.replace(/[^0-9.]/g, '')) || 999999;
+        if (current <= alert.targetPrice) {
+          await transporter.sendMail({
+            from: EMAIL_USER,
+            to: alert.email,
+            subject: '🚨 Price Drop Found!',
+            html: `<p>${alert.productName}<br><b>${p.price}</b><br><a href="${p.link}">Buy Now</a></p>`
+          });
+          await Alert.findByIdAndDelete(alert._id);
+          break;
+        }
+      }
+    });
+  }
+});
+
+// ================= START =================
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () =>
+  console.log(`🚀 Smart Intelligence Server running on ${PORT}`)
+);

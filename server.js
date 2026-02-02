@@ -7,26 +7,17 @@ const nodemailer = require('nodemailer');
 
 const app = express();
 
-const express = require('express');
-const cors = require('cors');
-// ... باقي الـ require كما هي ...
-
-const app = express();
-
-// ================= تعديل جذري لـ CORS =================
-// هذا التعديل يسمح للواجهة بالاتصال من أي مكان سواء من اللابتوب أو الهاتف
+// ================= إصلاح مشكلة الاتصال (CORS) =================
+// هذا السطر يسمح للموقع بالاتصال بالسيرفر من أي مكان
 app.use(cors({
-    origin: '*', // السماح لجميع المصادر
-    methods: ['GET', 'POST'], // السماح بالقراءة والكتابة
+    origin: '*',
+    methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(express.json());
 
-// ... (اترك باقي الكود كما هو) ...
-
 // ================= ENV VARIABLES =================
-// تأكد أن هذه المتغيرات موجودة في Render Environment Variables
 const MONGO_URI = process.env.MONGO_URI;
 const SERP_API_KEY = process.env.SERP_API_KEY;
 const EMAIL_USER = process.env.EMAIL_USER;
@@ -47,7 +38,7 @@ mongoose.connect(MONGO_URI)
   .then(() => console.log('✅ MongoDB Connected'))
   .catch(err => console.error('❌ DB Error:', err.message));
 
-// ================= SCHEMAS (تعريف الجداول - يجب أن يكون هنا) =================
+// ================= SCHEMAS =================
 const AlertSchema = new mongoose.Schema({
   email: String,
   productName: String,
@@ -81,7 +72,7 @@ const transporter = nodemailer.createTransport({
   auth: { user: EMAIL_USER, pass: EMAIL_PASS }
 });
 
-// ================= INTELLIGENCE ENGINE (محرك الذكاء - خارج الروابط) =================
+// ================= INTELLIGENCE ENGINE =================
 function ProductIntelligenceEngine(item, allItems, { market = 'us' } = {}) {
   const cleanPrice = (p) => parseFloat(p?.toString().replace(/[^0-9.]/g, '')) || 0;
   
@@ -94,7 +85,6 @@ function ProductIntelligenceEngine(item, allItems, { market = 'us' } = {}) {
   const avgPrice = prices.reduce((a, b) => a + b, 0) / (prices.length || 1);
   const minPrice = Math.min(...prices);
 
-  // حساب الموقع في السوق
   const percentile = prices.length
     ? Math.round((prices.filter(p => p > price).length / prices.length) * 100)
     : 0;
@@ -107,7 +97,6 @@ function ProductIntelligenceEngine(item, allItems, { market = 'us' } = {}) {
     avgMarketPrice: Math.round(avgPrice)
   };
 
-  // حساب نقاط القيمة
   let valueScoreNum = (rating * 20) + Math.min(reviews / 50, 20) + Math.max(((avgPrice - price) / avgPrice) * 40, 0);
   valueScoreNum = Math.min(Math.round(valueScoreNum), 100);
 
@@ -118,7 +107,6 @@ function ProductIntelligenceEngine(item, allItems, { market = 'us' } = {}) {
            valueScoreNum >= 50 ? 'قيمة عادلة' : 'قيمة ضعيفة'
   };
 
-  // حساب الثقة
   const trustedStores = ['amazon', 'noon', 'jarir', 'extra', 'walmart', 'bestbuy'];
   const isTrusted = trustedStores.some(s => source.includes(s));
   let trustScoreNum = (isTrusted ? 40 : 15) + Math.min(reviews / 30, 30) + (rating >= 4.5 ? 30 : rating >= 4 ? 20 : 10);
@@ -154,7 +142,7 @@ function ProductIntelligenceEngine(item, allItems, { market = 'us' } = {}) {
   };
 }
 
-// ================= API ROUTES (الروابط) =================
+// ================= API ROUTES =================
 
 // 1. Search Route
 app.get('/search', async (req, res) => {
@@ -163,7 +151,6 @@ app.get('/search', async (req, res) => {
 
   if (!q) return res.status(400).json({ error: 'Query required' });
 
-  // Log Search (لا ننتظر النتيجة لتسريع الاستجابة)
   if (uid) SearchLog.create({ uid, query: q }).catch(e => console.error('Log Error', e));
 
   const langConfig = SUPPORTED_LANGS[lang] || SUPPORTED_LANGS.en;
@@ -175,7 +162,7 @@ app.get('/search', async (req, res) => {
       api_key: SERP_API_KEY,
       hl: langConfig.hl,
       gl: langConfig.gl,
-      num: 12 // زيادة العدد قليلاً
+      num: 12
     }, (data) => {
       if (!data || !data.shopping_results) {
         return res.json({ query: q, results: [] });
@@ -226,13 +213,13 @@ app.get('/watchlist/:uid', async (req, res) => {
   }
 });
 
-// 4. Root Route (للتأكد أن السيرفر يعمل)
+// 4. Root Route
 app.get('/', (req, res) => {
   res.send('<h1>✅ Findly Server is Online</h1>');
 });
 
-// ================= CRON JOB (فحص الأسعار) =================
-cron.schedule('0 */6 * * *', async () => { // كل 6 ساعات
+// ================= CRON JOB =================
+cron.schedule('0 */6 * * *', async () => {
   console.log("⏰ Running Price Check...");
   const alerts = await Alert.find();
   

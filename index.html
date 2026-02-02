@@ -470,37 +470,45 @@
             tr: { title: "Bilge Danışman", sub: "Akıllı alışveriş rehberiniz", energy: "Bilge Enerji", welcome: "Hoş geldiniz,", game: "Oyunlar", beauty: "Güzellik", home: "Akıllı Ev", c1: "Telefonlar", c2: "Laptoplar", c4: "Saatler", p_head: "Profil", buy: "Satın Al 🛒", watch: "Fiyatı İzle 🔔", over: "Bütçe Aşıldı!", cheap: "Ekonomik", top: "En İyi", new: "Yeni", deep: "Yapay Zeka Analiz", watchTitle: "İzleme Listesi", why: "Neden bu seçim?", slow: "Sunucu uyanıyor.. bekleyin", noAttempts: "⚠️ Deneme kalmadı!" }
         };
 
-        async function runSearch() {
+        
+
+                    async function runSearch() {
             let q = document.getElementById('s-input').value.trim();
             const status = document.getElementById('status');
             const resCon = document.getElementById('results');
-            const d = dict[lang] || dict['ar'];
-
+            
             if (!q) return;
 
+            // إظهار حالة الانتظار
             status.style.display = "block";
-            status.innerHTML = `<i class="fa-solid fa-microchip fa-spin"></i> ${lang === 'ar' ? 'جاري تحليل البيانات ذكياً...' : 'Analyzing with Findly Brain...'}`;
+            status.innerHTML = `<i class="fa-solid fa-microchip fa-spin"></i> ${lang === 'ar' ? 'جاري إيقاظ العقل الذكي (قد يستغرق دقيقة)...' : 'Waking up the Brain (might take a min)...'}`;
             
-            resCon.innerHTML = ""; // تنظيف النتائج مرة واحدة فقط
+            resCon.innerHTML = ""; 
 
             try {
-                // Fetch from the corrected Server API
-                const response = await fetch(`${API}/search?q=${encodeURIComponent(q)}&uid=${localStorage.getItem('findly_uid') || 'guest'}&lang=${lang}`);
+                const apiUrl = `${API}/search?q=${encodeURIComponent(q)}&uid=${localStorage.getItem('findly_uid') || 'guest'}&lang=${lang}`;
+                console.log("Connecting to:", apiUrl);
+
+                const response = await fetch(apiUrl);
+                
+                if (!response.ok) {
+                    throw new Error(`Server Error: ${response.status}`);
+                }
+
                 const data = await response.json();
                 status.style.display = "none";
 
                 if (!data.results || !data.results.length) {
-                    status.innerHTML = "❌ لا توجد نتائج";
+                    status.innerHTML = lang === 'ar' ? "❌ لا توجد نتائج مطابقة" : "❌ No results found";
                     return;
                 }
 
                 const frag = document.createDocumentFragment();
 
-                data.results.forEach((p, index) => {
+                data.results.forEach((p) => {
                     const div = document.createElement('div');
                     div.className = "product-card";
 
-                    // The logic here is preserved exactly as requested
                     const v = p.verdict ?? { emoji: "🤖", title: "تحليل", summary: "غير متوفر" };
                     const t = p.timing ?? { recommendation: "غير معروف", reason: "" };
                     const score = Math.min(Number(p.valueScore?.score || 0), 100);
@@ -533,11 +541,13 @@
                     frag.appendChild(div);
                 });
 
-                resCon.appendChild(frag); // نضيف كل النتائج مرة واحدة لتجنب الرجفة
+                resCon.appendChild(frag); 
 
             } catch (err) {
-                console.error(err);
-                status.innerHTML = lang === 'ar' ? "❌ حدث خطأ أثناء الاتصال بالسيرفر" : "❌ Error fetching results";
+                console.error("Full Error Details:", err);
+                status.innerHTML = lang === 'ar' 
+                    ? `❌ خطأ في الاتصال: ${err.message}` 
+                    : `❌ Connection Error: ${err.message}`;
             }
         }
         

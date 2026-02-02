@@ -470,108 +470,127 @@
             tr: { title: "Bilge Danışman", sub: "Akıllı alışveriş rehberiniz", energy: "Bilge Enerji", welcome: "Hoş geldiniz,", game: "Oyunlar", beauty: "Güzellik", home: "Akıllı Ev", c1: "Telefonlar", c2: "Laptoplar", c4: "Saatler", p_head: "Profil", buy: "Satın Al 🛒", watch: "Fiyatı İzle 🔔", over: "Bütçe Aşıldı!", cheap: "Ekonomik", top: "En İyi", new: "Yeni", deep: "Yapay Zeka Analiz", watchTitle: "İzleme Listesi", why: "Neden bu seçim?", slow: "Sunucu uyanıyor.. bekleyin", noAttempts: "⚠️ Deneme kalmadı!" }
         };
 
+        // ============================================
+        // ⚠️ تأكد أن هذا الرابط هو رابط سيرفرك في Render
+        const API = "https://findly-api.onrender.com"; 
+        // ============================================
+
+        let lang = 'ar'; 
+
         async function runSearch() {
-            let q = document.getElementById('s-input').value.trim();
+            const q = document.getElementById('s-input').value.trim();
             const status = document.getElementById('status');
             const resCon = document.getElementById('results');
-            const d = dict[lang] || dict['ar'];
-
+            
             if (!q) return;
 
+            // إظهار حالة التحميل
             status.style.display = "block";
-            status.innerHTML = `<i class="fa-solid fa-microchip fa-spin"></i> ${lang === 'ar' ? 'جاري تحليل البيانات ذكياً...' : 'Analyzing with Findly Brain...'}`;
-            
-            resCon.innerHTML = ""; // تنظيف النتائج مرة واحدة فقط
+            status.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> جاري الاتصال بالسيرفر والتحليل...`;
+            resCon.innerHTML = "";
 
             try {
-                // Fetch from the corrected Server API
-                const response = await fetch(`${API}/search?q=${encodeURIComponent(q)}&uid=${localStorage.getItem('findly_uid') || 'guest'}&lang=${lang}`);
+                // إضافة timeout لتجنب الانتظار الطويل
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 ثانية
+
+                const response = await fetch(`${API}/search?q=${encodeURIComponent(q)}&lang=${lang}&uid=${localStorage.getItem('uid') || 'guest'}`, {
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+
+                if (!response.ok) throw new Error(`Server error: ${response.status}`);
+
                 const data = await response.json();
                 status.style.display = "none";
 
-                if (!data.results || !data.results.length) {
-                    status.innerHTML = "❌ لا توجد نتائج";
+                if (!data.results || data.results.length === 0) {
+                    status.style.display = "block";
+                    status.innerHTML = "❌ لم يتم العثور على نتائج.";
                     return;
                 }
 
-                const frag = document.createDocumentFragment();
+const v = p.verdict || { emoji: "🤖", title: "تحليل", summary: "جاري التحليل..." };
+const t = p.timing || { recommendation: "غير محدد", reason: "" };
+const trust = p.trustScore || { riskLevel: "غير معروف", reasons: [] };
+const market = p.marketPosition || {};
+const risk = p.riskAnalysis || {};
+const score = p.valueScore?.score || 0;
 
-                data.results.forEach((p, index) => {
-                    const div = document.createElement('div');
-                    div.className = "product-card";
+const card = document.createElement('div');
+card.className = "product-card";
 
-                    // The logic here is preserved exactly as requested
-                    const v = p.verdict ?? { emoji: "🤖", title: "تحليل", summary: "غير متوفر" };
-                    const t = p.timing ?? { recommendation: "غير معروف", reason: "" };
-                    const score = Math.min(Number(p.valueScore?.score || 0), 100);
-                    const trust = p.trustScore ?? { riskLevel: "غير معروف", reasons: [] };
-                    const market = p.marketPosition ?? {};
-                    const risk = p.riskAnalysis ?? {};
+card.innerHTML = `
+    <div style="position: absolute; top: 10px; left: 10px; background: rgba(139, 92, 246, 0.2); color: #c4b5fd; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; border: 1px solid rgba(139, 92, 246, 0.3);">
+        ${v.emoji} ${v.title}
+    </div>
 
-                    div.innerHTML = `
-                        <div class="badge">${v.emoji} ${v.title}</div>
-                        <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/150'">
-                        <h3>${p.name || '—'}</h3>
-                        <div class="price">${p.price || 'N/A'}</div>
-                        <div class="analysis-engine">
-                            <p><b>🤖 التحليل:</b> ${v.summary}</p>
-                            <p><b>📅 التوقيت:</b> ${t.recommendation}</p>
-                            <small>${t.reason || ''}</small>
-                            <p><b>🛡️ الثقة:</b> ${trust.riskLevel}</p>
-                            ${trust.reasons?.map(r => `<small>✔ ${r}</small>`).join("")}
-                            ${market.label ? `<p><b>💰 السوق:</b> ${market.label}</p>` : ''}
-                            ${risk.warnings?.length ? `<p class="warn">⚠ ${risk.warnings.join(' • ')}</p>` : ''}
-                            <div class="score-bar"><div class="bar" style="width:${score}%"></div></div>
-                            <small>قيمة الصفقة الذكية: ${score}%</small>
-                        </div>
-                        <div class="btn-group">
-                            <a href="${p.link}" target="_blank" class="action-btn buy-now">${dict[lang].buy}</a>
-                            <button onclick="addToWatch('${p.name?.replace(/'/g, "\\'")}', '${p.price}', '${p.link}')" class="action-btn watch-later">${dict[lang].watch}</button>
-                        </div>
-                    `;
+    <img src="${p.thumbnail}" onerror="this.src='https://via.placeholder.com/150'" alt="${p.name}">
 
-                    frag.appendChild(div);
-                });
+    <h3 style="margin-top: 10px;">${p.name}</h3>
+    <div class="price">${p.price}</div>
 
-                resCon.appendChild(frag); // نضيف كل النتائج مرة واحدة لتجنب الرجفة
-
-            } catch (err) {
-                console.error(err);
-                status.innerHTML = lang === 'ar' ? "❌ حدث خطأ أثناء الاتصال بالسيرفر" : "❌ Error fetching results";
-            }
-        }
+    <div class="analysis-engine">
+        <p style="margin: 5px 0;"><b>🤖 الحكم الذكي:</b> ${v.summary}</p>
         
-        // This function matches the server Alert schema
-        async function addToWatch(name, price, link) {
-            const userEmail = prompt(lang === 'ar' ? "أدخل إيميلك للتنبيه عند انخفاض السعر:" : "Enter email for price alerts:");
-            if (!userEmail || !userEmail.includes("@")) return;
+        <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 8px 0;">
+        
+        <p style="margin: 5px 0;"><b>📅 نصيحة التوقيت:</b> <span style="color:${t.recommendation.includes('اشتر') ? '#4ade80' : '#facc15'}">${t.recommendation}</span></p>
+        <small style="opacity: 0.7; display:block; margin-bottom: 8px;">(${t.reason})</small>
+        
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
+            <span>🛡️ الثقة: <b>${trust.riskLevel}</b></span>
+            <span>💰 السوق: <b>${market.label || 'غير محدد'}</b></span>
+        </div>
 
-            let uid = localStorage.getItem('findly_uid');
-            let targetPrice = parseFloat(price.replace(/[^\d.]/g, '')) * 0.9; // تنبيه عند خصم 10%
+        <div style="margin-top: 10px;">
+            <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:3px;">
+                <span>قيمة الصفقة</span>
+                <span>${score}%</span>
+            </div>
+            <div style="height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden;">
+                <div style="height: 100%; width: ${score}%; background: linear-gradient(90deg, #8b5cf6, #ec4899);"></div>
+            </div>
+        </div>
+        
+        ${risk.warnings && risk.warnings.length > 0 ? 
+          `<div style="margin-top:8px; padding:5px; background:rgba(239,68,68,0.1); border-radius:5px; color:#fca5a5; font-size:0.8rem;">
+             ⚠️ ${risk.warnings.join(' • ')}
+           </div>` : ''}
+    </div>
+
+    <div class="btn-group">
+        <a href="${p.link}" target="_blank" class="action-btn buy-now">شراء الآن 🛒</a>
+        <button onclick="addToWatch('${p.name.replace(/'/g, "\\'")}', '${p.price}', '${p.link}')" class="action-btn watch-later">راقب السعر 🔔</button>
+    </div>
+`;
+
+resCon.appendChild(card);
+
+        async function addToWatch(name, price, link) {
+            const email = prompt("أدخل إيميلك لاستلام التنبيه:");
+            if (!email) return;
+
+            const targetPrice = parseFloat(price.replace(/[^0-9.]/g, '')) * 0.95; // خصم 5%
 
             try {
-                const response = await fetch(`${API}/alerts`, { // Matches server route
+                await fetch(`${API}/alerts`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        email: userEmail,
-                        productName: name,
-                        targetPrice: targetPrice,
-                        link: link,
-                        lang: lang,
-                        uid: uid
-                    })
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ email, productName: name, targetPrice, link, lang, uid: 'guest' })
                 });
-
-                if (response.ok) {
-                    alert(lang === 'ar' ? "تم تفعيل التنبيه بنجاح! سيصلك إيميل عند انخفاض السعر." : "Alert activated! We'll email you on price drops.");
-                    update();
-                } else {
-                    alert("Server Error: " + response.status);
-                }
-            } catch (error) {
-                alert("Connection failed");
+                alert("✅ تم تفعيل التنبيه بنجاح!");
+            } catch (e) {
+                alert("حدث خطأ في الحفظ");
             }
+        }
+
+        function toggleMode() { document.body.classList.toggle('light-mode'); }
+        function quickSearch(txt) { document.getElementById('s-input').value = txt; runSearch(); }
+        function toggleWatchList() { 
+            const m = document.getElementById('w-modal');
+            m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
         }
         
         function saveSet() {

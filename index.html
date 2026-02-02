@@ -934,90 +934,81 @@
 
         
     
-        async function runSearch() {
+    async function runSearch() {
     let q = document.getElementById('s-input').value;
     const status = document.getElementById('status');
     const resCon = document.getElementById('results');
     const d = dict[lang] || dict['ar'];
-    const userBudget = parseFloat(localStorage.getItem('fb')) || 0;
 
-    if (attempts <= 0) { 
-        status.style.display = "block";
-        status.innerHTML = d.noAttempts;
-        return; 
-    }
     if (!q) return;
 
     status.style.display = "block";
-    status.innerHTML = '<i class="fa-solid fa-microchip fa-spin"></i> Finding Best Deals...';
+    status.innerHTML = '<i class="fa-solid fa-microchip fa-spin"></i> جاري استدعاء التحليل الذكي من السيرفر...';
     resCon.innerHTML = "";
 
-    // Generate or Retrieve UID for history
-    let uid = localStorage.getItem('findly_uid');
-    if(!uid) {
-        uid = 'user_' + Math.random().toString(36).substr(2, 9);
-        localStorage.setItem('findly_uid', uid);
-    }
-
     try {
-        const res = await fetch(`${API}/search?q=${encodeURIComponent(q)}&uid=${uid}&lang=${lang}`, { method: 'GET' });
+        // جلب البيانات من السيرفر (الذي برمجناه ليكون ذكياً)
+        const res = await fetch(`${API}/search?q=${encodeURIComponent(q)}&uid=${currentUser?.uid || 'guest'}&lang=${lang}`);
         const data = await res.json();
+        
         status.style.display = "none";
 
         if (data.results && data.results.length > 0) {
-
-            // حساب متوسط وأدنى سعر للسوق داخل النتائج
-            const prices = data.results.map(i => parseFloat(i.price?.toString().replace(/[^0-9.]/g, '')) || 0).filter(p => p>0);
-            const avgPrice = prices.reduce((a,b)=>a+b,0)/(prices.length||1);
-            const minPrice = Math.min(...prices);
-
             data.results.forEach((p, index) => {
-                let cleanPrice = p.price ? p.price.toString().replace(/[^\d.]/g, '') : "0"; 
-                let priceVal = parseFloat(cleanPrice);
-                let budgetAlert = (userBudget > 0 && priceVal > userBudget) ? `<div class="budget-error">⚠️ ${d.over} (${userBudget}$)</div>` : "";
-
-                // تحليلات إضافية
-                let analysisHTML = `
-                    <div class="analysis-engine">
-                        <span class="analysis-label"><i class="fa-solid fa-brain"></i> ${d.why}</span>
-                        ${p.smartReason || 'Best match found based on your search.'}
-                        <ul style="margin-top:5px; padding-left: 18px; font-size:0.8rem;">
-                            <li>السعر الحالي: ${p.price || 'N/A'}</li>
-                            <li>متوسط سعر السوق: ${avgPrice.toFixed(2)}</li>
-                            <li>أقل سعر متاح: ${minPrice}</li>
-                            <li>المصدر: ${p.source || 'N/A'}</li>
-                            <li>التقييم: ${p.rating || 'N/A'} (${p.reviews || 0} مراجعات)</li>
-                        </ul>
-                    </div>
-                `;
+                
+                // استخراج البيانات التحليلية التي برمجناها في السيرفر
+                const v = p.verdict; // الحكم الذكي (emoji, title, color)
+                const trust = p.trustScore; // نسبة الثقة
+                const reason = p.smartReason; // سبب الاختيار التحليلي
 
                 setTimeout(() => {
                     resCon.innerHTML += `
-                        <div class="product-card">
-                            ${budgetAlert}
-                            <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/150'">
-                            <h3>${p.name}</h3>
-                            <div class="price">${p.price || 'N/A'}</div>
-                            ${analysisHTML}
+                        <div class="product-card" style="border-top: 5px solid ${v.color}; position: relative; overflow: hidden;">
+                            <div style="position: absolute; top: 10px; left: 10px; background: ${v.color}; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+                                ${v.emoji} ${v.title}
+                            </div>
+
+                            <div style="display: flex; gap: 15px; margin-top: 15px;">
+                                <img src="${p.thumbnail}" style="width: 90px; height: 90px; object-fit: contain; background: white; border-radius: 15px; border: 1px solid var(--glass-border);">
+                                <div style="flex: 1;">
+                                    <h3 style="margin: 0 0 5px 0; font-size: 1rem; color: var(--text);">${p.name}</h3>
+                                    <div style="color: #10b981; font-weight: 800; font-size: 1.4rem;">${p.price}</div>
+                                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px;">
+                                        <span><i class="fa-solid fa-store"></i> ${p.source}</span> | 
+                                        <span>⭐ ${p.rating} (${p.reviews})</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="margin: 15px 0 10px 0;">
+                                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 5px;">
+                                    <span>🛡️ مؤشر موثوقية العرض</span>
+                                    <span style="font-weight: bold; color: ${trust > 70 ? '#10b981' : '#f59e0b'}">${trust}%</span>
+                                </div>
+                                <div style="height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden;">
+                                    <div style="width: ${trust}%; height: 100%; background: linear-gradient(to right, ${v.color}, #10b981); transition: width 1s ease;"></div>
+                                </div>
+                            </div>
+
+                            <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; border-right: 3px solid ${v.color}; margin-bottom: 15px;">
+                                <p style="margin: 0; font-size: 0.85rem; line-height: 1.5; color: var(--text);">
+                                    <i class="fa-solid fa-robot" style="color: ${v.color}; margin-left: 5px;"></i>
+                                    <b>تحليل ذكاء Findly:</b> ${reason}
+                                </p>
+                            </div>
+
                             <div class="btn-group">
-                                <a href="${p.link}" target="_blank" class="action-btn buy-now">${d.buy}</a>
-                                <button class="action-btn watch-later" onclick="addToWatch('${p.name.replace(/'/g, "\\'")}', '${p.price}', '${p.link}')">${d.watch}</button>
+                                <a href="${p.link}" target="_blank" class="action-btn buy-now" style="flex: 3; text-decoration: none; text-align: center; justify-content: center;">${d.buy} <i class="fa-solid fa-cart-shopping"></i></a>
+                                <button class="action-btn watch-later" onclick="addToWatch('${p.name.replace(/'/g, "\\'")}', '${p.price}', '${p.link}')" style="flex: 1;">
+                                    <i class="fa-solid fa-bell"></i>
+                                </button>
                             </div>
                         </div>`;
                 }, index * 100);
             });
-
-            attempts--;
-            localStorage.setItem('findly_attempts', attempts);
-            update();
-        } else {
-            status.style.display = "block";
-            status.innerHTML = "No results found / لا توجد نتائج";
         }
     } catch (e) {
-        console.error(e);
-        status.style.display = "block";
-        status.innerHTML = `<i class="fa-solid fa-clock-rotate-left"></i> ${d.slow}`;
+        status.innerHTML = "حدث خطأ أثناء الاتصال بمحرك التحليل.";
     }
 }
 

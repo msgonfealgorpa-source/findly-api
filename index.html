@@ -533,7 +533,9 @@
                             <small>قيمة الصفقة الذكية: ${score}%</small>
                         </div>
                         <div class="btn-group">
-                            <a href="${p.link}" target="_blank" class="action-btn buy-now">${dict[lang].buy}</a>
+                            <a href={product.link} target="_blank" rel="noopener noreferrer">
+   شراء الآن
+</a>
                             <button onclick="addToWatch('${p.name?.replace(/'/g, "\\'")}', '${p.price}', '${p.link}')" class="action-btn watch-later">${dict[lang].watch}</button>
                         </div>
                     `;

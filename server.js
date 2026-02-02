@@ -30,6 +30,9 @@ mongoose.connect(MONGO_URI)
   .then(() => console.log('✅ MongoDB Connected'))
   .catch(err => console.error('❌ DB Error:', err.message));
 
+app.get('/search', async (req, res) => {
+  const { q, uid, lang = 'en' } = req.query;
+  console.log("Search request:", { q, uid, lang });
 // ================= SCHEMAS =================
 const Alert = mongoose.model('Alert', new mongoose.Schema({
   email: String,

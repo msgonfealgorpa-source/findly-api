@@ -11,11 +11,11 @@ app.use(express.json());
 
 // ================= ENV =================
 const MONGO_URI = process.env.MONGO_URI;
-const SERP_API_KEY = process.env.SERPAPI_KEY;
+const SERP_API_KEY = process.env.SERP_API_KEY;
 const EMAIL_USER = process.env.EMAIL_USER;
 const EMAIL_PASS = process.env.EMAIL_PASS;
 
-// ================= LANG SUPPORT (NEW) =================
+// ================= LANG SUPPORT =================
 const SUPPORTED_LANGS = {
   ar: { hl: 'ar', gl: 'sa' },
   en: { hl: 'en', gl: 'us' },
@@ -30,7 +30,7 @@ mongoose.connect(MONGO_URI)
   .then(() => console.log('✅ MongoDB Connected'))
   .catch(err => console.error('❌ DB Error:', err.message));
 
-// ================= SCHEMAS =============
+// ================= SCHEMAS =================
 const Alert = mongoose.model('Alert', new mongoose.Schema({
   email: String,
   productName: String,
@@ -55,33 +55,137 @@ const Watchlist = mongoose.model('Watchlist', new mongoose.Schema({
   addedAt: { type: Date, default: Date.now }
 }));
 
-// ================= EMAIL ===============
+// ================= EMAIL =================
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: { user: EMAIL_USER, pass: EMAIL_PASS }
 });
 
 // ================= INTELLIGENCE ENGINE =================
-// (لم نغيّر أي شيء هنا)
 function ProductIntelligenceEngine(item, allItems, { market = 'us' } = {}) {
-  // placeholder مؤقت لتجنب توقف السيرفر
+  const cleanPrice = (p) =>
+    parseFloat(p?.toString().replace(/[^0-9.]/g, '')) || 0;
+
+  const price = cleanPrice(item.price);
+  const rating = Number(item.rating || 0);
+  const reviews = Number(item.reviews || 0);
+  const source = (item.source || '').toLowerCase();
+
+  const prices = allItems.map(i => cleanPrice(i.price)).filter(p => p > 0);
+  const avgPrice = prices.reduce((a, b) => a + b, 0) / (prices.length || 1);
+  const minPrice = Math.min(...prices);
+
+  const percentile = prices.length
+    ? Math.round((prices.filter(p => p > price).length / prices.length) * 100)
+    : 0;
+
+  const marketPosition = {
+    percentile,
+    label:
+      percentile > 80 ? 'Much cheaper than market' :
+      percentile > 50 ? 'Below market average' :
+      percentile > 25 ? 'Around market price' :
+      'Above market average',
+    avgMarketPrice: Math.round(avgPrice),
+    savingsVsAvg: Math.round(avgPrice - price)
+  };
+
+  let valueScoreNum =
+    (rating * 20) +
+    Math.min(reviews / 50, 20) +
+    Math.max(((avgPrice - price) / avgPrice) * 40, 0);
+
+  valueScoreNum = Math.min(Math.round(valueScoreNum), 100);
+
+  const valueScore = {
+    score: valueScoreNum,
+    label:
+      valueScoreNum >= 85 ? 'Exceptional Value' :
+      valueScoreNum >= 70 ? 'Great Value' :
+      valueScoreNum >= 50 ? 'Fair Value' :
+      'Poor Value'
+  };
+
+  const trustedStores = {
+    us: ['amazon', 'walmart', 'bestbuy'],
+    eu: ['amazon', 'mediamarkt'],
+    sa: ['amazon', 'noon', 'jarir', 'extra']
+  }[market] || [];
+
+  const isTrusted = trustedStores.some(s => source.includes(s));
+
+  let trustScoreNum =
+    (isTrusted ? 40 : 15) +
+    Math.min(reviews / 30, 30) +
+    (rating >= 4.5 ? 30 : rating >= 4 ? 20 : 10);
+
+  trustScoreNum = Math.min(trustScoreNum, 100);
+
+  const trustScore = {
+    score: trustScoreNum,
+    riskLevel:
+      trustScoreNum >= 80 ? 'Low' :
+      trustScoreNum >= 60 ? 'Medium' : 'High',
+    reasons: [
+      isTrusted ? 'Trusted retailer' : 'Unknown seller',
+      `${reviews} reviews`,
+      `Rating ${rating}/5`
+    ]
+  };
+
+  const timing = {
+    recommendation:
+      price <= minPrice * 1.05 ? 'Buy Now' :
+      price < avgPrice ? 'Good Time to Buy' :
+      'Wait',
+    confidence:
+      price <= minPrice * 1.05 ? 0.85 :
+      price < avgPrice ? 0.65 : 0.4,
+    reason:
+      price <= minPrice * 1.05
+        ? 'Near lowest market price'
+        : price < avgPrice
+        ? 'Below average price'
+        : 'Above normal price'
+  };
+
+  const regretProbability =
+    rating >= 4.5 && price < avgPrice ? 0.15 :
+    price > avgPrice * 1.2 ? 0.65 : 0.35;
+
+  const riskAnalysis = {
+    regretProbability,
+    warnings: [
+      reviews < 20 ? 'Low number of reviews' : null,
+      price > avgPrice ? 'Higher than market average' : null
+    ].filter(Boolean)
+  };
+
+  const verdict =
+    valueScoreNum >= 85 && trustScoreNum >= 80
+      ? { emoji: '💎', title: 'Excellent Buy', summary: 'Top value with very low risk' }
+      : valueScoreNum >= 70
+      ? { emoji: '🔥', title: 'Smart Choice', summary: 'Good balance of price and quality' }
+      : { emoji: '⚠️', title: 'Consider Carefully', summary: 'Average value compared to alternatives' };
+
   return {
-    name: item.title || 'Unknown',
-    price: item.price || 'N/A',
-    thumbnail: item.thumbnail || '',
-    link: item.link || '',
-    source: item.source || '',
-    verdict: { emoji: "💡", title: "تحليل", summary: "جارٍ المعالجة" },
-    marketPosition: {},
-    valueScore: { score: 0 },
-    trustScore: { riskLevel: "متوسط" },
-    timing: { recommendation: "انتظر", reason: "غير معروف" },
-    riskAnalysis: {}
+    name: item.title,
+    price: item.price,
+    thumbnail: item.thumbnail,
+    link: item.link,
+    source: item.source,
+    verdict,
+    marketPosition,
+    valueScore,
+    trustScore,
+    timing,
+    riskAnalysis
   };
 }
+
 // ================= SEARCH ROUTE =================
 app.get('/search', async (req, res) => {
-  const { q, uid, lang = 'en' } = req.query; // ✅ تعديل هنا فقط
+  const { q, uid, lang = 'en' } = req.query;
   if (!q) return res.status(400).json({ error: 'Query required' });
 
   if (uid) SearchLog.create({ uid, query: q }).catch(() => {});
@@ -92,8 +196,8 @@ app.get('/search', async (req, res) => {
     engine: 'google_shopping',
     q,
     api_key: SERP_API_KEY,
-    hl: langConfig.hl, // ✅ لغة النتائج
-    gl: langConfig.gl, // ✅ السوق
+    hl: langConfig.hl,
+    gl: langConfig.gl,
     num: 10
   }, (data) => {
     const items = data.shopping_results || [];
@@ -160,9 +264,12 @@ cron.schedule('0 */12 * * *', async () => {
   }
 });
 
+// ================= ROOT =================
 app.get('/', (req, res) => {
-  res.send('✅ Findly Smart Server is running');
+  res.setHeader('Content-Type', 'text/html');
+  res.send('<h1>✅ Findly Smart Server is running</h1><p>Use /search API</p>');
 });
+
 // ================= START =================
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () =>

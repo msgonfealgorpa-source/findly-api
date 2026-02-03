@@ -351,26 +351,135 @@ width: 80%; max-width: 500px; border-radius: 15px; text-align: right;
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }  
 
 
+.auth-overlay {
+    display: none !important; /* سيتم تفعيله عبر JS */
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: radial-gradient(circle at center, #1e1b4b 0%, #020617 100%) !important;
+    /* تأكد أن هذا الرقم أكبر من أي عنصر آخر في موقعك */
+    z-index: 2147483647 !important; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(15px);
+    overflow: hidden; /* يمنع التمرير خلف الواجهة */
+    touch-action: none; /* يمنع اللمس خلف الواجهة في الجوال */
+}
 
+/* الكارت الاحترافي */
+.auth-card {
+    background: rgba(30, 41, 59, 0.7);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(139, 92, 246, 0.3); /* حدود بنفسجية خفيفة */
+    padding: 40px;
+    border-radius: 28px;
+    width: 90%;
+    max-width: 420px;
+    text-align: center;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(139, 92, 246, 0.2);
+    animation: fadeInScale 0.4s ease-out;
+}
 
+/* شعار Findly Sage داخل الكارت */
+.auth-header h1 {
+    font-size: 2.2rem;
+    color: #fff;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
 
-<div class="auth-footer-links">
-    <a href="رابط_ملف_الشروط_هنا.html" target="_blank">شروط الاستخدام</a>
-    
-    <span class="dot"></span>
-    
-    <a href="رابط_ملف_الخصوصية_هنا.html" target="_blank">سياسة الخصوصية</a>
-    
-    <span class="dot"></span>
-    
-    <a href="#about">من نحن</a>
-</div>
+.auth-header span {
+    color: #a78bfa; /* درجة بنفسجي فاتحة جذابة */
+    text-shadow: 0 0 15px rgba(167, 139, 250, 0.5);
+}
 
+/* تحسين المدخلات */
+.s-input {
+    width: 100%;
+    background: rgba(15, 23, 42, 0.6) !important;
+    border: 1px solid rgba(139, 92, 246, 0.2) !important;
+    color: white !important;
+    padding: 14px 20px !important;
+    border-radius: 14px !important;
+    margin-bottom: 15px;
+    transition: 0.3s;
+}
+
+.s-input:focus {
+    border-color: #8b5cf6 !important;
+    box-shadow: 0 0 10px rgba(139, 92, 246, 0.3) !important;
+}
+
+/* زر الدخول البنفسجي */
+.action-btn.buy-now {
+    background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%) !important;
+    color: white !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.5px;
+    border: none !important;
+    padding: 15px !important;
+    box-shadow: 0 10px 20px -5px rgba(139, 92, 246, 0.5) !important;
+}
+
+/* زر جوجل الاحترافي */
+.google-btn {
+    background: white;
+    color: #1e293b;
+    width: 100%;
+    padding: 12px;
+    border-radius: 14px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.google-btn:hover {
+    background: #f8fafc;
+    transform: translateY(-2px);
+}
+
+/* أنيميشن الدخول */
+@keyframes fadeInScale {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
         
 </style>
 
 </head>  
-<body>  <header>  
+<body> 
+    
+    <div id="auth-overlay" class="auth-overlay">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1 class="logo-text">Findly <span>Sage</span></h1>
+            <p id="auth-title">سجل دخولك لتبدأ البحث الذكي</p>
+        </div>
+        
+        <div id="auth-inputs">
+            <input type="email" id="auth-email" placeholder="البريد الإلكتروني" class="s-input">
+            <input type="password" id="auth-password" placeholder="كلمة المرور" class="s-input">
+            <button onclick="handleEmailAuth()" class="action-btn buy-now" style="width: 100%; margin-top: 10px;">دخول / إنشاء حساب</button>
+        </div>
+
+        <div class="divider"><span>أو</span></div>
+
+        <button onclick="loginWithGoogle()" class="google-btn">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+            متابعة باستخدام جوجل
+        </button>
+    </div>
+</div>
+    
+    <header>  
     <div class="logo">Findly <i class="fa-solid fa-wand-magic-sparkles"></i></div>  
     <div class="header-tools">  
         <button class="tool-btn" onclick="toggleMode()"><i class="fa-solid fa-circle-half-stroke"></i></button>  
@@ -390,6 +499,10 @@ width: 80%; max-width: 500px; border-radius: 15px; text-align: right;
             <span id="watch-count" style="position:absolute; top:-5px; right:-5px; background:#ef4444; color:white; font-size:0.6rem; padding:2px 6px; border-radius:50%; display:none; border: 2px solid var(--bg-dark);">0</span>  
         </button>  
         <button class="tool-btn" onclick="openProfile()"><i class="fa-solid fa-user-gear"></i></button>  
+    
+    <button class="tool-btn" onclick="logoutUser()" title="تسجيل الخروج">
+    <i class="fa-solid fa-right-from-bracket"></i>
+</button>
     </div>  
 </header>  
 
@@ -778,5 +891,82 @@ recognition.start();
 window.onload = update;
 </script>
 
+<script type="module">
+    // استيراد المكتبات بنسخة موحدة 9.6.1 التي تعمل معك
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-analytics.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+
+    const firebaseConfig = {  
+        apiKey: "AIzaSyCI_q5lkgRY4133ua4RlG5TeiCqJ5N5KTU",  
+        authDomain: "findly-ede17.firebaseapp.com",  
+        projectId: "findly-ede17",  
+        storageBucket: "findly-ede17.firebasestorage.app",  
+        messagingSenderId: "503212830017",  
+        appId: "1:503212830017:web:9afb64c19822bbe7f645c0",  
+        measurementId: "G-X1Q3WDP50N"  
+    };  
+
+    // تهيئة Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    // مراقب الحالة (يتحكم في إظهار وإخفاء شاشة الدخول)
+    onAuthStateChanged(auth, (user) => {
+    const overlay = document.getElementById('auth-overlay');
+    if (user) {
+        overlay.style.setProperty('display', 'none', 'important');
+        document.body.style.overflow = 'auto'; // السماح بالتمرير عند الدخول
+        localStorage.setItem('findly_uid', user.uid);
+        
+        if (!sessionStorage.getItem('welcome_shown')) {
+            const name = user.displayName || 'أيها الباحث الحكيم';
+            alert(`مرحباً بك في Findly Sage، ${name}! ✨`);
+            sessionStorage.setItem('welcome_shown', 'true');
+        }
+    } else {
+        overlay.style.setProperty('display', 'flex', 'important');
+        document.body.style.overflow = 'hidden'; // قفل التمرير تماماً لمنع استخدام التطبيق
+    }
+});
+    // ربط الدوال بالأزرار (ضروري جداً لتعمل onclick في HTML)
+    window.loginWithGoogle = async () => {
+        try {
+            await signInWithPopup(auth, provider);
+        } catch (error) {
+            alert("Error: " + error.message);
+        }
+    };
+
+    window.handleEmailAuth = async () => {
+        const email = document.getElementById('auth-email').value;
+        const password = document.getElementById('auth-password').value;
+        if (!email || !password) return alert("أدخل البيانات");
+
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+        } catch (error) {
+            if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+                createUserWithEmailAndPassword(auth, email, password).catch(e => alert(e.message));
+            } else {
+                alert(error.message);
+            }
+        }
+    };
+
+    window.logoutUser = () => {
+        if (confirm(lang === 'ar' ? "هل تريد تسجيل الخروج؟" : "Logout?")) {
+            signOut(auth).then(() => {
+                sessionStorage.removeItem('welcome_shown');
+                location.reload();
+            });
+        }
+    };
+</script>
+    
+</script>
+    
 </body>  
 </html>

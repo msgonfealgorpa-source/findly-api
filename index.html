@@ -350,10 +350,71 @@ width: 80%; max-width: 500px; border-radius: 15px; text-align: right;
     @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }  
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }  
 
-</style>
+
+    .auth-overlay {
+    position: fixed; /* يضمن بقاءها فوق الشاشة حتى عند التمرير */
+    top: 0;
+    left: 0;
+    width: 100vw; /* عرض الشاشة بالكامل */
+    height: 100vh; /* طول الشاشة بالكامل */
+    background: #0a0b1e; /* نفس لون خلفية تطبيقك الداكنة لتبدو مدمجة */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 999999; /* رقم ضخم لضمان أنها فوق القائمة العلويّة والأزرار */
+    overflow: hidden; /* يمنع تحريك الصفحة خلفها */
+}
+
+/* تحسين زر جوجل ليصبح احترافياً كما في الأزرار الأخرى */
+.google-btn {
+    background: white;
+    color: #000;
+    border-radius: 12px;
+    padding: 10px 20px;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    width: 280px; /* تحديد عرض ثابت ليكون أرشق */
+    justify-content: center;
+    margin-top: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.google-btn img {
+    width: 20px; /* تصغير حجم اللوجو ليكون متناسقاً */
+}
+    
+    
+    </style>
 
 </head>  
-<body>  <header>  
+<body> 
+    
+    <div id="auth-overlay" class="auth-overlay">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1 class="logo-text">Findly <span>Sage</span></h1>
+            <p id="auth-title">سجل دخولك لتبدأ البحث الذكي</p>
+        </div>
+        
+        <div id="auth-inputs">
+            <input type="email" id="auth-email" placeholder="البريد الإلكتروني" class="s-input">
+            <input type="password" id="auth-password" placeholder="كلمة المرور" class="s-input">
+            <button onclick="handleEmailAuth()" class="action-btn buy-now" style="width: 100%; margin-top: 10px;">دخول / إنشاء حساب</button>
+        </div>
+
+        <div class="divider"><span>أو</span></div>
+
+        <button onclick="loginWithGoogle()" class="google-btn">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+            متابعة باستخدام جوجل
+        </button>
+    </div>
+</div>
+    <header>  
     <div class="logo">Findly <i class="fa-solid fa-wand-magic-sparkles"></i></div>  
     <div class="header-tools">  
         <button class="tool-btn" onclick="toggleMode()"><i class="fa-solid fa-circle-half-stroke"></i></button>  

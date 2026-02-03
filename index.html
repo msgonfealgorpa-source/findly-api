@@ -352,6 +352,7 @@ width: 80%; max-width: 500px; border-radius: 15px; text-align: right;
 
 
     .auth-overlay {
+ none;
     position: fixed; /* يضمن بقاءها فوق الشاشة حتى عند التمرير */
     top: 0;
     left: 0;
@@ -460,7 +461,10 @@ width: 80%; max-width: 500px; border-radius: 15px; text-align: right;
             <span id="watch-count" style="position:absolute; top:-5px; right:-5px; background:#ef4444; color:white; font-size:0.6rem; padding:2px 6px; border-radius:50%; display:none; border: 2px solid var(--bg-dark);">0</span>  
         </button>  
         <button class="tool-btn" onclick="openProfile()"><i class="fa-solid fa-user-gear"></i></button>  
-    </div>  
+    <button onclick="logoutUser()" class="nav-btn" title="تسجيل الخروج">
+    <i class="fa-solid fa-right-from-bracket"></i>
+</button>
+</div>  
 </header>  
 
 <main class="search-area">  
@@ -872,15 +876,36 @@ window.onload = update;
     console.log("🔥 Findly Firebase Active (v9.6.1)");
 
     // مراقب حالة الدخول: يخفي الشاشة فور نجاح الدخول
-    onAuthStateChanged(auth, (user) => {
-        const overlay = document.getElementById('auth-overlay');
-        if (user) {
-            overlay.style.display = 'none';
-            localStorage.setItem('findly_uid', user.uid); // ربط الـ UID بعملية البحث
-        } else {
-            overlay.style.display = 'flex';
+    import { getAuth, signOut, onAuthStateChanged, ... } from "..."; // تأكد من إضافة signOut هنا
+
+// ... إعدادات Firebase ...
+
+onAuthStateChanged(auth, (user) => {
+    const overlay = document.getElementById('auth-overlay');
+    
+    if (user) {
+        overlay.style.display = 'none';
+        localStorage.setItem('findly_uid', user.uid);
+
+        // إظهار رسالة ترحيبية إذا كانت أول مرة يدخل في هذه الجلسة
+        if (!sessionStorage.getItem('welcome_shown')) {
+            alert(`مرحباً بك في Findly Sage، ${user.displayName || 'أيها الباحث الحكيم'}! ✨`);
+            sessionStorage.setItem('welcome_shown', 'true');
         }
-    });
+    } else {
+        overlay.style.display = 'flex'; // أظهرها فقط إذا لم يكن هناك مستخدم
+    }
+});
+
+// دالة تسجيل الخروج
+window.logoutUser = () => {
+    if(confirm("هل تريد تسجيل الخروج؟")) {
+        signOut(auth).then(() => {
+            sessionStorage.removeItem('welcome_shown');
+            location.reload();
+        });
+    }
+};
 
     // تصدير الدوال للنافذة العالمية لتعمل الأزرار
     window.loginWithGoogle = () => signInWithPopup(auth, provider).catch(err => alert(err.message));

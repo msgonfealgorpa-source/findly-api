@@ -2,203 +2,259 @@ const express = require('express');
 const cors = require('cors');
 const { getJson } = require('serpapi');
 const mongoose = require('mongoose');
-const cron = require('node-cron');
 const nodemailer = require('nodemailer');
 
 const app = express();
 
-// ================= إصلاح مشكلة الاتصال (CORS) =================
-app.use(cors({
-    origin: '*',
-    methods: ['GET', 'POST'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-}));
-
+/* ================= BASIC SETUP ================= */
+app.use(cors({ origin: '*', methods: ['GET','POST'], allowedHeaders: ['Content-Type','Authorization'] }));
 app.use(express.json());
 
-// ================= ENV VARIABLES =================
-const MONGO_URI = process.env.MONGO_URI;
-const SERP_API_KEY = process.env.SERP_API_KEY;
-const EMAIL_USER = process.env.EMAIL_USER;
-const EMAIL_PASS = process.env.EMAIL_PASS;
+/* ================= ENV ================= */
+const { MONGO_URI, SERP_API_KEY, EMAIL_USER, EMAIL_PASS, PORT } = process.env;
 
-// ================= HELPERS (الجذور) =================
+/* ================= HELPERS ================= */
 function finalizeUrl(url) {
-    if (!url) return "";
-    let clean = url.trim();
-    if (clean.startsWith('//')) return 'https:' + clean;
-    if (!clean.startsWith('http')) return 'https://' + clean;
-    return clean;
+  if (!url) return '';
+  let u = url.trim();
+  if (u.startsWith('//')) return 'https:' + u;
+  if (!u.startsWith('http')) return 'https://' + u;
+  return u;
 }
 
-// ================= LANG SUPPORT =================
+function cleanPrice(p) {
+  return parseFloat(p?.toString().replace(/[^0-9.]/g,'')) || 0;
+}
+
+function productHash(item){
+  return (item.title + item.source).toLowerCase().replace(/\s+/g,'');
+}
+
+/* ================= LANGUAGES ================= */
 const SUPPORTED_LANGS = {
-  ar: { hl: 'ar', gl: 'sa' },
-  en: { hl: 'en', gl: 'us' },
-  fr: { hl: 'fr', gl: 'fr' },
-  de: { hl: 'de', gl: 'de' },
-  es: { hl: 'es', gl: 'es' },
-  tr: { hl: 'tr', gl: 'tr' }
+  ar:{hl:'ar',gl:'sa'},
+  en:{hl:'en',gl:'us'},
+  fr:{hl:'fr',gl:'fr'},
+  tr:{hl:'tr',gl:'tr'}
 };
 
-// ================= DB CONNECTION ==================
+const I18N = {
+  ar:{
+    buy:'اشترِ الآن',
+    wait:'انتظر، السعر قد ينخفض',
+    explain:[
+      'السعر أقل من متوسطه التاريخي',
+      'هذا من أقل الأسعار المسجلة',
+      'السعر أعلى من المعتاد'
+    ]
+  },
+  en:{
+    buy:'Buy now',
+    wait:'Wait, price may drop',
+    explain:[
+      'Price below historical average',
+      'One of the lowest recorded prices',
+      'Price higher than usual'
+    ]
+  },
+  fr:{
+    buy:'Acheter maintenant',
+    wait:'Attendre une baisse',
+    explain:[
+      'Prix inférieur à la moyenne historique',
+      'Un des prix les plus bas enregistrés',
+      'Prix supérieur à la normale'
+    ]
+  },
+  tr:{
+    buy:'Şimdi satın al',
+    wait:'Mevcut en iyi fiyattan yüksek',
+    explain:[
+      'Fiyat tarihi ortalamanın altında',
+      'Kaydedilen en düşük fiyatlardan biri',
+      'Fiyat alışılmadık şekilde yüksek'
+    ]
+  }
+};
+
+/* ================= DB ================= */
 mongoose.connect(MONGO_URI)
-  .then(() => console.log('✅ MongoDB Connected'))
-  .catch(err => console.error('❌ DB Error:', err.message));
+  .then(()=>console.log('✅ MongoDB Connected'))
+  .catch(err=>console.error('❌ DB Error:',err.message));
 
-// ================= SCHEMAS =================
-const AlertSchema = new mongoose.Schema({
-  email: String, productName: String, targetPrice: Number, link: String, lang: String, uid: String
-});
-const Alert = mongoose.models.Alert || mongoose.model('Alert', AlertSchema);
+/* ================= SCHEMAS ================= */
+const Alert = mongoose.models.Alert || mongoose.model('Alert',
+  new mongoose.Schema({
+    email:String,
+    productName:String,
+    targetPrice:Number,
+    link:String,
+    lang:String,
+    uid:String
+  })
+);
 
-const SearchLogSchema = new mongoose.Schema({
-  uid: String, query: String, timestamp: { type: Date, default: Date.now }
-});
-const SearchLog = mongoose.models.SearchLog || mongoose.model('SearchLog', SearchLogSchema);
+const Watchlist = mongoose.models.Watchlist || mongoose.model('Watchlist',
+  new mongoose.Schema({
+    uid:String,
+    name:String,
+    price:String,
+    thumbnail:String,
+    link:String,
+    addedAt:{type:Date, default:Date.now}
+  })
+);
 
-const WatchlistSchema = new mongoose.Schema({
-  uid: String, name: String, price: String, thumbnail: String, link: String, addedAt: { type: Date, default: Date.now }
-});
-const Watchlist = mongoose.models.Watchlist || mongoose.model('Watchlist', WatchlistSchema);
+const SearchLog = mongoose.models.SearchLog || mongoose.model('SearchLog',
+  new mongoose.Schema({
+    uid:String,
+    query:String,
+    timestamp:{type:Date, default:Date.now}
+  })
+);
 
+/* ================= PRICE HISTORY ================= */
+const PriceHistory = mongoose.models.PriceHistory || mongoose.model('PriceHistory',
+  new mongoose.Schema({
+    productHash:String,
+    price:Number,
+    store:String,
+    date:{type:Date, default:Date.now}
+  })
+);
+
+/* ================= EMAIL TRANSPORTER ================= */
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: { user: EMAIL_USER, pass: EMAIL_PASS }
+  service:'gmail',
+  auth:{user:EMAIL_USER, pass:EMAIL_PASS}
 });
 
-// ================= INTELLIGENCE ENGINE (تطوير الذكاء) =================
-function ProductIntelligenceEngine(item, allItems, { market = 'us' } = {}) {
-  const cleanPrice = (p) => parseFloat(p?.toString().replace(/[^0-9.]/g, '')) || 0;
-  
+/* ================= CORE INTELLIGENCE ================= */
+async function ProductIntelligenceEngine(item, allItems, lang='en'){
+  const t = I18N[lang] || I18N.en;
+
   const price = cleanPrice(item.price);
   const rating = Number(item.rating || 0);
   const reviews = Number(item.reviews || 0);
-  const source = (item.source || '').toLowerCase();
 
-  const prices = allItems.map(i => cleanPrice(i.price)).filter(p => p > 0);
-  const avgPrice = prices.reduce((a, b) => a + b, 0) / (prices.length || 1);
-  const minPrice = Math.min(...prices);
+  const prices = allItems.map(i=>cleanPrice(i.price)).filter(p=>p>0);
+  const avg = prices.reduce((a,b)=>a+b,0)/(prices.length||1);
+  const min = Math.min(...prices);
 
-  const percentile = prices.length ? Math.round((prices.filter(p => p > price).length / prices.length) * 100) : 0;
+  const hash = productHash(item);
 
-  // ذكاء المقارنة الحسابي
-  const savings = price < avgPrice ? Math.round(((avgPrice - price) / avgPrice) * 100) : 0;
-  
-  const comparison = {
-    market_average: Math.round(avgPrice),
-    savings_percentage: savings,
-    is_best_deal: price <= minPrice * 1.05,
-    competitors: allItems.slice(0, 3).map(i => ({
-        store: i.source || 'متجر آخر',
-        price: i.price,
-        link: finalizeUrl(i.link)
-    }))
-  };
+  // 🔹 Save price to history
+  await PriceHistory.create({ productHash:hash, price, store:item.source });
 
-  const marketPosition = {
-    percentile,
-    label: percentile > 80 ? 'أرخص من السوق بكثير' :
-            percentile > 50 ? 'أقل من متوسط السوق' :
-            percentile > 25 ? 'حول سعر السوق' : 'أعلى من متوسط السوق',
-    avgMarketPrice: Math.round(avgPrice)
-  };
+  // 🔹 Load last 90 days history
+  const history = await PriceHistory.find({productHash:hash}).sort({date:-1}).limit(90);
+  const histPrices = history.map(h=>h.price);
+  const histAvg = histPrices.reduce((a,b)=>a+b,0)/(histPrices.length||1);
+  const histMin = Math.min(...histPrices);
 
-  let valueScoreNum = (rating * 20) + Math.min(reviews / 50, 20) + Math.max(((avgPrice - price) / avgPrice) * 40, 0);
-  valueScoreNum = Math.min(Math.round(valueScoreNum), 100);
+  // 🔹 Timing intelligence
+  let timingDecision = t.buy;
+  let explain = [];
+  if(price <= histMin*1.05){
+    timingDecision = t.buy;
+    explain.push(t.explain[1]);
+  } else if(price > histAvg){
+    timingDecision = t.wait;
+    explain.push(t.explain[2]);
+  } else {
+    explain.push(t.explain[0]);
+  }
 
-  const valueScore = {
-    score: valueScoreNum,
-    label: valueScoreNum >= 85 ? 'صفقة ممتازة' : valueScoreNum >= 70 ? 'قيمة رائعة' : 'قيمة عادلة'
-  };
+  // 🔹 Value & Trust Score
+  let valueScore = Math.min(Math.round((rating*20) + Math.min(reviews/50,20) + Math.max(((avg-price)/avg)*40,0)),100);
+  let trustScore = Math.min(Math.round((reviews/30) + (rating*15) + 20),100);
 
-  const trustScoreNum = Math.min((reviews / 30) + (rating * 15) + (source ? 20 : 0), 100);
-  const trustScore = {
-    score: trustScoreNum,
-    riskLevel: trustScoreNum >= 80 ? 'منخفض' : trustScoreNum >= 60 ? 'متوسط' : 'مخاطرة',
-    reasons: [`${reviews} مراجعة`, `تقييم ${rating}/5`]
-  };
+  // 🔹 Verdict Emoji & Label
+  const verdict = valueScore>=85 && trustScore>=80 ?
+    {emoji:'💎',title:'صفقة لقطة',summary:t.buy} :
+    {emoji:'💡',title:'خيار ذكي',summary:t.wait};
 
-  const timing = {
-    recommendation: price <= minPrice * 1.05 ? 'اشترِ الآن' : 'انتظر التخفيض',
-    reason: price <= minPrice * 1.05 ? 'أقل سعر حالياً' : 'السعر فوق المتوسط'
-  };
-
-  const verdict = 
-    valueScoreNum >= 85 && trustScoreNum >= 80 ? { emoji: '💎', title: 'صفقة لقطة', summary: 'قيمة عالية جداً' } :
-    { emoji: '💡', title: 'خيار ذكي', summary: 'جيد للاستخدام اليومي' };
+  // 🔹 Competitor comparison
+  const competitors = allItems.slice(0,3).map(i=>({
+    store:i.source || 'متجر آخر',
+    price:i.price,
+    link:finalizeUrl(i.link)
+  }));
 
   return {
-    name: item.title,
-    price: item.price,
-    thumbnail: item.thumbnail,
-    link: finalizeUrl(item.link), // إصلاح الرابط هنا (الجذور)
-    source: item.source,
+    name:item.title,
+    price:item.price,
+    thumbnail:item.thumbnail,
+    link:finalizeUrl(item.link),
+    source:item.source,
     verdict,
-    marketPosition,
-    valueScore,
-    trustScore,
-    timing,
-    comparison // إضافة ذكاء المقارنة للنتيجة
+    marketPosition:{
+      percentile:prices.length ? Math.round((prices.filter(p=>p>price).length/prices.length)*100) : 0,
+      label: price<=avg ? 'Below avg' : 'Above avg',
+      avgMarketPrice:Math.round(avg)
+    },
+    valueScore:{score:valueScore,label:valueScore>=85?'صفقة ممتازة':valueScore>=70?'قيمة رائعة':'قيمة عادلة'},
+    trustScore:{score:trustScore,riskLevel:trustScore>=80?'منخفض':trustScore>=60?'متوسط':'مخاطرة'},
+    timing:{recommendation:timingDecision},
+    explanation:explain,
+    memory:{avg30d:Math.round(histAvg),min30d:Math.round(histMin),records:history.length},
+    comparison:competitors
   };
 }
 
-// ================= API ROUTES =================
-
-app.get('/search', async (req, res) => {
-  const { q, uid, lang = 'en' } = req.query;
-  if (!q) return res.status(400).json({ error: 'Query required' });
-  if (uid) SearchLog.create({ uid, query: q }).catch(e => console.error('Log Error', e));
+/* ================= SEARCH ROUTE ================= */
+app.get('/search', async(req,res)=>{
+  const {q,uid,lang='en'} = req.query;
+  if(!q) return res.status(400).json({error:'Query required'});
+  if(uid) SearchLog.create({uid,query:q}).catch(()=>{});
 
   const langConfig = SUPPORTED_LANGS[lang] || SUPPORTED_LANGS.en;
 
-  try {
+  try{
     getJson({
-      engine: 'google_shopping',
+      engine:'google_shopping',
       q,
-      api_key: SERP_API_KEY,
-      hl: langConfig.hl,
-      gl: langConfig.gl,
-      num: 15
-    }, (data) => {
-      if (!data || !data.shopping_results) return res.json({ query: q, results: [] });
-
+      api_key:SERP_API_KEY,
+      hl:langConfig.hl,
+      gl:langConfig.gl,
+      num:15
+    }, async(data)=>{
+      if(!data?.shopping_results) return res.json({query:q,results:[]});
       const items = data.shopping_results;
-      // هنا نقوم بمعالجة النتائج وأخذ أفضل 5 فقط (تحقيق طلبك الثالث)
-      const results = items
-        .map(item => ProductIntelligenceEngine(item, items, { market: langConfig.gl }))
-        .sort((a, b) => b.valueScore.score - a.valueScore.score)
-        .slice(0, 5);
-
-      res.json({ query: q, results });
+      const results = [];
+      for(const item of items){
+        results.push(await ProductIntelligenceEngine(item,items,lang));
+      }
+      res.json({query:q,results});
     });
-  } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
-  }
+  }catch(err){res.status(500).json({error:'Internal Server Error'});}
 });
 
-// بقية المسارات (Alerts, Watchlist) تبقى كما هي دون تغيير للحفاظ على المنطق الخاص بك
-app.post('/alerts', async (req, res) => {
-    try {
-      const { email, productName, targetPrice, link, lang, uid } = req.body;
-      await new Alert({ email, productName, targetPrice, link: finalizeUrl(link), lang, uid }).save();
-      res.json({ success: true });
-    } catch (e) { res.status(500).json({ error: e.message }); }
+/* ================= ALERTS ================= */
+app.post('/alerts', async(req,res)=>{
+  try{
+    await new Alert(req.body).save();
+    res.json({success:true});
+  }catch(e){res.status(500).json({error:e.message});}
 });
 
-app.post('/watchlist', async (req, res) => {
-    try { await new Watchlist(req.body).save(); res.json({ success: true }); } 
-    catch (e) { res.status(500).json({ error: e.message }); }
+/* ================= WATCHLIST ================= */
+app.post('/watchlist', async(req,res)=>{
+  try{
+    await new Watchlist(req.body).save();
+    res.json({success:true});
+  }catch(e){res.status(500).json({error:e.message});}
 });
 
-app.get('/watchlist/:uid', async (req, res) => {
-    try {
-      const list = await Watchlist.find({ uid: req.params.uid }).sort({ addedAt: -1 });
-      res.json(list);
-    } catch (e) { res.status(500).json({ error: e.message }); }
+app.get('/watchlist/:uid', async(req,res)=>{
+  try{
+    const list = await Watchlist.find({uid:req.params.uid}).sort({addedAt:-1});
+    res.json(list);
+  }catch(e){res.status(500).json({error:e.message});}
 });
 
-app.get('/', (req, res) => { res.send('<h1>✅ Findly Brain is Online</h1>'); });
+/* ================= HOME ================= */
+app.get('/',(_,res)=>res.send('<h1>✅ Findly Brain is Online</h1>'));
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Findly Intelligence running on port ${PORT}`));
+/* ================= SERVER ================= */
+app.listen(PORT||3000,()=>console.log('🚀 Findly Intelligence running'));

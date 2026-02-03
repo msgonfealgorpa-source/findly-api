@@ -510,46 +510,71 @@ async function runSearch() {
         const frag = document.createDocumentFragment();
 
         topFive.forEach((p) => {
-            const div = document.createElement('div');
-            const productPrice = parseFloat(String(p.price).replace(/[^0-9.]/g, '')) || 0;
-            const isOverBudget = productPrice > userBudget;
-            div.className = `product-card ${isOverBudget ? 'over-budget' : ''}`;
+    const div = document.createElement('div');
+    const productPrice = parseFloat(String(p.price).replace(/[^0-9.]/g, '')) || 0;
+    const isOverBudget = productPrice > userBudget;
+    div.className = `product-card ${isOverBudget ? 'over-budget' : ''}`;
 
-            const v = p.verdict || { emoji: "🤖", title: "تحليل", summary: "غير متوفر" };
-            const t = p.timing || { recommendation: "غير معروف", reason: "" };
-            const trust = p.trustScore || { riskLevel: "غير معروف", reasons: [] };
-            const market = p.marketPosition || { label: "" };
-            const score = Math.min(Number(p.valueScore?.score || 0), 100);
+    // 1. استخراج كامل بيانات "العقل" من السيرفر بدون استثناء
+    const v = p.verdict || { emoji: "🤖", title: "تحليل", summary: "غير متوفر" };
+    const t = p.timing || { recommendation: "غير معروف", reason: "" };
+    const trust = p.trustScore || { riskLevel: "غير معروف", reasons: [] };
+    const market = p.marketPosition || { label: "" };
+    const score = Math.min(Number(p.valueScore?.score || 0), 100);
+    const risk = p.riskAnalysis || {}; // تحليل المخاطر الإضافي
 
-            div.innerHTML = `
-                <div class="badge">${v.emoji} ${v.title}</div>
-                <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/150'">
-                <h3>${p.name || '—'}</h3>
-                <div class="price">
-                    <span style="${isOverBudget ? 'color: red; font-weight: bold;' : ''}">${p.price || 'N/A'}</span>
-                    ${isOverBudget ? `<br><span class="budget-alert">⚠️ يتجاوز ميزانيتك</span>` : ''}
-                </div>
-                <div class="analysis-engine">
-                    <p>🤖 <b>التحليل:</b> ${v.summary}</p>
-                    <p>📅 <b>التوقيت:</b> ${t.recommendation} <small>${t.reason}</small></p>
-                    <p>🛡️ <b>الثقة:</b> ${trust.riskLevel}</p>
-                    <div class="score-bar"><div class="bar" style="width:${score}%"></div></div>
-                </div>
-                <div class="btn-group">
-                    <a href="${p.link}" target="_blank" class="action-btn buy-now">شراء الآن</a>
-                    <button onclick='openComparisonModal(${JSON.stringify(p).replace(/'/g, "&apos;")})' class="action-btn compare-btn">
-                        <i class="fa-solid fa-code-compare"></i> قارن الأسعار
-                    </button>
-                </div>`;
-            frag.appendChild(div);
-        });
-        resCon.appendChild(frag);
-    } catch (e) {
-        status.innerHTML = "❌ خطأ في الاتصال بالسيرفر";
-        console.error(e);
-    }
-}
+    // 2. إصلاح رابط الشراء ليعمل فوراً
+    const cleanLink = p.link && p.link.trim() !== '' ? (p.link.startsWith('http') ? p.link : 'https://' + p.link) : '#';
 
+    div.innerHTML = `
+        <div class="badge">${v.emoji} ${v.title}</div>
+        
+        <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/150'">
+        
+        <h3>${p.name || '—'}</h3>
+        
+        <div class="price">
+            <span style="${isOverBudget ? 'color: #ef4444; font-weight: bold;' : 'color: #10b981;'}">${p.price || 'N/A'}</span>
+            ${isOverBudget ? `<br><span class="budget-alert">⚠️ يتجاوز ميزانيتك</span>` : ''}
+        </div>
+
+        <div class="analysis-engine">
+            <p>🤖 <b>التحليل:</b> ${v.summary}</p>
+            
+            <p>📅 <b>التوقيت:</b> ${t.recommendation} <small style="display:block; opacity:0.8;">${t.reason || ''}</small></p>
+            
+            <p>🛡️ <b>الثقة:</b> ${trust.riskLevel} 
+                <span style="display:block; font-size:0.8em; margin-top:4px;">
+                    ${trust.reasons ? trust.reasons.map(r => `✔ ${r}`).join(' ') : ''}
+                </span>
+            </p>
+            
+            ${market.label ? `<p>💰 <b>السوق:</b> ${market.label}</p>` : ''}
+            
+            ${risk.warnings && risk.warnings.length > 0 ? `<p style="color:#f59e0b;">⚠️ ${risk.warnings.join(' · ')}</p>` : ''}
+
+            <div style="margin-top:10px;">
+                <div class="score-bar"><div class="bar" style="width:${score}%"></div></div>
+                <small>كفاءة الصفقة: ${score}%</small>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <a href="${cleanLink}" target="_blank" rel="noopener noreferrer" class="action-btn buy-now">
+                شراء الآن
+            </a>
+            
+            <button onclick='openComparisonModal(${JSON.stringify(p).replace(/'/g, "&apos;")})' class="action-btn compare-btn" style="background: #fff; color: #333; border: 1px solid #ddd;">
+                <i class="fa-solid fa-chart-simple"></i> تحليل السعر
+            </button>
+
+            <button onclick="addToWatch('${p.name?.replace(/'/g, "\\'")}', '${p.price}', '${cleanLink}')" class="action-btn watch-btn" style="background: transparent; border: 1px solid var(--primary); color: var(--text);">
+                <i class="fa-solid fa-bell"></i> راقب
+            </button>
+        </div>
+    `;
+    frag.appendChild(div);
+});
 // دالة نافذة المقارنة (كاملة ومغلقة)
 function openComparisonModal(p) {
     let modal = document.getElementById('analysisModal');

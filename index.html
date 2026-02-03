@@ -576,42 +576,7 @@ async function runSearch() {
     frag.appendChild(div);
 });
 // دالة نافذة المقارنة (كاملة ومغلقة)
-function openComparisonModal(p) {
-    let modal = document.getElementById('analysisModal');
-    if (!modal) {
-        modal = document.createElement('div');
-        modal.id = 'analysisModal';
-        modal.className = 'analysis-modal';
-        document.body.appendChild(modal);
-    }
 
-    const comp = p.comparison || {};
-    const competitors = comp.competitors || [];
-    
-    modal.innerHTML = `
-        <div class="modal-content" style="direction: rtl; color: #333;">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h3>📊 تقرير المقارنة</h3>
-                <span onclick="document.getElementById('analysisModal').style.display='none'" style="cursor:pointer; font-size:25px;">&times;</span>
-            </div>
-            <hr>
-            <p><b>💰 متوسط السوق:</b> ${comp.market_average || '—'}$</p>
-            <p><b>🎁 التوفير:</b> <span style="color: green;">${comp.savings_percentage || 0}%</span></p>
-            <h4 style="margin-top:10px;">المتاجر المنافسة:</h4>
-            <div style="max-height: 150px; overflow-y: auto;">
-                ${competitors.map(c => `<div style="display:flex; justify-content:space-between; border-bottom:1px solid #eee; padding:5px 0;">
-                    <span>${c.store}</span><b>${c.price}</b>
-                </div>`).join('')}
-            </div>
-            <button onclick="document.getElementById('analysisModal').style.display='none'" style="width:100%; margin-top:15px; padding:10px; background:#6200ea; color:white; border:none; border-radius:8px;">إغلاق</button>
-        </div>`;
-    modal.style.display = 'block';
-}
-
-// استدعاء التحديث الأولي عند تحميل الصفحة
-window.onload = update;
-                    
-        
         // This function matches the server Alert schema
         async function addToWatch(name, price, link) {
             const userEmail = prompt(lang === 'ar' ? "أدخل إيميلك للتنبيه عند انخفاض السعر:" : "Enter email for price alerts:");

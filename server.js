@@ -144,13 +144,22 @@ async function ProductIntelligenceEngine(item, allItems, lang='en'){
   const hash = productHash(item);
 
   // 🔹 Save price to history
-  await PriceHistory.create({ productHash:hash, price, store:item.source });
+  try {
+    await PriceHistory.create({ productHash:hash, price, store:item.source });
+  } catch(e) {}
 
   // 🔹 Load last 90 days history
-  const history = await PriceHistory.find({productHash:hash}).sort({date:-1}).limit(90);
-  const histPrices = history.map(h=>h.price);
-  const histAvg = histPrices.reduce((a,b)=>a+b,0)/(histPrices.length||1);
-  const histMin = Math.min(...histPrices);
+  let histAvg = avg;
+  let histMin = min;
+  let history = [];
+  try {
+      history = await PriceHistory.find({productHash:hash}).sort({date:-1}).limit(90);
+      if(history.length){
+        const histPrices = history.map(h=>h.price);
+        histAvg = histPrices.reduce((a,b)=>a+b,0)/(histPrices.length||1);
+        histMin = Math.min(...histPrices);
+      }
+  } catch(e) {}
 
   // 🔹 Timing intelligence
   let timingDecision = t.buy;
@@ -181,6 +190,20 @@ async function ProductIntelligenceEngine(item, allItems, lang='en'){
     link:finalizeUrl(i.link)
   }));
 
+  // --- [FIX BEGIN] ---
+  // إضافة تحليل المخاطر الذي يطلبه الفرونت إند
+  const warnings = [];
+  if(trustScore < 50) warnings.push('Trust score low');
+  if(price < avg * 0.5) warnings.push('Price too low (Suspicious)');
+  
+  // تجهيز كائن المقارنة كما يطلبه الفرونت
+  const comparisonData = {
+      market_average: Math.round(avg),
+      savings_percentage: Math.round(((avg-price)/avg)*100),
+      competitors: competitors
+  };
+  // --- [FIX END] ---
+
   return {
     name:item.title,
     price:item.price,
@@ -194,11 +217,14 @@ async function ProductIntelligenceEngine(item, allItems, lang='en'){
       avgMarketPrice:Math.round(avg)
     },
     valueScore:{score:valueScore,label:valueScore>=85?'صفقة ممتازة':valueScore>=70?'قيمة رائعة':'قيمة عادلة'},
-    trustScore:{score:trustScore,riskLevel:trustScore>=80?'منخفض':trustScore>=60?'متوسط':'مخاطرة'},
-    timing:{recommendation:timingDecision},
+    trustScore:{score:trustScore,riskLevel:trustScore>=80?'منخفض':trustScore>=60?'متوسط':'مخاطرة', reasons:[]},
+    // هذا الحقل كان ناقصاً وتسبب في توقف البحث
+    riskAnalysis: { warnings: warnings }, 
+    timing:{recommendation:timingDecision, reason:explain[0]},
     explanation:explain,
     memory:{avg30d:Math.round(histAvg),min30d:Math.round(histMin),records:history.length},
-    comparison:competitors
+    // تم تعديل هذا ليكون كائن يحتوي على المنافسين
+    comparison: comparisonData 
   };
 }
 

@@ -454,34 +454,6 @@ width: 80%; max-width: 500px; border-radius: 15px; text-align: right;
     to { opacity: 1; transform: scale(1); }
 }
 
-.auth-footer-links {
-    margin-top: 25px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 12px;
-    font-size: 0.8rem;
-    opacity: 0.8;
-}
-
-.auth-footer-links a {
-    color: #a78bfa; /* لون بنفسجي فاتح يناسب Sage */
-    text-decoration: none;
-    transition: all 0.3s ease;
-}
-
-.auth-footer-links a:hover {
-    color: #ffffff;
-    text-shadow: 0 0 8px rgba(167, 139, 250, 0.8);
-}
-
-.auth-footer-links .dot {
-    width: 3px;
-    height: 3px;
-    background: rgba(148, 163, 184, 0.5);
-    border-radius: 50%;
-}
-        
 </style>
 
 </head>  
@@ -582,6 +554,14 @@ width: 80%; max-width: 500px; border-radius: 15px; text-align: right;
         <div class="cat-card" onclick="quickSearch('ساعات')"><i class="fa-solid fa-stopwatch"></i><span id="cat-c4"></span></div>  
     </div>  
 
+    <div class="auth-footer-links">
+    <a href="terms.html" target="_blank">شروط الاستخدام</a>
+    <span class="dot"></span>
+    <a href="privacy.html" target="_blank">سياسة الخصوصية</a>
+    <span class="dot"></span>
+    <a href="#about">من نحن</a>
+</div>
+</div>
     <div id="status" style="display:none; color:var(--primary); font-weight:bold; margin-top:30px; font-size: 1.1rem;"></div>  
     <div id="results"></div>  
 </main>  

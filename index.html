@@ -353,7 +353,28 @@ width: 80%; max-width: 500px; border-radius: 15px; text-align: right;
 </style>
 
 </head>  
-<body>  <header>  
+<body> <div id="auth-overlay" class="auth-overlay">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1 class="logo-text">Findly <span>Sage</span></h1>
+            <p id="auth-title">سجل دخولك لتبدأ البحث الذكي</p>
+        </div>
+        
+        <div id="auth-inputs">
+            <input type="email" id="auth-email" placeholder="البريد الإلكتروني" class="s-input">
+            <input type="password" id="auth-password" placeholder="كلمة المرور" class="s-input">
+            <button onclick="handleEmailAuth()" class="action-btn buy-now" style="width: 100%; margin-top: 10px;">دخول / إنشاء حساب</button>
+        </div>
+
+        <div class="divider"><span>أو</span></div>
+
+        <button onclick="loginWithGoogle()" class="google-btn">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+            متابعة باستخدام جوجل
+        </button>
+    </div>
+</div>
+    <header>  
     <div class="logo">Findly <i class="fa-solid fa-wand-magic-sparkles"></i></div>  
     <div class="header-tools">  
         <button class="tool-btn" onclick="toggleMode()"><i class="fa-solid fa-circle-half-stroke"></i></button>  

@@ -519,7 +519,10 @@ async function runSearch() {
             const trust = p.trustScore || { riskLevel: lang === 'ar' ? "غير معروف" : "Unknown", reasons: [] };
             const market = p.marketPosition || { label: "" };
             const score = Math.min(Number(p.valueScore?.score || 0), 100);
-            const risk = p.riskAnalysis || {};
+            
+            // Fix: Add Safe Navigation for riskAnalysis
+            const risk = p.riskAnalysis || { warnings: [] };
+            
             const comparison = p.comparison || {};
 
             // تأمين رابط الشراء
@@ -746,4 +749,4 @@ window.onload = update;
 </script>
 
 </body>  
-</html>  
+</html>

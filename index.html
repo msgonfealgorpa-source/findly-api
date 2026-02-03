@@ -453,6 +453,34 @@ width: 80%; max-width: 500px; border-radius: 15px; text-align: right;
     from { opacity: 0; transform: scale(0.9); }
     to { opacity: 1; transform: scale(1); }
 }
+
+.auth-footer-links {
+    margin-top: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+.auth-footer-links a {
+    color: #a78bfa; /* لون بنفسجي فاتح يناسب Sage */
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.auth-footer-links a:hover {
+    color: #ffffff;
+    text-shadow: 0 0 8px rgba(167, 139, 250, 0.8);
+}
+
+.auth-footer-links .dot {
+    width: 3px;
+    height: 3px;
+    background: rgba(148, 163, 184, 0.5);
+    border-radius: 50%;
+}
         
 </style>
 

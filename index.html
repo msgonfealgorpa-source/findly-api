@@ -484,8 +484,7 @@
         };
 
         
-
-                    async function runSearch() {
+async function runSearch() {
     let q = document.getElementById('s-input').value.trim();
     const status = document.getElementById('status');
     const resCon = document.getElementById('results');
@@ -507,51 +506,85 @@
         }
 
         const userBudget = parseFloat(localStorage.getItem('user_budget')) || 5; 
-        const topFive = data.results.slice(0, 5); // عرض أفضل 5 فقط
+        const topFive = data.results.slice(0, 5);
         const frag = document.createDocumentFragment();
 
         topFive.forEach((p) => {
-    const div = document.createElement('div');
-    const productPrice = parseFloat(String(p.price).replace(/[^0-9.]/g, '')) || 0;
-    const isOverBudget = productPrice > userBudget;
-    div.className = `product-card ${isOverBudget ? 'over-budget' : ''}`;
+            const div = document.createElement('div');
+            const productPrice = parseFloat(String(p.price).replace(/[^0-9.]/g, '')) || 0;
+            const isOverBudget = productPrice > userBudget;
+            div.className = `product-card ${isOverBudget ? 'over-budget' : ''}`;
 
-    // استخراج بيانات العقل من السيرفر (للحفاظ على ذكاء البطاقة)
-    const v = p.verdict || { emoji: "🤖", title: "تحليل", summary: "غير متوفر" };
-    const t = p.timing || { recommendation: "غير معروف", reason: "" };
-    const trust = p.trustScore || { riskLevel: "غير معروف", reasons: [] };
-    const market = p.marketPosition || { label: "" };
-    const score = Math.min(Number(p.valueScore?.score || 0), 100);
+            const v = p.verdict || { emoji: "🤖", title: "تحليل", summary: "غير متوفر" };
+            const t = p.timing || { recommendation: "غير معروف", reason: "" };
+            const trust = p.trustScore || { riskLevel: "غير معروف", reasons: [] };
+            const market = p.marketPosition || { label: "" };
+            const score = Math.min(Number(p.valueScore?.score || 0), 100);
 
-    div.innerHTML = `
-        <div class="badge">${v.emoji} ${v.title}</div>
-        <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/150'">
-        <h3>${p.name || '—'}</h3>
-        <div class="price">
-            <span style="${isOverBudget ? 'color: red; font-weight: bold;' : ''}">${p.price || 'N/A'}</span>
-            ${isOverBudget ? `<br><span class="budget-alert">⚠️ يتجاوز ميزانيتك</span>` : ''}
-        </div>
+            div.innerHTML = `
+                <div class="badge">${v.emoji} ${v.title}</div>
+                <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/150'">
+                <h3>${p.name || '—'}</h3>
+                <div class="price">
+                    <span style="${isOverBudget ? 'color: red; font-weight: bold;' : ''}">${p.price || 'N/A'}</span>
+                    ${isOverBudget ? `<br><span class="budget-alert">⚠️ يتجاوز ميزانيتك</span>` : ''}
+                </div>
+                <div class="analysis-engine">
+                    <p>🤖 <b>التحليل:</b> ${v.summary}</p>
+                    <p>📅 <b>التوقيت:</b> ${t.recommendation} <small>${t.reason}</small></p>
+                    <p>🛡️ <b>الثقة:</b> ${trust.riskLevel}</p>
+                    <div class="score-bar"><div class="bar" style="width:${score}%"></div></div>
+                </div>
+                <div class="btn-group">
+                    <a href="${p.link}" target="_blank" class="action-btn buy-now">شراء الآن</a>
+                    <button onclick='openComparisonModal(${JSON.stringify(p).replace(/'/g, "&apos;")})' class="action-btn compare-btn">
+                        <i class="fa-solid fa-code-compare"></i> قارن الأسعار
+                    </button>
+                </div>`;
+            frag.appendChild(div);
+        });
+        resCon.appendChild(frag);
+    } catch (e) {
+        status.innerHTML = "❌ خطأ في الاتصال بالسيرفر";
+        console.error(e);
+    }
+}
 
-        <div class="analysis-engine">
-            <p>🤖 <b>التحليل:</b> ${v.summary}</p>
-            <p>📅 <b>التوقيت:</b> ${t.recommendation} <small>${t.reason}</small></p>
-            <p>🛡️ <b>الثقة:</b> ${trust.riskLevel} ${trust.reasons.map(r => `✔ ${r}`).join(' ')}</p>
-            ${market.label ? `<p>💰 <b>السوق:</b> ${market.label}</p>` : ''}
-            <div class="score-bar"><div class="bar" style="width:${score}%"></div></div>
-            <small>كفاءة الصفقة: ${score}%</small>
-        </div>
+// دالة نافذة المقارنة (كاملة ومغلقة)
+function openComparisonModal(p) {
+    let modal = document.getElementById('analysisModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'analysisModal';
+        modal.className = 'analysis-modal';
+        document.body.appendChild(modal);
+    }
 
-        <div class="btn-group">
-            <a href="${p.link}" target="_blank" class="action-btn buy-now">شراء الآن</a>
-            
-            <button onclick='openComparisonModal(${JSON.stringify(p).replace(/'/g, "&apos;")})' class="action-btn compare-btn">
-                <i class="fa-solid fa-code-compare"></i> قارن الأسعار
-            </button>
-        </div>
-    `;
-    frag.appendChild(div);
-});
+    const comp = p.comparison || {};
+    const competitors = comp.competitors || [];
+    
+    modal.innerHTML = `
+        <div class="modal-content" style="direction: rtl; color: #333;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3>📊 تقرير المقارنة</h3>
+                <span onclick="document.getElementById('analysisModal').style.display='none'" style="cursor:pointer; font-size:25px;">&times;</span>
+            </div>
+            <hr>
+            <p><b>💰 متوسط السوق:</b> ${comp.market_average || '—'}$</p>
+            <p><b>🎁 التوفير:</b> <span style="color: green;">${comp.savings_percentage || 0}%</span></p>
+            <h4 style="margin-top:10px;">المتاجر المنافسة:</h4>
+            <div style="max-height: 150px; overflow-y: auto;">
+                ${competitors.map(c => `<div style="display:flex; justify-content:space-between; border-bottom:1px solid #eee; padding:5px 0;">
+                    <span>${c.store}</span><b>${c.price}</b>
+                </div>`).join('')}
+            </div>
+            <button onclick="document.getElementById('analysisModal').style.display='none'" style="width:100%; margin-top:15px; padding:10px; background:#6200ea; color:white; border:none; border-radius:8px;">إغلاق</button>
+        </div>`;
+    modal.style.display = 'block';
+}
 
+// استدعاء التحديث الأولي عند تحميل الصفحة
+window.onload = update;
                     
         
         // This function matches the server Alert schema

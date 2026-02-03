@@ -13,12 +13,20 @@ app.use(express.json());
 /* ================= ENV ================= */
 const { MONGO_URI, SERP_API_KEY, EMAIL_USER, EMAIL_PASS, PORT } = process.env;
 
-/* ================= HELPERS ================= */
+/* ================= HELPERS (تم إصلاح هذه الدالة جذرياً) ================= */
 function finalizeUrl(url) {
   if (!url) return '';
   let u = url.trim();
+  
+  // 1. إذا كان الرابط يبدأ بمسار جوجل النسبي
+  if (u.startsWith('/url') || u.startsWith('/shopping')) {
+    return 'https://www.google.com' + u;
+  }
+  
+  // 2. إصلاح البروتوكول
   if (u.startsWith('//')) return 'https:' + u;
   if (!u.startsWith('http')) return 'https://' + u;
+  
   return u;
 }
 
@@ -78,9 +86,11 @@ const I18N = {
 };
 
 /* ================= DB ================= */
-mongoose.connect(MONGO_URI)
-  .then(()=>console.log('✅ MongoDB Connected'))
-  .catch(err=>console.error('❌ DB Error:',err.message));
+if (MONGO_URI) {
+  mongoose.connect(MONGO_URI)
+    .then(()=>console.log('✅ MongoDB Connected'))
+    .catch(err=>console.error('❌ DB Error:',err.message));
+}
 
 /* ================= SCHEMAS ================= */
 const Alert = mongoose.models.Alert || mongoose.model('Alert',
@@ -123,12 +133,6 @@ const PriceHistory = mongoose.models.PriceHistory || mongoose.model('PriceHistor
   })
 );
 
-/* ================= EMAIL TRANSPORTER ================= */
-const transporter = nodemailer.createTransport({
-  service:'gmail',
-  auth:{user:EMAIL_USER, pass:EMAIL_PASS}
-});
-
 /* ================= CORE INTELLIGENCE ================= */
 async function ProductIntelligenceEngine(item, allItems, lang='en'){
   const t = I18N[lang] || I18N.en;
@@ -145,7 +149,9 @@ async function ProductIntelligenceEngine(item, allItems, lang='en'){
 
   // 🔹 Save price to history
   try {
-    await PriceHistory.create({ productHash:hash, price, store:item.source });
+     if (mongoose.connection.readyState === 1) {
+        await PriceHistory.create({ productHash:hash, price, store:item.source });
+     }
   } catch(e) {}
 
   // 🔹 Load last 90 days history
@@ -153,11 +159,13 @@ async function ProductIntelligenceEngine(item, allItems, lang='en'){
   let histMin = min;
   let history = [];
   try {
-      history = await PriceHistory.find({productHash:hash}).sort({date:-1}).limit(90);
-      if(history.length){
-        const histPrices = history.map(h=>h.price);
-        histAvg = histPrices.reduce((a,b)=>a+b,0)/(histPrices.length||1);
-        histMin = Math.min(...histPrices);
+      if (mongoose.connection.readyState === 1) {
+        history = await PriceHistory.find({productHash:hash}).sort({date:-1}).limit(90);
+        if(history.length){
+            const histPrices = history.map(h=>h.price);
+            histAvg = histPrices.reduce((a,b)=>a+b,0)/(histPrices.length||1);
+            histMin = Math.min(...histPrices);
+        }
       }
   } catch(e) {}
 
@@ -180,35 +188,30 @@ async function ProductIntelligenceEngine(item, allItems, lang='en'){
 
   // 🔹 Verdict Emoji & Label
   const verdict = valueScore>=85 && trustScore>=80 ?
-    {emoji:'💎',title:'صفقة لقطة',summary:t.buy} :
-    {emoji:'💡',title:'خيار ذكي',summary:t.wait};
+    {emoji:'💎',title: lang==='ar'?'صفقة لقطة':'Gem Deal',summary:t.buy} :
+    {emoji:'💡',title: lang==='ar'?'خيار ذكي':'Smart Choice',summary:t.wait};
 
   // 🔹 Competitor comparison
   const competitors = allItems.slice(0,3).map(i=>({
-    store:i.source || 'متجر آخر',
+    store:i.source || (lang==='ar'?'متجر آخر':'Other Store'),
     price:i.price,
     link:finalizeUrl(i.link)
   }));
 
-  // --- [FIX BEGIN] ---
-  // إضافة تحليل المخاطر الذي يطلبه الفرونت إند
+  // FIX: Risk Analysis
   const warnings = [];
   if(trustScore < 50) warnings.push('Trust score low');
-  if(price < avg * 0.5) warnings.push('Price too low (Suspicious)');
-  
-  // تجهيز كائن المقارنة كما يطلبه الفرونت
-  const comparisonData = {
-      market_average: Math.round(avg),
-      savings_percentage: Math.round(((avg-price)/avg)*100),
-      competitors: competitors
-  };
-  // --- [FIX END] ---
+  if(price < avg * 0.5) warnings.push('Suspiciously Low Price');
+
+  // FIX: Link Extraction Strategy (Find the best link)
+  // نبحث عن الرابط في عدة أماكن لأن جوجل يغير مكانه أحياناً
+  let finalLink = finalizeUrl(item.link || item.product_link || item.offer_link);
 
   return {
     name:item.title,
     price:item.price,
     thumbnail:item.thumbnail,
-    link:finalizeUrl(item.link),
+    link: finalLink, // Use the smart link
     source:item.source,
     verdict,
     marketPosition:{
@@ -216,15 +219,17 @@ async function ProductIntelligenceEngine(item, allItems, lang='en'){
       label: price<=avg ? 'Below avg' : 'Above avg',
       avgMarketPrice:Math.round(avg)
     },
-    valueScore:{score:valueScore,label:valueScore>=85?'صفقة ممتازة':valueScore>=70?'قيمة رائعة':'قيمة عادلة'},
-    trustScore:{score:trustScore,riskLevel:trustScore>=80?'منخفض':trustScore>=60?'متوسط':'مخاطرة', reasons:[]},
-    // هذا الحقل كان ناقصاً وتسبب في توقف البحث
-    riskAnalysis: { warnings: warnings }, 
+    valueScore:{score:valueScore,label:valueScore>=85?'Excellent':valueScore>=70?'Great':'Fair'},
+    trustScore:{score:trustScore,riskLevel:trustScore>=80?'Low':trustScore>=60?'Medium':'High', reasons:[]},
+    riskAnalysis: { warnings },
     timing:{recommendation:timingDecision, reason:explain[0]},
     explanation:explain,
     memory:{avg30d:Math.round(histAvg),min30d:Math.round(histMin),records:history.length},
-    // تم تعديل هذا ليكون كائن يحتوي على المنافسين
-    comparison: comparisonData 
+    comparison: {
+        market_average: Math.round(avg),
+        savings_percentage: Math.round(((avg-price)/avg)*100),
+        competitors: competitors
+    }
   };
 }
 
@@ -232,11 +237,16 @@ async function ProductIntelligenceEngine(item, allItems, lang='en'){
 app.get('/search', async(req,res)=>{
   const {q,uid,lang='en'} = req.query;
   if(!q) return res.status(400).json({error:'Query required'});
-  if(uid) SearchLog.create({uid,query:q}).catch(()=>{});
+  
+  if(mongoose.connection.readyState === 1 && uid) {
+      SearchLog.create({uid,query:q}).catch(()=>{});
+  }
 
   const langConfig = SUPPORTED_LANGS[lang] || SUPPORTED_LANGS.en;
 
   try{
+    if (!SERP_API_KEY) return res.status(500).json({error:'API KEY MISSING'});
+
     getJson({
       engine:'google_shopping',
       q,
@@ -253,34 +263,37 @@ app.get('/search', async(req,res)=>{
       }
       res.json({query:q,results});
     });
-  }catch(err){res.status(500).json({error:'Internal Server Error'});}
+  }catch(err){res.status(500).json({error:'Server Error'});}
 });
 
 /* ================= ALERTS ================= */
 app.post('/alerts', async(req,res)=>{
   try{
-    await new Alert(req.body).save();
-    res.json({success:true});
+    if (mongoose.connection.readyState === 1) {
+        await new Alert(req.body).save();
+        res.json({success:true});
+    } else { res.status(503).json({error:'DB Offline'}); }
   }catch(e){res.status(500).json({error:e.message});}
 });
 
 /* ================= WATCHLIST ================= */
 app.post('/watchlist', async(req,res)=>{
   try{
-    await new Watchlist(req.body).save();
-    res.json({success:true});
+    if (mongoose.connection.readyState === 1) {
+        await new Watchlist(req.body).save();
+        res.json({success:true});
+    } else { res.status(503).json({error:'DB Offline'}); }
   }catch(e){res.status(500).json({error:e.message});}
 });
 
 app.get('/watchlist/:uid', async(req,res)=>{
   try{
-    const list = await Watchlist.find({uid:req.params.uid}).sort({addedAt:-1});
-    res.json(list);
+    if (mongoose.connection.readyState === 1) {
+        const list = await Watchlist.find({uid:req.params.uid}).sort({addedAt:-1});
+        res.json(list);
+    } else { res.json([]); }
   }catch(e){res.status(500).json({error:e.message});}
 });
 
-/* ================= HOME ================= */
-app.get('/',(_,res)=>res.send('<h1>✅ Findly Brain is Online</h1>'));
-
 /* ================= SERVER ================= */
-app.listen(PORT||3000,()=>console.log('🚀 Findly Intelligence running'));
+app.listen(PORT||3000,()=>console.log('🚀 Server Online'));

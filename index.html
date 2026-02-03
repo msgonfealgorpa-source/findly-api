@@ -25,42 +25,60 @@
         --text-muted: #64748b;  
     }  
 
+
+
 .auth-overlay {
-    position: fixed; /* يضمن بقاءها فوق الشاشة حتى عند التمرير */
-    top: 0;
-    left: 0;
-    width: 100vw; /* عرض الشاشة بالكامل */
-    height: 100vh; /* طول الشاشة بالكامل */
-    background: #0a0b1e; /* نفس لون خلفية تطبيقك الداكنة لتبدو مدمجة */
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(135deg, #0a0b1e 0%, #1a1b3a 100%);
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 999999; /* رقم ضخم لضمان أنها فوق القائمة العلويّة والأزرار */
-    overflow: hidden; /* يمنع تحريك الصفحة خلفها */
+    justify-content: center; /* تمركز عمودي */
+    align-items: center;    /* تمركز أفقي */
+    z-index: 1000000;
+    padding: 20px;
 }
 
-/* تحسين زر جوجل ليصبح احترافياً كما في الأزرار الأخرى */
-.google-btn {
-    background: white;
-    color: #000;
+.auth-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 40px 30px;
+    border-radius: 24px;
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+}
+
+.auth-input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 12px 15px;
     border-radius: 12px;
-    padding: 10px 20px;
+    color: white;
+    margin-bottom: 15px;
+    outline: none;
+}
+
+/* زر الدخول البنفسجي الاحترافي */
+.btn-auth-main {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
     border: none;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    background: linear-gradient(90deg, #8b5cf6, #6d28d9);
+    color: white;
+    font-weight: bold;
     cursor: pointer;
-    width: 280px; /* تحديد عرض ثابت ليكون أرشق */
-    justify-content: center;
-    margin-top: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    transition: transform 0.2s;
 }
 
-.google-btn img {
-    width: 20px; /* تصغير حجم اللوجو ليكون متناسقاً */
-}
-
+.btn-auth-main:active { transform: scale(0.98); }
+        
+        
         
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }  
       

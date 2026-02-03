@@ -353,18 +353,13 @@ width: 80%; max-width: 500px; border-radius: 15px; text-align: right;
 
 
     .auth-overlay {
-    position: fixed; /* يضمن بقاءها فوق الشاشة حتى عند التمرير */
-    top: 0;
-    left: 0;
-    width: 100vw; /* عرض الشاشة بالكامل */
-    height: 100vh; /* طول الشاشة بالكامل */
-    background: #0a0b1e; /* نفس لون خلفية تطبيقك الداكنة لتبدو مدمجة */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 999999; /* رقم ضخم لضمان أنها فوق القائمة العلويّة والأزرار */
-    overflow: hidden; /* يمنع تحريك الصفحة خلفها */
+    display: none; /* تغييرها من flex إلى none لمنع الوميض عند التحميل */
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: #0a0b1e;
+    z-index: 1000000;
+    /* باقي التنسيقات كما هي */
 }
 
 /* تحسين زر جوجل ليصبح احترافياً كما في الأزرار الأخرى */
@@ -387,8 +382,7 @@ width: 80%; max-width: 500px; border-radius: 15px; text-align: right;
 .google-btn img {
     width: 20px; /* تصغير حجم اللوجو ليكون متناسقاً */
 }
-    
-    
+
     </style>
 
 </head>  

@@ -511,51 +511,46 @@
         const frag = document.createDocumentFragment();
 
         topFive.forEach((p) => {
-            const div = document.createElement('div');
-            const productPrice = parseFloat(String(p.price).replace(/[^0-9.]/g, '')) || 0;
-            const isOverBudget = productPrice > userBudget;
-            div.className = `product-card ${isOverBudget ? 'over-budget' : ''}`;
+    const div = document.createElement('div');
+    const productPrice = parseFloat(String(p.price).replace(/[^0-9.]/g, '')) || 0;
+    const isOverBudget = productPrice > userBudget;
+    div.className = `product-card ${isOverBudget ? 'over-budget' : ''}`;
 
-            // استرجاع كل بيانات السيرفر التي كانت موجودة
-            const v = p.verdict ?? { emoji: "🤖", title: "تحليل", summary: "غير متوفر" };
-            const t = p.timing ?? { recommendation: "غير معروف", reason: "" };
-            const score = Math.min(Number(p.valueScore?.score || 0), 100);
-            const trust = p.trustScore ?? { riskLevel: "غير معروف", reasons: [] };
-            const market = p.marketPosition ?? {};
-            const risk = p.riskAnalysis ?? {};
-            const cleanLink = p.link && p.link.trim() !== '' ? (p.link.startsWith('http') ? p.link : 'https://' + p.link) : '#';
+    // استخراج بيانات العقل من السيرفر (للحفاظ على ذكاء البطاقة)
+    const v = p.verdict || { emoji: "🤖", title: "تحليل", summary: "غير متوفر" };
+    const t = p.timing || { recommendation: "غير معروف", reason: "" };
+    const trust = p.trustScore || { riskLevel: "غير معروف", reasons: [] };
+    const market = p.marketPosition || { label: "" };
+    const score = Math.min(Number(p.valueScore?.score || 0), 100);
 
-            div.innerHTML = `
-                <div class="badge">${v.emoji} ${v.title}</div>
-                <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/150'">
-                <h3>${p.name || '—'}</h3>
-                <div class="price">
-                    <span style="${isOverBudget ? 'color: red; font-weight: bold;' : ''}">${p.price || 'N/A'}</span>
-                    ${isOverBudget ? `<br><span class="budget-alert">⚠️ يتجاوز ميزانيتك</span>` : ''}
-                </div>
-                <div class="analysis-engine">
-                    <p><b>🤖 التحليل:</b> ${v.summary}</p>
-                    <p><b>📅 التوقيت:</b> ${t.recommendation}</p>
-                    <small>${t.reason || ''}</small>
-                    <p><b>🛡️ الثقة:</b> ${trust.riskLevel}</p>
-                    ${trust.reasons?.map(r => `<small>✔ ${r}</small>`).join("")}
-                    ${market.label ? `<p><b>💰 السوق:</b> ${market.label}</p>` : ''}
-                    ${risk.warnings?.length ? `<p class="warn">⚠ ${risk.warnings.join(' • ')}</p>` : ''}
-                    <div class="score-bar"><div class="bar" style="width:${score}%"></div></div>
-                </div>
-                <div class="btn-group">
-                    <a href="${cleanLink}" target="_blank" class="action-btn buy-now">شراء الآن</a>
-                    <button onclick="openComparisonModal('${p.name}', '${p.price}', '${score}')" class="action-btn compare-btn">
-                         <i class="fa-solid fa-chart-simple"></i> تحليل السعر
-                    </button>
-                    <button onclick="addToWatch('${p.name?.replace(/'/g, "\\'")}', '${p.price}', '${cleanLink}')" class="action-btn watch-later">${dict[lang].watch}</button>
-                </div>
-            `;
-            frag.appendChild(div);
-        });
-        resCon.appendChild(frag); 
-    } catch (err) { status.innerHTML = `❌ خطأ: ${err.message}`; }
-}
+    div.innerHTML = `
+        <div class="badge">${v.emoji} ${v.title}</div>
+        <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/150'">
+        <h3>${p.name || '—'}</h3>
+        <div class="price">
+            <span style="${isOverBudget ? 'color: red; font-weight: bold;' : ''}">${p.price || 'N/A'}</span>
+            ${isOverBudget ? `<br><span class="budget-alert">⚠️ يتجاوز ميزانيتك</span>` : ''}
+        </div>
+
+        <div class="analysis-engine">
+            <p>🤖 <b>التحليل:</b> ${v.summary}</p>
+            <p>📅 <b>التوقيت:</b> ${t.recommendation} <small>${t.reason}</small></p>
+            <p>🛡️ <b>الثقة:</b> ${trust.riskLevel} ${trust.reasons.map(r => `✔ ${r}`).join(' ')}</p>
+            ${market.label ? `<p>💰 <b>السوق:</b> ${market.label}</p>` : ''}
+            <div class="score-bar"><div class="bar" style="width:${score}%"></div></div>
+            <small>كفاءة الصفقة: ${score}%</small>
+        </div>
+
+        <div class="btn-group">
+            <a href="${p.link}" target="_blank" class="action-btn buy-now">شراء الآن</a>
+            
+            <button onclick='openComparisonModal(${JSON.stringify(p).replace(/'/g, "&apos;")})' class="action-btn compare-btn">
+                <i class="fa-solid fa-code-compare"></i> قارن الأسعار
+            </button>
+        </div>
+    `;
+    frag.appendChild(div);
+});
 
                     
         

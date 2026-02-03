@@ -455,13 +455,52 @@ width: 80%; max-width: 500px; border-radius: 15px; text-align: right;
     to { opacity: 1; transform: scale(1); }
 }
 
+
+        .auth-footer-links {
+    margin-top: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.8rem;
+}
+
+.auth-footer-links a {
+    color: #94a3b8;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.auth-footer-links a:hover {
+    color: #a78bfa; /* اللون البنفسجي عند التمرير */
+}
+
+.auth-footer-links .dot {
+    width: 4px;
+    height: 4px;
+    background: #475569;
+    border-radius: 50%;
+}
         
-    
+    <div class="auth-footer-links">
+    <a href="#about" onclick="showAbout()">من نحن</a>
+    <span class="dot"></span>
+    <a href="#terms" onclick="showTerms()">شروط الاستخدام</a>
+    <span class="dot"></span>
+    <a href="#privacy" onclick="showPrivacy()">الخصوصية</a>
+</div>
 
     </style>
 
 </head>  
 <body> 
+   <div id="info-modal" class="info-modal">
+    <div class="info-content">
+        <button class="close-modal" onclick="closeInfoModal()">&times;</button>
+        <div id="info-text"></div>
+    </div>
+</div>
+    
     <div id="auth-overlay" class="auth-overlay">
     <div class="auth-card">
         <div class="auth-header">
@@ -765,7 +804,31 @@ function openComparisonModal(comp) {
     modal.style.display = 'block';
 }
 
-// 2. دالة إضافة التنبيهات (المراقبة)
+.info-modal {
+    display: none;
+    position: fixed;
+    z-index: 2147483648; /* أعلى من الـ overlay */
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.8);
+    justify-content: center; align-items: center;
+}
+.info-content {
+    background: #1e293b;
+    padding: 30px;
+    border-radius: 20px;
+    max-width: 500px;
+    width: 90%;
+    color: white;
+    position: relative;
+    border: 1px solid #8b5cf6;
+}
+.close-modal {
+    position: absolute;
+    top: 10px; right: 15px;
+    background: none; border: none; color: white; font-size: 24px; cursor: pointer;
+}
+    
+    // 2. دالة إضافة التنبيهات (المراقبة)
 async function addToWatch(name, price, link) {
 const userEmail = prompt(lang === 'ar' ? "أدخل إيميلك للتنبيه عند انخفاض السعر:" : "Enter email for price alerts:");
 if (!userEmail || !userEmail.includes("@")) return;
@@ -969,6 +1032,28 @@ window.onload = update;
             });
         }
     };
+
+window.showAbout = () => {
+    openInfoModal("<h2>من نحن</h2><p>Findly Sage هو مستشارك الذكي المعتمد على الذكاء الاصطناعي لمساعدتك في اتخاذ قرارات شراء واعية وتحليل المنتجات بدقة.</p>");
+};
+
+window.showTerms = () => {
+    openInfoModal("<h2>شروط الاستخدام</h2><p>باستخدامك لهذا الموقع، أنت توافق على معالجة البيانات لأغراض تحسين تجربة البحث فقط...</p>");
+};
+
+window.showPrivacy = () => {
+    openInfoModal("<h2>سياسة الخصوصية</h2><p>نحن نحترم خصوصيتك. يتم تشفير بياناتك وربطها بحسابك في Firebase لضمان أمان معلوماتك.</p>");
+};
+
+function openInfoModal(html) {
+    document.getElementById('info-text').innerHTML = html;
+    document.getElementById('info-modal').style.display = 'flex';
+}
+
+window.closeInfoModal = () => {
+    document.getElementById('info-modal').style.display = 'none';
+};
+
 </script>
 
     

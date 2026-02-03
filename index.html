@@ -458,9 +458,8 @@ width: 80%; max-width: 500px; border-radius: 15px; text-align: right;
 </script>  
 
 <script>  
-    // Server URL - Must match your Render URL  
-    // هام: هذا الرابط يجب أن يكون رابط السيرفر الذي قمت برفعه  
-    const API = "https://findly-api.onrender.com";  
+    // Server URL - مهم: استخدم localhost أثناء التجربة، وغيره إلى Render عند الرفع
+    const API = "https://findly-api.onrender.com";
       
     // State Management  
     let lang = localStorage.getItem('findly_lang') || 'ar';  
@@ -492,17 +491,24 @@ async function runSearch() {
 
     try {
         const uid = localStorage.getItem('findly_uid') || 'guest';
+        // Use encodeURIComponent to handle special characters safely
         const apiUrl = `${API}/search?q=${encodeURIComponent(q)}&uid=${uid}&lang=${lang}`;
+        
+        console.log("Connecting to:", apiUrl); // Debug info
+
         const response = await fetch(apiUrl);
+        if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+        
         const data = await response.json();
         status.style.display = "none";
 
         if (!data.results || !data.results.length) {
+            status.style.display = "block";
             status.innerHTML = lang === 'ar' ? "❌ لا توجد نتائج" : "❌ No results";
             return;
         }
 
-        const userBudget = parseFloat(localStorage.getItem('user_budget')) || 5;
+        const userBudget = parseFloat(localStorage.getItem('user_budget')) || 999999;
         const topResults = data.results.slice(0, 5);
         const frag = document.createDocumentFragment();
 
@@ -513,27 +519,30 @@ async function runSearch() {
 
             div.className = `product-card ${isOverBudget ? 'over-budget' : ''}`;
 
-            // استخراج العقل بالكامل
+            // استخراج البيانات وتأمين القيم الافتراضية
             const verdict = p.verdict || { emoji: "🤖", title: lang === 'ar' ? "تحليل" : "Analysis", summary: lang === 'ar' ? "غير متوفر" : "Unavailable" };
             const timing = p.timing || { recommendation: lang === 'ar' ? "غير معروف" : "Unknown", reason: "" };
             const trust = p.trustScore || { riskLevel: lang === 'ar' ? "غير معروف" : "Unknown", reasons: [] };
             const market = p.marketPosition || { label: "" };
             const score = Math.min(Number(p.valueScore?.score || 0), 100);
             
-            // Fix: Add Safe Navigation for riskAnalysis
+            // Fix: Backend now returns riskAnalysis.warnings
             const risk = p.riskAnalysis || { warnings: [] };
-            
-            const comparison = p.comparison || {};
+            const comparison = p.comparison || { competitors: [] };
 
-            // تأمين رابط الشراء
-            let cleanLink = p.link && p.link.trim() !== '' ? p.link.trim() : '#';
-            if (!/^https?:\/\//i.test(cleanLink)) cleanLink = 'https://' + cleanLink;
+            // FIX: Trust the Server Link (الحل الجذري للرابط)
+            // نستخدم الرابط كما هو من السيرفر، السيرفر قام بتنظيفه بالفعل
+            let cleanLink = p.link || '#';
 
-            // حفظ بيانات المقارنة في dataset بشكل آمن
-            const comparisonData = JSON.stringify(comparison).replace(/'/g, "&apos;");
+            // حفظ بيانات المقارنة في dataset بشكل آمن جداً
+            const comparisonData = JSON.stringify(comparison)
+                .replace(/'/g, "&apos;")
+                .replace(/"/g, "&quot;");
 
             div.innerHTML = `
-                <div class="badge">${verdict.emoji} ${verdict.title}</div>
+                <div class="badge" style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 15px; font-size: 0.8rem;">
+                    ${verdict.emoji} ${verdict.title}
+                </div>
                 <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/150'">
                 <h3>${p.name || '—'}</h3>
                 <div class="price">
@@ -545,13 +554,15 @@ async function runSearch() {
                     <p>📅 <b>التوقيت:</b> ${timing.recommendation} <small style="display:block; opacity:0.8;">${timing.reason || ''}</small></p>
                     <p>🛡️ <b>الثقة:</b> ${trust.riskLevel} 
                         <span style="display:block; font-size:0.8em; margin-top:4px;">
-                            ${trust.reasons.length ? trust.reasons.map(r => `✔ ${r}`).join(' ') : ''}
+                            ${trust.reasons ? trust.reasons.map(r => `✔ ${r}`).join(' ') : ''}
                         </span>
                     </p>
                     ${market.label ? `<p>💰 <b>السوق:</b> ${market.label}</p>` : ''}
                     ${risk.warnings && risk.warnings.length > 0 ? `<p style="color:#f59e0b;">⚠️ ${risk.warnings.join(' · ')}</p>` : ''}
                     <div style="margin-top:10px;">
-                        <div class="score-bar"><div class="bar" style="width:${score}%"></div></div>
+                        <div class="score-bar" style="background:rgba(255,255,255,0.1); height:5px; border-radius:5px; overflow:hidden;">
+                            <div class="bar" style="width:${score}%; background:var(--primary); height:100%;"></div>
+                        </div>
                         <small>كفاءة الصفقة: ${score}%</small>
                     </div>
                 </div>
@@ -560,11 +571,11 @@ async function runSearch() {
                     <a href="${cleanLink}" target="_blank" rel="noopener noreferrer" class="action-btn buy-now">
                         ${dict[lang].buy}
                     </a>
-                    <button class="action-btn compare-btn" style="background: #fff; color: #333; border: 1px solid #ddd;"
+                    <button class="action-btn compare-btn" style="background: var(--bg-card); color: var(--text); border: 1px solid var(--glass-border);"
                         onclick='openComparisonModal(${comparisonData})'>
                         <i class="fa-solid fa-chart-simple"></i> ${lang === 'ar' ? "تحليل السعر" : "Price Analysis"}
                     </button>
-                    <button onclick="addToWatch('${p.name?.replace(/'/g, "\\'")}', '${p.price}', '${cleanLink}')" 
+                    <button onclick="addToWatch('${(p.name || '').replace(/'/g, "\\'")}', '${p.price}', '${cleanLink}')" 
                         class="action-btn watch-btn" style="background: transparent; border: 1px solid var(--primary); color: var(--text);">
                         <i class="fa-solid fa-bell"></i> ${dict[lang].watch}
                     </button>
@@ -576,7 +587,8 @@ async function runSearch() {
 
         resCon.appendChild(frag);
     } catch (e) {
-        status.innerHTML = lang === 'ar' ? "❌ خطأ في الاتصال بالسيرفر" : "❌ Server connection error";
+        status.style.display = "block";
+        status.innerHTML = lang === 'ar' ? "❌ خطأ في الاتصال بالسيرفر (تأكد من تشغيل السيرفر)" : "❌ Server connection error (Is server running?)";
         console.error(e);
     }
 }
@@ -591,6 +603,7 @@ function openComparisonModal(comp) {
         document.body.appendChild(modal);
     }
 
+    // تأكد من أن comp.competitors موجودة
     const competitors = comp.competitors || [];
 
     modal.innerHTML = `
@@ -600,7 +613,7 @@ function openComparisonModal(comp) {
                 <span onclick="document.getElementById('analysisModal').style.display='none'" style="cursor:pointer; font-size:25px;">&times;</span>
             </div>
             <hr>
-            <p><b>💰 ${lang === 'ar' ? "متوسط السوق" : "Market Avg"}:</b> ${comp.market_average || '—'}$</p>
+            <p><b>💰 ${lang === 'ar' ? "متوسط السوق" : "Market Avg"}:</b> ${comp.market_average || '—'}</p>
             <p><b>🎁 ${lang === 'ar' ? "نسبة التوفير" : "Savings %"}:</b> <span style="color: green;">${comp.savings_percentage || 0}%</span></p>
             <h4 style="margin-top:10px;">${lang === 'ar' ? "المتاجر الأخرى" : "Other Stores"}:</h4>
             <div style="max-height: 150px; overflow-y: auto; background:#f0f0f0; padding:10px; border-radius:8px;">
@@ -624,7 +637,7 @@ const userEmail = prompt(lang === 'ar' ? "أدخل إيميلك للتنبيه �
 if (!userEmail || !userEmail.includes("@")) return;
 
 let uid = localStorage.getItem('findly_uid') || 'guest';  
-let targetPrice = parseFloat(price.replace(/[^\d.]/g, '')) * 0.9;  
+let targetPrice = parseFloat(String(price).replace(/[^\d.]/g, '')) * 0.9;  
 
 try {  
     const response = await fetch(`${API}/alerts`, {  

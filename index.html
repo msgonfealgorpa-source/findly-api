@@ -351,6 +351,7 @@ width: 80%; max-width: 500px; border-radius: 15px; text-align: right;
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }  
 
 
+
     .auth-overlay {
     position: fixed; /* يضمن بقاءها فوق الشاشة حتى عند التمرير */
     top: 0;
@@ -386,39 +387,12 @@ width: 80%; max-width: 500px; border-radius: 15px; text-align: right;
 .google-btn img {
     width: 20px; /* تصغير حجم اللوجو ليكون متناسقاً */
 }
-
-
-        .auth-card {
-    background: #1a1b3a; /* لون بطاقة داكن متناسق مع تطبيقك */
-    padding: 40px 30px;
-    border-radius: 20px;
-    width: 90%;
-    max-width: 400px;
-    text-align: center;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.auth-header h1 {
-    color: white;
-    margin-bottom: 5px;
-}
-
-.auth-header span {
-    color: #8b5cf6; /* اللون البنفسجي لـ Sage */
-}
-
-.divider {
-    margin: 20px 0;
-    color: #555;
-    position: relative;
-}
+    
     
     </style>
 
 </head>  
 <body> 
-    
     <div id="auth-overlay" class="auth-overlay">
     <div class="auth-card">
         <div class="auth-header">
@@ -440,6 +414,7 @@ width: 80%; max-width: 500px; border-radius: 15px; text-align: right;
         </button>
     </div>
 </div>
+    
     <header>  
     <div class="logo">Findly <i class="fa-solid fa-wand-magic-sparkles"></i></div>  
     <div class="header-tools">  
@@ -460,10 +435,10 @@ width: 80%; max-width: 500px; border-radius: 15px; text-align: right;
             <span id="watch-count" style="position:absolute; top:-5px; right:-5px; background:#ef4444; color:white; font-size:0.6rem; padding:2px 6px; border-radius:50%; display:none; border: 2px solid var(--bg-dark);">0</span>  
         </button>  
         <button class="tool-btn" onclick="openProfile()"><i class="fa-solid fa-user-gear"></i></button>  
-    <button onclick="logoutUser()" class="nav-btn" title="تسجيل الخروج">
+    <button class="tool-btn" onclick="logoutUser()" title="تسجيل الخروج">
     <i class="fa-solid fa-right-from-bracket"></i>
-</button>
-</div>  
+    </button>
+    </div>  
 </header>  
 
 <main class="search-area">  
@@ -850,11 +825,12 @@ recognition.start();
 // تشغيل التحديث عند تحميل الصفحة
 window.onload = update;
 </script>
+
 <script type="module">
-    // استيراد المكتبات باستخدام النسخة 9.6.1 التي تفضلها
+    // استيراد المكتبات بنسخة موحدة 9.6.1 التي تعمل معك
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-analytics.js";
-    import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
     const firebaseConfig = {  
         apiKey: "AIzaSyCI_q5lkgRY4133ua4RlG5TeiCqJ5N5KTU",  
@@ -866,61 +842,65 @@ window.onload = update;
         measurementId: "G-X1Q3WDP50N"  
     };  
 
-    // تهيئة Firebase مرة واحدة فقط
+    // تهيئة Firebase
     const app = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
-    console.log("🔥 Findly Firebase Active (v9.6.1)");
+    // مراقب الحالة (يتحكم في إظهار وإخفاء شاشة الدخول)
+    onAuthStateChanged(auth, (user) => {
+        const overlay = document.getElementById('auth-overlay');
+        if (user) {
+            overlay.style.display = 'none';
+            localStorage.setItem('findly_uid', user.uid);
 
-    // مراقب حالة الدخول: يخفي الشاشة فور نجاح الدخول
-    import { getAuth, signOut, onAuthStateChanged, ... } from "..."; // تأكد من إضافة signOut هنا
-
-// ... إعدادات Firebase ...
-
-onAuthStateChanged(auth, (user) => {
-    const overlay = document.getElementById('auth-overlay');
-    
-    if (user) {
-        overlay.style.display = 'none';
-        localStorage.setItem('findly_uid', user.uid);
-
-        // إظهار رسالة ترحيبية إذا كانت أول مرة يدخل في هذه الجلسة
-        if (!sessionStorage.getItem('welcome_shown')) {
-            alert(`مرحباً بك في Findly Sage، ${user.displayName || 'أيها الباحث الحكيم'}! ✨`);
-            sessionStorage.setItem('welcome_shown', 'true');
+            // رسالة الترحيب تظهر مرة واحدة في الجلسة
+            if (!sessionStorage.getItem('welcome_shown')) {
+                const name = user.displayName || 'أيها الباحث الحكيم';
+                alert(lang === 'ar' ? `مرحباً بك في Findly Sage، ${name}! ✨` : `Welcome to Findly Sage, ${name}! ✨`);
+                sessionStorage.setItem('welcome_shown', 'true');
+            }
+        } else {
+            overlay.style.display = 'flex'; // تظهر فقط إذا لم يسجل دخول
         }
-    } else {
-        overlay.style.display = 'flex'; // أظهرها فقط إذا لم يكن هناك مستخدم
-    }
-});
+    });
 
-// دالة تسجيل الخروج
-window.logoutUser = () => {
-    if(confirm("هل تريد تسجيل الخروج؟")) {
-        signOut(auth).then(() => {
-            sessionStorage.removeItem('welcome_shown');
-            location.reload();
-        });
-    }
-};
+    // ربط الدوال بالأزرار (ضروري جداً لتعمل onclick في HTML)
+    window.loginWithGoogle = async () => {
+        try {
+            await signInWithPopup(auth, provider);
+        } catch (error) {
+            alert("Error: " + error.message);
+        }
+    };
 
-    // تصدير الدوال للنافذة العالمية لتعمل الأزرار
-    window.loginWithGoogle = () => signInWithPopup(auth, provider).catch(err => alert(err.message));
-    
     window.handleEmailAuth = async () => {
         const email = document.getElementById('auth-email').value;
         const password = document.getElementById('auth-password').value;
-        if(!email || !password) return alert("أدخل البيانات");
-        
+        if (!email || !password) return alert("أدخل البيانات");
+
         try {
             await signInWithEmailAndPassword(auth, email, password);
-        } catch (e) {
-            // إنشاء حساب إذا كان جديداً
-            createUserWithEmailAndPassword(auth, email, password).catch(err => alert(err.message));
+        } catch (error) {
+            if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+                createUserWithEmailAndPassword(auth, email, password).catch(e => alert(e.message));
+            } else {
+                alert(error.message);
+            }
+        }
+    };
+
+    window.logoutUser = () => {
+        if (confirm(lang === 'ar' ? "هل تريد تسجيل الخروج؟" : "Logout?")) {
+            signOut(auth).then(() => {
+                sessionStorage.removeItem('welcome_shown');
+                location.reload();
+            });
         }
     };
 </script>
+
+    
 </body>  
 </html>

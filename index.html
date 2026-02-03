@@ -25,6 +25,43 @@
         --text-muted: #64748b;  
     }  
 
+.auth-overlay {
+    position: fixed; /* يضمن بقاءها فوق الشاشة حتى عند التمرير */
+    top: 0;
+    left: 0;
+    width: 100vw; /* عرض الشاشة بالكامل */
+    height: 100vh; /* طول الشاشة بالكامل */
+    background: #0a0b1e; /* نفس لون خلفية تطبيقك الداكنة لتبدو مدمجة */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 999999; /* رقم ضخم لضمان أنها فوق القائمة العلويّة والأزرار */
+    overflow: hidden; /* يمنع تحريك الصفحة خلفها */
+}
+
+/* تحسين زر جوجل ليصبح احترافياً كما في الأزرار الأخرى */
+.google-btn {
+    background: white;
+    color: #000;
+    border-radius: 12px;
+    padding: 10px 20px;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    width: 280px; /* تحديد عرض ثابت ليكون أرشق */
+    justify-content: center;
+    margin-top: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.google-btn img {
+    width: 20px; /* تصغير حجم اللوجو ليكون متناسقاً */
+}
+
+        
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }  
       
     body {  

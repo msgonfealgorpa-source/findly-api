@@ -699,7 +699,51 @@ function update() {
     document.getElementById('main-html').dir = (lang === 'ar') ? 'rtl' : 'ltr';
 }
 
-// تشغيل التحديث عند تحميل الصفحة
+// دالة البحث الصوتي - تعيد تفعيل الميكروفون
+function startVoice() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    
+    if (!SpeechRecognition) {
+        alert(lang === 'ar' ? "متصفحك لا يدعم البحث الصوتي" : "Speech recognition not supported in this browser");
+        return;
+    }
+
+    const recognition = new SpeechRecognition();
+    const micBtn = document.getElementById('mic-btn');
+    const input = document.getElementById('s-input');
+
+    recognition.lang = lang === 'ar' ? 'ar-SA' : 'en-US';
+    recognition.interimResults = false;
+
+    recognition.onstart = () => {
+        micBtn.classList.add('mic-active');
+        // تغيير شكل الأيقونة أثناء التسجيل
+        micBtn.className = "fa-solid fa-microphone-lines mic-icon mic-active";
+    };
+
+    recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        input.value = transcript;
+        micBtn.classList.remove('mic-active');
+        micBtn.className = "fa-solid fa-microphone-lines mic-icon";
+        
+        // تشغيل البحث تلقائياً بعد التعرف على الصوت
+        runSearch();
+    };
+
+    recognition.onerror = () => {
+        micBtn.classList.remove('mic-active');
+        micBtn.className = "fa-solid fa-microphone-lines mic-icon";
+    };
+
+    recognition.onend = () => {
+        micBtn.classList.remove('mic-active');
+        micBtn.className = "fa-solid fa-microphone-lines mic-icon";
+    };
+
+    recognition.start();
+}
+        // تشغيل التحديث عند تحميل الصفحة
 window.onload = update;
 </script>
 </body>

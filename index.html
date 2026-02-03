@@ -663,35 +663,55 @@
             document.getElementById('main-html').dir = (lang === 'ar') ? 'rtl' : 'ltr';
         }
 
-       
-function openComparisonModal(name, price, score) {
-    // إنشاء عنصر Modal إذا لم يكن موجوداً
-    let modal = document.getElementById('analysisModal');
-    if (!modal) {
-        modal = document.createElement('div');
-        modal.id = 'analysisModal';
-        modal.className = 'analysis-modal';
-        document.body.appendChild(modal);
-    }
+       function openComparisonModal(p) {
+    const modal = document.getElementById('analysisModal');
+    if (!modal) return;
 
+    // استخراج بيانات المقارنة التي أضفناها في السيرفر
+    const comp = p.comparison || {};
+    const competitors = comp.competitors || [];
+    
     modal.innerHTML = `
-        <div class="modal-content">
-            <h2>📊 تحليل المنتج الذكي</h2>
-            <hr>
-            <p><b>المنتج:</b> ${name}</p>
-            <p><b>السعر الحالي:</b> ${price}</p>
-            <p><b>كفاءة الصفقة:</b> ${score}%</p>
-            <div style="background: #f0f0f0; padding: 10px; border-radius: 10px; margin-top: 10px;">
-                <p>💡 هذا المنتج يتم تحليله بناءً على معطيات السوق الحالية وتوافر البدائل.</p>
+        <div class="modal-content" style="direction: rtl; text-align: right; background: #fff; color: #333; padding: 20px; border-radius: 12px; max-width: 500px; margin: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #6200ea; padding-bottom: 10px;">
+                <h2 style="margin: 0; font-size: 1.2em; color: #6200ea;">📊 تقرير المقارنة الذكي</h2>
+                <span onclick="document.getElementById('analysisModal').style.display='none'" style="cursor: pointer; font-size: 24px; font-weight: bold;">&times;</span>
             </div>
+
+            <div style="margin-top: 20px;">
+                <p><b>🔍 المنتج:</b> ${p.name}</p>
+                <p><b>💰 السعر الحالي:</b> <span style="color: #27ae60; font-weight: bold;">${p.price}</span></p>
+                
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0; border-right: 4px solid #6200ea;">
+                    <p style="margin: 5px 0;"><b>📈 متوسط السوق:</b> ${comp.market_average || '—'}$</p>
+                    <p style="margin: 5px 0;"><b>🎁 نسبة التوفير:</b> ${comp.savings_percentage || 0}%</p>
+                    <p style="margin: 5px 0;"><b>💡 النصيحة:</b> ${p.timing?.recommendation || 'متوفر حالياً'}</p>
+                </div>
+
+                <h4 style="margin-bottom: 10px; color: #555;"><i class="fa-solid fa-shop"></i> الأسعار في المتاجر الأخرى:</h4>
+                <div style="max-height: 150px; overflow-y: auto;">
+                    ${competitors.length > 0 ? competitors.map(c => `
+                        <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;">
+                            <span>${c.store}</span>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <b style="color: #e67e22;">${c.price}</b>
+                                <a href="${c.link}" target="_blank" style="text-decoration: none; font-size: 0.8em; background: #6200ea; color: #fff; padding: 2px 8px; border-radius: 4px;">انتقل</a>
+                            </div>
+                        </div>
+                    `).join('') : '<p style="color: #999; font-size: 0.9em;">لم يتم العثور على أسعار منافسة بدقة حالياً.</p>'}
+                </div>
+            </div>
+
             <button onclick="document.getElementById('analysisModal').style.display='none'" 
-                    style="margin-top: 20px; width: 100%; padding: 10px; background: #333; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                إغلاق التحليل
+                    style="width: 100%; margin-top: 20px; padding: 12px; background: #6200ea; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">
+                إغلاق التقرير
             </button>
         </div>
     `;
+    
     modal.style.display = 'block';
 }
+
 
         
         // Init

@@ -836,45 +836,72 @@ recognition.start();
 // تشغيل التحديث عند تحميل الصفحة
 window.onload = update;
 
-import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+<script type="module">
+    // 1. استيراد المكتبات اللازمة
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-const auth = getAuth();
-const provider = new GoogleAuthProvider();
+    // 2. إعداداتك التي أرسلتها (تأكد من دقتها)
+    const firebaseConfig = {
+        apiKey: "AIzaSyCI_q5lkgRY4133ua4RlG5TeiCqJ5N5KTU",
+        authDomain: "findly-ede17.firebaseapp.com",
+        projectId: "findly-ede17",
+        storageBucket: "findly-ede17.firebasestorage.app",
+        messagingSenderId: "503212830017",
+        appId: "1:503212830017:web:9afb64c19822bbe7f645c0",
+        measurementId: "G-X1Q3WDP50N"
+    };
 
-// 1. تفعيل الدخول بجوجل
-window.loginWithGoogle = async () => {
-    try {
-        const btn = document.querySelector('.google-btn');
-        btn.style.opacity = '0.5'; // تأثير بصري أثناء التحميل
-        await signInWithPopup(auth, provider);
-    } catch (error) {
-        alert("خطأ في جوجل: " + error.message);
-    }
-};
+    // 3. تهيئة Firebase و Auth
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
 
-// 2. تفعيل الدخول بالإيميل (إنشاء حساب أو دخول)
-window.handleEmailAuth = async () => {
-    const email = document.getElementById('auth-email').value;
-    const password = document.getElementById('auth-password').value;
-
-    if (!email || !password) {
-        alert("يرجى ملء البيانات");
-        return;
-    }
-
-    try {
-        // نحاول تسجيل الدخول أولاً
-        await signInWithEmailAndPassword(auth, email, password);
-    } catch (error) {
-        // إذا لم يوجد حساب، نقوم بإنشائه تلقائياً
-        if (error.code === 'auth/user-not-found') {
-            await createUserWithEmailAndPassword(auth, email, password);
+    // 4. مراقب حالة المستخدم (الحارس)
+    onAuthStateChanged(auth, (user) => {
+        const overlay = document.getElementById('auth-overlay');
+        if (user) {
+            overlay.style.display = 'none'; // إخفاء واجهة الدخول
+            localStorage.setItem('findly_uid', user.uid); // حفظ المعرف للبحث
         } else {
-            alert("خطأ: " + error.message);
+            overlay.style.display = 'flex'; // إظهار واجهة الدخول
         }
-    }
-};
-    
+    });
+
+    // 5. جعل الدوال متاحة للأزرار في HTML
+    window.loginWithGoogle = async () => {
+        try {
+            await signInWithPopup(auth, provider);
+        } catch (error) {
+            alert("خطأ في دخول جوجل: " + error.message);
+        }
+    };
+
+    window.handleEmailAuth = async () => {
+        const email = document.getElementById('auth-email').value;
+        const password = document.getElementById('auth-password').value;
+
+        if (!email || !password) {
+            alert("من فضلك أدخل البريد وكلمة المرور");
+            return;
+        }
+
+        try {
+            // محاولة تسجيل الدخول
+            await signInWithEmailAndPassword(auth, email, password);
+        } catch (error) {
+            // إذا كان المستخدم غير موجود، نقوم بإنشاء حساب جديد
+            if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found') {
+                try {
+                    await createUserWithEmailAndPassword(auth, email, password);
+                } catch (regError) {
+                    alert("خطأ في إنشاء الحساب: " + regError.message);
+                }
+            } else {
+                alert("خطأ: " + error.message);
+            }
+        }
+    };
 </script>
 
 </body>  

@@ -481,139 +481,138 @@ width: 80%; max-width: 500px; border-radius: 15px; text-align: right;
     };
 
 async function runSearch() {
-let q = document.getElementById('s-input').value.trim();
-const status = document.getElementById('status');
-const resCon = document.getElementById('results');
-if (!q) return;
+    const q = document.getElementById('s-input').value.trim();
+    const status = document.getElementById('status');
+    const resCon = document.getElementById('results');
+    if (!q) return;
 
-status.style.display = "block";  
-status.innerHTML = `<i class="fa-solid fa-microchip fa-spin"></i> ${lang === 'ar' ? 'جاري التحليل الشامل...' : 'Full Analysis...'}`;  
-resCon.innerHTML = "";   
+    status.style.display = "block";
+    status.innerHTML = `<i class="fa-solid fa-microchip fa-spin"></i> ${lang === 'ar' ? 'جاري التحليل الشامل...' : 'Full Analysis...'}`;
+    resCon.innerHTML = "";
 
-try {  
-    const apiUrl = `${API}/search?q=${encodeURIComponent(q)}&uid=${localStorage.getItem('findly_uid') || 'guest'}&lang=${lang}`;  
-    const response = await fetch(apiUrl);  
-    const data = await response.json();  
-    status.style.display = "none";  
+    try {
+        const uid = localStorage.getItem('findly_uid') || 'guest';
+        const apiUrl = `${API}/search?q=${encodeURIComponent(q)}&uid=${uid}&lang=${lang}`;
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+        status.style.display = "none";
 
-    if (!data.results || !data.results.length) {  
-        status.innerHTML = "❌ لا توجد نتائج";  
-        return;  
-    }  
+        if (!data.results || !data.results.length) {
+            status.innerHTML = lang === 'ar' ? "❌ لا توجد نتائج" : "❌ No results";
+            return;
+        }
 
-    const userBudget = parseFloat(localStorage.getItem('user_budget')) || 5;   
-    const topFive = data.results.slice(0, 5);  
-    const frag = document.createDocumentFragment();  
+        const userBudget = parseFloat(localStorage.getItem('user_budget')) || 5;
+        const topResults = data.results.slice(0, 5);
+        const frag = document.createDocumentFragment();
 
-    topFive.forEach((p) => {  
-const div = document.createElement('div');  
-const productPrice = parseFloat(String(p.price).replace(/[^0-9.]/g, '')) || 0;  
-const isOverBudget = productPrice > userBudget;  
-div.className = `product-card ${isOverBudget ? 'over-budget' : ''}`;  
+        topResults.forEach((p, idx) => {
+            const div = document.createElement('div');
+            const productPrice = parseFloat(String(p.price).replace(/[^0-9.]/g, '')) || 0;
+            const isOverBudget = productPrice > userBudget;
 
-// 1. استخراج كامل بيانات "العقل" من السيرفر بدون استثناء  
-const v = p.verdict || { emoji: "🤖", title: "تحليل", summary: "غير متوفر" };  
-const t = p.timing || { recommendation: "غير معروف", reason: "" };  
-const trust = p.trustScore || { riskLevel: "غير معروف", reasons: [] };  
-const market = p.marketPosition || { label: "" };  
-const score = Math.min(Number(p.valueScore?.score || 0), 100);  
-const risk = p.riskAnalysis || {}; // تحليل المخاطر الإضافي  
+            div.className = `product-card ${isOverBudget ? 'over-budget' : ''}`;
 
-// 2. إصلاح رابط الشراء ليعمل فوراً  
-const cleanLink = p.link && p.link.trim() !== '' ? (p.link.startsWith('http') ? p.link : 'https://' + p.link) : '#';  
+            // استخراج العقل بالكامل
+            const verdict = p.verdict || { emoji: "🤖", title: lang === 'ar' ? "تحليل" : "Analysis", summary: lang === 'ar' ? "غير متوفر" : "Unavailable" };
+            const timing = p.timing || { recommendation: lang === 'ar' ? "غير معروف" : "Unknown", reason: "" };
+            const trust = p.trustScore || { riskLevel: lang === 'ar' ? "غير معروف" : "Unknown", reasons: [] };
+            const market = p.marketPosition || { label: "" };
+            const score = Math.min(Number(p.valueScore?.score || 0), 100);
+            const risk = p.riskAnalysis || {};
+            const comparison = p.comparison || {};
 
-div.innerHTML = `  
-    <div class="badge">${v.emoji} ${v.title}</div>  
-      
-    <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/150'">  
-      
-    <h3>${p.name || '—'}</h3>  
-      
-    <div class="price">  
-        <span style="${isOverBudget ? 'color: #ef4444; font-weight: bold;' : 'color: #10b981;'}">${p.price || 'N/A'}</span>  
-        ${isOverBudget ? `<br><span class="budget-alert">⚠️ يتجاوز ميزانيتك</span>` : ''}  
-    </div>  
+            // تأمين رابط الشراء
+            let cleanLink = p.link && p.link.trim() !== '' ? p.link.trim() : '#';
+            if (!/^https?:\/\//i.test(cleanLink)) cleanLink = 'https://' + cleanLink;
 
-    <div class="analysis-engine">  
-        <p>🤖 <b>التحليل:</b> ${v.summary}</p>  
-          
-        <p>📅 <b>التوقيت:</b> ${t.recommendation} <small style="display:block; opacity:0.8;">${t.reason || ''}</small></p>  
-          
-        <p>🛡️ <b>الثقة:</b> ${trust.riskLevel}   
-            <span style="display:block; font-size:0.8em; margin-top:4px;">  
-                ${trust.reasons ? trust.reasons.map(r => `✔ ${r}`).join(' ') : ''}  
-            </span>  
-        </p>  
-          
-        ${market.label ? `<p>💰 <b>السوق:</b> ${market.label}</p>` : ''}  
-          
-        ${risk.warnings && risk.warnings.length > 0 ? `<p style="color:#f59e0b;">⚠️ ${risk.warnings.join(' · ')}</p>` : ''}  
+            // حفظ بيانات المقارنة في dataset بشكل آمن
+            const comparisonData = JSON.stringify(comparison).replace(/'/g, "&apos;");
 
-        <div style="margin-top:10px;">  
-            <div class="score-bar"><div class="bar" style="width:${score}%"></div></div>  
-            <small>كفاءة الصفقة: ${score}%</small>  
-        </div>  
-    </div>  
+            div.innerHTML = `
+                <div class="badge">${verdict.emoji} ${verdict.title}</div>
+                <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/150'">
+                <h3>${p.name || '—'}</h3>
+                <div class="price">
+                    <span style="${isOverBudget ? 'color: #ef4444; font-weight: bold;' : 'color: #10b981;'}">${p.price || 'N/A'}</span>
+                    ${isOverBudget ? `<br><span class="budget-alert">${dict[lang].over}</span>` : ''}
+                </div>
+                <div class="analysis-engine">
+                    <p>🤖 <b>${dict[lang].why}:</b> ${verdict.summary}</p>
+                    <p>📅 <b>التوقيت:</b> ${timing.recommendation} <small style="display:block; opacity:0.8;">${timing.reason || ''}</small></p>
+                    <p>🛡️ <b>الثقة:</b> ${trust.riskLevel} 
+                        <span style="display:block; font-size:0.8em; margin-top:4px;">
+                            ${trust.reasons.length ? trust.reasons.map(r => `✔ ${r}`).join(' ') : ''}
+                        </span>
+                    </p>
+                    ${market.label ? `<p>💰 <b>السوق:</b> ${market.label}</p>` : ''}
+                    ${risk.warnings && risk.warnings.length > 0 ? `<p style="color:#f59e0b;">⚠️ ${risk.warnings.join(' · ')}</p>` : ''}
+                    <div style="margin-top:10px;">
+                        <div class="score-bar"><div class="bar" style="width:${score}%"></div></div>
+                        <small>كفاءة الصفقة: ${score}%</small>
+                    </div>
+                </div>
 
-    <div class="btn-group">  
-        <a href="${cleanLink}" target="_blank" rel="noopener noreferrer" class="action-btn buy-now">  
-            شراء الآن  
-        </a>  
-          
-        <button onclick='openComparisonModal(${JSON.stringify(p).replace(/'/g, "&apos;")})' class="action-btn compare-btn" style="background: #fff; color: #333; border: 1px solid #ddd;">  
-            <i class="fa-solid fa-chart-simple"></i> تحليل السعر  
-        </button>  
+                <div class="btn-group">
+                    <a href="${cleanLink}" target="_blank" rel="noopener noreferrer" class="action-btn buy-now">
+                        ${dict[lang].buy}
+                    </a>
+                    <button class="action-btn compare-btn" style="background: #fff; color: #333; border: 1px solid #ddd;"
+                        onclick='openComparisonModal(${comparisonData})'>
+                        <i class="fa-solid fa-chart-simple"></i> ${lang === 'ar' ? "تحليل السعر" : "Price Analysis"}
+                    </button>
+                    <button onclick="addToWatch('${p.name?.replace(/'/g, "\\'")}', '${p.price}', '${cleanLink}')" 
+                        class="action-btn watch-btn" style="background: transparent; border: 1px solid var(--primary); color: var(--text);">
+                        <i class="fa-solid fa-bell"></i> ${dict[lang].watch}
+                    </button>
+                </div>
+            `;
 
-        <button onclick="addToWatch('${p.name?.replace(/'/g, "\\'")}', '${p.price}', '${cleanLink}')" class="action-btn watch-btn" style="background: transparent; border: 1px solid var(--primary); color: var(--text);">  
-            <i class="fa-solid fa-bell"></i> راقب  
-        </button>  
-    </div>  
-`;  
-frag.appendChild(div);
+            frag.appendChild(div);
+        });
 
-});
-// دالة نافذة المقارنة (كاملة ومغلقة)
-
-resCon.appendChild(frag);
-} catch (e) {
-status.innerHTML = "❌ خطأ في الاتصال بالسيرفر";
-console.error(e);
-}
+        resCon.appendChild(frag);
+    } catch (e) {
+        status.innerHTML = lang === 'ar' ? "❌ خطأ في الاتصال بالسيرفر" : "❌ Server connection error";
+        console.error(e);
+    }
 }
 
-// 1. دالة نافذة المقارنة (التي كانت مفقودة وتسبب توقف الواجهة)
-function openComparisonModal(p) {
-let modal = document.getElementById('analysisModal');
-if (!modal) {
-modal = document.createElement('div');
-modal.id = 'analysisModal';
-modal.className = 'analysis-modal';
-document.body.appendChild(modal);
-}
+// نافذة المقارنة مع بيانات المنافسين
+function openComparisonModal(comp) {
+    let modal = document.getElementById('analysisModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'analysisModal';
+        modal.className = 'analysis-modal';
+        document.body.appendChild(modal);
+    }
 
-const comp = p.comparison || {};  
-const competitors = comp.competitors || [];  
-  
-modal.innerHTML = `  
-    <div class="modal-content" style="direction: rtl; color: #333; background: white; padding: 20px; border-radius: 15px;">  
-        <div style="display:flex; justify-content:space-between; align-items:center;">  
-            <h3 style="color:#8b5cf6">📊 تقرير تحليل السعر</h3>  
-            <span onclick="document.getElementById('analysisModal').style.display='none'" style="cursor:pointer; font-size:25px;">&times;</span>  
-        </div>  
-        <hr>  
-        <p><b>💰 متوسط السوق:</b> ${comp.market_average || '—'}$</p>  
-        <p><b>🎁 نسبة التوفير:</b> <span style="color: green;">${comp.savings_percentage || 0}%</span></p>  
-        <h4 style="margin-top:10px;">المتاجر الأخرى:</h4>  
-        <div style="max-height: 150px; overflow-y: auto; background:#f0f0f0; padding:10px; border-radius:8px;">  
-            ${competitors.length > 0 ? competitors.map(c => `  
-                <div style="display:flex; justify-content:space-between; border-bottom:1px solid #ddd; padding:5px 0;">  
-                    <span>${c.store}</span><b>${c.price}</b>  
-                </div>`).join('') : 'لا توجد بيانات مقارنة إضافية'}  
-        </div>  
-        <button onclick="document.getElementById('analysisModal').style.display='none'" style="width:100%; margin-top:15px; padding:12px; background:#8b5cf6; color:white; border:none; border-radius:10px; cursor:pointer; font-weight:bold;">إغلاق التقرير</button>  
-    </div>`;  
-modal.style.display = 'block';
+    const competitors = comp.competitors || [];
 
+    modal.innerHTML = `
+        <div class="modal-content" style="direction: rtl; color: #333; background: white; padding: 20px; border-radius: 15px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3 style="color:#8b5cf6">📊 ${lang === 'ar' ? "تقرير تحليل السعر" : "Price Analysis Report"}</h3>
+                <span onclick="document.getElementById('analysisModal').style.display='none'" style="cursor:pointer; font-size:25px;">&times;</span>
+            </div>
+            <hr>
+            <p><b>💰 ${lang === 'ar' ? "متوسط السوق" : "Market Avg"}:</b> ${comp.market_average || '—'}$</p>
+            <p><b>🎁 ${lang === 'ar' ? "نسبة التوفير" : "Savings %"}:</b> <span style="color: green;">${comp.savings_percentage || 0}%</span></p>
+            <h4 style="margin-top:10px;">${lang === 'ar' ? "المتاجر الأخرى" : "Other Stores"}:</h4>
+            <div style="max-height: 150px; overflow-y: auto; background:#f0f0f0; padding:10px; border-radius:8px;">
+                ${competitors.length ? competitors.map(c => `
+                    <div style="display:flex; justify-content:space-between; border-bottom:1px solid #ddd; padding:5px 0;">
+                        <span>${c.store}</span><b>${c.price}</b>
+                    </div>`).join('') : (lang === 'ar' ? 'لا توجد بيانات مقارنة إضافية' : 'No competitor data')}
+            </div>
+            <button onclick="document.getElementById('analysisModal').style.display='none'" 
+                style="width:100%; margin-top:15px; padding:12px; background:#8b5cf6; color:white; border:none; border-radius:10px; cursor:pointer; font-weight:bold;">
+                ${lang === 'ar' ? "إغلاق التقرير" : "Close Report"}
+            </button>
+        </div>
+    `;
+    modal.style.display = 'block';
 }
 
 // 2. دالة إضافة التنبيهات (المراقبة)

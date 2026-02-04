@@ -92,6 +92,7 @@ async function ProductIntelligenceEngine(item, allItems, lang){
 }
 
 /* ================= SEARCH ENDPOINT (تم تطويعه لبيانات أمازون وتوافق الواجهة) ================= */
+/* ================= SEARCH ENDPOINT ================= */
 app.get('/search', async(req,res)=>{
   const { q, lang='ar' } = req.query;
   if(!q) return res.json({results:[]});
@@ -112,7 +113,6 @@ app.get('/search', async(req,res)=>{
 
     const results = [];
     for(const item of amazonItems){
-      // هنا "التطويع": نحول أسماء أمازون لتتوافق مع ما يتوقعه ملف index.html و "العقل"
       const standardizedItem = {
         title: item.product_title,
         price: item.product_price,
@@ -120,8 +120,15 @@ app.get('/search', async(req,res)=>{
         thumbnail: item.product_photo,
         source: "Amazon"
       };
-      // استدعاء العقل بنفس منطقه الأصلي
-      results.push(await ProductIntelligenceEngine(standardizedItem, amazonItems, lang));
+
+      // تمرير البيانات للعقل ليقوم بالتحليل
+      const analyzed = await ProductIntelligenceEngine(standardizedItem, amazonItems, lang);
+      
+      // إرسال المنتج "مدمجاً" معه نتائج العقل للواجهة
+      results.push({
+        ...standardizedItem,
+        intelligence: analyzed.intelligence // هذا السطر هو الذي يحرر الذكاء للواجهة
+      });
     }
     res.json({query:q, results});
 

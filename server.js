@@ -5,8 +5,8 @@ const mongoose = require('mongoose');
 const app = express();
 
 /* ================= BASIC SETUP ================= */
-// أعدتها كما كانت في ملفك الأصلي تماماً
-app.use(cors({ origin: '*', methods: ['GET','POST'], allowedHeaders: ['Content-Type','Authorization'] }));
+// السماح لجميع الطلبات بشكل أكثر مرونة
+app.use(cors()); 
 app.use(express.json());
 
 /* ================= ENV ================= */
@@ -141,16 +141,19 @@ async function ProductIntelligenceEngine(item, allItems, lang='en'){
   };
 }
 
-/* ================= ROOT ROUTE (الإضافة الوحيدة الضرورية) ================= */
-// هذا السطر ضروري جداً لكي لا تظهر رسالة Cannot GET /
+/* ================= ROOT ROUTE (مهم جداً) ================= */
+// هذا الكود يحل مشكلة "Cannot GET /" ويعطيك إشارة أن السيرفر يعمل
 app.get('/', (req, res) => {
-    res.status(200).send('✅ Server is running properly.');
+    res.status(200).send('✅ Findly Server is Active & Running!');
 });
 
 /* ================= SEARCH (EXA + HYBRID FALLBACK) ================= */
 app.get('/search', async(req,res)=>{
   const { q, uid, lang='en' } = req.query;
   if (!q) return res.status(400).json({error:'Query required'});
+
+  // Log search request for debugging
+  console.log(`🔍 Searching for: ${q}`);
 
   if (mongoose.connection.readyState === 1 && uid) {
     SearchLog.create({uid,query:q}).catch(()=>{});
@@ -161,34 +164,39 @@ app.get('/search', async(req,res)=>{
 
     /* ---------- PRIMARY: EXA ---------- */
     if (exa) {
-      // وضعنا هذا في try/catch لضمان عدم توقف السيرفر إذا فشلت Exa
       try {
-          const result = await exa.searchAndContents(q,{
+        const result = await exa.searchAndContents(q,{
             type:"magic",
             useAutoprompt:true,
             numResults:5,
             text:true
-          });
-
-          if (result && result.results) {
-              rawItems = result.results.map(item => ({
+        });
+        
+        if(result && result.results) {
+            rawItems = result.results.map(item => ({
                 title:item.title,
                 link:item.url,
                 source:item.url ? new URL(item.url).hostname.replace('www.','') : 'unknown',
                 price:extractPriceFromText(item.text),
                 thumbnail:'',
-              }));
-          }
-      } catch(err) { console.log("Exa Error, trying fallback"); }
+            }));
+        }
+      } catch (exaError) {
+          console.error("Exa Error:", exaError.message);
+      }
     }
 
-    /* ---------- FALLBACK: DUCKDUCKGO ---------- */
+    /* ---------- FALLBACK: DUCKDUCKGO (محسّن) ---------- */
+    // إذا فشل Exa أو لم يجد نتائج، نستخدم DuckDuckGo
     if (!rawItems.length) {
+      console.log("⚠️ Switching to Fallback (DDG)...");
       const ddgUrl = `https://api.duckduckgo.com/?q=${encodeURIComponent(q)}&format=json&no_html=1`;
       
-      // التعديل الضروري: إضافة User-Agent لكي يقبل DuckDuckGo الطلب
+      // إضافة Headers ضرورية لتجاوز الحظر
       const r = await fetch(ddgUrl, {
-          headers: { 'User-Agent': 'Mozilla/5.0' }
+          headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+          }
       });
       
       const d = await r.json();
@@ -213,7 +221,7 @@ app.get('/search', async(req,res)=>{
 
     res.json({query:q,results});
   } catch (e) {
-    console.error(e);
+    console.error("❌ SERVER ERROR:", e);
     res.status(500).json({error:'Server Error',details:e.message});
   }
 });
@@ -248,6 +256,6 @@ app.get('/watchlist/:uid', async(req,res)=>{
 });
 
 /* ================= SERVER ================= */
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+app.listen(PORT || 3000, () => {
+  console.log(`🚀 Server running on port ${PORT || 3000}`);
 });

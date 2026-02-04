@@ -252,9 +252,9 @@ app.get('/search', async(req,res)=>{
     const result = await exa.searchAndContents(
       q,
       {
-        type: "neural",
+        type: "magic",
         useAutoprompt: true,
-        numResults: 10,
+        numResults: 5,
         text: true // لجلب المحتوى لمحاولة استخراج السعر
       }
     );

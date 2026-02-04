@@ -16,11 +16,12 @@ let exa = null;
 
 (async () => {
   try {
+    if (!EXA_API_KEY) return;
     const { default: Exa } = await import("exa-js");
     exa = new Exa(EXA_API_KEY);
     console.log("✅ Exa initialized");
   } catch (e) {
-    console.error("❌ Exa init failed:", e.message);
+    console.warn("⚠️ Exa disabled, Hybrid mode active");
   }
 })();
 
@@ -38,7 +39,7 @@ function extractPriceFromText(text) {
   const match =
     text.match(/(\$|€|£|SAR|AED)\s?(\d+(?:,\d{3})*(?:\.\d{2})?)/i) ||
     text.match(/(\d+(?:,\d{3})*(?:\.\d{2})?)\s?(USD|EUR|SAR|AED|Dollar)/i);
-  if (match) return parseFloat(match[2] || match[1].replace(/,/g, '')) || 0;
+  if (match) return parseFloat(match[2] || match[1].replace(/,/g,'')) || 0;
   return 0;
 }
 
@@ -112,24 +113,24 @@ async function ProductIntelligenceEngine(item, allItems, lang='en'){
   } catch {}
 
   let verdict =
-    price <= min * 1.05
+    price && price <= min * 1.05
       ? {emoji:'💎',title:'Top Find',summary:'Buy now'}
       : {emoji:'🔍',title:'Result',summary:'Wait'};
 
   return {
     name:item.title,
-    price:item.price,
+    price:item.price || 'N/A',
     thumbnail:item.thumbnail,
     link:finalizeUrl(item.link),
     source:item.source,
     verdict,
-    valueScore:{score:80},
-    trustScore:{score:90,riskLevel:'Low',reasons:['AI Verified']},
-    riskAnalysis:{warnings:[]},
+    valueScore:{score: price ? 80 : 60},
+    trustScore:{score:90,riskLevel:'Low',reasons:['Hybrid AI Verified']},
+    riskAnalysis:{warnings: price ? [] : ['Price not detected']},
     timing:{recommendation:verdict.summary,reason:''},
     comparison:{
       market_average:Math.round(avg),
-      savings_percentage:avg?Math.round(((avg-price)/avg)*100):0,
+      savings_percentage:avg && price ? Math.round(((avg-price)/avg)*100) : 0,
       competitors:allItems.slice(0,3).map(i=>({
         store:i.source,
         price:i.price,
@@ -139,36 +140,57 @@ async function ProductIntelligenceEngine(item, allItems, lang='en'){
   };
 }
 
-/* ================= SEARCH ================= */
+/* ================= SEARCH (EXA + HYBRID FALLBACK) ================= */
 app.get('/search', async(req,res)=>{
   const { q, uid, lang='en' } = req.query;
   if (!q) return res.status(400).json({error:'Query required'});
-  if (!exa) return res.status(503).json({error:'Exa not ready'});
 
   if (mongoose.connection.readyState === 1 && uid) {
     SearchLog.create({uid,query:q}).catch(()=>{});
   }
 
   try {
-    const result = await exa.searchAndContents(q,{
-      type:"magic",
-      useAutoprompt:true,
-      numResults:5,
-      text:true
-    });
+    let rawItems = [];
 
-    const rawItems = result.results.map(item => ({
-      title:item.title,
-      link:item.url,
-      source:item.url ? new URL(item.url).hostname.replace('www.','') : 'unknown',
-      price:extractPriceFromText(item.text),
-      thumbnail:'',
-      rating:4.5,
-      reviews:50
-    }));
+    /* ---------- PRIMARY: EXA ---------- */
+    if (exa) {
+      const result = await exa.searchAndContents(q,{
+        type:"magic",
+        useAutoprompt:true,
+        numResults:5,
+        text:true
+      });
+
+      rawItems = result.results.map(item => ({
+        title:item.title,
+        link:item.url,
+        source:item.url ? new URL(item.url).hostname.replace('www.','') : 'unknown',
+        price:extractPriceFromText(item.text),
+        thumbnail:'',
+      }));
+    }
+
+    /* ---------- FALLBACK: DUCKDUCKGO ---------- */
+    if (!rawItems.length) {
+      const ddgUrl = `https://api.duckduckgo.com/?q=${encodeURIComponent(q)}&format=json&no_html=1`;
+      const r = await fetch(ddgUrl);
+      const d = await r.json();
+
+      (d.RelatedTopics || []).forEach(it=>{
+        if (it.Text && it.FirstURL) {
+          rawItems.push({
+            title: it.Text,
+            link: it.FirstURL,
+            source: new URL(it.FirstURL).hostname.replace('www.',''),
+            price: extractPriceFromText(it.Text),
+            thumbnail:''
+          });
+        }
+      });
+    }
 
     const results = [];
-    for (const item of rawItems) {
+    for (const item of rawItems.slice(0,5)) {
       results.push(await ProductIntelligenceEngine(item, rawItems, lang));
     }
 

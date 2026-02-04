@@ -1,5 +1,3 @@
-كود السيرفر الصحيحه 1
-
 const express = require('express');
 const cors = require('cors');
 const { getJson } = require('serpapi');

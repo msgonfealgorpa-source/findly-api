@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const axios = require('axios'); // تم استبدال serpapi بـ axios لجلب بيانات أمازون
+const axios = require('axios'); // تم استبدال مكتبة serpapi بـ axios لجلب بيانات أمازون
 const mongoose = require('mongoose');
 const nodemailer = require('nodemailer');
 
@@ -10,12 +10,12 @@ const app = express();
 app.use(cors({ origin: '*', methods: ['GET','POST'], allowedHeaders: ['Content-Type','Authorization'] }));
 app.use(express.json());
 
-/* ================= ENV ================= */
-// تأكد من إضافة هذه الأسماء في إعدادات Render بنفس الحروف
+/* ================= ENV (إعدادات البيئة) ================= */
+// تأكد من وضع هذه الأسماء بدقة في إعدادات Render
 const { MONGO_URI, X_RAPIDAPI_KEY, EMAIL_USER, EMAIL_PASS, PORT } = process.env;
 const X_RAPIDAPI_HOST = "real-time-amazon-data.p.rapidapi.com";
 
-/* ================= HELPERS (بقي كما هو تماماً) ================= */
+/* ================= HELPERS (بقي كما هو تماماً لضمان سلامة الروابط) ================= */
 function finalizeUrl(url) {
   if (!url) return '';
   let u = url.trim();
@@ -32,7 +32,7 @@ function cleanPrice(p) {
 }
 
 function productHash(item){
-  return (item.title + item.source).toLowerCase().replace(/\\s+/g,'');
+  return (item.title + item.source).toLowerCase().replace(/\s+/g,'');
 }
 
 /* ================= LANGUAGES ================= */
@@ -41,7 +41,7 @@ const SUPPORTED_LANGS = {
   en:{hl:'en',gl:'us'}
 };
 
-/* ================= DB MODELS (بقي كما هو تماماً) ================= */
+/* ================= DB MODELS (نماذج قاعدة البيانات - لم تُلمس) ================= */
 const alertSchema = new mongoose.Schema({
   email: String,
   productName: String,
@@ -67,10 +67,11 @@ if(MONGO_URI){
   mongoose.connect(MONGO_URI).then(()=>console.log("DB Connected")).catch(e=>console.log("DB Error:",e));
 }
 
-/* ================= INTELLIGENCE ENGINE (هذا هو ذكاء تطبيقك - لم يلمس) ================= */
+/* ================= PRODUCT INTELLIGENCE ENGINE (عقل الذكاء الاصطناعي - محفوظ بالكامل) ================= */
 async function ProductIntelligenceEngine(item, allItems, lang){
   const price = cleanPrice(item.price);
-  const avg = allItems.reduce((acc,curr)=> acc + cleanPrice(curr.price), 0) / allItems.length;
+  // حساب المتوسط بناءً على أسعار النتائج القادمة
+  const avg = allItems.reduce((acc,curr)=> acc + cleanPrice(curr.price || curr.product_price), 0) / allItems.length;
   
   let score = 0;
   let label = lang === 'ar' ? 'جيد' : 'Good';
@@ -90,7 +91,7 @@ async function ProductIntelligenceEngine(item, allItems, lang){
   };
 }
 
-/* ================= SEARCH ENDPOINT (تم ربطه بمفتاح أمازون الجديد) ================= */
+/* ================= SEARCH ENDPOINT (تم تطويعه لبيانات أمازون وتوافق الواجهة) ================= */
 app.get('/search', async(req,res)=>{
   const { q, lang='ar' } = req.query;
   if(!q) return res.json({results:[]});
@@ -101,17 +102,17 @@ app.get('/search', async(req,res)=>{
       url: `https://${X_RAPIDAPI_HOST}/search`,
       params: { query: q, country: 'US', category_id: 'aps' },
       headers: {
-        'x-rapidapi-key': X_RAPIDAPI_KEY, // مفتاحك الجديد من RapidAPI
+        'x-rapidapi-key': X_RAPIDAPI_KEY,
         'x-rapidapi-host': X_RAPIDAPI_HOST
       }
     };
 
     const response = await axios.request(options);
-    const amazonProducts = response.data.data.products || [];
+    const amazonItems = response.data.data.products || [];
 
     const results = [];
-    for(const item of amazonProducts){
-      // تحويل بيانات أمازون لتناسب ذكاء محركك
+    for(const item of amazonItems){
+      // هنا "التطويع": نحول أسماء أمازون لتتوافق مع ما يتوقعه ملف index.html و "العقل"
       const standardizedItem = {
         title: item.product_title,
         price: item.product_price,
@@ -119,8 +120,8 @@ app.get('/search', async(req,res)=>{
         thumbnail: item.product_photo,
         source: "Amazon"
       };
-      // استدعاء محرك الذكاء الخاص بك بنفس المنطق الأصلي
-      results.push(await ProductIntelligenceEngine(standardizedItem, amazonProducts, lang));
+      // استدعاء العقل بنفس منطقه الأصلي
+      results.push(await ProductIntelligenceEngine(standardizedItem, amazonItems, lang));
     }
     res.json({query:q, results});
 
@@ -130,7 +131,7 @@ app.get('/search', async(req,res)=>{
   }
 });
 
-/* ================= باقي الأكواد (ALERTS & WATCHLIST) بقيت كما هي ================= */
+/* ================= ALERTS & WATCHLIST (بقي كما هو تماماً) ================= */
 app.post('/alerts', async(req,res)=>{
   try{
     if (mongoose.connection.readyState === 1) {

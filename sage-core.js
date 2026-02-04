@@ -1,3 +1,4 @@
+const priceHistoryEngine = require("./price-history.engine");
 const priceEngine = require("./price.engine");
 const timingEngine = require("./timing.engine");
 const trustEngine = require("./trust.engine");

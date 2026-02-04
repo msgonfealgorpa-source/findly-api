@@ -5,8 +5,8 @@ const mongoose = require('mongoose');
 const app = express();
 
 /* ================= BASIC SETUP ================= */
-// إصلاح: استخدام CORS بشكل يسمح بالاتصال من أي مكان لحل مشكلة Connection Error
-app.use(cors()); 
+// أعدتها كما كانت في ملفك الأصلي تماماً
+app.use(cors({ origin: '*', methods: ['GET','POST'], allowedHeaders: ['Content-Type','Authorization'] }));
 app.use(express.json());
 
 /* ================= ENV ================= */
@@ -141,10 +141,10 @@ async function ProductIntelligenceEngine(item, allItems, lang='en'){
   };
 }
 
-/* ================= ROOT ROUTE (الإصلاح الجديد) ================= */
-// هذا الكود يحل مشكلة Cannot GET عند فتح الرابط
+/* ================= ROOT ROUTE (الإضافة الوحيدة الضرورية) ================= */
+// هذا السطر ضروري جداً لكي لا تظهر رسالة Cannot GET /
 app.get('/', (req, res) => {
-    res.status(200).send('✅ Findly Server is Running. Please use /search endpoint.');
+    res.status(200).send('✅ Server is running properly.');
 });
 
 /* ================= SEARCH (EXA + HYBRID FALLBACK) ================= */
@@ -161,37 +161,34 @@ app.get('/search', async(req,res)=>{
 
     /* ---------- PRIMARY: EXA ---------- */
     if (exa) {
+      // وضعنا هذا في try/catch لضمان عدم توقف السيرفر إذا فشلت Exa
       try {
-        const result = await exa.searchAndContents(q,{
+          const result = await exa.searchAndContents(q,{
             type:"magic",
             useAutoprompt:true,
             numResults:5,
             text:true
-        });
-        
-        if(result && result.results) {
-            rawItems = result.results.map(item => ({
+          });
+
+          if (result && result.results) {
+              rawItems = result.results.map(item => ({
                 title:item.title,
                 link:item.url,
                 source:item.url ? new URL(item.url).hostname.replace('www.','') : 'unknown',
                 price:extractPriceFromText(item.text),
                 thumbnail:'',
-            }));
-        }
-      } catch (exaError) {
-          console.error("Exa Error:", exaError.message);
-      }
+              }));
+          }
+      } catch(err) { console.log("Exa Error, trying fallback"); }
     }
 
-    /* ---------- FALLBACK: DUCKDUCKGO (محسّن) ---------- */
+    /* ---------- FALLBACK: DUCKDUCKGO ---------- */
     if (!rawItems.length) {
       const ddgUrl = `https://api.duckduckgo.com/?q=${encodeURIComponent(q)}&format=json&no_html=1`;
       
-      // إصلاح: إضافة User-Agent لكي لا يرفض DuckDuckGo الطلب
+      // التعديل الضروري: إضافة User-Agent لكي يقبل DuckDuckGo الطلب
       const r = await fetch(ddgUrl, {
-          headers: {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-          }
+          headers: { 'User-Agent': 'Mozilla/5.0' }
       });
       
       const d = await r.json();

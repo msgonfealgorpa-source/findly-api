@@ -1,8 +1,7 @@
-كود السيرفر الصحيحه 1
-
 const express = require('express');
 const cors = require('cors');
-const { getJson } = require('serpapi');
+// تم استبدال SerpApi بـ Axios للتعامل مع RapidAPI
+const axios = require('axios'); 
 const mongoose = require('mongoose');
 const nodemailer = require('nodemailer');
 
@@ -13,7 +12,8 @@ app.use(cors({ origin: '*', methods: ['GET','POST'], allowedHeaders: ['Content-T
 app.use(express.json());
 
 /* ================= ENV ================= */
-const { MONGO_URI, SERP_API_KEY, EMAIL_USER, EMAIL_PASS, PORT } = process.env;
+// تم تحديث المتغيرات لتشمل مفاتيح RapidAPI
+const { MONGO_URI, X_RAPIDAPI_KEY, X_RAPIDAPI_HOST, EMAIL_USER, EMAIL_PASS, PORT } = process.env;
 
 /* ================= HELPERS (تم إصلاح هذه الدالة جذرياً) ================= */
 function finalizeUrl(url) {
@@ -206,14 +206,13 @@ async function ProductIntelligenceEngine(item, allItems, lang='en'){
   if(price < avg * 0.5) warnings.push('Suspiciously Low Price');
 
   // FIX: Link Extraction Strategy (Find the best link)
-  // نبحث عن الرابط في عدة أماكن لأن جوجل يغير مكانه أحياناً
   let finalLink = finalizeUrl(item.link || item.product_link || item.offer_link);
 
   return {
     name:item.title,
     price:item.price,
     thumbnail:item.thumbnail,
-    link: finalLink, // Use the smart link
+    link: finalLink, 
     source:item.source,
     verdict,
     marketPosition:{
@@ -235,7 +234,7 @@ async function ProductIntelligenceEngine(item, allItems, lang='en'){
   };
 }
 
-/* ================= SEARCH ROUTE ================= */
+/* ================= SEARCH ROUTE (MODIFIED FOR RAPIDAPI) ================= */
 app.get('/search', async(req,res)=>{
   const {q,uid,lang='en'} = req.query;
   if(!q) return res.status(400).json({error:'Query required'});
@@ -247,25 +246,43 @@ app.get('/search', async(req,res)=>{
   const langConfig = SUPPORTED_LANGS[lang] || SUPPORTED_LANGS.en;
 
   try{
-    if (!SERP_API_KEY) return res.status(500).json({error:'API KEY MISSING'});
+    if (!X_RAPIDAPI_KEY || !X_RAPIDAPI_HOST) return res.status(500).json({error:'RAPIDAPI KEYS MISSING'});
 
-    getJson({
-      engine:'google_shopping',
-      q,
-      api_key:SERP_API_KEY,
-      hl:langConfig.hl,
-      gl:langConfig.gl,
-      num:15
-    }, async(data)=>{
-      if(!data?.shopping_results) return res.json({query:q,results:[]});
-      const items = data.shopping_results;
-      const results = [];
-      for(const item of items){
-        results.push(await ProductIntelligenceEngine(item,items,lang));
+    // إعداد طلب الـ Axios لـ RapidAPI
+    const options = {
+      method: 'GET',
+      url: `https://${X_RAPIDAPI_HOST}/search`,
+      params: {
+        q: q,
+        gl: langConfig.gl,
+        hl: langConfig.hl,
+        engine: 'google_shopping'
+      },
+      headers: {
+        'X-RapidAPI-Key': X_RAPIDAPI_KEY,
+        'X-RapidAPI-Host': X_RAPIDAPI_HOST
       }
-      res.json({query:q,results});
-    });
-  }catch(err){res.status(500).json({error:'Server Error'});}
+    };
+
+    const response = await axios.request(options);
+    const data = response.data;
+
+    if(!data?.shopping_results) return res.json({query:q,results:[]});
+    
+    const items = data.shopping_results;
+    const results = [];
+    
+    // معالجة كل منتج عبر محرك الذكاء الخاص بك
+    for(const item of items){
+      results.push(await ProductIntelligenceEngine(item,items,lang));
+    }
+    
+    res.json({query:q,results});
+
+  }catch(err){
+    console.error('RapidAPI Error:', err.message);
+    res.status(500).json({error:'Server Error during RapidAPI request'});
+  }
 });
 
 /* ================= ALERTS ================= */
@@ -298,4 +315,4 @@ app.get('/watchlist/:uid', async(req,res)=>{
 });
 
 /* ================= SERVER ================= */
-app.listen(PORT||3000,()=>console.log('🚀 Server Online'));
+app.listen(PORT||3000,()=>console.log('🚀 Server Online with RapidAPI Integration'));

@@ -1,6 +1,10 @@
+كود السيرفر الصحيحه 1
+
 const express = require('express');
 const cors = require('cors');
+const { getJson } = require('serpapi');
 const mongoose = require('mongoose');
+const nodemailer = require('nodemailer');
 
 const app = express();
 
@@ -9,24 +13,23 @@ app.use(cors({ origin: '*', methods: ['GET','POST'], allowedHeaders: ['Content-T
 app.use(express.json());
 
 /* ================= ENV ================= */
-const { MONGO_URI, PORT } = process.env;
+const { MONGO_URI, SERP_API_KEY, EMAIL_USER, EMAIL_PASS, PORT } = process.env;
 
-/* ================= HELPERS ================= */
+/* ================= HELPERS (تم إصلاح هذه الدالة جذرياً) ================= */
 function finalizeUrl(url) {
   if (!url) return '';
   let u = url.trim();
+  
+  // 1. إذا كان الرابط يبدأ بمسار جوجل النسبي
+  if (u.startsWith('/url') || u.startsWith('/shopping')) {
+    return 'https://www.google.com' + u;
+  }
+  
+  // 2. إصلاح البروتوكول
   if (u.startsWith('//')) return 'https:' + u;
   if (!u.startsWith('http')) return 'https://' + u;
+  
   return u;
-}
-
-function extractPriceFromText(text) {
-  if (!text) return 0;
-  const match =
-    text.match(/(\$|€|£|SAR|AED)\s?(\d+(?:,\d{3})*(?:\.\d{2})?)/i) ||
-    text.match(/(\d+(?:,\d{3})*(?:\.\d{2})?)\s?(USD|EUR|SAR|AED|Dollar)/i);
-  if (match) return parseFloat(match[2] || match[1].replace(/,/g,'')) || 0;
-  return 0;
 }
 
 function cleanPrice(p) {
@@ -36,6 +39,53 @@ function cleanPrice(p) {
 function productHash(item){
   return (item.title + item.source).toLowerCase().replace(/\s+/g,'');
 }
+
+/* ================= LANGUAGES ================= */
+const SUPPORTED_LANGS = {
+  ar:{hl:'ar',gl:'sa'},
+  en:{hl:'en',gl:'us'},
+  fr:{hl:'fr',gl:'fr'},
+  tr:{hl:'tr',gl:'tr'}
+};
+
+const I18N = {
+  ar:{
+    buy:'اشترِ الآن',
+    wait:'انتظر، السعر قد ينخفض',
+    explain:[
+      'السعر أقل من متوسطه التاريخي',
+      'هذا من أقل الأسعار المسجلة',
+      'السعر أعلى من المعتاد'
+    ]
+  },
+  en:{
+    buy:'Buy now',
+    wait:'Wait, price may drop',
+    explain:[
+      'Price below historical average',
+      'One of the lowest recorded prices',
+      'Price higher than usual'
+    ]
+  },
+  fr:{
+    buy:'Acheter maintenant',
+    wait:'Attendre une baisse',
+    explain:[
+      'Prix inférieur à la moyenne historique',
+      'Un des prix les plus bas enregistrés',
+      'Prix supérieur à la normale'
+    ]
+  },
+  tr:{
+    buy:'Şimdi satın al',
+    wait:'Mevcut en iyi fiyattan yüksek',
+    explain:[
+      'Fiyat tarihi ortalamanın altında',
+      'Kaydedilen en düşük fiyatlardan biri',
+      'Fiyat alışılmadık şekilde yüksek'
+    ]
+  }
+};
 
 /* ================= DB ================= */
 if (MONGO_URI) {
@@ -75,6 +125,7 @@ const SearchLog = mongoose.models.SearchLog || mongoose.model('SearchLog',
   })
 );
 
+/* ================= PRICE HISTORY ================= */
 const PriceHistory = mongoose.models.PriceHistory || mongoose.model('PriceHistory',
   new mongoose.Schema({
     productHash:String,
@@ -86,92 +137,144 @@ const PriceHistory = mongoose.models.PriceHistory || mongoose.model('PriceHistor
 
 /* ================= CORE INTELLIGENCE ================= */
 async function ProductIntelligenceEngine(item, allItems, lang='en'){
+  const t = I18N[lang] || I18N.en;
+
   const price = cleanPrice(item.price);
+  const rating = Number(item.rating || 0);
+  const reviews = Number(item.reviews || 0);
+
   const prices = allItems.map(i=>cleanPrice(i.price)).filter(p=>p>0);
-  const avg = prices.length ? prices.reduce((a,b)=>a+b,0)/prices.length : price;
-  const min = prices.length ? Math.min(...prices) : price;
+  const avg = prices.reduce((a,b)=>a+b,0)/(prices.length||1);
+  const min = Math.min(...prices);
+
   const hash = productHash(item);
 
+  // 🔹 Save price to history
   try {
-    if (mongoose.connection.readyState === 1 && price > 0) {
-      await PriceHistory.create({ productHash:hash, price, store:item.source });
-    }
-  } catch {}
+     if (mongoose.connection.readyState === 1) {
+        await PriceHistory.create({ productHash:hash, price, store:item.source });
+     }
+  } catch(e) {}
 
-  let verdict =
-    price && price <= min * 1.05
-      ? {emoji:'💎',title:'Top Find',summary:'Buy now'}
-      : {emoji:'🔍',title:'Result',summary:'Wait'};
+  // 🔹 Load last 90 days history
+  let histAvg = avg;
+  let histMin = min;
+  let history = [];
+  try {
+      if (mongoose.connection.readyState === 1) {
+        history = await PriceHistory.find({productHash:hash}).sort({date:-1}).limit(90);
+        if(history.length){
+            const histPrices = history.map(h=>h.price);
+            histAvg = histPrices.reduce((a,b)=>a+b,0)/(histPrices.length||1);
+            histMin = Math.min(...histPrices);
+        }
+      }
+  } catch(e) {}
+
+  // 🔹 Timing intelligence
+  let timingDecision = t.buy;
+  let explain = [];
+  if(price <= histMin*1.05){
+    timingDecision = t.buy;
+    explain.push(t.explain[1]);
+  } else if(price > histAvg){
+    timingDecision = t.wait;
+    explain.push(t.explain[2]);
+  } else {
+    explain.push(t.explain[0]);
+  }
+
+  // 🔹 Value & Trust Score
+  let valueScore = Math.min(Math.round((rating*20) + Math.min(reviews/50,20) + Math.max(((avg-price)/avg)*40,0)),100);
+  let trustScore = Math.min(Math.round((reviews/30) + (rating*15) + 20),100);
+
+  // 🔹 Verdict Emoji & Label
+  const verdict = valueScore>=85 && trustScore>=80 ?
+    {emoji:'💎',title: lang==='ar'?'صفقة لقطة':'Gem Deal',summary:t.buy} :
+    {emoji:'💡',title: lang==='ar'?'خيار ذكي':'Smart Choice',summary:t.wait};
+
+  // 🔹 Competitor comparison
+  const competitors = allItems.slice(0,3).map(i=>({
+    store:i.source || (lang==='ar'?'متجر آخر':'Other Store'),
+    price:i.price,
+    link:finalizeUrl(i.link)
+  }));
+
+  // FIX: Risk Analysis
+  const warnings = [];
+  if(trustScore < 50) warnings.push('Trust score low');
+  if(price < avg * 0.5) warnings.push('Suspiciously Low Price');
+
+  // FIX: Link Extraction Strategy (Find the best link)
+  // نبحث عن الرابط في عدة أماكن لأن جوجل يغير مكانه أحياناً
+  let finalLink = finalizeUrl(item.link || item.product_link || item.offer_link);
 
   return {
     name:item.title,
-    price:item.price || 'N/A',
+    price:item.price,
     thumbnail:item.thumbnail,
-    link:finalizeUrl(item.link),
+    link: finalLink, // Use the smart link
     source:item.source,
     verdict,
-    valueScore:{score: price ? 80 : 60},
-    trustScore:{score:90,riskLevel:'Low',reasons:['Verified']},
-    riskAnalysis:{warnings: price ? [] : ['Price not detected']},
-    timing:{recommendation:verdict.summary,reason:''},
-    comparison:{
-      market_average:Math.round(avg),
-      savings_percentage:avg && price ? Math.round(((avg-price)/avg)*100) : 0,
-      competitors:allItems.slice(0,3).map(i=>({
-        store:i.source,
-        price:i.price,
-        link:finalizeUrl(i.link)
-      }))
+    marketPosition:{
+      percentile:prices.length ? Math.round((prices.filter(p=>p>price).length/prices.length)*100) : 0,
+      label: price<=avg ? 'Below avg' : 'Above avg',
+      avgMarketPrice:Math.round(avg)
+    },
+    valueScore:{score:valueScore,label:valueScore>=85?'Excellent':valueScore>=70?'Great':'Fair'},
+    trustScore:{score:trustScore,riskLevel:trustScore>=80?'Low':trustScore>=60?'Medium':'High', reasons:[]},
+    riskAnalysis: { warnings },
+    timing:{recommendation:timingDecision, reason:explain[0]},
+    explanation:explain,
+    memory:{avg30d:Math.round(histAvg),min30d:Math.round(histMin),records:history.length},
+    comparison: {
+        market_average: Math.round(avg),
+        savings_percentage: Math.round(((avg-price)/avg)*100),
+        competitors: competitors
     }
   };
 }
 
-/* ================= SEARCH (DUCKDUCKGO ONLY) ================= */
+/* ================= SEARCH ROUTE ================= */
 app.get('/search', async(req,res)=>{
-  const { q, uid, lang='en' } = req.query;
-  if (!q) return res.status(400).json({error:'Query required'});
-
-  if (mongoose.connection.readyState === 1 && uid) {
-    SearchLog.create({uid,query:q}).catch(()=>{});
+  const {q,uid,lang='en'} = req.query;
+  if(!q) return res.status(400).json({error:'Query required'});
+  
+  if(mongoose.connection.readyState === 1 && uid) {
+      SearchLog.create({uid,query:q}).catch(()=>{});
   }
 
-  try {
-    const rawItems = [];
-    const ddgUrl = `https://api.duckduckgo.com/?q=${encodeURIComponent(q)}&format=json&no_html=1`;
-    const r = await fetch(ddgUrl);
-    const d = await r.json();
+  const langConfig = SUPPORTED_LANGS[lang] || SUPPORTED_LANGS.en;
 
-    (d.RelatedTopics || []).forEach(it=>{
-      if (it.Text && it.FirstURL) {
-        rawItems.push({
-          title: it.Text,
-          link: it.FirstURL,
-          source: new URL(it.FirstURL).hostname.replace('www.',''),
-          price: extractPriceFromText(it.Text),
-          thumbnail:''
-        });
+  try{
+    if (!SERP_API_KEY) return res.status(500).json({error:'API KEY MISSING'});
+
+    getJson({
+      engine:'google_shopping',
+      q,
+      api_key:SERP_API_KEY,
+      hl:langConfig.hl,
+      gl:langConfig.gl,
+      num:15
+    }, async(data)=>{
+      if(!data?.shopping_results) return res.json({query:q,results:[]});
+      const items = data.shopping_results;
+      const results = [];
+      for(const item of items){
+        results.push(await ProductIntelligenceEngine(item,items,lang));
       }
+      res.json({query:q,results});
     });
-
-    const results = [];
-    for (const item of rawItems.slice(0,5)) {
-      results.push(await ProductIntelligenceEngine(item, rawItems, lang));
-    }
-
-    res.json({query:q,results});
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({error:'Server Error',details:e.message});
-  }
+  }catch(err){res.status(500).json({error:'Server Error'});}
 });
 
 /* ================= ALERTS ================= */
 app.post('/alerts', async(req,res)=>{
   try{
     if (mongoose.connection.readyState === 1) {
-      await new Alert(req.body).save();
-      res.json({success:true});
-    } else res.status(503).json({error:'DB Offline'});
+        await new Alert(req.body).save();
+        res.json({success:true});
+    } else { res.status(503).json({error:'DB Offline'}); }
   }catch(e){res.status(500).json({error:e.message});}
 });
 
@@ -179,22 +282,20 @@ app.post('/alerts', async(req,res)=>{
 app.post('/watchlist', async(req,res)=>{
   try{
     if (mongoose.connection.readyState === 1) {
-      await new Watchlist(req.body).save();
-      res.json({success:true});
-    } else res.status(503).json({error:'DB Offline'});
+        await new Watchlist(req.body).save();
+        res.json({success:true});
+    } else { res.status(503).json({error:'DB Offline'}); }
   }catch(e){res.status(500).json({error:e.message});}
 });
 
 app.get('/watchlist/:uid', async(req,res)=>{
   try{
     if (mongoose.connection.readyState === 1) {
-      const list = await Watchlist.find({uid:req.params.uid}).sort({addedAt:-1});
-      res.json(list);
-    } else res.json([]);
+        const list = await Watchlist.find({uid:req.params.uid}).sort({addedAt:-1});
+        res.json(list);
+    } else { res.json([]); }
   }catch(e){res.status(500).json({error:e.message});}
 });
 
 /* ================= SERVER ================= */
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-});
+app.listen(PORT||3000,()=>console.log('🚀 Server Online'));

@@ -5,26 +5,11 @@ const mongoose = require('mongoose');
 const app = express();
 
 /* ================= BASIC SETUP ================= */
-// السماح لجميع الطلبات بشكل أكثر مرونة
-app.use(cors()); 
+app.use(cors({ origin: '*', methods: ['GET','POST'], allowedHeaders: ['Content-Type','Authorization'] }));
 app.use(express.json());
 
 /* ================= ENV ================= */
-const { MONGO_URI, EXA_API_KEY, PORT } = process.env;
-
-/* ================= EXA (ESM SAFE) ================= */
-let exa = null;
-
-(async () => {
-  try {
-    if (!EXA_API_KEY) return;
-    const { default: Exa } = await import("exa-js");
-    exa = new Exa(EXA_API_KEY);
-    console.log("✅ Exa initialized");
-  } catch (e) {
-    console.warn("⚠️ Exa disabled, Hybrid mode active");
-  }
-})();
+const { MONGO_URI, PORT } = process.env;
 
 /* ================= HELPERS ================= */
 function finalizeUrl(url) {
@@ -126,7 +111,7 @@ async function ProductIntelligenceEngine(item, allItems, lang='en'){
     source:item.source,
     verdict,
     valueScore:{score: price ? 80 : 60},
-    trustScore:{score:90,riskLevel:'Low',reasons:['Hybrid AI Verified']},
+    trustScore:{score:90,riskLevel:'Low',reasons:['Verified']},
     riskAnalysis:{warnings: price ? [] : ['Price not detected']},
     timing:{recommendation:verdict.summary,reason:''},
     comparison:{
@@ -141,78 +126,32 @@ async function ProductIntelligenceEngine(item, allItems, lang='en'){
   };
 }
 
-/* ================= ROOT ROUTE (مهم جداً) ================= */
-// هذا الكود يحل مشكلة "Cannot GET /" ويعطيك إشارة أن السيرفر يعمل
-app.get('/', (req, res) => {
-    res.status(200).send('✅ Findly Server is Active & Running!');
-});
-
-/* ================= SEARCH (EXA + HYBRID FALLBACK) ================= */
+/* ================= SEARCH (DUCKDUCKGO ONLY) ================= */
 app.get('/search', async(req,res)=>{
   const { q, uid, lang='en' } = req.query;
   if (!q) return res.status(400).json({error:'Query required'});
-
-  // Log search request for debugging
-  console.log(`🔍 Searching for: ${q}`);
 
   if (mongoose.connection.readyState === 1 && uid) {
     SearchLog.create({uid,query:q}).catch(()=>{});
   }
 
   try {
-    let rawItems = [];
+    const rawItems = [];
+    const ddgUrl = `https://api.duckduckgo.com/?q=${encodeURIComponent(q)}&format=json&no_html=1`;
+    const r = await fetch(ddgUrl);
+    const d = await r.json();
 
-    /* ---------- PRIMARY: EXA ---------- */
-    if (exa) {
-      try {
-        const result = await exa.searchAndContents(q,{
-            type:"magic",
-            useAutoprompt:true,
-            numResults:5,
-            text:true
+    (d.RelatedTopics || []).forEach(it=>{
+      if (it.Text && it.FirstURL) {
+        rawItems.push({
+          title: it.Text,
+          link: it.FirstURL,
+          source: new URL(it.FirstURL).hostname.replace('www.',''),
+          price: extractPriceFromText(it.Text),
+          thumbnail:''
         });
-        
-        if(result && result.results) {
-            rawItems = result.results.map(item => ({
-                title:item.title,
-                link:item.url,
-                source:item.url ? new URL(item.url).hostname.replace('www.','') : 'unknown',
-                price:extractPriceFromText(item.text),
-                thumbnail:'',
-            }));
-        }
-      } catch (exaError) {
-          console.error("Exa Error:", exaError.message);
       }
-    }
-
-    /* ---------- FALLBACK: DUCKDUCKGO (محسّن) ---------- */
-    // إذا فشل Exa أو لم يجد نتائج، نستخدم DuckDuckGo
-    if (!rawItems.length) {
-      console.log("⚠️ Switching to Fallback (DDG)...");
-      const ddgUrl = `https://api.duckduckgo.com/?q=${encodeURIComponent(q)}&format=json&no_html=1`;
-      
-      // إضافة Headers ضرورية لتجاوز الحظر
-      const r = await fetch(ddgUrl, {
-          headers: {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-          }
-      });
-      
-      const d = await r.json();
-
-      (d.RelatedTopics || []).forEach(it=>{
-        if (it.Text && it.FirstURL) {
-          rawItems.push({
-            title: it.Text,
-            link: it.FirstURL,
-            source: new URL(it.FirstURL).hostname.replace('www.',''),
-            price: extractPriceFromText(it.Text),
-            thumbnail:''
-          });
-        }
-      });
-    }
+    });
 
     const results = [];
     for (const item of rawItems.slice(0,5)) {
@@ -221,7 +160,7 @@ app.get('/search', async(req,res)=>{
 
     res.json({query:q,results});
   } catch (e) {
-    console.error("❌ SERVER ERROR:", e);
+    console.error(e);
     res.status(500).json({error:'Server Error',details:e.message});
   }
 });
@@ -256,6 +195,6 @@ app.get('/watchlist/:uid', async(req,res)=>{
 });
 
 /* ================= SERVER ================= */
-app.listen(PORT || 3000, () => {
-  console.log(`🚀 Server running on port ${PORT || 3000}`);
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
 });

@@ -17,11 +17,18 @@ function SageCore(product, allProducts) {
   const trustIntel = trustEngine(product, priceIntel);
   const valueIntel = valueEngine(priceIntel, trustIntel);
 
+  // 🧠 ذاكرة السعر (الجديد)
+  const historyIntel = priceHistoryEngine(
+    product.id || product.title,
+    price
+  );
+
   const finalVerdict = decisionEngine({
     priceIntel,
     timingIntel,
     trustIntel,
-    valueIntel
+    valueIntel,
+    historyIntel
   });
 
   return {
@@ -29,6 +36,7 @@ function SageCore(product, allProducts) {
     timingIntel,
     trustIntel,
     valueIntel,
+    historyIntel,
     finalVerdict
   };
 }

@@ -606,7 +606,7 @@ width: 80%; max-width: 500px; border-radius: 15px; text-align: right;
 </script>  
 
 <script>  
-    // Server URL - مهم: استخدم localhost أثناء التجربة، وغيره إلى Render عند الرفع
+    // Server URL - مهم: استخدم الرابط الخاص بسيرفرك على Render
     const API = "https://findly-api.onrender.com";
       
     // State Management  
@@ -631,6 +631,8 @@ async function runSearch() {
     const q = document.getElementById('s-input').value.trim();
     const status = document.getElementById('status');
     const resCon = document.getElementById('results');
+    
+    // تأكد من أن API معرفة بالأعلى
     if (!q) return;
 
     status.style.display = "block";
@@ -639,10 +641,10 @@ async function runSearch() {
 
     try {
         const uid = localStorage.getItem('findly_uid') || 'guest';
-        // Use encodeURIComponent to handle special characters safely
+        // إصلاح: استخدام encodeURIComponent لتشفير النص العربي والمسافات
         const apiUrl = `${API}/search?q=${encodeURIComponent(q)}&uid=${uid}&lang=${lang}`;
         
-        console.log("Connecting to:", apiUrl); // Debug info
+        console.log("Connecting to:", apiUrl); 
 
         const response = await fetch(apiUrl);
         if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
@@ -667,22 +669,17 @@ async function runSearch() {
 
             div.className = `product-card ${isOverBudget ? 'over-budget' : ''}`;
 
-            // استخراج البيانات وتأمين القيم الافتراضية
             const verdict = p.verdict || { emoji: "🤖", title: lang === 'ar' ? "تحليل" : "Analysis", summary: lang === 'ar' ? "غير متوفر" : "Unavailable" };
             const timing = p.timing || { recommendation: lang === 'ar' ? "غير معروف" : "Unknown", reason: "" };
             const trust = p.trustScore || { riskLevel: lang === 'ar' ? "غير معروف" : "Unknown", reasons: [] };
             const market = p.marketPosition || { label: "" };
             const score = Math.min(Number(p.valueScore?.score || 0), 100);
             
-            // Fix: Backend now returns riskAnalysis.warnings
             const risk = p.riskAnalysis || { warnings: [] };
             const comparison = p.comparison || { competitors: [] };
 
-            // FIX: Trust the Server Link (الحل الجذري للرابط)
-            // نستخدم الرابط كما هو من السيرفر، السيرفر قام بتنظيفه بالفعل
             let cleanLink = p.link || '#';
 
-            // حفظ بيانات المقارنة في dataset بشكل آمن جداً
             const comparisonData = JSON.stringify(comparison)
                 .replace(/'/g, "&apos;")
                 .replace(/"/g, "&quot;");
@@ -751,7 +748,6 @@ function openComparisonModal(comp) {
         document.body.appendChild(modal);
     }
 
-    // تأكد من أن comp.competitors موجودة
     const competitors = comp.competitors || [];
 
     modal.innerHTML = `

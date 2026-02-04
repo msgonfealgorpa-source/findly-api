@@ -1,9 +1,8 @@
-
-const priceEngine = require("./intelligence/price.engine");
-const timingEngine = require("./intelligence/timing.engine");
-const trustEngine = require("./intelligence/trust.engine");
-const valueEngine = require("./intelligence/value.engine");
-const decisionEngine = require("./intelligence/decision.engine");
+const priceEngine = require("./price.engine");
+const timingEngine = require("./timing.engine");
+const trustEngine = require("./trust.engine");
+const valueEngine = require("./value.engine");
+const decisionEngine = require("./decision.engine");
 
 function SageCore(product, allProducts) {
   const prices = allProducts

@@ -684,20 +684,23 @@
         tr: { title: "Bilge Danışman", sub: "Akıllı alışveriş rehberiniz", energy: "Bilge Enerji", welcome: "Hoş geldiniz,", game: "Oyunlar", beauty: "Güzellik", home: "Akıllı Ev", c1: "Telefonlar", c2: "Laptoplar", c4: "Saatler", p_head: "Profil", buy: "Satın Al 🛒", watch: "Fiyatı İzle 🔔", over: "Bütçe Aşıldı!", cheap: "Ekonomik", top: "En İyi", new: "Yeni", deep: "Yapay Zeka Analiz", watchTitle: "İzleme Listesi", why: "Neden bu seçim?", slow: "Sunucu uyanıyor.. bekleyin", noAttempts: "⚠️ Deneme kalmadı!", analyze: "📊 Analiz" }  
     };
 
-async function runSearch() {
+
+    async function runSearch() {
   const q = document.getElementById('s-input').value.trim();
   const status = document.getElementById('status');
   const resultsBox = document.getElementById('results');
 
   if (!q) return;
 
+  const T = dict[lang]; // 🔑 مفتاح الترجمة
+
   status.style.display = 'block';
-  status.innerText = '🔍 جاري التحليل الذكي...';
+  status.innerText = '🔍 ...';
   resultsBox.innerHTML = '';
 
   try {
     const res = await fetch(
-      `${API}/search?q=${encodeURIComponent(q)}&lang=${lang}&uid=${localStorage.getItem('findly_uid') || 'guest'}`
+      `${API}/search?q=${encodeURIComponent(q)}&lang=${lang}&uid=${localStorage.getItem('findly_uid')}`
     );
 
     const data = await res.json();
@@ -705,7 +708,7 @@ async function runSearch() {
 
     if (!data.results || !data.results.length) {
       status.style.display = 'block';
-      status.innerText = '❌ لا توجد نتائج';
+      status.innerText = '❌';
       return;
     }
 
@@ -720,73 +723,81 @@ async function runSearch() {
       const card = document.createElement('div');
       card.className = 'product-card';
 
-      // قرار التوقع
-      let forecastDecision = 'السعر مستقر';
-      if (forecast.trend === 'up') forecastDecision = 'قد يرتفع قريبًا';
-      if (forecast.trend === 'down') forecastDecision = 'انخفاض محتمل قريبًا';
-
       card.innerHTML = `
-        <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/200'">
+<img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/200'">
 
-        <h3>${p.title || '—'}</h3>
-        <div class="price">${p.price || '—'}</div>
+<h3>${p.title || '—'}</h3>
+<div class="price">${p.price || '—'}</div>
 
-        <!-- القرار -->
-        <div class="analysis-engine">
-          <span class="analysis-label">
-            ${verdict.emoji || '🤖'} ${verdict.title || 'تحليل ذكي'}
-          </span>
-          <div>${verdict.reason || 'لا توجد بيانات كافية حالياً'}</div>
-        </div>
+<!-- القرار -->
+<div class="analysis-engine">
+  <span class="analysis-label">
+    ${verdict.emoji || '🤖'} ${verdict.title || ''}
+  </span>
+  <div>${verdict.reason || ''}</div>
+</div>
 
-        <!-- السوق -->
-        <div class="intel-section">
-          <h4>📊 السوق</h4>
-          <p>متوسط السعر: <strong>${priceIntel.average ? `$${priceIntel.average}` : 'غير متوفر'}</strong></p>
-          <p>عدد المنافسين: <strong>${valueIntel.competitors || 0}</strong></p>
-        </div>
+<!-- السوق -->
+<div class="intel-section">
+  <h4>📊 ${T.market}</h4>
+  <p>${T.avg_price}: <strong>${priceIntel.average ? `$${priceIntel.average}` : '—'}</strong></p>
+  <p>${T.competitors}: <strong>${valueIntel.competitors || 0}</strong></p>
+</div>
 
-        <!-- قيمة الصفقة -->
-        <div class="intel-section">
-          <h4>💎 قيمة الصفقة</h4>
-          <p>تقييم الصفقة: <strong>${valueIntel.score || 0}%</strong></p>
-          <p>${valueIntel.learningBoost > 0 ? 'التحليل يتعلم من سلوكك 🧠' : 'سيتحسن التحليل مع الاستخدام 📈'}</p>
-        </div>
+<!-- قيمة الصفقة -->
+<div class="intel-section">
+  <h4>💎 ${T.value}</h4>
+  <p>${T.deal_score}: <strong>${valueIntel.score || 0}%</strong></p>
+  <p>
+    ${valueIntel.learningBoost > 0
+      ? T.learning_on
+      : T.learning_later}
+  </p>
+</div>
 
-        <!-- التوقع -->
-        <div class="intel-section">
-          <h4>🔮 التوقع السعري</h4>
-          <p>${forecast.advice || 'السعر مستقر'}</p>
-          <p>السعر المتوقع: <strong>$${forecast.expectedPrice || p.numericPrice || ''}</strong></p>
-          <p>الثقة: <strong>${Math.round((forecast.confidence || 0) * 100)}%</strong></p>
-          <p><strong>${forecastDecision}</strong></p>
-        </div>
+<!-- التوقع السعري -->
+<div class="intel-section">
+  <h4>🔮 ${T.forecast}</h4>
+  <p>${T.trend[forecast.trend] || T.trend.stable}</p>
+  <p>${T.expected_price}: <strong>$${forecast.expectedPrice || '—'}</strong></p>
+  <p>${T.confidence}: <strong>${Math.round((forecast.confidence || 0) * 100)}%</strong></p>
+</div>
 
-        <!-- المخاطر -->
-        <div class="intel-section">
-          <h4>⚠️ الثقة والمخاطر</h4>
-          ${
-            trust.warnings && trust.warnings.length
-              ? `<ul>${trust.warnings.map(w => `<li>${w}</li>`).join('')}</ul>`
-              : '<p>لا توجد مخاطر واضحة ✅</p>'
-          }
-        </div>
+<!-- الثقة والمخاطر -->
+<div class="intel-section">
+  <h4>⚠️ ${T.trust}</h4>
+  ${
+    trust.warnings && trust.warnings.length
+      ? `<ul>${trust.warnings.map(w => `<li>${w}</li>`).join('')}</ul>`
+      : `<p>✅ ${T.no_risks}</p>`
+  }
+</div>
 
-        <div class="btn-group">
-          <a href="${p.link}" target="_blank" class="action-btn buy-now">
-            ${dict[lang].buy}
-          </a>
+<div class="btn-group">
+  <a href="${p.link}" target="_blank" class="action-btn buy-now">
+    ${T.buy}
+  </a>
 
-          <button class="action-btn watch-btn"
-            onclick="addToWatch(
-              '${(p.title || '').replace(/'/g, '')}',
-              '${p.price}',
-              '${p.link}'
-            )">
-            ${dict[lang].watch}
-          </button>
-        </div>
-      `;
+  <button class="action-btn analyze-btn"
+    onclick="openAnalysisModal('${encodeURIComponent(JSON.stringify({
+      title: verdict.title,
+      reason: verdict.reason,
+      average: priceIntel.average,
+      score: valueIntel.score
+    }))}')">
+    ${T.analyze}
+  </button>
+
+  <button class="action-btn watch-btn"
+    onclick="addToWatch(
+      '${(p.title || '').replace(/'/g, '')}',
+      '${p.price}',
+      '${p.link}'
+    )">
+    ${T.watch}
+  </button>
+</div>
+`;
 
       resultsBox.appendChild(card);
     });
@@ -794,7 +805,7 @@ async function runSearch() {
   } catch (e) {
     console.error(e);
     status.style.display = 'block';
-    status.innerText = '❌ خطأ في الاتصال بالسيرفر';
+    status.innerText = '❌';
   }
 }
     

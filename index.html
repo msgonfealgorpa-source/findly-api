@@ -666,11 +666,34 @@ async function runSearch() {
             div.className = `product-card ${isOverBudget ? 'over-budget' : ''}`;
 
             // استخراج البيانات وتأمين القيم الافتراضية
-            const verdict = p.verdict || { emoji: "🤖", title: lang === 'ar' ? "تحليل" : "Analysis", summary: lang === 'ar' ? "غير متوفر" : "Unavailable" };
-            const timing = p.timing || { recommendation: lang === 'ar' ? "غير معروف" : "Unknown", reason: "" };
-            const trust = p.trustScore || { riskLevel: lang === 'ar' ? "غير معروف" : "Unknown", reasons: [] };
-            const market = p.marketPosition || { label: "" };
-            const score = Math.min(Number(p.valueScore?.score || 0), 100);
+            const intel = p.intelligence || {};
+
+// ترجمة الذكاء الجديد لشكل تفهمه الواجهة
+const verdict = {
+  emoji: intel.finalVerdict?.emoji || "🤖",
+  title: intel.finalVerdict?.title || (lang === 'ar' ? "تحليل ذكي" : "Smart Analysis"),
+  summary: intel.finalVerdict?.reason || (lang === 'ar' ? "لا توجد بيانات كافية" : "No enough data")
+};
+
+const timing = {
+  recommendation: intel.timingIntel?.label || (lang === 'ar' ? "غير واضح" : "Unclear"),
+  reason: intel.timingIntel?.reason || ""
+};
+
+const trust = {
+  riskLevel: intel.trustIntel?.level || (lang === 'ar' ? "غير معروف" : "Unknown"),
+  reasons: intel.trustIntel?.signals || []
+};
+
+const market = {
+  label: intel.priceIntel?.position || ""
+};
+
+const score = Math.min(intel.valueIntel?.score || 0, 100);
+
+const risk = {
+  warnings: intel.trustIntel?.warnings || []
+};
             
             // Fix: Backend now returns riskAnalysis.warnings
             const risk = p.riskAnalysis || { warnings: [] };

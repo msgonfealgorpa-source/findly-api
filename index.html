@@ -666,18 +666,30 @@ async function runSearch() {
           <div>📊 كفاءة الصفقة: ${intel.score || 0}%</div>
         </div>
 
-        <div class="btn-group">
-          <a href="${p.link}" target="_blank" class="action-btn buy-now">
-            شراء الآن
-          </a>
+<div class="btn-group">
+  <a href="${cleanLink}" target="_blank" class="action-btn buy-now">
+    شراء الآن
+  </a>
 
-          <button class="action-btn watch-later"
-            onclick="openAnalysisModal(${encodeURIComponent(JSON.stringify(intel))})">
-            📊 تحليل السعر
-          </button>
-        </div>
-      `;
+  <button 
+    class="action-btn analyze-btn"
+    onclick='openComparisonModal(${comparisonData})'>
+    📊 تحليل السعر
+  </button>
 
+  <button 
+    class="action-btn watch-btn"
+    onclick="addToWatch(
+      '${(p.title || '').replace(/'/g,"\\'")}',
+      '${p.price}',
+      '${cleanLink}',
+      '${p.thumbnail || ''}'
+    )">
+    🔔 راقب السعر
+  </button>
+</div>
+
+        
       resultsBox.appendChild(card);
     });
 

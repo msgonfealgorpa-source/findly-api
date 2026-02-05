@@ -719,13 +719,31 @@ async function runSearch() {
       const card = document.createElement('div');
       card.className = 'product-card';
 
-      card.innerHTML = `
+      const priceIntel = intel.priceIntel || {};
+const valueIntel = intel.valueIntel || {};
+const forecast = intel.forecastIntel || {};
+const trust = intel.trustIntel || {};
+
+const hasLearning = valueIntel.learningBoost && valueIntel.learningBoost > 0;
+const hasWarnings = trust.warnings && trust.warnings.length > 0;
+
+// قرار التوقع
+let forecastDecision = '';
+if (forecast.trend === 'up') {
+  forecastDecision = 'الشراء الآن قد يكون خيارًا جيدًا';
+} else if (forecast.trend === 'down') {
+  forecastDecision = 'الانتظار قد يكون أذكى';
+} else {
+  forecastDecision = 'لا يوجد تحرّك سعري واضح';
+}
+
+card.innerHTML = `
 <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/200'">
 
 <h3>${p.title || '—'}</h3>
 <div class="price">${p.price || '—'}</div>
 
-<!-- ✅ الحكم النهائي -->
+<!-- القرار الأساسي -->
 <div class="analysis-engine">
   <span class="analysis-label">
     ${verdict.emoji || '🤖'} ${verdict.title || 'تحليل ذكي'}
@@ -733,37 +751,43 @@ async function runSearch() {
   <div>${verdict.reason || 'لا توجد بيانات كافية حالياً'}</div>
 </div>
 
-<!-- 🧠 كل الذكاء (بشري) -->
-<div class="ai-sections">
+<!-- السوق -->
+<div class="intel-section">
+  <h4>📊 السوق</h4>
+  <p>متوسط السعر: <strong>${priceIntel.average ? `$${priceIntel.average}` : 'غير متوفر'}</strong></p>
+  <p>عدد المنافسين: <strong>${valueIntel.competitors || 0}</strong></p>
+</div>
 
-  <div class="ai-box">
-    <strong>📊 السوق</strong>
-    <p>متوسط السعر: <b>${priceIntel.average ? '$' + priceIntel.average : '—'}</b></p>
-    <p>عدد المنافسين: <b>${valueIntel.competitors || 0}</b></p>
-  </div>
-
-  <div class="ai-box">
-    <strong>💎 قيمة الصفقة</strong>
-    <p>تقييم الصفقة: <b>${valueIntel.score || 0}%</b></p>
-    <p>${valueIntel.learningReason || 'لا توجد بيانات تعلّم بعد'}</p>
-  </div>
-
-  <div class="ai-box">
-    <strong>🔮 التوقع السعري</strong>
-    <p>${forecast.advice || 'لا يوجد توقع واضح'}</p>
-    <p>السعر المتوقع: <b>${forecast.expectedPrice ? '$' + forecast.expectedPrice : '—'}</b></p>
-    <p>الثقة: <b>${Math.round((forecast.confidence || 0) * 100)}%</b></p>
-  </div>
-
-  <div class="ai-box">
-    <strong>⚠️ الثقة والمخاطر</strong>
+<!-- قيمة الصفقة -->
+<div class="intel-section">
+  <h4>💎 قيمة الصفقة</h4>
+  <p>تقييم الصفقة: <strong>${valueIntel.score || 0}%</strong></p>
+  <p>
     ${
-      trust.warnings && trust.warnings.length
-        ? trust.warnings.map(w => `<p>• ${w}</p>`).join('')
-        : '<p>لا توجد مخاطر واضحة</p>'
+      hasLearning
+        ? 'التحليل يتحسّن بناءً على سلوكك'
+        : 'سيتحسن التحليل مع استخدامك 📈'
     }
-  </div>
+  </p>
+</div>
 
+<!-- التوقع السعري -->
+<div class="intel-section">
+  <h4>🔮 التوقع السعري</h4>
+  <p>${forecast.advice || 'السعر مستقر'}</p>
+  <p>السعر المتوقع: <strong>$${forecast.expectedPrice || p.numericPrice}</strong></p>
+  <p>الثقة: <strong>${Math.round((forecast.confidence || 0) * 100)}%</strong></p>
+  <p><strong>${forecastDecision}</strong></p>
+</div>
+
+<!-- الثقة والمخاطر -->
+<div class="intel-section">
+  <h4>⚠️ الثقة والمخاطر</h4>
+  ${
+    hasWarnings
+      ? `<ul>${trust.warnings.map(w => `<li>${w}</li>`).join('')}</ul>`
+      : '<p>لا توجد مخاطر واضحة ✅</p>'
+  }
 </div>
 
 <div class="btn-group">

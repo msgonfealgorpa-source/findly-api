@@ -626,7 +626,10 @@ width: 80%; max-width: 500px; border-radius: 15px; text-align: right;
     };
 
  async function runSearch() {
-    const q = document.getElementById('s-input').value.trim();
+
+     if (typeof lang === "undefined") lang = "ar";
+if (typeof dict === "undefined") dict = { ar:{}, en:{} };
+     const q = document.getElementById('s-input').value.trim();
     const status = document.getElementById('status');
     const resCon = document.getElementById('results');
     if (!q) return;

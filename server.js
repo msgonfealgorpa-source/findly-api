@@ -88,14 +88,18 @@ app.get('/search', async (req, res) => {
       };
 
       /* 🧠 الذكاء الجديد (SageCore) */
-      const intelligenceRaw = SageCore(
-        standardizedItem,
-        amazonItems,
-        {},       // userEvents
-        {},       // userHistory
-        uid,      // userId
-        null      // userOutcome
-      );
+      const competitors = amazonItems.map(p => ({
+  price: p.product_price
+}));
+
+const intelligence = SageCore(
+  standardizedItem,
+  competitors,
+  {},
+  {},
+  uid,
+  null
+);
 
       /* 🔧 تهيئة الذكاء للواجهة (مهم جداً) */
       const intelligence = {

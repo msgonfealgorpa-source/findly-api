@@ -604,6 +604,12 @@ width: 80%; max-width: 500px; border-radius: 15px; text-align: right;
 </script>  
 
 <script>  
+
+
+    window.onerror = function(msg, url, line) {
+  alert("JS Error: " + msg);
+};
+    
     // Server URL - مهم: استخدم localhost أثناء التجربة، وغيره إلى Render عند الرفع
     const API = "https://findly-api.onrender.com";
       
@@ -665,6 +671,7 @@ async function runSearch() {
 
             div.className = `product-card ${isOverBudget ? 'over-budget' : ''}`;
 
+            const intel = product.intelligence || {};
             // استخراج البيانات وتأمين القيم الافتراضية
             const intel = p.intelligence || {};
 

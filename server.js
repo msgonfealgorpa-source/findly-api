@@ -1,13 +1,12 @@
 /* =========================================
-   FINDLY SAGE ULTIMATE - SERVER (FINAL)
+   FINDLY SAGE ULTIMATE - MULTI-LANG SERVER
    ========================================= */
 
-const SageCore = require('./sage-core'); // تأكد أن ملف sage-core.js بجانب هذا الملف
+const SageCore = require('./sage-core');
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
 const mongoose = require('mongoose');
-const nodemailer = require('nodemailer');
 
 const app = express();
 
@@ -16,12 +15,57 @@ app.use(cors({ origin: '*', methods: ['GET','POST'], allowedHeaders: ['Content-T
 app.use(express.json());
 
 /* ================= ENV VARIABLES ================= */
-// يفضل وضع هذه في ملف .env لكنها هنا لتعمل مباشرة
-const { MONGO_URI, X_RAPIDAPI_KEY, EMAIL_USER, EMAIL_PASS, PORT } = process.env;
+const { MONGO_URI, X_RAPIDAPI_KEY, PORT } = process.env;
 const X_RAPIDAPI_HOST = "real-time-amazon-data.p.rapidapi.com";
 
-/* ================= HELPERS (أدوات مساعدة) ================= */
-// 1. تنظيف الروابط
+/* ================= TRANSLATION DICTIONARY (القاموس الذكي) ================= */
+// هذا القاموس هو المسؤول عن تغيير لغة التحليل بناءً على طلب المستخدم
+const DICT = {
+  ar: {
+    buy: "صفقة ممتازة", wait: "انتظر", fair: "سعر عادل",
+    reason_cheap: "أقل من متوسط السوق بـ",
+    reason_expensive: "السعر أعلى من السوق",
+    reason_fair: "السعر مستقر حالياً",
+    analysis: "تحليل ذكي", loading: "جاري التحليل..."
+  },
+  en: {
+    buy: "Great Deal", wait: "Wait", fair: "Fair Price",
+    reason_cheap: "Below market average by",
+    reason_expensive: "Price is above market",
+    reason_fair: "Price is stable now",
+    analysis: "Smart Analysis", loading: "Analyzing..."
+  },
+  fr: {
+    buy: "Bonne Affaire", wait: "Attendez", fair: "Prix Juste",
+    reason_cheap: "Moins cher que la moyenne de",
+    reason_expensive: "Prix supérieur au marché",
+    reason_fair: "Prix stable actuellement",
+    analysis: "Analyse Intel", loading: "Analyse..."
+  },
+  de: {
+    buy: "Gutes Geschäft", wait: "Warten", fair: "Fairer Preis",
+    reason_cheap: "Unter dem Marktdurchschnitt um",
+    reason_expensive: "Preis über dem Markt",
+    reason_fair: "Preis ist stabil",
+    analysis: "Smarte Analyse", loading: "Analyse..."
+  },
+  es: {
+    buy: "Buena Oferta", wait: "Espera", fair: "Precio Justo",
+    reason_cheap: "Bajo el promedio por",
+    reason_expensive: "Precio sobre el mercado",
+    reason_fair: "Precio estable ahora",
+    analysis: "Análisis Intel", loading: "Analizando..."
+  },
+  tr: {
+    buy: "Harika Fırsat", wait: "Bekle", fair: "Adil Fiyat",
+    reason_cheap: "Piyasa ortalamasının altında:",
+    reason_expensive: "Fiyat piyasanın üzerinde",
+    reason_fair: "Fiyat şu an istikrarlı",
+    analysis: "Akıllı Analiz", loading: "Analiz ediliyor..."
+  }
+};
+
+/* ================= HELPERS ================= */
 function finalizeUrl(url) {
   if (!url) return '';
   let u = url.trim();
@@ -31,183 +75,137 @@ function finalizeUrl(url) {
   return u;
 }
 
-// 2. تنظيف الأسعار (مهم جداً للحسابات)
 function cleanPrice(p) {
-  if (!p) return 0;
-  // يحول "$15.99" إلى 15.99
-  return parseFloat(p.toString().replace(/[^0-9.]/g,'')) || 0;
+  return parseFloat(p?.toString().replace(/[^0-9.]/g,'')) || 0;
 }
 
-/* ================= DB MODELS (قواعد البيانات) ================= */
-// نموذج التنبيهات
+/* ================= DB MODELS ================= */
 const alertSchema = new mongoose.Schema({
-  email: String,
-  productName: String,
-  targetPrice: Number,
-  currentPrice: Number,
-  productLink: String,
-  uid: String,
-  createdAt: { type: Date, default: Date.now }
+  email: String, productName: String, targetPrice: Number, currentPrice: Number, productLink: String, uid: String, createdAt: { type: Date, default: Date.now }
 });
 const Alert = mongoose.model('Alert', alertSchema);
 
-// نموذج قائمة المراقبة
 const watchlistSchema = new mongoose.Schema({
-  uid: String,
-  title: String,
-  price: Number,
-  link: String,
-  thumbnail: String,
-  addedAt: { type: Date, default: Date.now }
+  uid: String, title: String, price: Number, link: String, thumbnail: String, addedAt: { type: Date, default: Date.now }
 });
 const Watchlist = mongoose.model('Watchlist', watchlistSchema);
 
-// الاتصال بقاعدة البيانات
-if (MONGO_URI) {
-  mongoose.connect(MONGO_URI)
-    .then(() => console.log("✅ DB Connected Successfully"))
-    .catch(e => console.log("❌ DB Connection Error:", e));
-}
+if (MONGO_URI) mongoose.connect(MONGO_URI).then(() => console.log("✅ DB Connected")).catch(e => console.log("❌ DB Error:", e));
 
-/* ================= SEARCH ENGINE (محرك البحث) ================= */
-// هذا هو الكود المعدل الذي طلبت إضافته لضمان وصول التحليلات
+/* ================= SEARCH ENGINE ================= */
 app.get('/search', async (req, res) => {
+  // نستقبل اللغة هنا (lang)
   const { q, lang = 'ar', uid = 'guest' } = req.query;
-  
-  // إذا لم يكتب المستخدم شيئاً
+  const selectedLang = DICT[lang] ? lang : 'ar'; // التأكد من وجود اللغة أو العودة للعربية
+  const TEXTS = DICT[selectedLang];
+
   if (!q) return res.json({ results: [] });
 
   try {
-    // 1. جلب البيانات من أمازون
     const response = await axios.request({
       method: 'GET',
       url: `https://${X_RAPIDAPI_HOST}/search`,
       params: { query: q, country: 'US', category_id: 'aps' },
-      headers: {
-        'x-rapidapi-key': X_RAPIDAPI_KEY,
-        'x-rapidapi-host': X_RAPIDAPI_HOST
-      }
+      headers: { 'x-rapidapi-key': X_RAPIDAPI_KEY, 'x-rapidapi-host': X_RAPIDAPI_HOST }
     });
 
     const amazonItems = response.data?.data?.products || [];
     const results = [];
 
-    // 2. معالجة كل منتج
+    // تحضير المنافسين للحسابات
+    const competitors = amazonItems.map(p => ({ price: cleanPrice(p.product_price) })).filter(c => c.price > 0);
+
     for (const item of amazonItems) {
+      const currentPrice = cleanPrice(item.product_price);
       
-      // تجهيز كائن المنتج القياسي
       const standardizedItem = {
         name: item.product_title,
         title: item.product_title,
-        price: item.product_price, // السعر كنص مثل "$10"
-        numericPrice: cleanPrice(item.product_price), // السعر كرقم للحسابات
+        price: item.product_price,
+        numericPrice: currentPrice,
         link: finalizeUrl(item.product_url),
         thumbnail: item.product_photo,
         source: 'Amazon'
       };
 
-      // تجهيز قائمة المنافسين (مهم جداً لحساب متوسط السوق)
-      // نأخذ جميع الأسعار الموجودة في الصفحة لنقارن هذا المنتج بها
-      const competitors = amazonItems.map(p => ({
-        price: cleanPrice(p.product_price) // تأكدنا من تنظيف السعر هنا
-      })).filter(c => c.price > 0); // استبعاد الأسعار الصفرية
+      // 1. استدعاء العقل (يقوم بالحسابات فقط)
+      const intelligenceRaw = SageCore(standardizedItem, competitors, {}, {}, uid, null);
 
-      // 3. استدعاء العقل (SageCore)
-      const intelligenceRaw = SageCore(
-        standardizedItem, // المنتج الحالي
-        competitors,      // قائمة المنافسين للمقارنة
-        {}, // User Events (يمكن تفعيلها لاحقاً)
-        {}, // User History
-        uid,
-        null
-      );
+      // 2. الترجمة الديناميكية (Dynamic Translation)
+      // هنا نقوم بفحص الأرقام ونحدد النص بناءً على لغة المستخدم
+      let decisionTitle = TEXTS.fair;
+      let decisionReason = TEXTS.reason_fair;
+      let decisionEmoji = '⚖️';
+      
+      const avg = intelligenceRaw?.priceIntel?.average || 0;
+      const score = intelligenceRaw?.valueIntel?.score || 0;
 
-      // 4. تعبئة بيانات الذكاء (Mapping) لتناسب الواجهة
+      if (avg > 0) {
+        if (currentPrice > avg * 1.1) {
+            // غالي
+            decisionTitle = TEXTS.wait;
+            decisionReason = TEXTS.reason_expensive;
+            decisionEmoji = '🤖';
+        } else if (currentPrice < avg * 0.95) {
+            // رخيص (لقطة)
+            decisionTitle = TEXTS.buy;
+            decisionReason = `${TEXTS.reason_cheap} ${score}%`;
+            decisionEmoji = '🟢';
+        }
+      }
+
       const intelligence = {
         finalVerdict: {
-          // إذا كان القرار "شراء" نضع دائرة خضراء، وإلا روبوت
-          emoji: intelligenceRaw?.priceIntel?.decision?.includes('Buy') || intelligenceRaw?.valueIntel?.score > 70 ? '🟢' : '🤖',
-          // العنوان: نأخذ القرار الصادر من العقل (مثلاً: صفقة ممتازة)
-          title: intelligenceRaw?.priceIntel?.decision || (lang === 'ar' ? 'تحليل ذكي' : 'Smart Analysis'),
-          // السبب: نأخذ التسمية التوضيحية (مثلاً: أقل من السوق بـ 20%)
-          reason: intelligenceRaw?.priceIntel?.label || (lang === 'ar' ? 'جاري تجميع البيانات...' : 'Analyzing data...')
+          emoji: decisionEmoji,
+          title: decisionTitle, // النص المترجم
+          reason: decisionReason // السبب المترجم
         },
-        trustIntel: intelligenceRaw?.trustIntel || {},
-        priceIntel: intelligenceRaw?.priceIntel || {}, // يحتوي على average و min/max
-        valueIntel: intelligenceRaw?.valueIntel || { score: 0 }
+        priceIntel: intelligenceRaw?.priceIntel || {},
+        valueIntel: intelligenceRaw?.valueIntel || { score: 0 },
+        trustIntel: intelligenceRaw?.trustIntel || {}
       };
 
-      // 5. تعبئة بيانات المقارنة للنافذة المنبثقة (Modal)
       const comparison = {
         market_average: intelligence.priceIntel?.average ? `$${intelligence.priceIntel.average}` : '—',
         savings_percentage: intelligence.valueIntel?.score || 0,
         competitors: competitors.length
       };
 
-      // إضافة المنتج للنتائج النهائية
-      results.push({
-        ...standardizedItem,
-        intelligence,
-        comparison
-      });
+      results.push({ ...standardizedItem, intelligence, comparison });
     }
 
-    // إرسال الرد للواجهة
     res.json({ query: q, results });
 
   } catch (err) {
-    console.error('❌ Search Error:', err.message);
-    // إرجاع مصفوفة فارغة في حالة الخطأ لتجنب تعليق التطبيق
+    console.error("❌ Search Error:", err.message);
     res.status(500).json({ error: 'Search Failed', results: [] });
   }
 });
 
-/* ================= ALERTS (التنبيهات) ================= */
+/* ================= ROUTES (Alerts & Watchlist) ================= */
 app.post('/alerts', async (req, res) => {
   try {
-    if (mongoose.connection.readyState === 1) {
-      await new Alert(req.body).save();
-      res.json({ success: true });
-    } else {
-      res.status(503).json({ error: 'DB Offline' });
-    }
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
+    if (mongoose.connection.readyState === 1) { await new Alert(req.body).save(); res.json({ success: true }); } 
+    else { res.status(503).json({ error: 'DB Offline' }); }
+  } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-/* ================= WATCHLIST (المفضلة) ================= */
-// إضافة للمفضلة
 app.post('/watchlist', async (req, res) => {
   try {
-    if (mongoose.connection.readyState === 1) {
-      await new Watchlist(req.body).save();
-      res.json({ success: true });
-    } else {
-      res.status(503).json({ error: 'DB Offline' });
-    }
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
+    if (mongoose.connection.readyState === 1) { await new Watchlist(req.body).save(); res.json({ success: true }); }
+    else { res.status(503).json({ error: 'DB Offline' }); }
+  } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// جلب المفضلة
 app.get('/watchlist/:uid', async (req, res) => {
   try {
-    if (mongoose.connection.readyState === 1) {
-      const list = await Watchlist.find({ uid: req.params.uid }).sort({ addedAt: -1 });
-      res.json(list);
-    } else {
-      res.status(503).json({ error: 'DB Offline' });
-    }
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
+    if (mongoose.connection.readyState === 1) { const list = await Watchlist.find({ uid: req.params.uid }).sort({ addedAt: -1 }); res.json(list); }
+    else { res.status(503).json({ error: 'DB Offline' }); }
+  } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 /* ================= START SERVER ================= */
 const PORT_FINAL = PORT || 3000;
 app.listen(PORT_FINAL, () => {
-  console.log(`🚀 Sage Server running on port ${PORT_FINAL}`);
-  console.log(`🧠 Brain (SageCore) is active and linked.`);
+  console.log(`🚀 Findly Server running on port ${PORT_FINAL} with Multi-Lang Support`);
 });

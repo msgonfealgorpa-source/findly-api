@@ -953,6 +953,16 @@
       const card = document.createElement('div');
       card.className = `product-card ${budgetClass}`; // إضافة كلاس التنبيه
 
+
+
+        const coupons = p.coupons || [];
+const bestCoupon = coupons[0]; // نفترض أول كوبون هو الأفضل
+const numericPrice = parseFloat((p.price || '').replace(/[^\d.]/g, ''));
+const discountedPrice = bestCoupon
+  ? applyCoupon(numericPrice, bestCoupon)
+  : null;
+
+        
       card.innerHTML = `
 ${budgetBadge} 
 <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/200'">

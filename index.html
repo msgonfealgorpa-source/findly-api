@@ -720,45 +720,65 @@
             card.className = 'product-card';
 
             card.innerHTML = `
-              <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/200'">
+  <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/200'">
 
-              <h3>${p.title || '—'}</h3>
-              <div class="price">${p.price || '—'}</div>
+  <h3>${p.title || '—'}</h3>
+  <div class="price">${p.price || '—'}</div>
 
-              <div class="analysis-engine">
-                <span class="analysis-label">
-                  ${verdict.emoji || '🤖'} ${verdict.title || 'تحليل ذكي'}
-                </span>
-                <div>
-                  ${verdict.reason || 'لا توجد بيانات كافية حالياً'}
-                </div>
-              </div>
+  <!-- القرار المترجم (كما هو) -->
+  <div class="analysis-engine">
+    <span class="analysis-label">
+      ${verdict.emoji || '🤖'} ${verdict.title || 'تحليل ذكي'}
+    </span>
+    <div>
+      ${verdict.reason || 'لا توجد بيانات كافية حالياً'}
+    </div>
+  </div>
 
-              <div class="btn-group">
-                <a href="${p.link}" target="_blank" class="action-btn buy-now">
-                  ${dict[lang].buy}
-                </a>
+  <!-- 🔥 عرض كل العقول -->
+  <details style="margin-top:10px;">
+    <summary style="cursor:pointer;font-weight:bold;">
+      🧠 عرض كل الذكاء
+    </summary>
 
-                <button class="action-btn analyze-btn"
-                  onclick="openAnalysisModal('${encodeURIComponent(JSON.stringify({
-                    title: verdict.title,
-                    reason: verdict.reason,
-                    average: avg,
-                    score: score
-                  }))}')">
-                  ${dict[lang].analyze}
-                </button>
+    <pre style="
+      background:#111827;
+      color:#e5e7eb;
+      padding:12px;
+      border-radius:8px;
+      font-size:12px;
+      max-height:400px;
+      overflow:auto;
+    ">
+${JSON.stringify(intel, null, 2)}
+    </pre>
+  </details>
 
-                <button class="action-btn watch-btn"
-                  onclick="addToWatch(
-                    '${(p.title || '').replace(/'/g,'')}',
-                    '${p.price}',
-                    '${p.link}'
-                  )">
-                  ${dict[lang].watch}
-                </button>
-              </div>
-            `;
+  <div class="btn-group">
+    <a href="${p.link}" target="_blank" class="action-btn buy-now">
+      ${dict[lang].buy}
+    </a>
+
+    <button class="action-btn analyze-btn"
+      onclick="openAnalysisModal('${encodeURIComponent(JSON.stringify({
+        title: verdict.title,
+        reason: verdict.reason,
+        average: avg,
+        score: score
+      }))}')">
+      ${dict[lang].analyze}
+    </button>
+
+    <button class="action-btn watch-btn"
+      onclick="addToWatch(
+        '${(p.title || '').replace(/'/g, '')}',
+        '${p.price}',
+        '${p.link}'
+      )">
+      ${dict[lang].watch}
+    </button>
+  </div>
+`;
 
             resultsBox.appendChild(card);
         });

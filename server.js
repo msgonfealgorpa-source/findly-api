@@ -113,24 +113,16 @@ app.get('/search', async (req, res) => {
     const results = [];
 
     // تحضير المنافسين للحسابات
-    const competitors = amazonItems.map(p => ({ price: cleanPrice(p.product_price) })).filter(c => c.price > 0);
-
-    for (const item of amazonItems) {
-      const currentPrice = cleanPrice(item.product_price);
-      
-      const standardizedItem = {
-        name: item.product_title,
-        title: item.product_title,
-        price: item.product_price,
-        numericPrice: currentPrice,
-        link: finalizeUrl(item.product_url),
-        thumbnail: item.product_photo,
-        source: 'Amazon'
-      };
-
+    
       // 1. استدعاء العقل (يقوم بالحسابات فقط)
-      const intelligenceRaw = SageCore(standardizedItem, competitors, {}, {}, uid, null);
-
+      const intelligenceRaw = SageCore(
+  standardizedItem,
+  amazonItems,   // ← مهم جداً
+  {},
+  {},
+  uid,
+  null
+);
       // 2. الترجمة الديناميكية (Dynamic Translation)
       // هنا نقوم بفحص الأرقام ونحدد النص بناءً على لغة المستخدم
       let decisionTitle = TEXTS.fair;

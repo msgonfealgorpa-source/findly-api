@@ -729,10 +729,12 @@ width: 80%; max-width: 500px; border-radius: 15px; text-align: right;
                         ${dict[lang].buy}
                     </a>
 
-                    <button class="action-btn"
-                        onclick='openComparisonModal(${JSON.stringify(p.comparison || {}).replace(/"/g, "&quot;")})'>
-                        📊 ${lang === 'ar' ? 'تحليل السعر' : 'Price Analysis'}
-                    </button>
+                    <button class="action-btn compare-btn"
+    data-comp='${comparisonData}'
+    onclick="openComparisonModalFromBtn(this)">
+    <i class="fa-solid fa-chart-simple"></i>
+    ${lang === 'ar' ? "تحليل السعر" : "Price Analysis"}
+</button>
 
                     <button class="action-btn watch-later"
                         onclick="addToWatch('${(p.name || '').replace(/'/g, "\\'")}', '${p.price}', '${p.link}')">
@@ -755,6 +757,30 @@ width: 80%; max-width: 500px; border-radius: 15px; text-align: right;
     }
 }
 
+
+
+    function openComparisonModalFromBtn(btn) {
+  try {
+    const data = btn.dataset.comp;
+    if (!data) {
+      alert(lang === 'ar'
+        ? "لا توجد بيانات تحليل"
+        : "No analysis data");
+      return;
+    }
+
+    const parsed = JSON.parse(
+      data.replace(/&quot;/g, '"').replace(/&apos;/g, "'")
+    );
+
+    openComparisonModal(parsed);
+  } catch (e) {
+    console.error("Comparison parse error:", e);
+    alert(lang === 'ar'
+      ? "خطأ في فتح تحليل السعر"
+      : "Failed to open price analysis");
+  }
+    }
 // 2. دالة إضافة التنبيهات (المراقبة)
 async function addToWatch(name, price, link) {
 const userEmail = prompt(lang === 'ar' ? "أدخل إيميلك للتنبيه عند انخفاض السعر:" : "Enter email for price alerts:");

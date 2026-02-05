@@ -1,3 +1,4 @@
+const SageCore = require('./sage-core');
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios'); // تم استبدال مكتبة serpapi بـ axios لجلب بيانات أمازون
@@ -120,9 +121,19 @@ app.get('/search', async(req,res)=>{
         thumbnail: item.product_photo,
         source: "Amazon"
       };
-      // استدعاء العقل بنفس منطقه الأصلي
-      results.push(await ProductIntelligenceEngine(standardizedItem, amazonItems, lang));
-    }
+      const intelligence = SageCore(
+  standardizedItem,
+  amazonItems,
+  {},        // userEvents (لاحقًا من Firebase)
+  {},        // userHistory (لاحقًا من Mongo)
+  req.ip,    // userId
+  null       // userOutcome
+);
+
+results.push({
+  ...standardizedItem,
+  intelligence
+});
     res.json({query:q, results});
 
   } catch(err) {

@@ -675,214 +675,199 @@
 
     let watchList = JSON.parse(localStorage.getItem('findly_watch')) || [];  
 
-    const dict = {  
-        ar: { title: "مستشارك الحكيم", sub: "دليلك الذكي للتسوق المثالي", energy: "طاقة العقل", welcome: "مرحباً،", game: "ألعاب", beauty: "جمال", home: "منزل ذكي", c1: "هواتف", c2: "لابتوب", c4: "ساعات", p_head: "الملف الشخصي", buy: "شراء الآن 🛒", watch: "راقب السعر 🔔", over: "يتجاوز ميزانيتك", cheap: "اقتصادي", top: "الأعلى تقييماً", new: "حديث جداً", deep: "وضع التحليل الذكي", watchTitle: "قائمة المراقبة", why: "لماذا اخترنا هذا؟", slow: "السيرفر يستيقظ.. انتظر ثوانٍ", noAttempts: "⚠️ استنفدت محاولاتك!", analyze: "📊 تحليل السعر" },  
-        en: { title: "Sage Advisor", sub: "Your smart shopping guide", energy: "Sage Energy", welcome: "Welcome,", game: "Gaming", beauty: "Beauty", home: "Smart Home", c1: "Phones", c2: "Laptops", c4: "Watches", p_head: "Profile", buy: "Buy Now 🛒", watch: "Watch Price 🔔", over: "Over Budget!", cheap: "Budget", top: "Top Rated", new: "Newest", deep: "AI Deep Mode", watchTitle: "Watch List", why: "Why this choice?", slow: "Server waking up.. wait", noAttempts: "⚠️ No attempts left!", analyze: "📊 Analysis" },  
-        fr: { title: "Conseiller Sage", sub: "Votre guide d'achat intelligent", energy: "Énergie Sage", welcome: "Bienvenue,", game: "Jeux", beauty: "Beauté", home: "Maison Inte.", c1: "Mobiles", c2: "Laptops", c4: "Montres", p_head: "Profil", buy: "Acheter 🛒", watch: "Surveiller 🔔", over: "Hors budget!", cheap: "Éco", top: "Mieux notés", new: "Nouveau", deep: "Mode Analyse AI", watchTitle: "Liste de veille", why: "Pourquoi ce choix?", slow: "Le serveur se réveille..", noAttempts: "⚠️ Plus d'essais!", analyze: "📊 Analyse" },  
-        de: { title: "Weiser Berater", sub: "Ihr smarter Einkaufsführer", energy: "Weise Energie", welcome: "Willkommen,", game: "Spiele", beauty: "Schönheit", home: "Smart Home", c1: "Handys", c2: "Laptops", c4: "Uhren", p_head: "Profil", buy: "Kaufen 🛒", watch: "Beobachten 🔔", over: "Budget übersch.", cheap: "Günstig", top: "Bestbewertet", new: "Neu", deep: "KI-Analyse-Modus", watchTitle: "Beobachtungsliste", why: "Warum diese Wahl?", slow: "Server wacht auf..", noAttempts: "⚠️ Keine Versuche mehr!", analyze: "📊 Analyse" },  
-        es: { title: "Asesor Sabio", sub: "Tu guía de compras inteligente", energy: "Energía Sabia", welcome: "Bienvenido,", game: "Juegos", beauty: "Belleza", home: "Hogar Intelig.", c1: "Móviles", c2: "Portátiles", c4: "Relojes", p_head: "Perfil", buy: "Comprar 🛒", watch: "Vigilar 🔔", over: "Fuera de presupuesto", cheap: "Económico", top: "Mejor valorado", new: "Nuevo", deep: "Modo de análisis IA", watchTitle: "Lista de vigilancia", why: "¿Por qué esta elección?", slow: "El servidor está despertando..", noAttempts: "⚠️ ¡No quedan intentos!", analyze: "📊 Análisis" },  
-        tr: { title: "Bilge Danışman", sub: "Akıllı alışveriş rehberiniz", energy: "Bilge Enerji", welcome: "Hoş geldiniz,", game: "Oyunlar", beauty: "Güzellik", home: "Akıllı Ev", c1: "Telefonlar", c2: "Laptoplar", c4: "Saatler", p_head: "Profil", buy: "Satın Al 🛒", watch: "Fiyatı İzle 🔔", over: "Bütçe Aşıldı!", cheap: "Ekonomik", top: "En İyi", new: "Yeni", deep: "Yapay Zeka Analiz", watchTitle: "İzleme Listesi", why: "Neden bu seçim?", slow: "Sunucu uyanıyor.. bekleyin", noAttempts: "⚠️ Deneme kalmadı!", analyze: "📊 Analiz" }  
-    };
-
 
     const dict = {
   ar: {
-    market: 'السوق',
-    avg_price: 'متوسط السعر',
-    competitors: 'عدد المنافسين',
-
-    value: 'قيمة الصفقة',
-    deal_score: 'تقييم الصفقة',
-    learning_on: 'سيتحسن التحليل مع الاستخدام',
-    learning_later: 'التحليل قيد التعلم',
-
-    forecast: 'التوقع السعري',
-    trend: {
-      up: 'قد يرتفع قريبًا',
-      down: 'قد ينخفض',
-      stable: 'مستقر'
+    ui: {
+      title: "مستشارك الحكيم",
+      sub: "دليلك الذكي للتسوق المثالي",
+      energy: "طاقة العقل",
+      welcome: "مرحباً،",
+      game: "ألعاب",
+      beauty: "جمال",
+      home: "منزل ذكي",
+      c1: "هواتف",
+      c2: "لابتوب",
+      c4: "ساعات",
+      p_head: "الملف الشخصي",
+      buy: "شراء الآن 🛒",
+      watch: "راقب السعر 🔔",
+      over: "يتجاوز ميزانيتك",
+      cheap: "اقتصادي",
+      top: "الأعلى تقييماً",
+      new: "حديث جداً",
+      deep: "وضع التحليل الذكي",
+      watchTitle: "قائمة المراقبة",
+      why: "لماذا اخترنا هذا؟",
+      slow: "السيرفر يستيقظ.. انتظر ثوانٍ",
+      noAttempts: "⚠️ استنفدت محاولاتك!",
+      analyze: "📊 تحليل السعر"
     },
 
-    expected_price: 'السعر المتوقع',
-    confidence: 'الثقة',
-
-    trust: 'الثقة والمخاطر',
-    no_risks: 'لا توجد مخاطر واضحة',
-
-    buy: 'اشترِ',
-    analyze: 'تحليل',
-    watch: 'راقب'
+    search: {
+      market: "السوق",
+      avg_price: "متوسط السعر",
+      competitors: "عدد المنافسين",
+      value: "قيمة الصفقة",
+      deal_score: "تقييم الصفقة",
+      learning_on: "سيتحسن التحليل مع الاستخدام",
+      learning_later: "التحليل قيد التعلم",
+      forecast: "التوقع السعري",
+      trend: {
+        up: "قد يرتفع قريبًا",
+        down: "قد ينخفض",
+        stable: "مستقر"
+      },
+      expected_price: "السعر المتوقع",
+      confidence: "الثقة",
+      trust: "الثقة والمخاطر",
+      no_risks: "لا توجد مخاطر واضحة",
+      buy: "اشترِ",
+      analyze: "تحليل",
+      watch: "راقب"
+    }
   },
 
   en: {
-    market: 'Market',
-    avg_price: 'Average price',
-    competitors: 'Competitors',
-
-    value: 'Deal value',
-    deal_score: 'Deal score',
-    learning_on: 'Analysis improves with usage',
-    learning_later: 'Analysis is learning',
-
-    forecast: 'Price forecast',
-    trend: {
-      up: 'Likely to rise',
-      down: 'Likely to drop',
-      stable: 'Stable'
+    ui: {
+      title: "Sage Advisor",
+      sub: "Your smart shopping guide",
+      energy: "Sage Energy",
+      welcome: "Welcome,",
+      game: "Gaming",
+      beauty: "Beauty",
+      home: "Smart Home",
+      c1: "Phones",
+      c2: "Laptops",
+      c4: "Watches",
+      p_head: "Profile",
+      buy: "Buy Now 🛒",
+      watch: "Watch Price 🔔",
+      over: "Over Budget!",
+      cheap: "Budget",
+      top: "Top Rated",
+      new: "Newest",
+      deep: "AI Deep Mode",
+      watchTitle: "Watch List",
+      why: "Why this choice?",
+      slow: "Server waking up.. wait",
+      noAttempts: "⚠️ No attempts left!",
+      analyze: "📊 Analysis"
     },
 
-    expected_price: 'Expected price',
-    confidence: 'Confidence',
-
-    trust: 'Trust & risks',
-    no_risks: 'No clear risks',
-
-    buy: 'Buy',
-    analyze: 'Analyze',
-    watch: 'Watch'
-  },
-
-  id: {
-    market: 'Pasar',
-    avg_price: 'Harga rata-rata',
-    competitors: 'Pesaing',
-
-    value: 'Nilai penawaran',
-    deal_score: 'Skor penawaran',
-    learning_on: 'Analisis meningkat dengan penggunaan',
-    learning_later: 'Analisis sedang belajar',
-
-    forecast: 'Perkiraan harga',
-    trend: {
-      up: 'Kemungkinan naik',
-      down: 'Kemungkinan turun',
-      stable: 'Stabil'
-    },
-
-    expected_price: 'Harga perkiraan',
-    confidence: 'Kepercayaan',
-
-    trust: 'Kepercayaan & risiko',
-    no_risks: 'Tidak ada risiko jelas',
-
-    buy: 'Beli',
-    analyze: 'Analisis',
-    watch: 'Pantau'
+    search: {
+      market: "Market",
+      avg_price: "Average price",
+      competitors: "Competitors",
+      value: "Deal value",
+      deal_score: "Deal score",
+      learning_on: "Analysis improves with usage",
+      learning_later: "Analysis is learning",
+      forecast: "Price forecast",
+      trend: {
+        up: "Likely to rise",
+        down: "Likely to drop",
+        stable: "Stable"
+      },
+      expected_price: "Expected price",
+      confidence: "Confidence",
+      trust: "Trust & risks",
+      no_risks: "No clear risks",
+      buy: "Buy",
+      analyze: "Analyze",
+      watch: "Watch"
+    }
   },
 
   fr: {
-    market: 'Marché',
-    avg_price: 'Prix moyen',
-    competitors: 'Concurrents',
-
-    value: 'Valeur de l’offre',
-    deal_score: 'Score',
-    learning_on: 'Analyse améliorée avec l’utilisation',
-    learning_later: 'Analyse en apprentissage',
-
-    forecast: 'Prévision de prix',
-    trend: {
-      up: 'Peut augmenter',
-      down: 'Peut baisser',
-      stable: 'Stable'
+    ui: {
+      title: "Conseiller Sage",
+      sub: "Votre guide d'achat intelligent",
+      energy: "Énergie Sage",
+      welcome: "Bienvenue,"
     },
-
-    expected_price: 'Prix attendu',
-    confidence: 'Confiance',
-
-    trust: 'Confiance & risques',
-    no_risks: 'Aucun risque clair',
-
-    buy: 'Acheter',
-    analyze: 'Analyser',
-    watch: 'Surveiller'
+    search: {
+      market: "Marché",
+      avg_price: "Prix moyen",
+      competitors: "Concurrents",
+      value: "Valeur de l’offre",
+      deal_score: "Score",
+      forecast: "Prévision de prix",
+      expected_price: "Prix attendu",
+      confidence: "Confiance",
+      buy: "Acheter",
+      analyze: "Analyser",
+      watch: "Surveiller"
+    }
   },
 
   de: {
-    market: 'Markt',
-    avg_price: 'Durchschnittspreis',
-    competitors: 'Wettbewerber',
-
-    value: 'Angebotswert',
-    deal_score: 'Bewertung',
-    learning_on: 'Analyse verbessert sich mit Nutzung',
-    learning_later: 'Analyse lernt noch',
-
-    forecast: 'Preisprognose',
-    trend: {
-      up: 'Steigt wahrscheinlich',
-      down: 'Fällt wahrscheinlich',
-      stable: 'Stabil'
+    ui: {
+      title: "Weiser Berater",
+      sub: "Ihr smarter Einkaufsführer",
+      energy: "Weise Energie",
+      welcome: "Willkommen,"
     },
-
-    expected_price: 'Erwarteter Preis',
-    confidence: 'Vertrauen',
-
-    trust: 'Vertrauen & Risiken',
-    no_risks: 'Keine klaren Risiken',
-
-    buy: 'Kaufen',
-    analyze: 'Analysieren',
-    watch: 'Beobachten'
+    search: {
+      market: "Markt",
+      avg_price: "Durchschnittspreis",
+      competitors: "Wettbewerber",
+      value: "Angebotswert",
+      deal_score: "Bewertung",
+      forecast: "Preisprognose",
+      expected_price: "Erwarteter Preis",
+      confidence: "Vertrauen",
+      buy: "Kaufen",
+      analyze: "Analysieren",
+      watch: "Beobachten"
+    }
   },
 
   es: {
-    market: 'Mercado',
-    avg_price: 'Precio promedio',
-    competitors: 'Competidores',
-
-    value: 'Valor de la oferta',
-    deal_score: 'Puntuación',
-    learning_on: 'El análisis mejora con el uso',
-    learning_later: 'El análisis está aprendiendo',
-
-    forecast: 'Pronóstico de precio',
-    trend: {
-      up: 'Probable subida',
-      down: 'Probable bajada',
-      stable: 'Estable'
+    ui: {
+      title: "Asesor Sabio",
+      sub: "Tu guía de compras inteligente",
+      energy: "Energía Sabia",
+      welcome: "Bienvenido,"
     },
-
-    expected_price: 'Precio esperado',
-    confidence: 'Confianza',
-
-    trust: 'Confianza y riesgos',
-    no_risks: 'No hay riesgos claros',
-
-    buy: 'Comprar',
-    analyze: 'Analizar',
-    watch: 'Vigilar'
+    search: {
+      market: "Mercado",
+      avg_price: "Precio promedio",
+      competitors: "Competidores",
+      value: "Valor de la oferta",
+      deal_score: "Puntuación",
+      forecast: "Pronóstico de precio",
+      expected_price: "Precio esperado",
+      confidence: "Confianza",
+      buy: "Comprar",
+      analyze: "Analizar",
+      watch: "Vigilar"
+    }
   },
 
   tr: {
-    market: 'Pazar',
-    avg_price: 'Ortalama fiyat',
-    competitors: 'Rakipler',
-
-    value: 'Teklif değeri',
-    deal_score: 'Puan',
-    learning_on: 'Analiz kullanım ile gelişir',
-    learning_later: 'Analiz öğreniyor',
-
-    forecast: 'Fiyat tahmini',
-    trend: {
-      up: 'Yükselmesi muhtemel',
-      down: 'Düşmesi muhtemel',
-      stable: 'Sabit'
+    ui: {
+      title: "Bilge Danışman",
+      sub: "Akıllı alışveriş rehberiniz",
+      energy: "Bilge Enerji",
+      welcome: "Hoş geldiniz,"
     },
-
-    expected_price: 'Beklenen fiyat',
-    confidence: 'Güven',
-
-    trust: 'Güven ve riskler',
-    no_risks: 'Açık risk yok',
-
-    buy: 'Satın al',
-    analyze: 'Analiz',
-    watch: 'İzle'
+    search: {
+      market: "Pazar",
+      avg_price: "Ortalama fiyat",
+      competitors: "Rakipler",
+      value: "Teklif değeri",
+      deal_score: "Puan",
+      forecast: "Fiyat tahmini",
+      expected_price: "Beklenen fiyat",
+      confidence: "Güven",
+      buy: "Satın al",
+      analyze: "Analiz",
+      watch: "İzle"
+    }
   }
 };
-
+    
     async function runSearch() {
   const q = document.getElementById('s-input').value.trim();
   const status = document.getElementById('status');
@@ -890,7 +875,7 @@
 
   if (!q) return;
 
-  const T = dict[lang]; // 🔑 مفتاح الترجمة
+const T = dict[lang]?.search || dict.en.search; // 🔑 مفتاح الترجمة
 
   status.style.display = 'block';
   status.innerText = '🔍 ...';

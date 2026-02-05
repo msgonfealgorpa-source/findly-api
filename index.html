@@ -967,6 +967,27 @@ ${budgetBadge}
   <div>${verdict.reason || ''}</div>
 </div>
 
+
+${bestCoupon ? `
+  <div class="coupon-box">
+    🎟️ <strong>${bestCoupon.code}</strong>
+    (${bestCoupon.type === 'percent'
+      ? `-${bestCoupon.discount}%`
+      : `-$${bestCoupon.discount}`})
+
+    <div class="discounted-price">
+      ${T.after_discount || 'After discount'}:
+      <strong>$${discountedPrice}</strong>
+    </div>
+
+    <button class="action-btn coupon-btn"
+      onclick="navigator.clipboard.writeText('${bestCoupon.code}')">
+      ${T.copy_coupon || 'Copy coupon'}
+    </button>
+  </div>
+` : ''}
+
+                         
 <div class="intel-section">
   <h4>📊 ${T.market}</h4>
   <p>${T.avg_price}: <strong>${priceIntel.average ? `$${priceIntel.average}` : '—'}</strong></p>

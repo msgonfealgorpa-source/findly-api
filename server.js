@@ -93,9 +93,9 @@ async function ProductIntelligenceEngine(item, allItems, lang){
 }
 
 /* ================= SEARCH ENDPOINT (تم تطويعه لبيانات أمازون وتوافق الواجهة) ================= */
-app.get('/search', async(req,res)=>{
-  const { q, lang='ar' } = req.query;
-  if(!q) return res.json({results:[]});
+app.get('/search', async (req, res) => {
+  const { q, lang = 'ar', uid = 'guest' } = req.query;
+  if (!q) return res.json({ results: [] });
 
   try {
     const options = {
@@ -109,39 +109,54 @@ app.get('/search', async(req,res)=>{
     };
 
     const response = await axios.request(options);
-    const amazonItems = response.data.data.products || [];
+    const amazonItems = response.data?.data?.products || [];
 
     const results = [];
 
-for (const item of amazonItems) {
-  const standardizedItem = {
-    title: item.product_title,
-    price: item.product_price,
-    link: item.product_url,
-    thumbnail: item.product_photo,
-    source: "Amazon"
-  };
+    for (const item of amazonItems) {
+      const standardizedItem = {
+        name: item.product_title,
+        title: item.product_title,
+        price: item.product_price,
+        link: item.product_url,
+        thumbnail: item.product_photo,
+        source: "Amazon"
+      };
 
-  const intelligence = SageCore(
-    standardizedItem,
-    amazonItems,
-    {},        // userEvents
-    {},        // userHistory
-    req.ip,    // userId
-    null       // userOutcome
-  );
+      // 🧠 العقل الجديد
+      const intelligence = SageCore(
+        standardizedItem,
+        amazonItems,
+        {},        // userEvents (لاحقًا)
+        {},        // userHistory (لاحقًا)
+        uid,       // userId
+        null       // userOutcome
+      );
 
-  results.push({
-    ...standardizedItem,
-    intelligence
-  });
-}
+      // 🔗 بيانات التحليل التي تتوقعها الواجهة (مهم)
+      const comparison = {
+        market_average: intelligence.priceIntel?.average || null,
+        savings_percentage: intelligence.valueIntel?.score || 0,
+        competitors: []
+      };
 
-res.json({ query: q, results });
+      const riskAnalysis = {
+        warnings: intelligence.trustIntel?.warnings || []
+      };
 
-  } catch(err) {
+      results.push({
+        ...standardizedItem,
+        intelligence,
+        comparison,
+        riskAnalysis
+      });
+    }
+
+    res.json({ query: q, results });
+
+  } catch (err) {
     console.error("Search Error:", err);
-    res.status(500).json({error:'Search Failed'});
+    res.status(500).json({ error: 'Search Failed' });
   }
 });
 

@@ -1,6 +1,6 @@
 /**
- * SageCore v2 – Global Price Intelligence Engine
- * Competitive-grade, instant analysis (no history required)
+ * Sage Core v2 – Competitive Price Intelligence Engine
+ * يعمل فورًا + يتطور مع الاستخدام
  */
 
 function cleanPrice(p) {
@@ -10,127 +10,139 @@ function cleanPrice(p) {
 
 module.exports = function SageCore(
   product,
-  allProducts = [],
-  userEvents = {},
-  userHistory = {},
+  marketProducts = [],
+  userEvents = {},     // { viewed, clickedAnalysis, bought }
+  userHistory = {},    // مستقبلًا
   userId = 'guest',
   userOutcome = null
 ) {
   const price = cleanPrice(product.price);
 
-  /* ================= COLLECT MARKET ================= */
-  const prices = allProducts
+  /* ===============================
+     1️⃣ Market Intelligence
+  =============================== */
+  const prices = marketProducts
     .map(p => cleanPrice(p.product_price || p.price))
     .filter(p => p > 0);
 
-  const competitorsCount = prices.length;
+  const marketAverage =
+    prices.length > 0
+      ? prices.reduce((a, b) => a + b, 0) / prices.length
+      : null;
 
-  if (!price || competitorsCount === 0) {
-    return {
-      priceIntel: {
-        current: price,
-        average: null,
-        decision: 'تحليل غير مكتمل',
-        label: 'بيانات السوق غير كافية',
-        color: '#6b7280'
-      },
-      valueIntel: { score: 0 },
-      trustIntel: { warnings: ['عدد المنافسين غير كاف'] },
-      marketIntel: {},
-      explain: ['لا توجد بيانات سوق كافية لإجراء تحليل دقيق']
-    };
+  let dealScore = 50;
+  let decision = 'سعر عادل';
+  let label = 'قريب من متوسط السوق';
+  let color = '#3b82f6';
+
+  if (marketAverage && price > 0) {
+    const diffPercent = ((marketAverage - price) / marketAverage) * 100;
+    dealScore = Math.round(Math.max(0, Math.min(100, diffPercent + 50)));
+
+    if (price < marketAverage * 0.85) {
+      decision = 'اشتري الآن';
+      label = 'أقل بكثير من السوق';
+      color = '#10b981';
+    } else if (price > marketAverage * 1.15) {
+      decision = 'انتظر';
+      label = 'أعلى من السوق';
+      color = '#ef4444';
+    }
   }
 
-  /* ================= MARKET STATS ================= */
-  const marketAverage = prices.reduce((a, b) => a + b, 0) / prices.length;
-  const minPrice = Math.min(...prices);
-  const maxPrice = Math.max(...prices);
+  /* ===============================
+     2️⃣ User Learning Intelligence
+     (يتفعل تدريجيًا)
+  =============================== */
+  let learningBoost = 0;
+  let learningReason = null;
 
-  const volatility =
-    marketAverage > 0
-      ? ((maxPrice - minPrice) / marketAverage) * 100
-      : 0;
-
-  const diffPercent = ((marketAverage - price) / marketAverage) * 100;
-
-  /* ================= DECISION ENGINE ================= */
-  let decision = 'انتظر';
-  let label = 'السعر أعلى من القيمة الحالية';
-  let color = '#ef4444';
-
-  if (diffPercent >= 15) {
-    decision = 'اشتري الآن';
-    label = 'سعر ممتاز أقل من السوق';
-    color = '#10b981';
-  } else if (diffPercent >= -5) {
-    decision = 'سعر مناسب';
-    label = 'قريب من متوسط السوق';
-    color = '#3b82f6';
+  if (userEvents.clickedAnalysis) {
+    learningBoost += 5;
+    learningReason = 'User shows high interest';
+  }
+  if (userEvents.bought) {
+    learningBoost += 15;
+    learningReason = 'User tends to buy at this range';
+  }
+  if (userEvents.viewed && !userEvents.clickedAnalysis) {
+    learningBoost -= 5;
   }
 
-  /* ================= VALUE SCORE ================= */
-  let valueScore = Math.round(
-    Math.max(0, Math.min(100, diffPercent + 50))
-  );
+  dealScore = Math.max(0, Math.min(100, dealScore + learningBoost));
 
-  /* ================= TRUST & RISK ================= */
+  /* ===============================
+     3️⃣ 7-Day Price Forecast (Approx)
+  =============================== */
+  let forecast = {
+    trend: 'stable',
+    expectedPrice: price,
+    confidence: 0.4,
+    advice: 'السعر مستقر'
+  };
+
+  if (marketAverage) {
+    if (price > marketAverage * 1.1) {
+      forecast = {
+        trend: 'down',
+        expectedPrice: Math.round(marketAverage * 0.98),
+        confidence: 0.7,
+        advice: 'انخفاض محتمل خلال 7 أيام'
+      };
+    } else if (price < marketAverage * 0.9) {
+      forecast = {
+        trend: 'up',
+        expectedPrice: Math.round(marketAverage),
+        confidence: 0.6,
+        advice: 'قد يرتفع قريبًا'
+      };
+    }
+  }
+
+  /* ===============================
+     4️⃣ Fake Deal Detection
+  =============================== */
   const warnings = [];
+  let riskScore = 0;
 
-  if (competitorsCount < 3)
-    warnings.push('عدد المقارنات قليل');
+  if (marketAverage && price > marketAverage * 1.25) {
+    warnings.push('السعر أعلى بكثير من السوق');
+    riskScore += 40;
+  }
 
-  if (volatility > 40)
-    warnings.push('السوق متقلب والأسعار غير مستقرة');
+  if (prices.length >= 5) {
+    const min = Math.min(...prices);
+    if (price > min * 1.3) {
+      warnings.push('عرض قد يكون وهميًا مقارنة بالمنافسين');
+      riskScore += 30;
+    }
+  }
 
-  if (price === minPrice)
-    warnings.push('أرخص سعر متاح في السوق');
-
-  /* ================= EXPLAINABILITY ================= */
-  const explain = [
-    `متوسط سعر السوق ${marketAverage.toFixed(2)}$`,
-    `سعر المنتج ${price.toFixed(2)}$`,
-    `فرق السعر ${diffPercent.toFixed(1)}%`,
-    `عدد المنافسين ${competitorsCount}`,
-    `تذبذب السوق ${Math.round(volatility)}%`
-  ];
-
-  /* ================= FINAL OUTPUT ================= */
+  /* ===============================
+     FINAL OUTPUT (متوافق مع الواجهة)
+  =============================== */
   return {
     priceIntel: {
       current: price,
-      average: marketAverage.toFixed(2),
-      min: minPrice,
-      max: maxPrice,
+      average: marketAverage ? marketAverage.toFixed(2) : null,
+      score: dealScore,
       decision,
       label,
       color
     },
 
     valueIntel: {
-      score: valueScore,
-      verdict:
-        valueScore > 80
-          ? 'قيمة ممتازة'
-          : valueScore > 60
-          ? 'قيمة جيدة'
-          : 'قيمة ضعيفة'
+      score: dealScore,
+      competitors: prices.length,
+      learningBoost,
+      learningReason
     },
+
+    forecastIntel: forecast,
 
     trustIntel: {
-      warnings
-    },
-
-    marketIntel: {
-      competitors: competitorsCount,
-      volatility: Math.round(volatility),
-      marketType:
-        volatility > 40
-          ? 'سوق متقلب'
-          : volatility > 20
-          ? 'سوق متوسط'
-          : 'سوق مستقر'
-    },
-
-    explain
+      warnings,
+      riskScore
+    }
   };
 };

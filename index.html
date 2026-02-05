@@ -624,98 +624,70 @@ width: 80%; max-width: 500px; border-radius: 15px; text-align: right;
         es: { title: "Asesor Sabio", sub: "Tu guía de compras inteligente", energy: "Energía Sabia", welcome: "Bienvenido,", game: "Juegos", beauty: "Belleza", home: "Hogar Intelig.", c1: "Móviles", c2: "Portátiles", c4: "Relojes", p_head: "Perfil", buy: "Comprar 🛒", watch: "Vigilar 🔔", over: "Fuera de presupuesto", cheap: "Económico", top: "Mejor valorado", new: "Nuevo", deep: "Modo de análisis IA", watchTitle: "Lista de vigilancia", why: "¿Por qué esta elección?", slow: "El servidor está despertando..", noAttempts: "⚠️ ¡No quedan intentos!" },  
         tr: { title: "Bilge Danışman", sub: "Akıllı alışveriş rehberiniz", energy: "Bilge Enerji", welcome: "Hoş geldiniz,", game: "Oyunlar", beauty: "Güzellik", home: "Akıllı Ev", c1: "Telefonlar", c2: "Laptoplar", c4: "Saatler", p_head: "Profil", buy: "Satın Al 🛒", watch: "Fiyatı İzle 🔔", over: "Bütçe Aşıldı!", cheap: "Ekonomik", top: "En İyi", new: "Yeni", deep: "Yapay Zeka Analiz", watchTitle: "İzleme Listesi", why: "Neden bu seçim?", slow: "Sunucu uyanıyor.. bekleyin", noAttempts: "⚠️ Deneme kalmadı!" }  
     };
-
- 
 async function runSearch() {
-    const q = document.getElementById('s-input').value.trim();
-    const status = document.getElementById('status');
-    const resCon = document.getElementById('results');
-    if (!q) return;
+  const q = document.getElementById('s-input').value.trim();
+  const status = document.getElementById('status');
+  const resultsBox = document.getElementById('results');
 
-    status.style.display = "block";
-    status.innerHTML = lang === 'ar'
-        ? '🔍 جاري التحليل الذكي...'
-        : '🔍 Smart analysis...';
+  if (!q) return;
 
-    resCon.innerHTML = "";
+  status.style.display = 'block';
+  status.innerText = '🔍 جاري التحليل الذكي...';
+  resultsBox.innerHTML = '';
 
-    try {
-        const apiUrl = `${API}/search?q=${encodeURIComponent(q)}&lang=${lang}`;
-        const response = await fetch(apiUrl);
-        if (!response.ok) throw new Error("Server error");
+  try {
+    const res = await fetch(`${API}/search?q=${encodeURIComponent(q)}&lang=${lang}`);
+    const data = await res.json();
 
-        const data = await response.json();
-        status.style.display = "none";
+    status.style.display = 'none';
 
-        if (!data.results || !data.results.length) {
-            status.style.display = "block";
-            status.innerHTML = lang === 'ar'
-                ? "❌ لا توجد نتائج"
-                : "❌ No results";
-            return;
-        }
-
-        const frag = document.createDocumentFragment();
-
-        data.results.slice(0, 5).forEach(p => {
-            const div = document.createElement('div');
-            div.className = 'product-card';
-
-            const intel = p.intelligence || {};
-            const score = Math.min(intel.score || 0, 100);
-            const label = intel.label || (lang === 'ar' ? 'غير محدد' : 'Unknown');
-            const avg = intel.average || '—';
-            const color = intel.color || '#8b5cf6';
-
-            div.innerHTML = `
-                <img src="${p.thumbnail || 'https://via.placeholder.com/150'}">
-                <h3>${p.title || '—'}</h3>
-
-                <div class="price">${p.price || '—'}</div>
-
-                <!-- بطاقة التحليل -->
-                <div class="analysis-engine" style="border-left:4px solid ${color}">
-                    <p><b>🤖 ${lang === 'ar' ? 'لماذا اخترنا هذا؟' : 'Why this product?'}</b></p>
-                    <p>${label}</p>
-
-                    <p>💰 <b>${lang === 'ar' ? 'متوسط السوق:' : 'Market Avg:'}</b> ${avg}</p>
-
-                    <div class="score-bar">
-                        <div class="bar" style="width:${score}%; background:${color}"></div>
-                    </div>
-                    <small>${lang === 'ar' ? 'كفاءة الصفقة' : 'Deal Efficiency'}: ${score}%</small>
-                </div>
-
-                <div class="btn-group">
-                    <a href="${p.link}" target="_blank" class="action-btn buy-now">
-                        ${lang === 'ar' ? 'شراء الآن' : 'Buy Now'}
-                    </a>
-
-     <button class="action-btn compare-btn"
-onclick='openComparisonModal(p.comparison)'>
-<i class="fa-solid fa-chart-simple"></i> تحليل السعر
-</button>
-     
-     <button class="action-btn watch-btn"
-                        onclick="addToWatch('${(p.title || '').replace(/'/g, "\\'")}', '${p.price}', '${p.link}')">
-                        🔔 ${lang === 'ar' ? 'راقب السعر' : 'Watch'}
-                    </button>
-                </div>
-            `;
-
-            frag.appendChild(div);
-        });
-
-        resCon.appendChild(frag);
-
-    } catch (e) {
-        console.error(e);
-        status.style.display = "block";
-        status.innerHTML = lang === 'ar'
-            ? "❌ خطأ في الاتصال بالسيرفر"
-            : "❌ Server connection error";
+    if (!data.results || !data.results.length) {
+      status.style.display = 'block';
+      status.innerText = '❌ لا توجد نتائج';
+      return;
     }
+
+    data.results.forEach(p => {
+      const intel = p.intelligence || {};
+
+      const card = document.createElement('div');
+      card.className = 'product-card';
+
+      card.innerHTML = `
+        <img src="${p.thumbnail || ''}">
+        <h3>${p.title || '—'}</h3>
+        <div class="price">${p.price || '—'}</div>
+
+        <!-- بطاقة التحليل -->
+        <div class="analysis-engine" style="border-right:4px solid ${intel.color || '#8b5cf6'}">
+          <span class="analysis-label">🤖 لماذا اخترناه؟</span>
+          <div>${intel.label || 'غير متوفر'}</div>
+          <div>💰 متوسط السوق: ${intel.average || '—'}</div>
+          <div>📊 كفاءة الصفقة: ${intel.score || 0}%</div>
+        </div>
+
+        <div class="btn-group">
+          <a href="${p.link}" target="_blank" class="action-btn buy-now">
+            شراء الآن
+          </a>
+
+          <button class="action-btn watch-later"
+            onclick="openAnalysisModal(${encodeURIComponent(JSON.stringify(intel))})">
+            📊 تحليل السعر
+          </button>
+        </div>
+      `;
+
+      resultsBox.appendChild(card);
+    });
+
+  } catch (err) {
+    console.error(err);
+    status.style.display = 'block';
+    status.innerText = '❌ خطأ في الاتصال بالسيرفر';
+  }
 }
+
     
 // 2. دالة إضافة التنبيهات (المراقبة)
 async function addToWatch(name, price, link) {

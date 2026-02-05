@@ -1,189 +1,86 @@
-const SageCore = require('./sage-core');
-const express = require('express');
-const cors = require('cors');
-const axios = require('axios');
-const mongoose = require('mongoose');
-const nodemailer = require('nodemailer');
+const SageCore = require('./sage-core'); const express = require('express'); const cors = require('cors'); const axios = require('axios'); const mongoose = require('mongoose'); const nodemailer = require('nodemailer');
 
 const app = express();
 
-/* ================= BASIC SETUP ================= */
-app.use(cors({ origin: '*', methods: ['GET','POST'], allowedHeaders: ['Content-Type','Authorization'] }));
-app.use(express.json());
+/* ================= BASIC SETUP ================= / app.use(cors({ origin: '', methods: ['GET','POST'], allowedHeaders: ['Content-Type','Authorization'] })); app.use(express.json());
 
-/* ================= ENV ================= */
-const { MONGO_URI, X_RAPIDAPI_KEY, EMAIL_USER, EMAIL_PASS, PORT } = process.env;
-const X_RAPIDAPI_HOST = "real-time-amazon-data.p.rapidapi.com";
+/* ================= ENV ================= */ const { MONGO_URI, X_RAPIDAPI_KEY, EMAIL_USER, EMAIL_PASS, PORT } = process.env; const X_RAPIDAPI_HOST = "real-time-amazon-data.p.rapidapi.com";
 
-/* ================= HELPERS ================= */
-function finalizeUrl(url) {
-  if (!url) return '';
-  let u = url.trim();
-  if (u.startsWith('/url') || u.startsWith('/shopping')) return 'https://www.google.com' + u;
-  if (u.startsWith('//')) return 'https:' + u;
-  if (!u.startsWith('http')) return 'https://' + u;
-  return u;
+/* ================= HELPERS ================= */ function finalizeUrl(url) { if (!url) return ''; let u = url.trim(); if (u.startsWith('/url') || u.startsWith('/shopping')) return 'https://www.google.com' + u; if (u.startsWith('//')) return 'https:' + u; if (!u.startsWith('http')) return 'https://' + u; return u; }
+
+/* ================= DB MODELS ================= */ const alertSchema = new mongoose.Schema({ email: String, productName: String, targetPrice: Number, currentPrice: Number, productLink: String, uid: String, createdAt: { type: Date, default: Date.now } }); const Alert = mongoose.model('Alert', alertSchema);
+
+const watchlistSchema = new mongoose.Schema({ uid: String, title: String, price: Number, link: String, thumbnail: String, addedAt: { type: Date, default: Date.now } }); const Watchlist = mongoose.model('Watchlist', watchlistSchema);
+
+if (MONGO_URI) { mongoose.connect(MONGO_URI) .then(() => console.log("✅ DB Connected")) .catch(e => console.log("❌ DB Error:", e)); }
+
+/* ================= SEARCH ================= */ app.get('/search', async (req, res) => { const { q, lang = 'ar', uid = 'guest' } = req.query; if (!q) return res.json({ results: [] });
+
+try { const response = await axios.request({ method: 'GET', url: https://${X_RAPIDAPI_HOST}/search, params: { query: q, country: 'US', category_id: 'aps' }, headers: { 'x-rapidapi-key': X_RAPIDAPI_KEY, 'x-rapidapi-host': X_RAPIDAPI_HOST } });
+
+const amazonItems = response.data?.data?.products || [];
+const results = [];
+
+for (const item of amazonItems) {
+  const standardizedItem = {
+    name: item.product_title,
+    title: item.product_title,
+    price: item.product_price,
+    link: finalizeUrl(item.product_url),
+    thumbnail: item.product_photo,
+    source: 'Amazon'
+  };
+
+  /* 🧠 SageCore (مصدر واحد صحيح) */
+  const intelligenceRaw = SageCore(
+    standardizedItem,
+    amazonItems,
+    {},
+    {},
+    uid,
+    null
+  );
+
+  /* 🔧 تهيئة الذكاء للواجهة */
+  const intelligence = {
+    finalVerdict: {
+      emoji: intelligenceRaw?.priceIntel?.decision === 'اشتري الآن' ? '🟢' : '🤖',
+      title: intelligenceRaw?.priceIntel?.decision || (lang === 'ar' ? 'تحليل ذكي' : 'Smart Analysis'),
+      reason: intelligenceRaw?.priceIntel?.label || (lang === 'ar' ? 'لا توجد بيانات كافية' : 'Not enough data')
+    },
+    timingIntel: {},
+    trustIntel: intelligenceRaw?.trustIntel || {},
+    priceIntel: intelligenceRaw?.priceIntel || {},
+    valueIntel: intelligenceRaw?.valueIntel || { score: 0 }
+  };
+
+  /* 📊 بيانات التحليل */
+  const comparison = {
+    market_average: intelligence.priceIntel?.average || null,
+    savings_percentage: intelligence.valueIntel?.score || 0,
+    competitors: []
+  };
+
+  const riskAnalysis = {
+    warnings: intelligence.trustIntel?.warnings || []
+  };
+
+  results.push({
+    ...standardizedItem,
+    intelligence,
+    comparison,
+    riskAnalysis
+  });
 }
 
-function cleanPrice(p) {
-  return parseFloat(p?.toString().replace(/[^0-9.]/g,'')) || 0;
-}
+res.json({ query: q, results });
 
-/* ================= DB MODELS ================= */
-const alertSchema = new mongoose.Schema({
-  email: String,
-  productName: String,
-  targetPrice: Number,
-  currentPrice: Number,
-  productLink: String,
-  uid: String,
-  createdAt: { type: Date, default: Date.now }
-});
-const Alert = mongoose.model('Alert', alertSchema);
+} catch (err) { console.error("❌ Search Error:", err.message); res.status(500).json({ error: 'Search Failed' }); } });
 
-const watchlistSchema = new mongoose.Schema({
-  uid: String,
-  title: String,
-  price: Number,
-  link: String,
-  thumbnail: String,
-  addedAt: { type: Date, default: Date.now }
-});
-const Watchlist = mongoose.model('Watchlist', watchlistSchema);
+/* ================= ALERTS ================= */ app.post('/alerts', async (req, res) => { try { if (mongoose.connection.readyState === 1) { await new Alert(req.body).save(); res.json({ success: true }); } else { res.status(503).json({ error: 'DB Offline' }); } } catch (e) { res.status(500).json({ error: e.message }); } });
 
-if (MONGO_URI) {
-  mongoose.connect(MONGO_URI)
-    .then(() => console.log("✅ DB Connected"))
-    .catch(e => console.log("❌ DB Error:", e));
-}
+/* ================= WATCHLIST ================= */ app.post('/watchlist', async (req, res) => { try { if (mongoose.connection.readyState === 1) { await new Watchlist(req.body).save(); res.json({ success: true }); } else { res.status(503).json({ error: 'DB Offline' }); } } catch (e) { res.status(500).json({ error: e.message }); } });
 
-/* ================= SEARCH ================= */
-app.get('/search', async (req, res) => {
-  const { q, lang = 'ar', uid = 'guest' } = req.query;
-  if (!q) return res.json({ results: [] });
+app.get('/watchlist/:uid', async (req, res) => { try { if (mongoose.connection.readyState === 1) { const list = await Watchlist.find({ uid: req.params.uid }).sort({ addedAt: -1 }); res.json(list); } else { res.status(503).json({ error: 'DB Offline' }); } } catch (e) { res.status(500).json({ error: e.message }); } });
 
-  try {
-    const response = await axios.request({
-      method: 'GET',
-      url: `https://${X_RAPIDAPI_HOST}/search`,
-      params: { query: q, country: 'US', category_id: 'aps' },
-      headers: {
-        'x-rapidapi-key': X_RAPIDAPI_KEY,
-        'x-rapidapi-host': X_RAPIDAPI_HOST
-      }
-    });
-
-    const amazonItems = response.data?.data?.products || [];
-    const results = [];
-
-    for (const item of amazonItems) {
-
-      const standardizedItem = {
-        name: item.product_title,
-        title: item.product_title,
-        price: item.product_price,
-        link: finalizeUrl(item.product_url),
-        thumbnail: item.product_photo,
-        source: 'Amazon'
-      };
-
-      /* 🧠 الذكاء الجديد (SageCore) */
-      const competitors = amazonItems.map(p => ({
-  price: p.product_price
-}));
-
-const intelligence = SageCore(
-  standardizedItem,
-  competitors,
-  {},
-  {},
-  uid,
-  null
-);
-
-      /* 🔧 تهيئة الذكاء للواجهة (مهم جداً) */
-      const intelligence = {
-        finalVerdict: {
-          emoji: intelligenceRaw?.finalVerdict?.emoji || '🤖',
-          title: intelligenceRaw?.finalVerdict?.title || (lang === 'ar' ? 'تحليل ذكي' : 'Smart Analysis'),
-          reason: intelligenceRaw?.finalVerdict?.reason || (lang === 'ar' ? 'لا توجد بيانات كافية' : 'Not enough data')
-        },
-        timingIntel: intelligenceRaw?.timingIntel || {},
-        trustIntel: intelligenceRaw?.trustIntel || {},
-        priceIntel: intelligenceRaw?.priceIntel || {},
-        valueIntel: intelligenceRaw?.valueIntel || { score: 0 }
-      };
-
-      /* 📊 بيانات التحليل للزر */
-      const comparison = {
-        market_average: intelligence.priceIntel?.average || null,
-        savings_percentage: intelligence.valueIntel?.score || 0,
-        competitors: []
-      };
-
-      const riskAnalysis = {
-        warnings: intelligence.trustIntel?.warnings || []
-      };
-
-      results.push({
-        ...standardizedItem,
-        intelligence,
-        comparison,
-        riskAnalysis
-      });
-    }
-
-    res.json({ query: q, results });
-
-  } catch (err) {
-    console.error("❌ Search Error:", err.message);
-    res.status(500).json({ error: 'Search Failed' });
-  }
-});
-
-/* ================= ALERTS ================= */
-app.post('/alerts', async (req, res) => {
-  try {
-    if (mongoose.connection.readyState === 1) {
-      await new Alert(req.body).save();
-      res.json({ success: true });
-    } else {
-      res.status(503).json({ error: 'DB Offline' });
-    }
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-});
-
-/* ================= WATCHLIST ================= */
-app.post('/watchlist', async (req, res) => {
-  try {
-    if (mongoose.connection.readyState === 1) {
-      await new Watchlist(req.body).save();
-      res.json({ success: true });
-    } else {
-      res.status(503).json({ error: 'DB Offline' });
-    }
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-});
-
-app.get('/watchlist/:uid', async (req, res) => {
-  try {
-    if (mongoose.connection.readyState === 1) {
-      const list = await Watchlist.find({ uid: req.params.uid }).sort({ addedAt: -1 });
-      res.json(list);
-    } else {
-      res.status(503).json({ error: 'DB Offline' });
-    }
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-});
-
-/* ================= START SERVER ================= */
-const PORT_FINAL = PORT || 3000;
-app.listen(PORT_FINAL, () => {
-  console.log(`🚀 Server running on port ${PORT_FINAL}`);
-});
+/* ================= START SERVER ================= */ const PORT_FINAL = PORT || 3000; app.listen(PORT_FINAL, () => { console.log(🚀 Server running on port ${PORT_FINAL}); });

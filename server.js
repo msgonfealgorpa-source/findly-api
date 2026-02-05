@@ -94,9 +94,8 @@ if (MONGO_URI) mongoose.connect(MONGO_URI).then(() => console.log("✅ DB Connec
 
 /* ================= SEARCH ENGINE ================= */
 app.get('/search', async (req, res) => {
-  // نستقبل اللغة هنا (lang)
   const { q, lang = 'ar', uid = 'guest' } = req.query;
-  const selectedLang = DICT[lang] ? lang : 'ar'; // التأكد من وجود اللغة أو العودة للعربية
+  const selectedLang = DICT[lang] ? lang : 'ar';
   const TEXTS = DICT[selectedLang];
 
   if (!q) return res.json({ results: [] });
@@ -106,81 +105,98 @@ app.get('/search', async (req, res) => {
       method: 'GET',
       url: `https://${X_RAPIDAPI_HOST}/search`,
       params: { query: q, country: 'US', category_id: 'aps' },
-      headers: { 'x-rapidapi-key': X_RAPIDAPI_KEY, 'x-rapidapi-host': X_RAPIDAPI_HOST }
+      headers: {
+        'x-rapidapi-key': X_RAPIDAPI_KEY,
+        'x-rapidapi-host': X_RAPIDAPI_HOST
+      }
     });
 
     const amazonItems = response.data?.data?.products || [];
-const results = [];
+    const results = [];
 
-for (const item of amazonItems) {
-  const currentPrice = cleanPrice(item.product_price);
+    for (const item of amazonItems) {
+      const currentPrice = cleanPrice(item.product_price);
 
-  const standardizedItem = {
-    name: item.product_title,
-    title: item.product_title,
-    price: item.product_price,
-    numericPrice: currentPrice,
-    link: finalizeUrl(item.product_url),
-    thumbnail: item.product_photo,
-    source: 'Amazon'
-  };
+      const standardizedItem = {
+        name: item.product_title,
+        title: item.product_title,
+        price: item.product_price,
+        numericPrice: currentPrice,
+        link: finalizeUrl(item.product_url),
+        thumbnail: item.product_photo,
+        source: 'Amazon'
+      };
 
-  // ✅ الاستدعاء الصحيح
-  const intelligenceRaw = SageCore(
-    standardizedItem,
-    amazonItems,   // السوق كامل
-    {},
-    {},
-    uid,
-    null
-  );
+      // 🧠 استدعاء العقل الكامل (كل الذكاء هنا)
+      const intelligenceRaw = SageCore(
+        standardizedItem,
+        amazonItems,   // السوق كامل
+        {},            // userEvents (حالياً فارغ – مستقبلاً من الواجهة)
+        {},
+        uid,
+        null
+      );
 
-  // 🔤 الترجمة
-  let decisionTitle = TEXTS.fair;
-  let decisionReason = TEXTS.reason_fair;
-  let decisionEmoji = '⚖️';
+      // 🌍 ترجمة القرار
+      let decisionTitle = TEXTS.fair;
+      let decisionReason = TEXTS.reason_fair;
+      let decisionEmoji = '⚖️';
 
-  const avg = intelligenceRaw?.priceIntel?.average || 0;
-  const score = intelligenceRaw?.valueIntel?.score || 0;
+      const avg = Number(intelligenceRaw?.priceIntel?.average || 0);
+      const score = intelligenceRaw?.valueIntel?.score || 0;
 
-  if (avg > 0) {
-    if (currentPrice > avg * 1.1) {
-      decisionTitle = TEXTS.wait;
-      decisionReason = TEXTS.reason_expensive;
-      decisionEmoji = '🤖';
-    } else if (currentPrice < avg * 0.95) {
-      decisionTitle = TEXTS.buy;
-      decisionReason = `${TEXTS.reason_cheap} ${score}%`;
-      decisionEmoji = '🟢';
+      if (avg > 0) {
+        if (currentPrice > avg * 1.1) {
+          decisionTitle = TEXTS.wait;
+          decisionReason = TEXTS.reason_expensive;
+          decisionEmoji = '🤖';
+        } else if (currentPrice < avg * 0.95) {
+          decisionTitle = TEXTS.buy;
+          decisionReason = `${TEXTS.reason_cheap} ${score}%`;
+          decisionEmoji = '🟢';
+        }
+      }
+
+      // 📦 تمرير كل العقول للواجهة
+      const intelligence = {
+        finalVerdict: {
+          emoji: decisionEmoji,
+          title: decisionTitle,
+          reason: decisionReason
+        },
+
+        // 1️⃣ ذكاء السوق
+        priceIntel: intelligenceRaw.priceIntel,
+
+        // 2️⃣ ذكاء القيمة + التعلّم
+        valueIntel: intelligenceRaw.valueIntel,
+
+        // 3️⃣ التنبؤ السعري
+        forecastIntel: intelligenceRaw.forecastIntel,
+
+        // 4️⃣ كشف العروض الوهمية والمخاطر
+        trustIntel: intelligenceRaw.trustIntel
+      };
+
+      const comparison = {
+        market_average: intelligence.priceIntel.average
+          ? `$${intelligence.priceIntel.average}`
+          : '—',
+        savings_percentage: intelligence.valueIntel.score || 0,
+        competitors: intelligence.valueIntel.competitors || amazonItems.length
+      };
+
+      results.push({
+        ...standardizedItem,
+        intelligence,
+        comparison
+      });
     }
-  }
 
-  const intelligence = {
-    finalVerdict: {
-      emoji: decisionEmoji,
-      title: decisionTitle,
-      reason: decisionReason
-    },
-    priceIntel: intelligenceRaw?.priceIntel || {},
-    valueIntel: intelligenceRaw?.valueIntel || { score: 0 },
-    trustIntel: intelligenceRaw?.trustIntel || {}
-  };
-
-  const comparison = {
-    market_average: intelligence.priceIntel?.average
-      ? `$${intelligence.priceIntel.average}`
-      : '—',
-    savings_percentage: intelligence.valueIntel?.score || 0,
-    competitors: amazonItems.length   // ✅ بدل competitors.length
-  };
-
-  results.push({ ...standardizedItem, intelligence, comparison });
-}
-
-res.json({ query: q, results });
+    res.json({ query: q, results });
 
   } catch (err) {
-    console.error("❌ Search Error:", err.message);
+    console.error('❌ Search Error:', err.message);
     res.status(500).json({ error: 'Search Failed', results: [] });
   }
 });

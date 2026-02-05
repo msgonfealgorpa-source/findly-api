@@ -110,63 +110,74 @@ app.get('/search', async (req, res) => {
     });
 
     const amazonItems = response.data?.data?.products || [];
-    const results = [];
+const results = [];
 
-    // تحضير المنافسين للحسابات
-    
-      // 1. استدعاء العقل (يقوم بالحسابات فقط)
-      const intelligenceRaw = SageCore(
-  standardizedItem,
-  amazonItems,   // ← مهم جداً
-  {},
-  {},
-  uid,
-  null
-);
-      // 2. الترجمة الديناميكية (Dynamic Translation)
-      // هنا نقوم بفحص الأرقام ونحدد النص بناءً على لغة المستخدم
-      let decisionTitle = TEXTS.fair;
-      let decisionReason = TEXTS.reason_fair;
-      let decisionEmoji = '⚖️';
-      
-      const avg = intelligenceRaw?.priceIntel?.average || 0;
-      const score = intelligenceRaw?.valueIntel?.score || 0;
+for (const item of amazonItems) {
+  const currentPrice = cleanPrice(item.product_price);
 
-      if (avg > 0) {
-        if (currentPrice > avg * 1.1) {
-            // غالي
-            decisionTitle = TEXTS.wait;
-            decisionReason = TEXTS.reason_expensive;
-            decisionEmoji = '🤖';
-        } else if (currentPrice < avg * 0.95) {
-            // رخيص (لقطة)
-            decisionTitle = TEXTS.buy;
-            decisionReason = `${TEXTS.reason_cheap} ${score}%`;
-            decisionEmoji = '🟢';
-        }
-      }
+  const standardizedItem = {
+    name: item.product_title,
+    title: item.product_title,
+    price: item.product_price,
+    numericPrice: currentPrice,
+    link: finalizeUrl(item.product_url),
+    thumbnail: item.product_photo,
+    source: 'Amazon'
+  };
 
-      const intelligence = {
-        finalVerdict: {
-          emoji: decisionEmoji,
-          title: decisionTitle, // النص المترجم
-          reason: decisionReason // السبب المترجم
-        },
-        priceIntel: intelligenceRaw?.priceIntel || {},
-        valueIntel: intelligenceRaw?.valueIntel || { score: 0 },
-        trustIntel: intelligenceRaw?.trustIntel || {}
-      };
+  // ✅ الاستدعاء الصحيح
+  const intelligenceRaw = SageCore(
+    standardizedItem,
+    amazonItems,   // السوق كامل
+    {},
+    {},
+    uid,
+    null
+  );
 
-      const comparison = {
-        market_average: intelligence.priceIntel?.average ? `$${intelligence.priceIntel.average}` : '—',
-        savings_percentage: intelligence.valueIntel?.score || 0,
-        competitors: competitors.length
-      };
+  // 🔤 الترجمة
+  let decisionTitle = TEXTS.fair;
+  let decisionReason = TEXTS.reason_fair;
+  let decisionEmoji = '⚖️';
 
-      results.push({ ...standardizedItem, intelligence, comparison });
+  const avg = intelligenceRaw?.priceIntel?.average || 0;
+  const score = intelligenceRaw?.valueIntel?.score || 0;
+
+  if (avg > 0) {
+    if (currentPrice > avg * 1.1) {
+      decisionTitle = TEXTS.wait;
+      decisionReason = TEXTS.reason_expensive;
+      decisionEmoji = '🤖';
+    } else if (currentPrice < avg * 0.95) {
+      decisionTitle = TEXTS.buy;
+      decisionReason = `${TEXTS.reason_cheap} ${score}%`;
+      decisionEmoji = '🟢';
     }
+  }
 
-    res.json({ query: q, results });
+  const intelligence = {
+    finalVerdict: {
+      emoji: decisionEmoji,
+      title: decisionTitle,
+      reason: decisionReason
+    },
+    priceIntel: intelligenceRaw?.priceIntel || {},
+    valueIntel: intelligenceRaw?.valueIntel || { score: 0 },
+    trustIntel: intelligenceRaw?.trustIntel || {}
+  };
+
+  const comparison = {
+    market_average: intelligence.priceIntel?.average
+      ? `$${intelligence.priceIntel.average}`
+      : '—',
+    savings_percentage: intelligence.valueIntel?.score || 0,
+    competitors: amazonItems.length   // ✅ بدل competitors.length
+  };
+
+  results.push({ ...standardizedItem, intelligence, comparison });
+}
+
+res.json({ query: q, results });
 
   } catch (err) {
     console.error("❌ Search Error:", err.message);

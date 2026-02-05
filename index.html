@@ -625,115 +625,78 @@ width: 80%; max-width: 500px; border-radius: 15px; text-align: right;
         tr: { title: "Bilge Danışman", sub: "Akıllı alışveriş rehberiniz", energy: "Bilge Enerji", welcome: "Hoş geldiniz,", game: "Oyunlar", beauty: "Güzellik", home: "Akıllı Ev", c1: "Telefonlar", c2: "Laptoplar", c4: "Saatler", p_head: "Profil", buy: "Satın Al 🛒", watch: "Fiyatı İzle 🔔", over: "Bütçe Aşıldı!", cheap: "Ekonomik", top: "En İyi", new: "Yeni", deep: "Yapay Zeka Analiz", watchTitle: "İzleme Listesi", why: "Neden bu seçim?", slow: "Sunucu uyanıyor.. bekleyin", noAttempts: "⚠️ Deneme kalmadı!" }  
     };
 
- async function runSearch() {
+ 
 
-     if (typeof lang === "undefined") lang = "ar";
-if (typeof dict === "undefined") dict = { ar:{}, en:{} };
-     const q = document.getElementById('s-input').value.trim();
+
+<script>
+async function runSearch() {
+    const q = document.getElementById('s-input').value.trim();
     const status = document.getElementById('status');
     const resCon = document.getElementById('results');
     if (!q) return;
 
     status.style.display = "block";
-    status.innerHTML = `<i class="fa-solid fa-microchip fa-spin"></i> ${lang === 'ar' ? 'جاري التحليل الذكي...' : 'Smart analysis running...'}`;
+    status.innerHTML = lang === 'ar'
+        ? '🔍 جاري التحليل الذكي...'
+        : '🔍 Smart analysis...';
+
     resCon.innerHTML = "";
 
     try {
-        const uid = localStorage.getItem('findly_uid') || 'guest';
-        const apiUrl = `${API}/search?q=${encodeURIComponent(q)}&uid=${uid}&lang=${lang}`;
-        console.log("API:", apiUrl);
-
+        const apiUrl = `${API}/search?q=${encodeURIComponent(q)}&lang=${lang}`;
         const response = await fetch(apiUrl);
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const data = await response.json();
+        if (!response.ok) throw new Error("Server error");
 
+        const data = await response.json();
         status.style.display = "none";
+
         if (!data.results || !data.results.length) {
             status.style.display = "block";
-            status.innerHTML = lang === 'ar' ? "❌ لا توجد نتائج" : "❌ No results";
+            status.innerHTML = lang === 'ar'
+                ? "❌ لا توجد نتائج"
+                : "❌ No results";
             return;
         }
 
-        const userBudget = parseFloat(localStorage.getItem('user_budget')) || Infinity;
         const frag = document.createDocumentFragment();
 
         data.results.slice(0, 5).forEach(p => {
-            const priceNum = parseFloat(String(p.price).replace(/[^\d.]/g, '')) || 0;
-            const overBudget = priceNum > userBudget;
-
-            /* ===============================
-               🧠 الذكاء الجديد فقط (لا قديم)
-            =============================== */
-            const intel = p.intelligence || {};
-
-            const verdict = {
-                emoji: intel.finalVerdict?.emoji || "🤖",
-                title: intel.finalVerdict?.title || (lang === 'ar' ? "تحليل ذكي" : "Smart Verdict"),
-                reason: intel.finalVerdict?.reason || (lang === 'ar' ? "لا توجد بيانات كافية" : "No enough data")
-            };
-
-            const timing = intel.timingIntel || {};
-            const trust = intel.trustIntel || {};
-            const valueScore = Math.min(intel.valueIntel?.score || 0, 100);
-            const market = intel.priceIntel || {};
-            const riskWarnings = p.riskAnalysis?.warnings || [];
-
             const div = document.createElement('div');
-            div.className = `product-card ${overBudget ? 'over-budget' : ''}`;
+            div.className = 'product-card';
+
+            const intel = p.intelligence || {};
+            const score = Math.min(intel.score || 0, 100);
+            const label = intel.label || (lang === 'ar' ? 'غير محدد' : 'Unknown');
+            const avg = intel.average || '—';
+            const color = intel.color || '#8b5cf6';
 
             div.innerHTML = `
-                <div class="badge" style="position:absolute;top:10px;right:10px;">
-                    ${verdict.emoji} ${verdict.title}
-                </div>
+                <img src="${p.thumbnail || 'https://via.placeholder.com/150'}">
+                <h3>${p.title || '—'}</h3>
 
-                <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/200'">
+                <div class="price">${p.price || '—'}</div>
 
-                <h3>${p.name || '—'}</h3>
+                <!-- بطاقة التحليل -->
+                <div class="analysis-engine" style="border-left:4px solid ${color}">
+                    <p><b>🤖 ${lang === 'ar' ? 'لماذا اخترنا هذا؟' : 'Why this product?'}</b></p>
+                    <p>${label}</p>
 
-                <div class="price">
-                    <span style="color:${overBudget ? '#ef4444' : '#10b981'}">
-                        ${p.price || 'N/A'}
-                    </span>
-                    ${overBudget ? `<div class="budget-alert">${dict[lang].over}</div>` : ''}
-                </div>
+                    <p>💰 <b>${lang === 'ar' ? 'متوسط السوق:' : 'Market Avg:'}</b> ${avg}</p>
 
-                <!-- 🧠 بطاقة التحليل الذكي -->
-                <div class="analysis-engine">
-                    <span class="analysis-label">${dict[lang].why}</span>
-                    <p>${verdict.reason}</p>
-
-                    <p>📅 <b>${lang === 'ar' ? 'التوقيت' : 'Timing'}:</b>
-                        ${timing.label || '—'}
-                        <small style="display:block;opacity:.7">${timing.reason || ''}</small>
-                    </p>
-
-                    <p>🛡️ <b>${lang === 'ar' ? 'الثقة' : 'Trust'}:</b>
-                        ${trust.level || '—'}
-                        <small style="display:block;opacity:.7">
-                            ${(trust.signals || []).map(s => `✔ ${s}`).join(' ')}
-                        </small>
-                    </p>
-
-                    ${market.position ? `<p>💰 <b>${lang === 'ar' ? 'السوق' : 'Market'}:</b> ${market.position}</p>` : ''}
-
-                    ${riskWarnings.length ? `<p style="color:#f59e0b">⚠️ ${riskWarnings.join(' · ')}</p>` : ''}
-
-                    <div style="margin-top:8px">
-                        <div style="height:6px;background:#333;border-radius:6px;overflow:hidden">
-                            <div style="width:${valueScore}%;height:100%;background:var(--primary)"></div>
-                        </div>
-                        <small>${lang === 'ar' ? 'كفاءة الصفقة' : 'Deal Score'}: ${valueScore}%</small>
+                    <div class="score-bar">
+                        <div class="bar" style="width:${score}%; background:${color}"></div>
                     </div>
+                    <small>${lang === 'ar' ? 'كفاءة الصفقة' : 'Deal Efficiency'}: ${score}%</small>
                 </div>
 
-                <!-- 🎯 الأزرار -->
                 <div class="btn-group">
-                    <a href="${p.link || '#'}" target="_blank" class="action-btn buy-now">
-                        ${dict[lang].buy}
+                    <a href="${p.link}" target="_blank" class="action-btn buy-now">
+                        ${lang === 'ar' ? 'شراء الآن' : 'Buy Now'}
                     </a>
-                    <button class="action-btn watch-later"
-                        onclick="addToWatch('${(p.name || '').replace(/'/g, "\\'")}', '${p.price}', '${p.link}')">
-                        🔔 ${dict[lang].watch}
+
+                    <button class="action-btn watch-btn"
+                        onclick="addToWatch('${(p.title || '').replace(/'/g, "\\'")}', '${p.price}', '${p.link}')">
+                        🔔 ${lang === 'ar' ? 'راقب السعر' : 'Watch'}
                     </button>
                 </div>
             `;
@@ -743,17 +706,15 @@ if (typeof dict === "undefined") dict = { ar:{}, en:{} };
 
         resCon.appendChild(frag);
 
-    } catch (err) {
-        console.error(err);
+    } catch (e) {
+        console.error(e);
         status.style.display = "block";
         status.innerHTML = lang === 'ar'
             ? "❌ خطأ في الاتصال بالسيرفر"
             : "❌ Server connection error";
     }
 }
-
-
-
+</script>
     
 // 2. دالة إضافة التنبيهات (المراقبة)
 async function addToWatch(name, price, link) {

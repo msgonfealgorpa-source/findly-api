@@ -697,8 +697,9 @@ async function runSearch() {
 
   try {
     const res = await fetch(
-      `${API}/search?q=${encodeURIComponent(q)}&lang=${lang}&uid=${localStorage.getItem('findly_uid')}`
+      `${API}/search?q=${encodeURIComponent(q)}&lang=${lang}&uid=${localStorage.getItem('findly_uid') || 'guest'}`
     );
+
     const data = await res.json();
     status.style.display = 'none';
 
@@ -719,92 +720,73 @@ async function runSearch() {
       const card = document.createElement('div');
       card.className = 'product-card';
 
-      const priceIntel = intel.priceIntel || {};
-const valueIntel = intel.valueIntel || {};
-const forecast = intel.forecastIntel || {};
-const trust = intel.trustIntel || {};
+      // قرار التوقع
+      let forecastDecision = 'السعر مستقر';
+      if (forecast.trend === 'up') forecastDecision = 'قد يرتفع قريبًا';
+      if (forecast.trend === 'down') forecastDecision = 'انخفاض محتمل قريبًا';
 
-const hasLearning = valueIntel.learningBoost && valueIntel.learningBoost > 0;
-const hasWarnings = trust.warnings && trust.warnings.length > 0;
+      card.innerHTML = `
+        <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/200'">
 
-// قرار التوقع
-let forecastDecision = '';
-if (forecast.trend === 'up') {
-  forecastDecision = 'الشراء الآن قد يكون خيارًا جيدًا';
-} else if (forecast.trend === 'down') {
-  forecastDecision = 'الانتظار قد يكون أذكى';
-} else {
-  forecastDecision = 'لا يوجد تحرّك سعري واضح';
-}
+        <h3>${p.title || '—'}</h3>
+        <div class="price">${p.price || '—'}</div>
 
-card.innerHTML = `
-<img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/200'">
+        <!-- القرار -->
+        <div class="analysis-engine">
+          <span class="analysis-label">
+            ${verdict.emoji || '🤖'} ${verdict.title || 'تحليل ذكي'}
+          </span>
+          <div>${verdict.reason || 'لا توجد بيانات كافية حالياً'}</div>
+        </div>
 
-<h3>${p.title || '—'}</h3>
-<div class="price">${p.price || '—'}</div>
+        <!-- السوق -->
+        <div class="intel-section">
+          <h4>📊 السوق</h4>
+          <p>متوسط السعر: <strong>${priceIntel.average ? `$${priceIntel.average}` : 'غير متوفر'}</strong></p>
+          <p>عدد المنافسين: <strong>${valueIntel.competitors || 0}</strong></p>
+        </div>
 
-<!-- القرار الأساسي -->
-<div class="analysis-engine">
-  <span class="analysis-label">
-    ${verdict.emoji || '🤖'} ${verdict.title || 'تحليل ذكي'}
-  </span>
-  <div>${verdict.reason || 'لا توجد بيانات كافية حالياً'}</div>
-</div>
+        <!-- قيمة الصفقة -->
+        <div class="intel-section">
+          <h4>💎 قيمة الصفقة</h4>
+          <p>تقييم الصفقة: <strong>${valueIntel.score || 0}%</strong></p>
+          <p>${valueIntel.learningBoost > 0 ? 'التحليل يتعلم من سلوكك 🧠' : 'سيتحسن التحليل مع الاستخدام 📈'}</p>
+        </div>
 
-<!-- السوق -->
-<div class="intel-section">
-  <h4>📊 السوق</h4>
-  <p>متوسط السعر: <strong>${priceIntel.average ? `$${priceIntel.average}` : 'غير متوفر'}</strong></p>
-  <p>عدد المنافسين: <strong>${valueIntel.competitors || 0}</strong></p>
-</div>
+        <!-- التوقع -->
+        <div class="intel-section">
+          <h4>🔮 التوقع السعري</h4>
+          <p>${forecast.advice || 'السعر مستقر'}</p>
+          <p>السعر المتوقع: <strong>$${forecast.expectedPrice || p.numericPrice || ''}</strong></p>
+          <p>الثقة: <strong>${Math.round((forecast.confidence || 0) * 100)}%</strong></p>
+          <p><strong>${forecastDecision}</strong></p>
+        </div>
 
-<!-- قيمة الصفقة -->
-<div class="intel-section">
-  <h4>💎 قيمة الصفقة</h4>
-  <p>تقييم الصفقة: <strong>${valueIntel.score || 0}%</strong></p>
-  <p>
-    ${
-      hasLearning
-        ? 'التحليل يتحسّن بناءً على سلوكك'
-        : 'سيتحسن التحليل مع استخدامك 📈'
-    }
-  </p>
-</div>
+        <!-- المخاطر -->
+        <div class="intel-section">
+          <h4>⚠️ الثقة والمخاطر</h4>
+          ${
+            trust.warnings && trust.warnings.length
+              ? `<ul>${trust.warnings.map(w => `<li>${w}</li>`).join('')}</ul>`
+              : '<p>لا توجد مخاطر واضحة ✅</p>'
+          }
+        </div>
 
-<!-- التوقع السعري -->
-<div class="intel-section">
-  <h4>🔮 التوقع السعري</h4>
-  <p>${forecast.advice || 'السعر مستقر'}</p>
-  <p>السعر المتوقع: <strong>$${forecast.expectedPrice || p.numericPrice}</strong></p>
-  <p>الثقة: <strong>${Math.round((forecast.confidence || 0) * 100)}%</strong></p>
-  <p><strong>${forecastDecision}</strong></p>
-</div>
+        <div class="btn-group">
+          <a href="${p.link}" target="_blank" class="action-btn buy-now">
+            ${dict[lang].buy}
+          </a>
 
-<!-- الثقة والمخاطر -->
-<div class="intel-section">
-  <h4>⚠️ الثقة والمخاطر</h4>
-  ${
-    hasWarnings
-      ? `<ul>${trust.warnings.map(w => `<li>${w}</li>`).join('')}</ul>`
-      : '<p>لا توجد مخاطر واضحة ✅</p>'
-  }
-</div>
-
-<div class="btn-group">
-  <a href="${p.link}" target="_blank" class="action-btn buy-now">
-    ${dict[lang].buy}
-  </a>
-
-  <button class="action-btn watch-btn"
-    onclick="addToWatch(
-      '${(p.title || '').replace(/'/g, '')}',
-      '${p.price}',
-      '${p.link}'
-    )">
-    ${dict[lang].watch}
-  </button>
-</div>
-`;
+          <button class="action-btn watch-btn"
+            onclick="addToWatch(
+              '${(p.title || '').replace(/'/g, '')}',
+              '${p.price}',
+              '${p.link}'
+            )">
+            ${dict[lang].watch}
+          </button>
+        </div>
+      `;
 
       resultsBox.appendChild(card);
     });

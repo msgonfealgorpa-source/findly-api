@@ -684,87 +684,91 @@
         tr: { title: "Bilge Danışman", sub: "Akıllı alışveriş rehberiniz", energy: "Bilge Enerji", welcome: "Hoş geldiniz,", game: "Oyunlar", beauty: "Güzellik", home: "Akıllı Ev", c1: "Telefonlar", c2: "Laptoplar", c4: "Saatler", p_head: "Profil", buy: "Satın Al 🛒", watch: "Fiyatı İzle 🔔", over: "Bütçe Aşıldı!", cheap: "Ekonomik", top: "En İyi", new: "Yeni", deep: "Yapay Zeka Analiz", watchTitle: "İzleme Listesi", why: "Neden bu seçim?", slow: "Sunucu uyanıyor.. bekleyin", noAttempts: "⚠️ Deneme kalmadı!", analyze: "📊 Analiz" }  
     };
 
+
     async function runSearch() {
-        const q = document.getElementById('s-input').value.trim();
-        const status = document.getElementById('status');
-        const resultsBox = document.getElementById('results');
+    const q = document.getElementById('s-input').value.trim();
+    const status = document.getElementById('status');
+    const resultsBox = document.getElementById('results');
 
-        if (!q) return;
+    if (!q) return;
 
-        status.style.display = 'block';
-        status.innerText = '🔍 جاري التحليل الذكي...';
-        resultsBox.innerHTML = '';
+    status.style.display = 'block';
+    status.innerText = '🔍 جاري التحليل الذكي...';
+    resultsBox.innerHTML = '';
 
-        try {
-            const res = await fetch(`${API}/search?q=${encodeURIComponent(q)}&lang=${lang}&uid=${localStorage.getItem('findly_uid')}`);
-            const data = await res.json();
+    try {
+        const res = await fetch(
+          `${API}/search?q=${encodeURIComponent(q)}&lang=${lang}&uid=${localStorage.getItem('findly_uid')}`
+        );
+        const data = await res.json();
+        status.style.display = 'none';
 
-            status.style.display = 'none';
-
-            if (!data.results || !data.results.length) {
-                status.style.display = 'block';
-                status.innerText = '❌ لا توجد نتائج';
-                return;
-            }
-
-            data.results.forEach(p => {
-                const intel = p.intelligence || {};
-                const verdict = intel.finalVerdict || {};
-                const cleanLink = p.link || '#';
-                
-                // تجهيز البيانات لزر التحليل بشكل آمن
-                const analysisData = encodeURIComponent(JSON.stringify({
-                    label: verdict.title || 'تحليل',
-                    reason: verdict.reason || '...',
-                    average: p.comparison?.market_average || '—',
-                    score: p.comparison?.savings_percentage || 0
-                }));
-
-                const card = document.createElement('div');
-                card.className = 'product-card';
-
-                card.innerHTML = `
-                    <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/200'">
-                    <h3>${p.title || '—'}</h3>
-                    <div class="price">${p.price || '—'}</div>
-
-                    <div class="analysis-engine" style="border-right:4px solid ${intel.color || '#8b5cf6'}">
-                      <span class="analysis-label">${verdict.emoji || '🤖'} ${verdict.title || 'Sage AI'}</span>
-                      <div>${verdict.reason || 'لا تتوفر بيانات كافية'}</div>
-                    </div>
-
-                    <div class="btn-group">
-                      <a href="${cleanLink}" target="_blank" class="action-btn buy-now">
-                        ${dict[lang].buy}
-                      </a>
-
-                      <button 
-                        class="action-btn analyze-btn"
-                        onclick="openAnalysisModal('${analysisData}')">
-                        ${dict[lang].analyze}
-                      </button>
-
-                      <button 
-                        class="action-btn watch-btn"
-                        onclick="addToWatch(
-                          '${(p.title || '').replace(/'/g,"")}',
-                          '${p.price}',
-                          '${cleanLink}'
-                        )">
-                        ${dict[lang].watch}
-                      </button>
-                    </div>
-                `;
-                resultsBox.appendChild(card);
-            });
-
-        } catch (err) {
-            console.error(err);
+        if (!data.results || !data.results.length) {
             status.style.display = 'block';
-            status.innerText = '❌ خطأ في الاتصال بالسيرفر';
+            status.innerText = '❌ لا توجد نتائج';
+            return;
         }
-    }
 
+        data.results.forEach(p => {
+            const intel = p.intelligence || {};
+            const verdict = intel.finalVerdict || {};
+
+            const avg = p.comparison?.market_average ?? '—';
+            const score = p.comparison?.savings_percentage ?? 0;
+
+            const card = document.createElement('div');
+            card.className = 'product-card';
+
+            card.innerHTML = `
+              <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/200'">
+
+              <h3>${p.title || '—'}</h3>
+              <div class="price">${p.price || '—'}</div>
+
+              <div class="analysis-engine">
+                <span class="analysis-label">
+                  ${verdict.emoji || '🤖'} ${verdict.title || 'تحليل ذكي'}
+                </span>
+                <div>
+                  ${verdict.reason || 'لا توجد بيانات كافية حالياً'}
+                </div>
+              </div>
+
+              <div class="btn-group">
+                <a href="${p.link}" target="_blank" class="action-btn buy-now">
+                  ${dict[lang].buy}
+                </a>
+
+                <button class="action-btn analyze-btn"
+                  onclick="openAnalysisModal('${encodeURIComponent(JSON.stringify({
+                    title: verdict.title,
+                    reason: verdict.reason,
+                    average: avg,
+                    score: score
+                  }))}')">
+                  ${dict[lang].analyze}
+                </button>
+
+                <button class="action-btn watch-btn"
+                  onclick="addToWatch(
+                    '${(p.title || '').replace(/'/g,'')}',
+                    '${p.price}',
+                    '${p.link}'
+                  )">
+                  ${dict[lang].watch}
+                </button>
+              </div>
+            `;
+
+            resultsBox.appendChild(card);
+        });
+
+    } catch (e) {
+        console.error(e);
+        status.style.display = 'block';
+        status.innerText = '❌ خطأ في الاتصال بالسيرفر';
+    }
+}
     // 2. دالة إضافة التنبيهات (المراقبة)
     async function addToWatch(name, price, link) {
         const userEmail = prompt(lang === 'ar' ? "أدخل إيميلك للتنبيه عند انخفاض السعر:" : "Enter email for price alerts:");
@@ -800,21 +804,21 @@
         }
     }
 
-    function openAnalysisModal(encodedData) {
-        const intel = JSON.parse(decodeURIComponent(encodedData));
-        const modal = document.getElementById('analysis-modal');
-        const body = document.getElementById('analysis-content-body');
-        
-        body.innerHTML = `
-            <p><b>التقييم:</b> ${intel.label}</p>
-            <p style="color:#94a3b8; font-size:0.9rem;">${intel.reason}</p>
-            <hr style="border-color:rgba(255,255,255,0.1)">
-            <p><b>متوسط السوق:</b> ${intel.average}</p>
-            <p><b>كفاءة الصفقة:</b> ${intel.score}%</p>
-        `;
-        
-        modal.style.display = 'flex';
-    }
+   function openAnalysisModal(encoded) {
+    const data = JSON.parse(decodeURIComponent(encoded));
+    const modal = document.getElementById('analysis-modal');
+    const body = document.getElementById('analysis-content-body');
+
+    body.innerHTML = `
+      <p><b>التقييم:</b> ${data.title || '—'}</p>
+      <p style="opacity:.8">${data.reason || '—'}</p>
+      <hr>
+      <p><b>متوسط السوق:</b> ${data.average}</p>
+      <p><b>كفاءة الصفقة:</b> ${data.score}%</p>
+    `;
+
+    modal.style.display = 'flex';
+}
     
     // 3. دوال التحكم في الواجهة واللغة
     function saveSet() {

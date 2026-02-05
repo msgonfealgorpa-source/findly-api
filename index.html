@@ -898,12 +898,29 @@
   }
 };
     
+  function applyCoupon(price, coupon) {
+  if (!price || !coupon) return price;
+
+  let final = price;
+
+  if (coupon.type === 'percent') {
+    final = price - (price * coupon.discount / 100);
+  }
+
+  if (coupon.type === 'fixed') {
+    final = price - coupon.discount;
+  }
+
+  return Math.max(final, 0).toFixed(2);
+}
+    
     async function runSearch() {
   const q = document.getElementById('s-input').value.trim();
   const status = document.getElementById('status');
   const resultsBox = document.getElementById('results');
+        
 
-  if (!q) return;
+    if (!q) return;
 
   const T = dict[lang]?.search || dict.en.search;
   const UI = dict[lang]?.ui || dict.en.ui; // للحصول على نص التحذير

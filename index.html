@@ -64,7 +64,7 @@
         }
         .modal-content {
             background: #0f172a; margin: auto; padding: 25px;
-            width: 85%; max-width: 450px; border-radius: 20px; text-align: center;
+            width: 85%; max-width: 450px; border-radius: 20px; text-align: right;
             border: 1px solid var(--primary);
             box-shadow: 0 0 30px rgba(139, 92, 246, 0.2);
             color: white;
@@ -72,12 +72,10 @@
             top: 50%;
             transform: translateY(-50%);
         }
-        /* لتوجيه النص حسب اللغة داخل المودال */
-        html[dir="rtl"] .modal-content { text-align: right; }
-        html[dir="ltr"] .modal-content { text-align: left; }
-
-        .over-budget { border: 2px solid #ff4d4d !important; background-color: #fff9f9; }
-        .budget-alert { background: #ff4d4d; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+        
+        /* كلاسات تجاوز الميزانية - مهمة جداً */
+        .over-budget { border: 2px solid #ff4d4d !important; background-color: rgba(255, 77, 77, 0.05) !important; }
+        .budget-alert { background: #ff4d4d; color: white; padding: 4px 10px; border-radius: 8px; font-size: 0.8rem; margin-bottom: 10px; display: inline-block; font-weight: bold; }
 
         .logo {
             font-size: 1.5rem;
@@ -227,15 +225,12 @@
             transition: 0.3s;
             z-index: 10;
         }
-        
-        /* ضبط أيقونة المايك في الوضع الإنجليزي */
-        html[dir="ltr"] .mic-icon { right: 20px; left: auto; }
-        html[dir="rtl"] .mic-icon { left: 20px; right: auto; }
 
         .mic-active { color: #ef4444; text-shadow: 0 0 10px #ef4444; animation: pulse 1s infinite; }
 
         .send-btn {
             position: absolute;
+            left: 10px;
             top: 50%;
             transform: translateY(-50%);
             background: var(--gradient);
@@ -251,10 +246,6 @@
             justify-content: center;
             z-index: 10;
         }
-        
-        /* ضبط زر البحث حسب الاتجاه */
-        html[dir="rtl"] .send-btn { left: 10px; right: auto; }
-        html[dir="ltr"] .send-btn { right: 10px; left: auto; }
 
         .send-btn:hover { transform: translateY(-50%) scale(1.05); box-shadow: 0 0 15px var(--primary-glow); }
 
@@ -292,7 +283,7 @@
             border-radius: 24px;
             padding: 20px;
             margin-top: 25px;
-            text-align: inherit; /* يرث اتجاه الصفحة */
+            text-align: right;
             max-width: 600px;
             margin-left: auto; margin-right: auto;
             position: relative;
@@ -316,9 +307,6 @@
             padding: 12px; border-radius: 12px; margin: 15px 0;
             font-size: 0.85rem; line-height: 1.6; color: var(--text-muted);
         }
-        
-        /* تعديل حدود التحليل حسب الاتجاه */
-        html[dir="ltr"] .analysis-engine { border-right: none; border-left: 3px solid var(--primary); }
 
         .analysis-label { font-weight: 700; color: var(--primary); display: block; margin-bottom: 5px; }
 
@@ -379,7 +367,7 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         .auth-overlay {
-            display: none !important;
+            display: none !important; /* سيتم تفعيله عبر JS */
             position: fixed !important;
             top: 0 !important;
             left: 0 !important;
@@ -594,11 +582,11 @@
 <div class="modal" id="p-modal">
     <div class="modal-box">
         <h3 id="p-head" style="margin-top:0;"></h3>
-        <label style="font-size:0.85rem; display:block; margin-bottom:5px; opacity:0.7;">اسم المستخدم</label>
-        <input type="text" id="in-name" placeholder="...">
-        <label style="font-size:0.85rem; display:block; margin-top:15px; margin-bottom:5px; opacity:0.7;">الميزانية</label>
-        <input type="number" id="in-budget" placeholder="...">
-        <button class="action-btn buy-now" onclick="saveSet()" style="width:100%; margin-top:20px;">✅ حفظ</button>
+        <label id="lbl-name" style="font-size:0.85rem; display:block; margin-bottom:5px; opacity:0.7;">اسم المستخدم</label>
+        <input type="text" id="in-name" placeholder="أدخل اسمك هنا...">
+        <label id="lbl-budget" style="font-size:0.85rem; display:block; margin-top:15px; margin-bottom:5px; opacity:0.7;">الميزانية ($)</label>
+        <input type="number" id="in-budget" placeholder="أقصى ميزانية لديك...">
+        <button class="action-btn buy-now" onclick="saveSet()" style="width:100%; margin-top:20px;">حفظ التغييرات ✅</button>
         <button onclick="openProfile()" style="background:none; color:var(--text-muted); border:none; margin-top:15px; cursor:pointer; font-size:0.9rem;">إغلاق</button>
     </div>
 </div>
@@ -640,6 +628,7 @@
             
             if (!sessionStorage.getItem('welcome_shown')) {
                 const name = user.displayName || 'أيها الباحث الحكيم';
+                // alert(`مرحباً بك في Findly Sage، ${name}! ✨`);
                 sessionStorage.setItem('welcome_shown', 'true');
             }
         } else {
@@ -689,404 +678,370 @@
     let watchList = JSON.parse(localStorage.getItem('findly_watch')) || [];  
 
 
-    // قاموس الترجمة الكامل والمصحح
     const dict = {
-        ar: {
-            ui: {
-                title: "مستشارك الحكيم",
-                sub: "دليلك الذكي للتسوق المثالي",
-                energy: "طاقة العقل",
-                welcome: "مرحباً،",
-                game: "ألعاب",
-                beauty: "جمال",
-                home: "منزل ذكي",
-                c1: "هواتف",
-                c2: "لابتوب",
-                c4: "ساعات",
-                p_head: "الملف الشخصي",
-                buy: "شراء الآن 🛒",
-                watch: "راقب السعر 🔔",
-                analyze: "تحليل 📊",
-                over: "يتجاوز ميزانيتك",
-                cheap: "اقتصادي",
-                top: "الأعلى تقييماً",
-                new: "حديث جداً",
-                deep: "وضع التحليل الذكي",
-                watchTitle: "قائمة المراقبة",
-                why: "لماذا اخترنا هذا؟",
-                slow: "السيرفر يستيقظ.. انتظر ثوانٍ",
-                noAttempts: "⚠️ استنفدت محاولاتك!",
-            },
-            search: {
-                market: "السوق",
-                avg_price: "متوسط السعر",
-                competitors: "عدد المنافسين",
-                value: "قيمة الصفقة",
-                deal_score: "تقييم الصفقة",
-                learning_on: "سيتحسن التحليل مع الاستخدام",
-                learning_later: "التحليل قيد التعلم",
-                forecast: "التوقع السعري",
-                trend: { up: "قد يرتفع قريبًا", down: "قد ينخفض", stable: "مستقر" },
-                expected_price: "السعر المتوقع",
-                confidence: "الثقة",
-                trust: "الثقة والمخاطر",
-                no_risks: "لا توجد مخاطر واضحة",
-                buy: "اشترِ",
-                analyze: "تحليل",
-                watch: "راقب"
-            }
-        },
-        en: {
-            ui: {
-                title: "Sage Advisor",
-                sub: "Your smart shopping guide",
-                energy: "Sage Energy",
-                welcome: "Welcome,",
-                game: "Gaming",
-                beauty: "Beauty",
-                home: "Smart Home",
-                c1: "Phones",
-                c2: "Laptops",
-                c4: "Watches",
-                p_head: "Profile",
-                buy: "Buy Now 🛒",
-                watch: "Watch Price 🔔",
-                analyze: "Analysis 📊",
-                over: "Over Budget!",
-                cheap: "Budget",
-                top: "Top Rated",
-                new: "Newest",
-                deep: "AI Deep Mode",
-                watchTitle: "Watch List",
-                why: "Why this choice?",
-                slow: "Server waking up.. wait",
-                noAttempts: "⚠️ No attempts left!",
-            },
-            search: {
-                market: "Market",
-                avg_price: "Average price",
-                competitors: "Competitors",
-                value: "Deal value",
-                deal_score: "Deal score",
-                learning_on: "Analysis improves with usage",
-                learning_later: "Analysis is learning",
-                forecast: "Price forecast",
-                trend: { up: "Likely to rise", down: "Likely to drop", stable: "Stable" },
-                expected_price: "Expected price",
-                confidence: "Confidence",
-                trust: "Trust & risks",
-                no_risks: "No clear risks",
-                buy: "Buy",
-                analyze: "Analyze",
-                watch: "Watch"
-            }
-        },
-        fr: {
-            ui: {
-                title: "Conseiller Sage",
-                sub: "Votre guide d'achat intelligent",
-                energy: "Énergie Sage",
-                welcome: "Bienvenue,",
-                game: "Jeux",
-                beauty: "Beauté",
-                home: "Maison",
-                c1: "Téléphones",
-                c2: "Portables",
-                c4: "Montres",
-                p_head: "Profil",
-                buy: "Acheter 🛒",
-                watch: "Surveiller 🔔",
-                analyze: "Analyser 📊",
-                over: "Hors budget!",
-                cheap: "Économique",
-                top: "Mieux noté",
-                new: "Nouveau",
-                deep: "Mode IA Profond",
-                watchTitle: "Liste de surveillance",
-                why: "Pourquoi ce choix?",
-                slow: "Attendez...",
-                noAttempts: "⚠️ Plus d'essais!",
-            },
-            search: {
-                market: "Marché",
-                avg_price: "Prix moyen",
-                competitors: "Concurrents",
-                value: "Valeur de l’offre",
-                deal_score: "Score",
-                learning_on: "S'améliore avec l'usage",
-                learning_later: "L'analyse apprend",
-                forecast: "Prévision de prix",
-                trend: { up: "Hausse probable", down: "Baisse probable", stable: "Stable" },
-                expected_price: "Prix attendu",
-                confidence: "Confiance",
-                trust: "Confiance & Risques",
-                no_risks: "Pas de risques clairs",
-                buy: "Acheter",
-                analyze: "Analyser",
-                watch: "Surveiller"
-            }
-        },
-        de: {
-            ui: {
-                title: "Weiser Berater",
-                sub: "Ihr smarter Einkaufsführer",
-                energy: "Weise Energie",
-                welcome: "Willkommen,",
-                game: "Spiele",
-                beauty: "Schönheit",
-                home: "Zuhause",
-                c1: "Handys",
-                c2: "Laptops",
-                c4: "Uhren",
-                p_head: "Profil",
-                buy: "Kaufen 🛒",
-                watch: "Beobachten 🔔",
-                analyze: "Analysieren 📊",
-                over: "Über Budget!",
-                cheap: "Günstig",
-                top: "Top Bewertung",
-                new: "Neu",
-                deep: "KI-Modus",
-                watchTitle: "Beobachtungsliste",
-                why: "Warum diese Wahl?",
-                slow: "Warten...",
-                noAttempts: "⚠️ Keine Versuche mehr!",
-            },
-            search: {
-                market: "Markt",
-                avg_price: "Durchschnittspreis",
-                competitors: "Wettbewerber",
-                value: "Angebotswert",
-                deal_score: "Bewertung",
-                learning_on: "Verbessert sich",
-                learning_later: "Lernen...",
-                forecast: "Preisprognose",
-                trend: { up: "Steigt wahrscheinlich", down: "Fällt wahrscheinlich", stable: "Stabil" },
-                expected_price: "Erwarteter Preis",
-                confidence: "Vertrauen",
-                trust: "Vertrauen & Risiken",
-                no_risks: "Keine Risiken",
-                buy: "Kaufen",
-                analyze: "Analyse",
-                watch: "Beobachten"
-            }
-        },
-        es: {
-            ui: {
-                title: "Asesor Sabio",
-                sub: "Tu guía de compras inteligente",
-                energy: "Energía Sabia",
-                welcome: "Bienvenido,",
-                game: "Juegos",
-                beauty: "Belleza",
-                home: "Hogar",
-                c1: "Móviles",
-                c2: "Portátiles",
-                c4: "Relojes",
-                p_head: "Perfil",
-                buy: "Comprar 🛒",
-                watch: "Vigilar 🔔",
-                analyze: "Analizar 📊",
-                over: "¡Sobre presupuesto!",
-                cheap: "Económico",
-                top: "Mejor valorado",
-                new: "Nuevo",
-                deep: "Modo IA",
-                watchTitle: "Lista de seguimiento",
-                why: "¿Por qué esto?",
-                slow: "Espera...",
-                noAttempts: "⚠️ ¡Sin intentos!",
-            },
-            search: {
-                market: "Mercado",
-                avg_price: "Precio promedio",
-                competitors: "Competidores",
-                value: "Valor de la oferta",
-                deal_score: "Puntuación",
-                learning_on: "Mejora con el uso",
-                learning_later: "Aprendiendo...",
-                forecast: "Pronóstico de precio",
-                trend: { up: "Probable subida", down: "Probable bajada", stable: "Estable" },
-                expected_price: "Precio esperado",
-                confidence: "Confianza",
-                trust: "Confianza y Riesgos",
-                no_risks: "Sin riesgos claros",
-                buy: "Comprar",
-                analyze: "Analizar",
-                watch: "Vigilar"
-            }
-        },
-        tr: {
-            ui: {
-                title: "Bilge Danışman",
-                sub: "Akıllı alışveriş rehberiniz",
-                energy: "Bilge Enerji",
-                welcome: "Hoş geldiniz,",
-                game: "Oyun",
-                beauty: "Güzellik",
-                home: "Ev",
-                c1: "Telefonlar",
-                c2: "Laptoplar",
-                c4: "Saatler",
-                p_head: "Profil",
-                buy: "Satın Al 🛒",
-                watch: "İzle 🔔",
-                analyze: "Analiz 📊",
-                over: "Bütçe Aşıldı!",
-                cheap: "Ucuz",
-                top: "En İyi",
-                new: "Yeni",
-                deep: "Yapay Zeka Modu",
-                watchTitle: "İzleme Listesi",
-                why: "Neden bu?",
-                slow: "Bekleyin...",
-                noAttempts: "⚠️ Hakkınız bitti!",
-            },
-            search: {
-                market: "Pazar",
-                avg_price: "Ortalama fiyat",
-                competitors: "Rakipler",
-                value: "Teklif değeri",
-                deal_score: "Puan",
-                learning_on: "Kullanımla gelişir",
-                learning_later: "Öğreniyor...",
-                forecast: "Fiyat tahmini",
-                trend: { up: "Yükselebilir", down: "Düşebilir", stable: "Durgun" },
-                expected_price: "Beklenen fiyat",
-                confidence: "Güven",
-                trust: "Güven ve Riskler",
-                no_risks: "Risk yok",
-                buy: "Satın al",
-                analyze: "Analiz",
-                watch: "İzle"
-            }
-        }
-    };
+  ar: {
+    ui: {
+      title: "مستشارك الحكيم",
+      sub: "دليلك الذكي للتسوق المثالي",
+      energy: "طاقة العقل",
+      welcome: "مرحباً،",
+      game: "ألعاب",
+      beauty: "جمال",
+      home: "منزل ذكي",
+      c1: "هواتف",
+      c2: "لابتوب",
+      c4: "ساعات",
+      p_head: "الملف الشخصي",
+      lbl_name: "اسم المستخدم",
+      lbl_budget: "الميزانية ($)",
+      buy: "شراء الآن 🛒",
+      watch: "راقب السعر 🔔",
+      over: "يتجاوز ميزانيتك",
+      cheap: "اقتصادي",
+      top: "الأعلى تقييماً",
+      new: "حديث جداً",
+      deep: "وضع التحليل الذكي",
+      watchTitle: "قائمة المراقبة",
+      why: "لماذا اخترنا هذا؟",
+      slow: "السيرفر يستيقظ.. انتظر ثوانٍ",
+      noAttempts: "⚠️ استنفدت محاولاتك!",
+      analyze: "📊 تحليل السعر"
+    },
+
+    search: {
+      market: "السوق",
+      avg_price: "متوسط السعر",
+      competitors: "عدد المنافسين",
+      value: "قيمة الصفقة",
+      deal_score: "تقييم الصفقة",
+      learning_on: "سيتحسن التحليل مع الاستخدام",
+      learning_later: "التحليل قيد التعلم",
+      forecast: "التوقع السعري",
+      trend: {
+        up: "قد يرتفع قريبًا",
+        down: "قد ينخفض",
+        stable: "مستقر"
+      },
+      expected_price: "السعر المتوقع",
+      confidence: "الثقة",
+      trust: "الثقة والمخاطر",
+      no_risks: "لا توجد مخاطر واضحة",
+      buy: "اشترِ",
+      analyze: "تحليل",
+      watch: "راقب"
+    }
+  },
+
+  en: {
+    ui: {
+      title: "Sage Advisor",
+      sub: "Your smart shopping guide",
+      energy: "Sage Energy",
+      welcome: "Welcome,",
+      game: "Gaming",
+      beauty: "Beauty",
+      home: "Smart Home",
+      c1: "Phones",
+      c2: "Laptops",
+      c4: "Watches",
+      p_head: "Profile",
+      lbl_name: "Username",
+      lbl_budget: "Budget ($)",
+      buy: "Buy Now 🛒",
+      watch: "Watch Price 🔔",
+      over: "Over Budget!",
+      cheap: "Budget",
+      top: "Top Rated",
+      new: "Newest",
+      deep: "AI Deep Mode",
+      watchTitle: "Watch List",
+      why: "Why this choice?",
+      slow: "Server waking up.. wait",
+      noAttempts: "⚠️ No attempts left!",
+      analyze: "📊 Analysis"
+    },
+
+    search: {
+      market: "Market",
+      avg_price: "Average price",
+      competitors: "Competitors",
+      value: "Deal value",
+      deal_score: "Deal score",
+      learning_on: "Analysis improves with usage",
+      learning_later: "Analysis is learning",
+      forecast: "Price forecast",
+      trend: {
+        up: "Likely to rise",
+        down: "Likely to drop",
+        stable: "Stable"
+      },
+      expected_price: "Expected price",
+      confidence: "Confidence",
+      trust: "Trust & risks",
+      no_risks: "No clear risks",
+      buy: "Buy",
+      analyze: "Analyze",
+      watch: "Watch"
+    }
+  },
+
+  fr: {
+    ui: {
+      title: "Conseiller Sage",
+      sub: "Votre guide d'achat intelligent",
+      energy: "Énergie Sage",
+      welcome: "Bienvenue,",
+      p_head: "Profil",
+      lbl_name: "Nom d'utilisateur",
+      lbl_budget: "Budget ($)",
+      buy: "Acheter",
+      watch: "Suivre",
+      over: "Hors budget!",
+    },
+    search: {
+      market: "Marché",
+      avg_price: "Prix moyen",
+      competitors: "Concurrents",
+      value: "Valeur de l’offre",
+      deal_score: "Score",
+      forecast: "Prévision de prix",
+      expected_price: "Prix attendu",
+      confidence: "Confiance",
+      buy: "Acheter",
+      analyze: "Analyser",
+      watch: "Surveiller"
+    }
+  },
+
+  de: {
+    ui: {
+      title: "Weiser Berater",
+      sub: "Ihr smarter Einkaufsführer",
+      energy: "Weise Energie",
+      welcome: "Willkommen,",
+      p_head: "Profil",
+      lbl_name: "Nutzername",
+      lbl_budget: "Budget ($)",
+      buy: "Kaufen",
+      watch: "Beobachten",
+      over: "Über dem Budget!",
+    },
+    search: {
+      market: "Markt",
+      avg_price: "Durchschnittspreis",
+      competitors: "Wettbewerber",
+      value: "Angebotswert",
+      deal_score: "Bewertung",
+      forecast: "Preisprognose",
+      expected_price: "Erwarteter Preis",
+      confidence: "Vertrauen",
+      buy: "Kaufen",
+      analyze: "Analysieren",
+      watch: "Beobachten"
+    }
+  },
+
+  es: {
+    ui: {
+      title: "Asesor Sabio",
+      sub: "Tu guía de compras inteligente",
+      energy: "Energía Sabia",
+      welcome: "Bienvenido,",
+      p_head: "Perfil",
+      lbl_name: "Nombre de usuario",
+      lbl_budget: "Presupuesto ($)",
+      buy: "Comprar",
+      watch: "Vigilar",
+      over: "¡Sobre el presupuesto!",
+    },
+    search: {
+      market: "Mercado",
+      avg_price: "Precio promedio",
+      competitors: "Competidores",
+      value: "Valor de la oferta",
+      deal_score: "Puntuación",
+      forecast: "Pronóstico de precio",
+      expected_price: "Precio esperado",
+      confidence: "Confianza",
+      buy: "Comprar",
+      analyze: "Analizar",
+      watch: "Vigilar"
+    }
+  },
+
+  tr: {
+    ui: {
+      title: "Bilge Danışman",
+      sub: "Akıllı alışveriş rehberiniz",
+      energy: "Bilge Enerji",
+      welcome: "Hoş geldiniz,",
+      p_head: "Profil",
+      lbl_name: "Kullanıcı adı",
+      lbl_budget: "Bütçe ($)",
+      buy: "Satın al",
+      watch: "İzle",
+      over: "Bütçe aşıldı!",
+    },
+    search: {
+      market: "Pazar",
+      avg_price: "Ortalama fiyat",
+      competitors: "Rakipler",
+      value: "Teklif değeri",
+      deal_score: "Puan",
+      forecast: "Fiyat tahmini",
+      expected_price: "Beklenen fiyat",
+      confidence: "Güven",
+      buy: "Satın al",
+      analyze: "Analiz",
+      watch: "İzle"
+    }
+  }
+};
     
     async function runSearch() {
-        const q = document.getElementById('s-input').value.trim();
-        const status = document.getElementById('status');
-        const resultsBox = document.getElementById('results');
+  const q = document.getElementById('s-input').value.trim();
+  const status = document.getElementById('status');
+  const resultsBox = document.getElementById('results');
 
-        if (!q) return;
+  if (!q) return;
 
-        const T = dict[lang]?.search || dict.en.search; // التأكد من جلب الترجمة الصحيحة
+  const T = dict[lang]?.search || dict.en.search;
+  const UI = dict[lang]?.ui || dict.en.ui; // للحصول على نص التحذير
 
-        status.style.display = 'block';
-        status.innerText = '🔍 ...';
-        resultsBox.innerHTML = '';
+  status.style.display = 'block';
+  status.innerText = '🔍 ...';
+  resultsBox.innerHTML = '';
 
-        try {
-            const res = await fetch(
-                `${API}/search?q=${encodeURIComponent(q)}&lang=${lang}&uid=${localStorage.getItem('findly_uid')}`
-            );
+  // جلب الميزانية المحفوظة
+  const userBudget = parseFloat(localStorage.getItem('user_budget')) || 0;
 
-            const data = await res.json();
-            status.style.display = 'none';
+  try {
+    const res = await fetch(
+      `${API}/search?q=${encodeURIComponent(q)}&lang=${lang}&uid=${localStorage.getItem('findly_uid')}`
+    );
 
-            if (!data.results || !data.results.length) {
-                status.style.display = 'block';
-                status.innerText = '❌';
-                return;
-            }
+    const data = await res.json();
+    status.style.display = 'none';
 
-            data.results.forEach(p => {
-                const intel = p.intelligence || {};
-                const verdict = intel.finalVerdict || {};
-                const priceIntel = intel.priceIntel || {};
-                const valueIntel = intel.valueIntel || {};
-                const forecast = intel.forecastIntel || {};
-                const trust = intel.trustIntel || {};
-
-                const card = document.createElement('div');
-                card.className = 'product-card';
-
-                card.innerHTML = `
-                <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/200'">
-
-                <h3>${p.title || '—'}</h3>
-                <div class="price">${p.price || '—'}</div>
-
-                <div class="analysis-engine">
-                  <span class="analysis-label">
-                    ${verdict.emoji || '🤖'} ${verdict.title || ''}
-                  </span>
-                  <div>${verdict.reason || ''}</div>
-                </div>
-
-                <div class="intel-section">
-                  <h4>📊 ${T.market}</h4>
-                  <p>${T.avg_price}: <strong>${priceIntel.average ? `$${priceIntel.average}` : '—'}</strong></p>
-                  <p>${T.competitors}: <strong>${valueIntel.competitors || 0}</strong></p>
-                </div>
-
-                <div class="intel-section">
-                  <h4>💎 ${T.value}</h4>
-                  <p>${T.deal_score}: <strong>${valueIntel.score || 0}%</strong></p>
-                  <p>
-                    ${valueIntel.learningBoost > 0
-                      ? T.learning_on
-                      : T.learning_later}
-                  </p>
-                </div>
-
-                <div class="intel-section">
-                  <h4>🔮 ${T.forecast}</h4>
-                  <p>${T.trend[forecast.trend] || T.trend.stable}</p>
-                  <p>${T.expected_price}: <strong>$${forecast.expectedPrice || '—'}</strong></p>
-                  <p>${T.confidence}: <strong>${Math.round((forecast.confidence || 0) * 100)}%</strong></p>
-                </div>
-
-                <div class="intel-section">
-                  <h4>⚠️ ${T.trust}</h4>
-                  ${
-                    trust.warnings && trust.warnings.length
-                      ? `<ul>${trust.warnings.map(w => `<li>${w}</li>`).join('')}</ul>`
-                      : `<p>✅ ${T.no_risks}</p>`
-                  }
-                </div>
-
-                <div class="btn-group">
-                  <a href="${p.link}" target="_blank" class="action-btn buy-now">
-                    ${T.buy}
-                  </a>
-
-                  <button class="action-btn analyze-btn"
-                    onclick="openAnalysisModal('${encodeURIComponent(JSON.stringify({
-                      title: verdict.title,
-                      reason: verdict.reason,
-                      average: priceIntel.average,
-                      score: valueIntel.score
-                    }))}')">
-                    ${T.analyze}
-                  </button>
-
-                  <button class="action-btn watch-btn"
-                    onclick="addToWatch(
-                      '${(p.title || '').replace(/'/g, '')}',
-                      '${p.price}',
-                      '${p.link}'
-                    )">
-                    ${T.watch}
-                  </button>
-                </div>
-                `;
-
-                resultsBox.appendChild(card);
-            });
-
-        } catch (e) {
-            console.error(e);
-            status.style.display = 'block';
-            status.innerText = '❌';
-        }
+    if (!data.results || !data.results.length) {
+      status.style.display = 'block';
+      status.innerText = '❌';
+      return;
     }
 
+    data.results.forEach(p => {
+      const intel = p.intelligence || {};
+      const verdict = intel.finalVerdict || {};
+      const priceIntel = intel.priceIntel || {};
+      const valueIntel = intel.valueIntel || {};
+      const forecast = intel.forecastIntel || {};
+      const trust = intel.trustIntel || {};
+
+      // --- منطق الميزانية (الذي كان مفقوداً) ---
+      let budgetClass = '';
+      let budgetBadge = '';
+      
+      // استخراج الرقم من سعر المنتج
+      const priceVal = parseFloat(String(p.price).replace(/[^\d.]/g, '')) || 0;
+
+      if (userBudget > 0 && priceVal > userBudget) {
+        budgetClass = 'over-budget';
+        budgetBadge = `<div class="budget-alert">⚠️ ${UI.over || 'Over Budget!'}</div>`;
+      }
+      // ----------------------------------------
+
+      const card = document.createElement('div');
+      card.className = `product-card ${budgetClass}`; // إضافة كلاس التنبيه
+
+      card.innerHTML = `
+${budgetBadge} 
+<img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/200'">
+
+<h3>${p.title || '—'}</h3>
+<div class="price">${p.price || '—'}</div>
+
+<div class="analysis-engine">
+  <span class="analysis-label">
+    ${verdict.emoji || '🤖'} ${verdict.title || ''}
+  </span>
+  <div>${verdict.reason || ''}</div>
+</div>
+
+<div class="intel-section">
+  <h4>📊 ${T.market}</h4>
+  <p>${T.avg_price}: <strong>${priceIntel.average ? `$${priceIntel.average}` : '—'}</strong></p>
+  <p>${T.competitors}: <strong>${valueIntel.competitors || 0}</strong></p>
+</div>
+
+<div class="intel-section">
+  <h4>💎 ${T.value}</h4>
+  <p>${T.deal_score}: <strong>${valueIntel.score || 0}%</strong></p>
+  <p>
+    ${valueIntel.learningBoost > 0
+      ? T.learning_on
+      : T.learning_later}
+  </p>
+</div>
+
+<div class="intel-section">
+  <h4>🔮 ${T.forecast}</h4>
+  <p>${T.trend[forecast.trend] || T.trend.stable}</p>
+  <p>${T.expected_price}: <strong>$${forecast.expectedPrice || '—'}</strong></p>
+  <p>${T.confidence}: <strong>${Math.round((forecast.confidence || 0) * 100)}%</strong></p>
+</div>
+
+<div class="intel-section">
+  <h4>⚠️ ${T.trust}</h4>
+  ${
+    trust.warnings && trust.warnings.length
+      ? `<ul>${trust.warnings.map(w => `<li>${w}</li>`).join('')}</ul>`
+      : `<p>✅ ${T.no_risks}</p>`
+  }
+</div>
+
+<div class="btn-group">
+  <a href="${p.link}" target="_blank" class="action-btn buy-now">
+    ${T.buy}
+  </a>
+
+  <button class="action-btn analyze-btn"
+    onclick="openAnalysisModal('${encodeURIComponent(JSON.stringify({
+      title: verdict.title,
+      reason: verdict.reason,
+      average: priceIntel.average,
+      score: valueIntel.score
+    }))}')">
+    ${T.analyze}
+  </button>
+
+  <button class="action-btn watch-btn"
+    onclick="addToWatch(
+      '${(p.title || '').replace(/'/g, '')}',
+      '${p.price}',
+      '${p.link}'
+    )">
+    ${T.watch}
+  </button>
+</div>
+`;
+
+      resultsBox.appendChild(card);
+    });
+
+  } catch (e) {
+    console.error(e);
+    status.style.display = 'block';
+    status.innerText = '❌';
+  }
+}
+
+    // 2. دالة إضافة التنبيهات (المراقبة)
     async function addToWatch(name, price, link) {
         const userEmail = prompt(lang === 'ar' ? "أدخل إيميلك للتنبيه عند انخفاض السعر:" : "Enter email for price alerts:");
         if (!userEmail || !userEmail.includes("@")) return;
 
         let uid = localStorage.getItem('findly_uid') || 'guest';  
+        // تنظيف السعر من العملة
         let numericPrice = parseFloat(String(price).replace(/[^\d.]/g, '')) || 0;
         let targetPrice = numericPrice * 0.9;  
 
@@ -1116,21 +1071,22 @@
     }
 
    function openAnalysisModal(encoded) {
-        const data = JSON.parse(decodeURIComponent(encoded));
-        const modal = document.getElementById('analysis-modal');
-        const body = document.getElementById('analysis-content-body');
+    const data = JSON.parse(decodeURIComponent(encoded));
+    const modal = document.getElementById('analysis-modal');
+    const body = document.getElementById('analysis-content-body');
 
-        body.innerHTML = `
-          <p><b>التقييم:</b> ${data.title || '—'}</p>
-          <p style="opacity:.8">${data.reason || '—'}</p>
-          <hr>
-          <p><b>متوسط السوق:</b> ${data.average}</p>
-          <p><b>كفاءة الصفقة:</b> ${data.score}%</p>
-        `;
+    body.innerHTML = `
+      <p><b>التقييم:</b> ${data.title || '—'}</p>
+      <p style="opacity:.8">${data.reason || '—'}</p>
+      <hr>
+      <p><b>متوسط السوق:</b> ${data.average}</p>
+      <p><b>كفاءة الصفقة:</b> ${data.score}%</p>
+    `;
 
-        modal.style.display = 'flex';
-    }
+    modal.style.display = 'flex';
+}
     
+    // 3. دوال التحكم في الواجهة واللغة
     function saveSet() {
         localStorage.setItem('fn', document.getElementById('in-name').value);
         localStorage.setItem('user_budget', document.getElementById('in-budget').value);
@@ -1143,15 +1099,16 @@
         const m = document.getElementById('l-menu');
         m.style.display = (m.style.display === 'block') ? 'none' : 'block';
     }
+    function setLang(l) { lang = l; localStorage.setItem('findly_lang', l); toggleLMenu(); update(); }
     
-    function setLang(l) { 
-        lang = l; 
-        localStorage.setItem('findly_lang', l); 
-        toggleLMenu(); 
-        update(); 
+    // تحديث دالة فتح البروفايل لاسترجاع البيانات القديمة
+    function openProfile() { 
+        document.getElementById('p-modal').style.display = 'flex';
+        // استرجاع البيانات المحفوظة وعرضها في الحقول
+        document.getElementById('in-name').value = localStorage.getItem('fn') || '';
+        document.getElementById('in-budget').value = localStorage.getItem('user_budget') || '';
     }
-
-    function openProfile() { document.getElementById('p-modal').style.display = 'flex'; }
+    
     function quickSearch(q) { document.getElementById('s-input').value = q; runSearch(); }
     function quickFilter(type) { document.getElementById('s-input').value += " " + type; }
 
@@ -1161,40 +1118,35 @@
     }
 
     function update() {
-        // التأكد من وجود قاموس اللغة، وإلا استخدام الإنجليزية كاحتياطي
-        const d = dict[lang] || dict['en'];
-        // الوصول الصحيح للكائنات داخل ui
-        const ui = d.ui;
-        
+        const d = dict[lang] || dict['ar'];
         const userName = localStorage.getItem('fn') || (lang === 'ar' ? 'أيها الباحث' : 'Seeker');
 
-        document.getElementById('txt-energy').innerText = ui.energy;  
-        document.getElementById('greeting').innerText = ui.welcome + " " + userName;  
-        document.getElementById('txt-title').innerText = ui.title;  
-        document.getElementById('txt-sub').innerText = ui.sub;  
-        document.getElementById('txt-deep').innerText = ui.deep;  
-        document.getElementById('tag-cheap').innerText = ui.cheap;  
-        document.getElementById('tag-top').innerText = ui.top;  
-        document.getElementById('tag-new').innerText = ui.new;  
-        document.getElementById('txt-watch-title').innerText = ui.watchTitle;
+        document.getElementById('txt-energy').innerText = d.ui.energy;  
+        document.getElementById('greeting').innerText = d.ui.welcome + " " + userName;  
+        document.getElementById('txt-title').innerText = d.ui.title;  
+        document.getElementById('txt-sub').innerText = d.ui.sub;  
+        document.getElementById('txt-deep').innerText = d.ui.deep;  
+        document.getElementById('tag-cheap').innerText = d.ui.cheap;  
+        document.getElementById('tag-top').innerText = d.ui.top;  
+        document.getElementById('tag-new').innerText = d.ui.new;  
         
-        document.getElementById('cat-game').innerText = ui.game;  
-        document.getElementById('cat-beauty').innerText = ui.beauty;  
-        document.getElementById('cat-home').innerText = ui.home;  
-        document.getElementById('cat-c1').innerText = ui.c1;  
-        document.getElementById('cat-c2').innerText = ui.c2;  
-        document.getElementById('cat-c4').innerText = ui.c4;  
-        document.getElementById('p-head').innerText = ui.p_head;
+        // تحديث نصوص المودال
+        document.getElementById('p-head').innerText = d.ui.p_head;
+        document.getElementById('lbl-name').innerText = d.ui.lbl_name || "اسم المستخدم";
+        document.getElementById('lbl-budget').innerText = d.ui.lbl_budget || "الميزانية ($)";
 
-        // تحديث اتجاه الصفحة
-        const htmlTag = document.getElementById('main-html');
-        htmlTag.lang = lang;
-        htmlTag.dir = (lang === 'ar') ? 'rtl' : 'ltr';
+        document.getElementById('cat-game').innerText = d.ui.game;  
+        document.getElementById('cat-beauty').innerText = d.ui.beauty;  
+        document.getElementById('cat-home').innerText = d.ui.home;  
+        document.getElementById('cat-c1').innerText = d.ui.c1;  
+        document.getElementById('cat-c2').innerText = d.ui.c2;  
+        document.getElementById('cat-c4').innerText = d.ui.c4;  
 
-        // تحديث النصوص في الـ placeholder
-        document.getElementById('s-input').placeholder = (lang === 'ar') ? "ابحث عن أي منتج..." : "Search for any product...";
+        document.getElementById('main-html').lang = lang;  
+        document.getElementById('main-html').dir = (lang === 'ar') ? 'rtl' : 'ltr';
     }
 
+    // دالة البحث الصوتي
     function startVoice() {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
@@ -1236,12 +1188,14 @@
         recognition.start();
     }
 
+    // إغلاق المودال عند النقر في الخارج
     window.onclick = function(event) {
         if (event.target.classList.contains('modal') || event.target.classList.contains('analysis-modal')) {
             event.target.style.display = "none";
         }
     }
 
+    // تشغيل التحديث عند تحميل الصفحة
     window.onload = update;
 </script>
 </body>

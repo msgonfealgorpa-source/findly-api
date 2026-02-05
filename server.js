@@ -112,29 +112,32 @@ app.get('/search', async(req,res)=>{
     const amazonItems = response.data.data.products || [];
 
     const results = [];
-    for(const item of amazonItems){
-      // هنا "التطويع": نحول أسماء أمازون لتتوافق مع ما يتوقعه ملف index.html و "العقل"
-      const standardizedItem = {
-        title: item.product_title,
-        price: item.product_price,
-        link: item.product_url,
-        thumbnail: item.product_photo,
-        source: "Amazon"
-      };
-      const intelligence = SageCore(
-  standardizedItem,
-  amazonItems,
-  {},        // userEvents (لاحقًا من Firebase)
-  {},        // userHistory (لاحقًا من Mongo)
-  req.ip,    // userId
-  null       // userOutcome
-);
 
-results.push({
-  ...standardizedItem,
-  intelligence
-});
-    res.json({query:q, results});
+for (const item of amazonItems) {
+  const standardizedItem = {
+    title: item.product_title,
+    price: item.product_price,
+    link: item.product_url,
+    thumbnail: item.product_photo,
+    source: "Amazon"
+  };
+
+  const intelligence = SageCore(
+    standardizedItem,
+    amazonItems,
+    {},        // userEvents
+    {},        // userHistory
+    req.ip,    // userId
+    null       // userOutcome
+  );
+
+  results.push({
+    ...standardizedItem,
+    intelligence
+  });
+}
+
+res.json({ query: q, results });
 
   } catch(err) {
     console.error("Search Error:", err);

@@ -686,29 +686,29 @@
 
 
     async function runSearch() {
-  const q = document.getElementById('s-input').value.trim();
+  const q = document.getElementById('s-input')?.value?.trim();
   const status = document.getElementById('status');
   const resultsBox = document.getElementById('results');
 
   if (!q) return;
 
-  const T = dict[lang]; // 🔑 مفتاح الترجمة
+  const T = dict?.[lang] || dict?.ar; // حماية الترجمة
 
   status.style.display = 'block';
-  status.innerText = '🔍 ...';
+  status.innerText = T?.loading || '🔍 ...';
   resultsBox.innerHTML = '';
 
   try {
     const res = await fetch(
-      `${API}/search?q=${encodeURIComponent(q)}&lang=${lang}&uid=${localStorage.getItem('findly_uid')}`
+      `${API}/search?q=${encodeURIComponent(q)}&lang=${lang}&uid=${localStorage.getItem('findly_uid') || 'guest'}`
     );
 
     const data = await res.json();
     status.style.display = 'none';
 
-    if (!data.results || !data.results.length) {
+    if (!data?.results?.length) {
       status.style.display = 'block';
-      status.innerText = '❌';
+      status.innerText = T?.no_results || '❌';
       return;
     }
 
@@ -720,16 +720,20 @@
       const forecast = intel.forecastIntel || {};
       const trust = intel.trustIntel || {};
 
+      const trendText =
+        (T?.trend && forecast.trend && T.trend[forecast.trend]) ||
+        T?.trend?.stable ||
+        '';
+
       const card = document.createElement('div');
       card.className = 'product-card';
 
       card.innerHTML = `
-<img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/200'">
+<img src="${p.thumbnail || 'https://via.placeholder.com/200'}">
 
 <h3>${p.title || '—'}</h3>
 <div class="price">${p.price || '—'}</div>
 
-<!-- القرار -->
 <div class="analysis-engine">
   <span class="analysis-label">
     ${verdict.emoji || '🤖'} ${verdict.title || ''}
@@ -737,46 +741,36 @@
   <div>${verdict.reason || ''}</div>
 </div>
 
-<!-- السوق -->
 <div class="intel-section">
   <h4>📊 ${T.market}</h4>
   <p>${T.avg_price}: <strong>${priceIntel.average ? `$${priceIntel.average}` : '—'}</strong></p>
   <p>${T.competitors}: <strong>${valueIntel.competitors || 0}</strong></p>
 </div>
 
-<!-- قيمة الصفقة -->
 <div class="intel-section">
   <h4>💎 ${T.value}</h4>
   <p>${T.deal_score}: <strong>${valueIntel.score || 0}%</strong></p>
-  <p>
-    ${valueIntel.learningBoost > 0
-      ? T.learning_on
-      : T.learning_later}
-  </p>
+  <p>${valueIntel.learningBoost > 0 ? T.learning_on : T.learning_later}</p>
 </div>
 
-<!-- التوقع السعري -->
 <div class="intel-section">
   <h4>🔮 ${T.forecast}</h4>
-  <p>${T.trend[forecast.trend] || T.trend.stable}</p>
-  <p>${T.expected_price}: <strong>$${forecast.expectedPrice || '—'}</strong></p>
+  <p>${trendText}</p>
+  <p>${T.expected_price}: <strong>${forecast.expectedPrice ? `$${forecast.expectedPrice}` : '—'}</strong></p>
   <p>${T.confidence}: <strong>${Math.round((forecast.confidence || 0) * 100)}%</strong></p>
 </div>
 
-<!-- الثقة والمخاطر -->
 <div class="intel-section">
   <h4>⚠️ ${T.trust}</h4>
   ${
-    trust.warnings && trust.warnings.length
+    trust.warnings?.length
       ? `<ul>${trust.warnings.map(w => `<li>${w}</li>`).join('')}</ul>`
       : `<p>✅ ${T.no_risks}</p>`
   }
 </div>
 
 <div class="btn-group">
-  <a href="${p.link}" target="_blank" class="action-btn buy-now">
-    ${T.buy}
-  </a>
+  <a href="${p.link}" target="_blank" class="action-btn buy-now">${T.buy}</a>
 
   <button class="action-btn analyze-btn"
     onclick="openAnalysisModal('${encodeURIComponent(JSON.stringify({
@@ -789,11 +783,7 @@
   </button>
 
   <button class="action-btn watch-btn"
-    onclick="addToWatch(
-      '${(p.title || '').replace(/'/g, '')}',
-      '${p.price}',
-      '${p.link}'
-    )">
+    onclick="addToWatch('${(p.title || '').replace(/'/g, '')}','${p.price}','${p.link}')">
     ${T.watch}
   </button>
 </div>
@@ -803,9 +793,9 @@
     });
 
   } catch (e) {
-    console.error(e);
+    console.error('Search Error:', e);
     status.style.display = 'block';
-    status.innerText = '❌';
+    status.innerText = T?.error || '❌';
   }
 }
     

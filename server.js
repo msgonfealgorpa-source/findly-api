@@ -67,6 +67,91 @@ const DICT = {
   }
 };
 
+/* ================= SCRAPING EBAY ================= */
+async function scrapeEbay(q) {
+  await wait();
+  const url = `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(q)}`;
+
+  const { data } = await axios.get(url, {
+    headers: {
+      "User-Agent": "Mozilla/5.0"
+    }
+  });
+
+  const $ = cheerio.load(data);
+  const items = [];
+
+  $(".s-item").each((i, el) => {
+    if (i >= 8) return;
+
+    const title = $(el).find(".s-item__title").text();
+    const price = $(el).find(".s-item__price").text();
+    const link = $(el).find(".s-item__link").attr("href");
+    const img = $(el).find("img").attr("src");
+
+    const numericPrice = cleanPrice(price);
+
+    if (title && numericPrice > 0) {
+      items.push({
+        title,
+        name: title,
+        price,
+        numericPrice,
+        link,
+        thumbnail: img,
+        source: "eBay"
+      });
+    }
+  });
+
+  return items;
+}
+
+
+/* ================= SCRAPING ALIBABA ================= */
+async function scrapeAlibaba(q) {
+  await wait();
+  const url = `https://www.alibaba.com/trade/search?SearchText=${encodeURIComponent(q)}`;
+
+  const { data } = await axios.get(url, {
+    headers: {
+      "User-Agent": "Mozilla/5.0"
+    }
+  });
+
+  const $ = cheerio.load(data);
+  const items = [];
+
+  $(".list-no-v2-outter").each((i, el) => {
+    if (i >= 8) return;
+
+    const title = $(el).find("h2").text().trim();
+    const price = $(el).find(".elements-offer-price-normal__price").text();
+    const link = $(el).find("a").attr("href");
+    const img = $(el).find("img").attr("src");
+
+    const numericPrice = cleanPrice(price);
+
+    if (title && numericPrice > 0) {
+      items.push({
+        title,
+        name: title,
+        price,
+        numericPrice,
+        link: finalizeUrl(link),
+        thumbnail: img,
+        source: "Alibaba"
+      });
+    }
+  });
+
+  return items;
+}
+
+
+
+
+
 /* ================= HELPERS ================= */
 function finalizeUrl(url) {
   if (!url) return '';
@@ -119,6 +204,19 @@ if (MONGO_URI) {
     .catch(e => console.log("❌ DB Error:", e));
 }
 
+
+/* ================= SCRAPING SAFETY ================= */
+const cache = new Map();
+let lastCall = 0;
+
+async function wait(ms = 3000) {
+  const now = Date.now();
+  if (now - lastCall < ms) {
+    await new Promise(r => setTimeout(r, ms));
+  }
+  lastCall = Date.now();
+}
+
 /* ================= ROUTES ================= */
 
 // 1. ✅ المسار الرئيسي (يحل مشكلة Cannot GET /)
@@ -136,21 +234,34 @@ app.get('/search', async (req, res) => {
 
   try {
     // التحقق من وجود المفتاح قبل الطلب
-    if (!X_RAPIDAPI_KEY) {
-        throw new Error("API Key is missing in Server Environment Variables");
+
+
+     // ===== SMART SOURCE SWITCH =====
+let amazonItems = [];
+
+try {
+  if (!X_RAPIDAPI_KEY) throw new Error("No RapidAPI Key");
+
+  const response = await axios.request({
+    method: 'GET',
+    url: `https://${X_RAPIDAPI_HOST}/search`,
+    params: { query: q, country: 'US', category_id: 'aps' },
+    headers: {
+      'x-rapidapi-key': X_RAPIDAPI_KEY,
+      'x-rapidapi-host': X_RAPIDAPI_HOST
     }
+  });
 
-    const response = await axios.request({
-      method: 'GET',
-      url: `https://${X_RAPIDAPI_HOST}/search`,
-      params: { query: q, country: 'US', category_id: 'aps' },
-      headers: {
-        'x-rapidapi-key': X_RAPIDAPI_KEY,
-        'x-rapidapi-host': X_RAPIDAPI_HOST
-      }
-    });
+  amazonItems = response.data?.data?.products || [];
+} catch (apiErr) {
+  console.warn("⚠️ RapidAPI failed, switching to Scraping...");
 
-    const amazonItems = response.data?.data?.products || [];
+  const ebay = await scrapeEbay(q);
+  const alibaba = await scrapeAlibaba(q);
+
+  amazonItems = [...ebay, ...alibaba];
+}
+     
     const results = [];
 
     for (const item of amazonItems) {

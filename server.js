@@ -83,8 +83,16 @@ return parseFloat(p?.toString().replace(/[^0-9.]/g,'')) || 0;
 function generateCoupons(item, intelligence) {
   const coupons = [];
 
-  const score = intelligence?.valueIntel?.score || 0;
-  const avg = intelligence?.priceIntel?.average || 0;
+  const valueIntel = intelligence && intelligence.valueIntel
+  ? intelligence.valueIntel
+  : {};
+
+const priceIntel = intelligence && intelligence.priceIntel
+  ? intelligence.priceIntel
+  : {};
+
+const score = valueIntel.score || 0;
+const avg = priceIntel.average || 0;
   const price = Number(item.numericPrice) || 0;
 if (price <= 0) return coupons;
 

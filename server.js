@@ -33,7 +33,6 @@ async function searchWithSearchApi(query) {
   }));
 }
 
-
 /* ================= BASIC SETUP ================= */
 app.use(cors({ origin: '*', methods: ['GET','POST'], allowedHeaders: ['Content-Type','Authorization'] }));
 app.use(express.json());

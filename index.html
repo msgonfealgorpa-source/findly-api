@@ -972,7 +972,15 @@
 
 
 
-        const coupons = p.coupons || [];
+        const coupons = (p.coupons && p.coupons.length)
+  ? p.coupons
+  : [
+      {
+        code: 'SAVE10',
+        type: 'percent',
+        discount: 10
+      }
+    ];
 const bestCoupon = coupons[0]; // نفترض أول كوبون هو الأفضل
 const numericPrice = parseFloat((p.price || '').replace(/[^\d.]/g, ''));
 const discountedPrice = bestCoupon

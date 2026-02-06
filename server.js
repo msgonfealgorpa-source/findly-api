@@ -261,10 +261,9 @@ app.get('/search', async (req, res) => {
 
     res.json(results);
   } catch (err) {
-    console.error("Search error:", err.message);
-    res.status(500).json({ error: "Search failed" });
-  }
-});
+  console.error("🔥 REAL ERROR:", err.message);
+  res.status(500).json({ error: err.message });
+}
 
 
     

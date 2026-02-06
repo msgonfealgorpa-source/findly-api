@@ -85,7 +85,8 @@ function generateCoupons(item, intelligence) {
 
   const score = intelligence?.valueIntel?.score || 0;
   const avg = intelligence?.priceIntel?.average || 0;
-  const price = item.numericPrice || 0;
+  const price = Number(item.numericPrice) || 0;
+if (price <= 0) return coupons;
 
   // 🎯 صفقة قوية → كوبون تحفيزي
   if (score >= 80) {

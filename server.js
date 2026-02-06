@@ -82,40 +82,39 @@ function cleanPrice(p) {
 function generateCoupons(item, intelligence) {
   const coupons = [];
 
-  const valueIntel = intelligence && intelligence.valueIntel
-    ? intelligence.valueIntel
-    : {};
+  // حماية كاملة
+  if (!item || !intelligence) return coupons;
 
-  const priceIntel = intelligence && intelligence.priceIntel
-    ? intelligence.priceIntel
-    : {};
+  const valueIntel = intelligence.valueIntel || {};
+  const priceIntel = intelligence.priceIntel || {};
 
-  const score = valueIntel.score || 0;
-  const avg   = priceIntel.average || 0;
+  const score = Number(valueIntel.score) || 0;
+  const avg = Number(priceIntel.average) || 0;
 
-  const price = typeof item.numericPrice === 'number'
-    ? item.numericPrice
-    : 0;
+  const price =
+    typeof item.numericPrice === 'number'
+      ? item.numericPrice
+      : 0;
 
   if (price <= 0) return coupons;
 
   // 🧠 صفقة قوية
   if (score >= 80) {
     coupons.push({
-      code: "SMART10",
-      type: "percent",
+      code: 'SMART10',
+      type: 'percent',
       discount: 10,
-      reason: "High value deal"
+      reason: 'High value deal'
     });
   }
 
-  // 💰 أغلى من السوق
+  // 💰 أعلى من السوق
   if (avg > 0 && price > avg * 1.05) {
     coupons.push({
-      code: "SAVE25",
-      type: "fixed",
+      code: 'SAVE25',
+      type: 'fixed',
       discount: 25,
-      reason: "Above market price"
+      reason: 'Above market price'
     });
   }
 

@@ -7,24 +7,23 @@ const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
 const mongoose = require('mongoose');
-const path = require('path'); // 1. تمت إضافة هذه المكتبة لتحديد مسار الملفات
+const path = require('path'); // 1️⃣ هذا السطر ضروري لتحديد مكان الملفات
 
 const app = express();
-
-// هذا السطر يبحث في مجلد public، لكننا سنضيف التوجيه اليدوي بالأسفل لضمان عمل الروابط
-app.use(express.static('public'));
 
 /* ================= BASIC SETUP ================= */
 app.use(cors({ origin: '*', methods: ['GET','POST'], allowedHeaders: ['Content-Type','Authorization'] }));
 app.use(express.json());
 
-/* ================= 🟢 FIX: PAGES ROUTING (حل مشكلة الروابط) ================= */
-// هذه الأكواد تضمن فتح الصفحات سواء كانت في مجلد public أو في المجلد الرئيسي
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
-app.get('/about.html', (req, res) => res.sendFile(path.join(__dirname, 'about.html')));
-app.get('/terms.html', (req, res) => res.sendFile(path.join(__dirname, 'terms.html')));
-app.get('/privacy.html', (req, res) => res.sendFile(path.join(__dirname, 'privacy.html')));
-/* =========================================================================== */
+// احتفظنا بهذا السطر كما طلبت (للملفات العامة)
+app.use(express.static('public'));
+
+/* ================= 🟢 الحل هنا (إضافة مسارات الصفحات) ================= */
+// لم نحذف شيئاً، فقط أضفنا طريقة ليقرأ السيرفر ملفاتك الموجودة بجانبه
+app.get('/about.html', (req, res) => { res.sendFile(path.join(__dirname, 'about.html')); });
+app.get('/terms.html', (req, res) => { res.sendFile(path.join(__dirname, 'terms.html')); });
+app.get('/privacy.html', (req, res) => { res.sendFile(path.join(__dirname, 'privacy.html')); });
+/* ====================================================================== */
 
 /* ================= ENV VARIABLES ================= */
 const { MONGO_URI, X_RAPIDAPI_KEY, PORT } = process.env;
@@ -123,9 +122,7 @@ const watchlistSchema = new mongoose.Schema({
 const Watchlist = mongoose.model('Watchlist', watchlistSchema);
 
 if (MONGO_URI) {
-  mongoose.connect(MONGO_URI)
-    .then(() => console.log("✅ DB Connected"))
-    .catch(e => console.log("❌ DB Error:", e));
+  mongoose.connect(MONGO_URI).then(() => console.log("✅ DB Connected")).catch(e => console.log("❌ DB Error:", e));
 }
 
 /* ================= SEARCH ENGINE ================= */
@@ -163,6 +160,7 @@ app.get('/search', async (req, res) => {
         source: 'Amazon'
       };
 
+      // 🧠 استدعاء العقل الكامل
       const intelligenceRaw = SageCore(
         standardizedItem,
         amazonItems,
@@ -172,6 +170,7 @@ app.get('/search', async (req, res) => {
         null
       );
 
+      // 🌍 ترجمة القرار
       let decisionTitle = TEXTS.fair;
       let decisionReason = TEXTS.reason_fair;
       let decisionEmoji = '⚖️';
@@ -191,8 +190,13 @@ app.get('/search', async (req, res) => {
         }
       }
 
+      // 📦 تمرير كل العقول للواجهة
       const intelligence = {
-        finalVerdict: { emoji: decisionEmoji, title: decisionTitle, reason: decisionReason },
+        finalVerdict: {
+          emoji: decisionEmoji,
+          title: decisionTitle,
+          reason: decisionReason
+        },
         priceIntel: intelligenceRaw.priceIntel,
         valueIntel: intelligenceRaw.valueIntel,
         forecastIntel: intelligenceRaw.forecastIntel,
@@ -223,42 +227,30 @@ app.get('/search', async (req, res) => {
   }
 });
 
-/* ================= ROUTES ================= */
+/* ================= ROUTES (Alerts & Watchlist) ================= */
 app.post('/alerts', async (req, res) => {
   try {
-    if (mongoose.connection.readyState === 1) { 
-      await new Alert(req.body).save(); 
-      res.json({ success: true }); 
-    } else { 
-      res.status(503).json({ error: 'DB Offline' }); 
-    }
+    if (mongoose.connection.readyState === 1) { await new Alert(req.body).save(); res.json({ success: true }); } 
+    else { res.status(503).json({ error: 'DB Offline' }); }
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 app.post('/watchlist', async (req, res) => {
   try {
-    if (mongoose.connection.readyState === 1) { 
-      await new Watchlist(req.body).save(); 
-      res.json({ success: true }); 
-    } else { 
-      res.status(503).json({ error: 'DB Offline' }); 
-    }
+    if (mongoose.connection.readyState === 1) { await new Watchlist(req.body).save(); res.json({ success: true }); }
+    else { res.status(503).json({ error: 'DB Offline' }); }
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 app.get('/watchlist/:uid', async (req, res) => {
   try {
-    if (mongoose.connection.readyState === 1) { 
-      const list = await Watchlist.find({ uid: req.params.uid }).sort({ addedAt: -1 }); 
-      res.json(list); 
-    } else { 
-      res.status(503).json({ error: 'DB Offline' }); 
-    }
+    if (mongoose.connection.readyState === 1) { const list = await Watchlist.find({ uid: req.params.uid }).sort({ addedAt: -1 }); res.json(list); }
+    else { res.status(503).json({ error: 'DB Offline' }); }
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 /* ================= START SERVER ================= */
 const PORT_FINAL = PORT || 3000;
 app.listen(PORT_FINAL, () => {
-  console.log(`🚀 Findly Server running on port ${PORT_FINAL}`);
+  console.log(`🚀 Findly Server running on port ${PORT_FINAL} with Multi-Lang Support`);
 });

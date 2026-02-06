@@ -82,8 +82,16 @@ function cleanPrice(p) {
 function generateCoupons(item, intelligence) {
   const coupons = [];
 
-  const score = intelligence?.valueIntel?.score || 0;
-  const avg = intelligence?.priceIntel?.average || 0;
+  const valueIntel = intelligence && intelligence.valueIntel
+  ? intelligence.valueIntel
+  : {};
+
+const priceIntel = intelligence && intelligence.priceIntel
+  ? intelligence.priceIntel
+  : {};
+
+const score = valueIntel.score || 0;
+const avg = priceIntel.average || 0;
 
   // ✅ استخرج السعر بطريقة آمنة
   const price = typeof item.numericPrice === 'number'

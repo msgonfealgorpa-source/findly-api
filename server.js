@@ -19,8 +19,14 @@ app.use(express.json());
 app.use(express.static(__dirname));
 
 /* ================= ENV VARIABLES ================= */
-const { MONGO_URI, X_RAPIDAPI_KEY, PORT } = process.env;
-const X_RAPIDAPI_HOST = "real-time-amazon-data.p.rapidapi.com";
+const { MONGO_URI, PORT } = process.env;
+
+const X_RAPIDAPI_KEY = process.env.X_RAPIDAPI_KEY;
+const X_RAPIDAPI_HOST = process.env.X_RAPIDAPI_HOST;
+
+if (!X_RAPIDAPI_KEY || !X_RAPIDAPI_HOST) {
+  console.error("❌ RapidAPI ENV variables missing");
+}
 
 /* ================= TRANSLATION DICTIONARY ================= */
 // (نفس القاموس الموجود في ملفك الأصلي دون تغيير)

@@ -914,6 +914,24 @@
   return Math.max(final, 0).toFixed(2);
 }
     
+   
+    function pickBestCoupon(price, coupons = []) {
+  if (!price || !coupons.length) return null;
+
+  let best = null;
+  let bestPrice = price;
+
+  coupons.forEach(c => {
+    const discounted = parseFloat(applyCoupon(price, c));
+    if (discounted < bestPrice) {
+      bestPrice = discounted;
+      best = c;
+    }
+  });
+
+  return best;
+}
+    
     async function runSearch() {
   const q = document.getElementById('s-input').value.trim();
   const status = document.getElementById('status');
@@ -972,15 +990,7 @@
 
 
 
-        const coupons = (p.coupons && p.coupons.length)
-  ? p.coupons
-  : [
-      {
-        code: 'SAVE10',
-        type: 'percent',
-        discount: 10
-      }
-    ];
+        const bestCoupon = pickBestCoupon(numericPrice, coupons);
 const bestCoupon = coupons[0]; // نفترض أول كوبون هو الأفضل
 const numericPrice = parseFloat((p.price || '').replace(/[^\d.]/g, ''));
 const discountedPrice = bestCoupon

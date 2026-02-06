@@ -471,6 +471,21 @@
             to { opacity: 1; transform: scale(1); }
         }
 
+
+
+        .old-price {
+  text-decoration: line-through;
+  opacity: 0.6;
+  margin-right: 6px;
+}
+
+.new-price {
+  color: #2ecc71;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+        
     </style>
 </head>
 <body>
@@ -1013,13 +1028,13 @@ ${budgetBadge}
 <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/200'">
 
 <h3>${p.title || '—'}</h3>
+
+
 <div class="price">
   ${bestCoupon && discountedPrice
-    ? `
-      <span class="old-price">${p.price}</span>
-      <span class="new-price">$${discountedPrice}</span>
-    `
-    : `${p.price || '-'}`
+    ? `<span class="old-price">$${numericPrice}</span>
+       <span class="new-price">$${discountedPrice}</span>`
+    : `$${numericPrice || '-'}`
   }
 </div>
 

@@ -1,32 +1,29 @@
 /* =========================================
    FINDLY SAGE ULTIMATE - MULTI-LANG SERVER
    ========================================= */
-
 const SageCore = require('./sage-core');
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
 const mongoose = require('mongoose');
-const path = require('path'); // 1️⃣ هذا السطر ضروري لتحديد مكان الملفات
+const path = require('path'); // أضفنا هذا السطر فقط للتعرف على المسارات
 
 const app = express();
+
+/* ================= 🟢 الحل هنا ================= */
+// هذا السطر يجعل السيرفر يرى الملفات في المجلد الرئيسي وفي مجلد public معاً
+app.use(express.static(__dirname)); 
+app.use(express.static('public'));
+
+// توجيه صريح لضمان فتح الصفحات حتى لو كانت خارج مجلد public
+app.get('/about.html', (req, res) => res.sendFile(path.join(__dirname, 'about.html')));
+app.get('/terms.html', (req, res) => res.sendFile(path.join(__dirname, 'terms.html')));
+app.get('/privacy.html', (req, res) => res.sendFile(path.join(__dirname, 'privacy.html')));
+/* ============================================== */
 
 /* ================= BASIC SETUP ================= */
 app.use(cors({ origin: '*', methods: ['GET','POST'], allowedHeaders: ['Content-Type','Authorization'] }));
 app.use(express.json());
-
-app.use(express.static(__dirname)); 
-app.use(express.static('public'));
-
-// احتفظنا بهذا السطر كما طلبت (للملفات العامة)
-
-/* ================= 🟢 الحل هنا (إضافة مسارات الصفحات) ================= */
-// لم نحذف شيئاً، فقط أضفنا طريقة ليقرأ السيرفر ملفاتك الموجودة بجانبه
-app.get('/about.html', (req, res) => { res.sendFile(path.join(__dirname, 'about.html')); });
-app.get('/terms.html', (req, res) => { res.sendFile(path.join(__dirname, 'terms.html')); });
-app.get('/privacy.html', (req, res) => { res.sendFile(path.join(__dirname, 'privacy.html')); });
-/* ====================================================================== */
-
 /* ================= ENV VARIABLES ================= */
 const { MONGO_URI, X_RAPIDAPI_KEY, PORT } = process.env;
 const X_RAPIDAPI_HOST = "real-time-amazon-data.p.rapidapi.com";

@@ -1,5 +1,5 @@
 /* =========================================
-   FINDLY SAGE ULTIMATE - SERVER (FINAL)
+   FINDLY SAGE ULTIMATE - SERVER (ORIGINAL UPDATED)
    ========================================= */
 
 const SageCore = require('./sage-core');
@@ -7,7 +7,7 @@ const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
 const mongoose = require('mongoose');
-const path = require('path'); // مكتبة مهمة لضمان عمل المسارات
+const path = require('path'); // تم إضافتها للمسارات
 
 const app = express();
 
@@ -15,8 +15,7 @@ const app = express();
 app.use(cors({ origin: '*', methods: ['GET','POST'], allowedHeaders: ['Content-Type','Authorization'] }));
 app.use(express.json());
 
-// ✅ هذا السطر هو الحل الجذري لمشكلة الروابط
-// يخبر السيرفر: "أي ملف يطلبه المستخدم (مثل privacy.html) وموجود في المجلد، قم بفتحه"
+// ✅ الجزء المضاف للسماح بفتح ملفات الـ CSS والـ JS الخاصة بواجهتك
 app.use(express.static(__dirname));
 
 /* ================= ENV VARIABLES ================= */
@@ -24,7 +23,7 @@ const { MONGO_URI, X_RAPIDAPI_KEY, PORT } = process.env;
 const X_RAPIDAPI_HOST = "real-time-amazon-data.p.rapidapi.com";
 
 /* ================= TRANSLATION DICTIONARY ================= */
-// إعداداتك الخاصة باللغات
+// (نفس القاموس الموجود في ملفك الأصلي دون تغيير)
 const DICT = {
   ar: {
     buy: "صفقة ممتازة", wait: "انتظر", fair: "سعر عادل",
@@ -49,7 +48,7 @@ const DICT = {
   }
 };
 
-/* ================= HELPERS (Functions) ================= */
+/* ================= HELPERS (نفس وظائفك الأصلية) ================= */
 function finalizeUrl(url) {
   if (!url) return '';
   let u = url.trim();
@@ -66,27 +65,18 @@ function cleanPrice(p) {
 function generateCoupons(item, intelligence) {
   const coupons = [];
   if (!item || !intelligence) return coupons;
-  
   const valueIntel = intelligence.valueIntel || {};
   const priceIntel = intelligence.priceIntel || {};
   const score = Number(valueIntel.score) || 0;
   const avg = Number(priceIntel.average) || 0;
   const price = typeof item.numericPrice === 'number' ? item.numericPrice : 0;
-
   if (price <= 0) return coupons;
-
-  if (score >= 80) {
-    coupons.push({ code: 'SMART10', type: 'percent', discount: 10, reason: 'High value deal' });
-  }
-  
-  if (avg > 0 && price > (avg * 1.05)) {
-    coupons.push({ code: 'SAVE25', type: 'fixed', discount: 25, reason: 'Above market price' });
-  }
-  
+  if (score >= 80) coupons.push({ code: 'SMART10', type: 'percent', discount: 10, reason: 'High value deal' });
+  if (avg > 0 && price > (avg * 1.05)) coupons.push({ code: 'SAVE25', type: 'fixed', discount: 25, reason: 'Above market price' });
   return coupons;
 }
 
-/* ================= DB MODELS ================= */
+/* ================= DB MODELS (نفس موديلاتك الأصلية) ================= */
 const alertSchema = new mongoose.Schema({
   email: String, productName: String, targetPrice: Number, 
   currentPrice: Number, productLink: String, uid: String,
@@ -102,27 +92,25 @@ const watchlistSchema = new mongoose.Schema({
 const Watchlist = mongoose.model('Watchlist', watchlistSchema);
 
 if (MONGO_URI) {
-  mongoose.connect(MONGO_URI)
-    .then(() => console.log("✅ DB Connected"))
-    .catch(e => console.log("❌ DB Error:", e));
+  mongoose.connect(MONGO_URI).then(() => console.log("✅ DB Connected")).catch(e => console.log("❌ DB Error:", e));
 }
 
-/* ================= MAIN ROUTE (FIX 404) ================= */
-// ✅ حل مشكلة Render Live: توجيه الطلب الرئيسي إلى ملف index.html
+/* ================= ROUTES (تعديل المسارات لتعمل الملفات الجاهزة) ================= */
+
+// الصفحة الرئيسية (index.html)
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-/* ================= SEARCH ENGINE API ================= */
+// ✅ الروابط المتوافقة مع ملفاتك الجاهزة
+app.get('/privacy', (req, res) => { res.sendFile(path.join(__dirname, 'privacy.html')); });
+app.get('/terms', (req, res) => { res.sendFile(path.join(__dirname, 'terms.html')); });
+app.get('/about', (req, res) => { res.sendFile(path.join(__dirname, 'about.html')); });
+
+
+/* ================= SEARCH API (من ملفك الأصلي 100%) ================= */
 app.get('/search', async (req, res) => {
   const { q, lang = 'ar', uid = 'guest' } = req.query;
-  
-  // التحقق من مفتاح API لمنع توقف السيرفر
-  if (!X_RAPIDAPI_KEY) {
-      console.error("❌ ERROR: X_RAPIDAPI_KEY missing");
-      return res.status(500).json({ error: 'Server Config Error: API Key Missing' });
-  }
-
   const selectedLang = DICT[lang] ? lang : 'ar';
   const TEXTS = DICT[selectedLang];
 
@@ -144,7 +132,6 @@ app.get('/search', async (req, res) => {
 
     for (const item of amazonItems) {
       const currentPrice = cleanPrice(item.product_price);
-      
       const standardizedItem = {
         name: item.product_title,
         title: item.product_title,
@@ -155,20 +142,16 @@ app.get('/search', async (req, res) => {
         source: 'Amazon'
       };
 
-      // SageCore Logic
       let intelligenceRaw = {};
       try {
-           if (typeof SageCore === 'function') {
-               intelligenceRaw = SageCore(standardizedItem, amazonItems, {}, {}, uid, null);
-           }
-      } catch (err) {
-           console.error("SageCore Analysis Error:", err.message);
-      }
+        if (typeof SageCore === 'function') {
+          intelligenceRaw = SageCore(standardizedItem, amazonItems, {}, {}, uid, null);
+        }
+      } catch (err) { console.error("SageCore Error:", err.message); }
 
       let decisionTitle = TEXTS.fair;
       let decisionReason = TEXTS.reason_fair;
       let decisionEmoji = '⚖️';
-
       const avg = Number(intelligenceRaw?.priceIntel?.average || 0);
       const score = intelligenceRaw?.valueIntel?.score || 0;
 
@@ -184,68 +167,42 @@ app.get('/search', async (req, res) => {
         }
       }
 
-      const intelligence = {
-        finalVerdict: { emoji: decisionEmoji, title: decisionTitle, reason: decisionReason },
-        priceIntel: intelligenceRaw.priceIntel || {},
-        valueIntel: intelligenceRaw.valueIntel || {},
-        forecastIntel: intelligenceRaw.forecastIntel || {},
-        trustIntel: intelligenceRaw.trustIntel || {}
-      };
-
-      const comparison = {
-        market_average: intelligence.priceIntel.average ? `$${intelligence.priceIntel.average}` : '—',
-        savings_percentage: intelligence.valueIntel.score || 0,
-        competitors: intelligence.valueIntel.competitors || amazonItems.length
-      };
-
-      const coupons = generateCoupons(standardizedItem, intelligence);
-
-      results.push({ ...standardizedItem, intelligence, comparison, coupons });
+      results.push({
+        ...standardizedItem,
+        intelligence: {
+          finalVerdict: { emoji: decisionEmoji, title: decisionTitle, reason: decisionReason },
+          priceIntel: intelligenceRaw.priceIntel || {},
+          valueIntel: intelligenceRaw.valueIntel || {},
+          forecastIntel: intelligenceRaw.forecastIntel || {},
+          trustIntel: intelligenceRaw.trustIntel || {}
+        },
+        comparison: {
+          market_average: intelligenceRaw.priceIntel?.average ? `$${intelligenceRaw.priceIntel.average}` : '—',
+          savings_percentage: score,
+          competitors: amazonItems.length
+        },
+        coupons: generateCoupons(standardizedItem, intelligenceRaw)
+      });
     }
-
     res.json({ query: q, results });
-
   } catch (err) {
-    console.error('❌ Search Error:', err.message);
-    res.status(500).json({ error: 'Search Failed', details: err.message });
+    res.status(500).json({ error: 'Search Failed', results: [] });
   }
 });
 
-/* ================= OTHER API ROUTES ================= */
+/* ================= REST OF ROUTES (Original) ================= */
 app.post('/alerts', async (req, res) => {
-  try {
-    if (mongoose.connection.readyState === 1) { 
-      await new Alert(req.body).save(); 
-      res.json({ success: true }); 
-    } else { 
-      res.status(503).json({ error: 'DB Offline' }); 
-    }
-  } catch (e) { res.status(500).json({ error: e.message }); }
+    try { await new Alert(req.body).save(); res.json({ success: true }); } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 app.post('/watchlist', async (req, res) => {
-  try {
-    if (mongoose.connection.readyState === 1) { 
-      await new Watchlist(req.body).save(); 
-      res.json({ success: true }); 
-    } else { 
-      res.status(503).json({ error: 'DB Offline' }); 
-    }
-  } catch (e) { res.status(500).json({ error: e.message }); }
+    try { await new Watchlist(req.body).save(); res.json({ success: true }); } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 app.get('/watchlist/:uid', async (req, res) => {
-  try {
-    if (mongoose.connection.readyState === 1) { 
-      const list = await Watchlist.find({ uid: req.params.uid }).sort({ addedAt: -1 }); 
-      res.json(list); 
-    } else { 
-      res.status(503).json({ error: 'DB Offline' }); 
-    }
-  } catch (e) { res.status(500).json({ error: e.message }); }
+    try { const list = await Watchlist.find({ uid: req.params.uid }).sort({ addedAt: -1 }); res.json(list); } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-/* ================= START SERVER ================= */
 const PORT_FINAL = PORT || 3000;
 app.listen(PORT_FINAL, () => {
   console.log(`🚀 Findly Server running on port ${PORT_FINAL}`);

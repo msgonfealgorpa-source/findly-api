@@ -990,10 +990,20 @@
 
 
 
-        const bestCoupon = pickBestCoupon(numericPrice, coupons);
-const bestCoupon = coupons[0]; // نفترض أول كوبون هو الأفضل
-const numericPrice = parseFloat((p.price || '').replace(/[^\d.]/g, ''));
-const discountedPrice = bestCoupon
+        // --- الكوبونات ---
+
+const coupons = p.coupons || [];
+
+// استخراج السعر الرقمي أولاً
+const numericPriceRaw = String(p.price || '').replace(/[^\d.]/g, '');
+const numericPrice = numericPriceRaw ? parseFloat(numericPriceRaw) : null;
+// اختيار أفضل كوبون
+const bestCoupon = (numericPrice && coupons.length)
+  ? pickBestCoupon(numericPrice, coupons)
+  : null;
+
+// حساب السعر بعد الخصم
+const discountedPrice = (numericPrice && bestCoupon)
   ? applyCoupon(numericPrice, bestCoupon)
   : null;
 

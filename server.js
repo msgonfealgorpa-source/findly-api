@@ -7,12 +7,24 @@ const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
 const mongoose = require('mongoose');
+const path = require('path'); // 1. تمت إضافة هذه المكتبة لتحديد مسار الملفات
 
 const app = express();
+
+// هذا السطر يبحث في مجلد public، لكننا سنضيف التوجيه اليدوي بالأسفل لضمان عمل الروابط
 app.use(express.static('public'));
+
 /* ================= BASIC SETUP ================= */
 app.use(cors({ origin: '*', methods: ['GET','POST'], allowedHeaders: ['Content-Type','Authorization'] }));
 app.use(express.json());
+
+/* ================= 🟢 FIX: PAGES ROUTING (حل مشكلة الروابط) ================= */
+// هذه الأكواد تضمن فتح الصفحات سواء كانت في مجلد public أو في المجلد الرئيسي
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+app.get('/about.html', (req, res) => res.sendFile(path.join(__dirname, 'about.html')));
+app.get('/terms.html', (req, res) => res.sendFile(path.join(__dirname, 'terms.html')));
+app.get('/privacy.html', (req, res) => res.sendFile(path.join(__dirname, 'privacy.html')));
+/* =========================================================================== */
 
 /* ================= ENV VARIABLES ================= */
 const { MONGO_URI, X_RAPIDAPI_KEY, PORT } = process.env;
@@ -35,7 +47,7 @@ const DICT = {
     analysis: "Smart Analysis", loading: "Analyzing..."
   },
   fr: {
-    buy: "Bonne Affaire", wait: "Attendez", fair: "Prix Justه",
+    buy: "Bonne Affaire", wait: "Attendez", fair: "Prix Juste",
     reason_cheap: "Moins cher que la moyenne de",
     reason_expensive: "Prix supérieur au marché",
     reason_fair: "Prix stable actuellement",
@@ -78,7 +90,6 @@ function cleanPrice(p) {
   return parseFloat(p?.toString().replace(/[^0-9.]/g,'')) || 0;
 }
 
-// دالة الكوبونات مدمجة بشكل صحيح داخل الملف
 function generateCoupons(item, intelligence) {
   const coupons = [];
   if (!item || !intelligence) return coupons;
@@ -139,7 +150,6 @@ app.get('/search', async (req, res) => {
     const amazonItems = response.data?.data?.products || [];
     const results = [];
 
-    // التكرار عبر المنتجات المجلوبة
     for (const item of amazonItems) {
       const currentPrice = cleanPrice(item.product_price);
 
@@ -153,7 +163,6 @@ app.get('/search', async (req, res) => {
         source: 'Amazon'
       };
 
-      // تحليل SageCore
       const intelligenceRaw = SageCore(
         standardizedItem,
         amazonItems,
@@ -196,7 +205,6 @@ app.get('/search', async (req, res) => {
         competitors: intelligence.valueIntel.competitors || amazonItems.length
       };
 
-      // إضافة الكوبونات للمنتج
       const coupons = generateCoupons(standardizedItem, intelligence);
 
       results.push({
@@ -207,7 +215,6 @@ app.get('/search', async (req, res) => {
       });
     }
 
-    // إرسال النتائج النهائية
     res.json({ query: q, results });
 
   } catch (err) {

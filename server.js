@@ -12,21 +12,19 @@ const app = express();
 
 
 async function searchWithSearchApi(query) {
-  const url = `https://api.searchapi.io/search?q=${encodeURIComponent(query)}&engine=google_shopping`;
+  const url = "https://api.searchapi.io/search";
 
-  const res = await fetch(url, {
+  const res = await axios.get(url, {
+    params: {
+      q: query,
+      engine: "google_shopping"
+    },
     headers: {
-      "Authorization": `Bearer ${process.env.SEARCHAPI_KEY}`
+      Authorization: `Bearer ${process.env.SEARCHAPI_KEY}`
     }
   });
 
-  if (!res.ok) {
-    throw new Error("SearchApi failed");
-  }
-
-  const data = await res.json();
-
-  return (data.shopping_results || []).map(item => ({
+  return (res.data.shopping_results || []).map(item => ({
     title: item.title,
     price: item.price,
     link: item.link,

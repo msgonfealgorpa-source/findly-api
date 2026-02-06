@@ -83,24 +83,23 @@ function generateCoupons(item, intelligence) {
   const coupons = [];
 
   const valueIntel = intelligence && intelligence.valueIntel
-  ? intelligence.valueIntel
-  : {};
+    ? intelligence.valueIntel
+    : {};
 
-const priceIntel = intelligence && intelligence.priceIntel
-  ? intelligence.priceIntel
-  : {};
+  const priceIntel = intelligence && intelligence.priceIntel
+    ? intelligence.priceIntel
+    : {};
 
-const score = valueIntel.score || 0;
-const avg = priceIntel.average || 0;
+  const score = valueIntel.score || 0;
+  const avg   = priceIntel.average || 0;
 
-  // ✅ استخرج السعر بطريقة آمنة
   const price = typeof item.numericPrice === 'number'
     ? item.numericPrice
     : 0;
 
   if (price <= 0) return coupons;
 
-  // 🧠 صفقة قوية → كوبون ذكي
+  // 🧠 صفقة قوية
   if (score >= 80) {
     coupons.push({
       code: "SMART10",
@@ -110,7 +109,7 @@ const avg = priceIntel.average || 0;
     });
   }
 
-  // 💰 أعلى من السوق → خصم ثابت
+  // 💰 أغلى من السوق
   if (avg > 0 && price > avg * 1.05) {
     coupons.push({
       code: "SAVE25",
@@ -122,6 +121,7 @@ const avg = priceIntel.average || 0;
 
   return coupons;
 }
+
 /* ================= DB MODELS ================= */
 const alertSchema = new mongoose.Schema({
   email: String, productName: String, targetPrice: Number, currentPrice: Number, productLink: String, uid: String, createdAt: { type: Date, default: Date.now }

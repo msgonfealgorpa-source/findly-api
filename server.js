@@ -14,6 +14,9 @@ const app = express();
 app.use(cors({ origin: '*', methods: ['GET','POST'], allowedHeaders: ['Content-Type','Authorization'] }));
 app.use(express.json());
 
+// إضافة ملفات Static (للخصوصية ومن نحن) - اختياري إذا كنت رفعت مجلد public
+app.use(express.static('public'));
+
 /* ================= ENV VARIABLES ================= */
 const { MONGO_URI, X_RAPIDAPI_KEY, PORT } = process.env;
 const X_RAPIDAPI_HOST = "real-time-amazon-data.p.rapidapi.com";
@@ -35,7 +38,7 @@ const DICT = {
     analysis: "Smart Analysis", loading: "Analyzing..."
   },
   fr: {
-    buy: "Bonne Affaire", wait: "Attendez", fair: "Prix Justه",
+    buy: "Bonne Affaire", wait: "Attendez", fair: "Prix Juste",
     reason_cheap: "Moins cher que la moyenne de",
     reason_expensive: "Prix supérieur au marché",
     reason_fair: "Prix stable actuellement",
@@ -78,7 +81,6 @@ function cleanPrice(p) {
   return parseFloat(p?.toString().replace(/[^0-9.]/g,'')) || 0;
 }
 
-// دالة الكوبونات مدمجة بشكل صحيح داخل الملف
 function generateCoupons(item, intelligence) {
   const coupons = [];
   if (!item || !intelligence) return coupons;
@@ -117,7 +119,14 @@ if (MONGO_URI) {
     .catch(e => console.log("❌ DB Error:", e));
 }
 
-/* ================= SEARCH ENGINE ================= */
+/* ================= ROUTES ================= */
+
+// 1. ✅ المسار الرئيسي (يحل مشكلة Cannot GET /)
+app.get('/', (req, res) => {
+  res.send('✅ Findly Server is Running Live! Use /search endpoint.');
+});
+
+// 2. محرك البحث
 app.get('/search', async (req, res) => {
   const { q, lang = 'ar', uid = 'guest' } = req.query;
   const selectedLang = DICT[lang] ? lang : 'ar';
@@ -126,6 +135,11 @@ app.get('/search', async (req, res) => {
   if (!q) return res.json({ results: [] });
 
   try {
+    // التحقق من وجود المفتاح قبل الطلب
+    if (!X_RAPIDAPI_KEY) {
+        throw new Error("API Key is missing in Server Environment Variables");
+    }
+
     const response = await axios.request({
       method: 'GET',
       url: `https://${X_RAPIDAPI_HOST}/search`,
@@ -139,7 +153,6 @@ app.get('/search', async (req, res) => {
     const amazonItems = response.data?.data?.products || [];
     const results = [];
 
-    // التكرار عبر المنتجات المجلوبة
     for (const item of amazonItems) {
       const currentPrice = cleanPrice(item.product_price);
 
@@ -153,7 +166,6 @@ app.get('/search', async (req, res) => {
         source: 'Amazon'
       };
 
-      // تحليل SageCore
       const intelligenceRaw = SageCore(
         standardizedItem,
         amazonItems,
@@ -196,7 +208,6 @@ app.get('/search', async (req, res) => {
         competitors: intelligence.valueIntel.competitors || amazonItems.length
       };
 
-      // إضافة الكوبونات للمنتج
       const coupons = generateCoupons(standardizedItem, intelligence);
 
       results.push({
@@ -207,16 +218,16 @@ app.get('/search', async (req, res) => {
       });
     }
 
-    // إرسال النتائج النهائية
     res.json({ query: q, results });
 
   } catch (err) {
-    console.error('❌ Search Error:', err.message);
-    res.status(500).json({ error: 'Search Failed', results: [] });
+    // طباعة تفاصيل الخطأ في السجلات لنعرف السبب
+    console.error('❌ Search Error Details:', err.response ? err.response.data : err.message);
+    res.status(500).json({ error: 'Search Failed', details: err.message });
   }
 });
 
-/* ================= ROUTES ================= */
+// باقي المسارات كما هي
 app.post('/alerts', async (req, res) => {
   try {
     if (mongoose.connection.readyState === 1) { 

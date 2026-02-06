@@ -10,6 +10,32 @@ const mongoose = require('mongoose');
 const cheerio = require('cheerio');
 const app = express();
 
+
+async function searchWithSearchApi(query) {
+  const url = `https://api.searchapi.io/search?q=${encodeURIComponent(query)}&engine=google_shopping`;
+
+  const res = await fetch(url, {
+    headers: {
+      "Authorization": `Bearer ${process.env.SEARCHAPI_KEY}`
+    }
+  });
+
+  if (!res.ok) {
+    throw new Error("SearchApi failed");
+  }
+
+  const data = await res.json();
+
+  return (data.shopping_results || []).map(item => ({
+    title: item.title,
+    price: item.price,
+    link: item.link,
+    source: item.source || "google",
+    image: item.thumbnail
+  }));
+}
+
+
 /* ================= BASIC SETUP ================= */
 app.use(cors({ origin: '*', methods: ['GET','POST'], allowedHeaders: ['Content-Type','Authorization'] }));
 app.use(express.json());
@@ -224,119 +250,24 @@ app.get('/', (req, res) => {
   res.send('✅ Findly Server is Running Live! Use /search endpoint.');
 });
 
-// 2. محرك البحث
+
+// 2. محرك البحث (SearchApi فقط)
 app.get('/search', async (req, res) => {
-  const { q, lang = 'ar', uid = 'guest' } = req.query;
-  const selectedLang = DICT[lang] ? lang : 'ar';
-  const TEXTS = DICT[selectedLang];
-
-  if (!q) return res.json({ results: [] });
-
   try {
-    // التحقق من وجود المفتاح قبل الطلب
+    const { q } = req.query;
+    if (!q) return res.json([]);
 
+    const results = await searchWithSearchApi(q);
 
-     // ===== SMART SOURCE SWITCH =====
-let amazonItems = [];
-
-try {
-  if (!X_RAPIDAPI_KEY) throw new Error("No RapidAPI Key");
-
-  const response = await axios.request({
-    method: 'GET',
-    url: `https://${X_RAPIDAPI_HOST}/search`,
-    params: { query: q, country: 'US', category_id: 'aps' },
-    headers: {
-      'x-rapidapi-key': X_RAPIDAPI_KEY,
-      'x-rapidapi-host': X_RAPIDAPI_HOST
-    }
-  });
-
-  amazonItems = response.data?.data?.products || [];
-} catch (apiErr) {
-  console.warn("⚠️ RapidAPI failed, switching to Scraping...");
-
-  const ebay = await scrapeEbay(q);
-  const alibaba = await scrapeAlibaba(q);
-
-  amazonItems = [...ebay, ...alibaba];
-}
-     
-    const results = [];
-
-    for (const item of amazonItems) {
-      const currentPrice = cleanPrice(item.product_price);
-
-      const standardizedItem = {
-        name: item.product_title,
-        title: item.product_title,
-        price: item.product_price,
-        numericPrice: currentPrice,
-        link: finalizeUrl(item.product_url),
-        thumbnail: item.product_photo,
-        source: 'Amazon'
-      };
-
-      const intelligenceRaw = SageCore(
-        standardizedItem,
-        amazonItems,
-        {}, 
-        {},
-        uid,
-        null
-      );
-
-      let decisionTitle = TEXTS.fair;
-      let decisionReason = TEXTS.reason_fair;
-      let decisionEmoji = '⚖️';
-
-      const avg = Number(intelligenceRaw?.priceIntel?.average || 0);
-      const score = intelligenceRaw?.valueIntel?.score || 0;
-
-      if (avg > 0) {
-        if (currentPrice > avg * 1.1) {
-          decisionTitle = TEXTS.wait;
-          decisionReason = TEXTS.reason_expensive;
-          decisionEmoji = '🤖';
-        } else if (currentPrice < avg * 0.95) {
-          decisionTitle = TEXTS.buy;
-          decisionReason = `${TEXTS.reason_cheap} ${score}%`;
-          decisionEmoji = '🟢';
-        }
-      }
-
-      const intelligence = {
-        finalVerdict: { emoji: decisionEmoji, title: decisionTitle, reason: decisionReason },
-        priceIntel: intelligenceRaw.priceIntel,
-        valueIntel: intelligenceRaw.valueIntel,
-        forecastIntel: intelligenceRaw.forecastIntel,
-        trustIntel: intelligenceRaw.trustIntel
-      };
-
-      const comparison = {
-        market_average: intelligence.priceIntel.average ? `$${intelligence.priceIntel.average}` : '—',
-        savings_percentage: intelligence.valueIntel.score || 0,
-        competitors: intelligence.valueIntel.competitors || amazonItems.length
-      };
-
-      const coupons = generateCoupons(standardizedItem, intelligence);
-
-      results.push({
-        ...standardizedItem,
-        intelligence,
-        comparison,
-        coupons
-      });
-    }
-
-    res.json({ query: q, results });
-
+    res.json(results);
   } catch (err) {
-    // طباعة تفاصيل الخطأ في السجلات لنعرف السبب
-    console.error('❌ Search Error Details:', err.response ? err.response.data : err.message);
-    res.status(500).json({ error: 'Search Failed', details: err.message });
+    console.error("Search error:", err.message);
+    res.status(500).json({ error: "Search failed" });
   }
 });
+
+
+    
 
 // باقي المسارات كما هي
 app.post('/alerts', async (req, res) => {

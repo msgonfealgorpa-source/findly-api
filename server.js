@@ -78,15 +78,21 @@ function finalizeUrl(url) {
 function cleanPrice(p) {
   return parseFloat(p?.toString().replace(/[^0-9.]/g,'')) || 0;
 }
+
 function generateCoupons(item, intelligence) {
   const coupons = [];
 
   const score = intelligence?.valueIntel?.score || 0;
   const avg = intelligence?.priceIntel?.average || 0;
-  const price = Number(item.numericPrice) || 0;
-if (price <= 0) return coupons;
 
-  // 🎯 صفقة قوية → كوبون نسبة
+  // ✅ استخرج السعر بطريقة آمنة
+  const price = typeof item.numericPrice === 'number'
+    ? item.numericPrice
+    : 0;
+
+  if (price <= 0) return coupons;
+
+  // 🧠 صفقة قوية → كوبون ذكي
   if (score >= 80) {
     coupons.push({
       code: "SMART10",
@@ -96,7 +102,7 @@ if (price <= 0) return coupons;
     });
   }
 
-  // 💰 السعر أعلى من السوق → خصم ثابت
+  // 💰 أعلى من السوق → خصم ثابت
   if (avg > 0 && price > avg * 1.05) {
     coupons.push({
       code: "SAVE25",
@@ -108,7 +114,6 @@ if (price <= 0) return coupons;
 
   return coupons;
 }
-
 /* ================= DB MODELS ================= */
 const alertSchema = new mongoose.Schema({
   email: String, productName: String, targetPrice: Number, currentPrice: Number, productLink: String, uid: String, createdAt: { type: Date, default: Date.now }

@@ -9,7 +9,7 @@ const axios = require('axios');
 const mongoose = require('mongoose');
 
 const app = express();
-
+app.use(express.static('public'));
 /* ================= BASIC SETUP ================= */
 app.use(cors({ origin: '*', methods: ['GET','POST'], allowedHeaders: ['Content-Type','Authorization'] }));
 app.use(express.json());

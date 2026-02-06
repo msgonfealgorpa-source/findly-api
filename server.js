@@ -79,6 +79,37 @@ function cleanPrice(p) {
 return parseFloat(p?.toString().replace(/[^0-9.]/g,'')) || 0;
 }
 
+
+function generateCoupons(item, intelligence) {
+  const coupons = [];
+
+  const score = intelligence?.valueIntel?.score || 0;
+  const avg = intelligence?.priceIntel?.average || 0;
+  const price = item.numericPrice || 0;
+
+  // 🎯 صفقة قوية → كوبون تحفيزي
+  if (score >= 80) {
+    coupons.push({
+      code: "SMART10",
+      type: "percent",
+      discount: 10,
+      reason: "High value deal"
+    });
+  }
+
+  // 💰 السعر أعلى من المتوسط → خصم ثابت
+  if (avg > 0 && price > avg * 1.05) {
+    coupons.push({
+      code: "SAVE25",
+      type: "fixed",
+      discount: 25,
+      reason: "Price above market"
+    });
+  }
+
+  return coupons;
+}
+
 /* ================= DB MODELS ================= */
 const alertSchema = new mongoose.Schema({
 email: String, productName: String, targetPrice: Number, currentPrice: Number, productLink: String, uid: String, createdAt: { type: Date, default: Date.now }
@@ -186,12 +217,14 @@ for (const item of amazonItems) {
     competitors: intelligence.valueIntel.competitors || amazonItems.length  
   };  
 
-  results.push({  
-    ...standardizedItem,  
-    intelligence,  
-    comparison  
-  });  
-}  
+  const coupons = generateCoupons(standardizedItem, intelligence);
+
+results.push({
+  ...standardizedItem,
+  intelligence,
+  comparison,
+  coupons
+});
 
 res.json({ query: q, results });
 

@@ -1,5 +1,5 @@
 /* =========================================
-   FINDLY SAGE ULTIMATE - MULTI-LANG SERVER
+   FINDLY SAGE ULTIMATE - SERVER (FINAL)
    ========================================= */
 
 const SageCore = require('./sage-core');
@@ -7,6 +7,7 @@ const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
 const mongoose = require('mongoose');
+const path = require('path'); // مكتبة مهمة لضمان عمل المسارات
 
 const app = express();
 
@@ -14,11 +15,16 @@ const app = express();
 app.use(cors({ origin: '*', methods: ['GET','POST'], allowedHeaders: ['Content-Type','Authorization'] }));
 app.use(express.json());
 
+// ✅ هذا السطر هو الحل الجذري لمشكلة الروابط
+// يخبر السيرفر: "أي ملف يطلبه المستخدم (مثل privacy.html) وموجود في المجلد، قم بفتحه"
+app.use(express.static(__dirname));
+
 /* ================= ENV VARIABLES ================= */
 const { MONGO_URI, X_RAPIDAPI_KEY, PORT } = process.env;
 const X_RAPIDAPI_HOST = "real-time-amazon-data.p.rapidapi.com";
 
 /* ================= TRANSLATION DICTIONARY ================= */
+// إعداداتك الخاصة باللغات
 const DICT = {
   ar: {
     buy: "صفقة ممتازة", wait: "انتظر", fair: "سعر عادل",
@@ -35,36 +41,15 @@ const DICT = {
     analysis: "Smart Analysis", loading: "Analyzing..."
   },
   fr: {
-    buy: "Bonne Affaire", wait: "Attendez", fair: "Prix Justه",
-    reason_cheap: "Moins cher que la moyenne de",
+    buy: "Bonne Affaire", wait: "Attendre", fair: "Prix Juste",
+    reason_cheap: "En dessous de la moyenne de",
     reason_expensive: "Prix supérieur au marché",
-    reason_fair: "Prix stable actuellement",
+    reason_fair: "Prix stable",
     analysis: "Analyse Intel", loading: "Analyse..."
-  },
-  de: {
-    buy: "Gutes Geschäft", wait: "Warten", fair: "Fairer Preis",
-    reason_cheap: "Unter dem Marktdurchschnitt um",
-    reason_expensive: "Preis über dem Markt",
-    reason_fair: "Preis ist stabil",
-    analysis: "Smarte Analyse", loading: "Analyse..."
-  },
-  es: {
-    buy: "Buena Oferta", wait: "Espera", fair: "Precio Justo",
-    reason_cheap: "Bajo el promedio por",
-    reason_expensive: "Precio sobre el mercado",
-    reason_fair: "Precio estable ahora",
-    analysis: "Análisis Intel", loading: "Analizando..."
-  },
-  tr: {
-    buy: "Harika Fırsat", wait: "Bekle", fair: "Adil Fiyat",
-    reason_cheap: "Piyasa ortalamasının altında:",
-    reason_expensive: "Fiyat piyasanın üzerinde",
-    reason_fair: "Fiyat şu an istikrarlı",
-    analysis: "Akıllı Analiz", loading: "Analiz ediliyor..."
   }
 };
 
-/* ================= HELPERS ================= */
+/* ================= HELPERS (Functions) ================= */
 function finalizeUrl(url) {
   if (!url) return '';
   let u = url.trim();
@@ -78,11 +63,10 @@ function cleanPrice(p) {
   return parseFloat(p?.toString().replace(/[^0-9.]/g,'')) || 0;
 }
 
-// دالة الكوبونات مدمجة بشكل صحيح داخل الملف
 function generateCoupons(item, intelligence) {
   const coupons = [];
   if (!item || !intelligence) return coupons;
-
+  
   const valueIntel = intelligence.valueIntel || {};
   const priceIntel = intelligence.priceIntel || {};
   const score = Number(valueIntel.score) || 0;
@@ -94,20 +78,26 @@ function generateCoupons(item, intelligence) {
   if (score >= 80) {
     coupons.push({ code: 'SMART10', type: 'percent', discount: 10, reason: 'High value deal' });
   }
+  
   if (avg > 0 && price > (avg * 1.05)) {
     coupons.push({ code: 'SAVE25', type: 'fixed', discount: 25, reason: 'Above market price' });
   }
+  
   return coupons;
 }
 
 /* ================= DB MODELS ================= */
 const alertSchema = new mongoose.Schema({
-  email: String, productName: String, targetPrice: Number, currentPrice: Number, productLink: String, uid: String, createdAt: { type: Date, default: Date.now }
+  email: String, productName: String, targetPrice: Number, 
+  currentPrice: Number, productLink: String, uid: String,
+  createdAt: { type: Date, default: Date.now }
 });
 const Alert = mongoose.model('Alert', alertSchema);
 
 const watchlistSchema = new mongoose.Schema({
-  uid: String, title: String, price: Number, link: String, thumbnail: String, addedAt: { type: Date, default: Date.now }
+  uid: String, title: String, price: Number, 
+  link: String, thumbnail: String,
+  addedAt: { type: Date, default: Date.now }
 });
 const Watchlist = mongoose.model('Watchlist', watchlistSchema);
 
@@ -117,9 +107,22 @@ if (MONGO_URI) {
     .catch(e => console.log("❌ DB Error:", e));
 }
 
-/* ================= SEARCH ENGINE ================= */
+/* ================= MAIN ROUTE (FIX 404) ================= */
+// ✅ حل مشكلة Render Live: توجيه الطلب الرئيسي إلى ملف index.html
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+/* ================= SEARCH ENGINE API ================= */
 app.get('/search', async (req, res) => {
   const { q, lang = 'ar', uid = 'guest' } = req.query;
+  
+  // التحقق من مفتاح API لمنع توقف السيرفر
+  if (!X_RAPIDAPI_KEY) {
+      console.error("❌ ERROR: X_RAPIDAPI_KEY missing");
+      return res.status(500).json({ error: 'Server Config Error: API Key Missing' });
+  }
+
   const selectedLang = DICT[lang] ? lang : 'ar';
   const TEXTS = DICT[selectedLang];
 
@@ -139,10 +142,9 @@ app.get('/search', async (req, res) => {
     const amazonItems = response.data?.data?.products || [];
     const results = [];
 
-    // التكرار عبر المنتجات المجلوبة
     for (const item of amazonItems) {
       const currentPrice = cleanPrice(item.product_price);
-
+      
       const standardizedItem = {
         name: item.product_title,
         title: item.product_title,
@@ -153,15 +155,15 @@ app.get('/search', async (req, res) => {
         source: 'Amazon'
       };
 
-      // تحليل SageCore
-      const intelligenceRaw = SageCore(
-        standardizedItem,
-        amazonItems,
-        {}, 
-        {},
-        uid,
-        null
-      );
+      // SageCore Logic
+      let intelligenceRaw = {};
+      try {
+           if (typeof SageCore === 'function') {
+               intelligenceRaw = SageCore(standardizedItem, amazonItems, {}, {}, uid, null);
+           }
+      } catch (err) {
+           console.error("SageCore Analysis Error:", err.message);
+      }
 
       let decisionTitle = TEXTS.fair;
       let decisionReason = TEXTS.reason_fair;
@@ -184,10 +186,10 @@ app.get('/search', async (req, res) => {
 
       const intelligence = {
         finalVerdict: { emoji: decisionEmoji, title: decisionTitle, reason: decisionReason },
-        priceIntel: intelligenceRaw.priceIntel,
-        valueIntel: intelligenceRaw.valueIntel,
-        forecastIntel: intelligenceRaw.forecastIntel,
-        trustIntel: intelligenceRaw.trustIntel
+        priceIntel: intelligenceRaw.priceIntel || {},
+        valueIntel: intelligenceRaw.valueIntel || {},
+        forecastIntel: intelligenceRaw.forecastIntel || {},
+        trustIntel: intelligenceRaw.trustIntel || {}
       };
 
       const comparison = {
@@ -196,27 +198,20 @@ app.get('/search', async (req, res) => {
         competitors: intelligence.valueIntel.competitors || amazonItems.length
       };
 
-      // إضافة الكوبونات للمنتج
       const coupons = generateCoupons(standardizedItem, intelligence);
 
-      results.push({
-        ...standardizedItem,
-        intelligence,
-        comparison,
-        coupons
-      });
+      results.push({ ...standardizedItem, intelligence, comparison, coupons });
     }
 
-    // إرسال النتائج النهائية
     res.json({ query: q, results });
 
   } catch (err) {
     console.error('❌ Search Error:', err.message);
-    res.status(500).json({ error: 'Search Failed', results: [] });
+    res.status(500).json({ error: 'Search Failed', details: err.message });
   }
 });
 
-/* ================= ROUTES ================= */
+/* ================= OTHER API ROUTES ================= */
 app.post('/alerts', async (req, res) => {
   try {
     if (mongoose.connection.readyState === 1) { 

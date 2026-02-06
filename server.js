@@ -9,14 +9,11 @@ const axios = require('axios');
 const mongoose = require('mongoose');
 
 const app = express();
-const path = require('path');
+app.use(express.static('public'));
+/* ================= BASIC SETUP ================= */
+app.use(cors({ origin: '*', methods: ['GET','POST'], allowedHeaders: ['Content-Type','Authorization'] }));
+app.use(express.json());
 
-// هذا السطر يفتح كل الملفات الموجودة بجانب السيرفر (about, terms, privacy)
-app.use(express.static(__dirname)); 
-
-app.get('/about.html', (req, res) => res.sendFile(path.join(__dirname, 'about.html')));
-app.get('/terms.html', (req, res) => res.sendFile(path.join(__dirname, 'terms.html')));
-app.get('/privacy.html', (req, res) => res.sendFile(path.join(__dirname, 'privacy.html')));
 /* ================= ENV VARIABLES ================= */
 const { MONGO_URI, X_RAPIDAPI_KEY, PORT } = process.env;
 const X_RAPIDAPI_HOST = "real-time-amazon-data.p.rapidapi.com";

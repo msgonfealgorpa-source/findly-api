@@ -79,26 +79,34 @@ function cleanPrice(p) {
   return parseFloat(p?.toString().replace(/[^0-9.]/g,'')) || 0;
 }
 
+/**
+ * توليد الكوبونات بناءً على بيانات المنتج والذكاء الاصطناعي
+ */
 function generateCoupons(item, intelligence) {
   const coupons = [];
 
-  // حماية كاملة
-  if (!item || !intelligence) return coupons;
+  // التحقق من وجود البيانات لتجنب انهيار التطبيق
+  if (!item || !intelligence) {
+    return coupons;
+  }
 
+  // استخدام Safe Navigation أو قيم افتراضية
   const valueIntel = intelligence.valueIntel || {};
   const priceIntel = intelligence.priceIntel || {};
 
+  // تحويل القيم إلى أرقام بشكل آمن
   const score = Number(valueIntel.score) || 0;
   const avg = Number(priceIntel.average) || 0;
 
-  const price =
-    typeof item.numericPrice === 'number'
-      ? item.numericPrice
-      : 0;
+  // تحديد السعر والتأكد من أنه رقم
+  const price = typeof item.numericPrice === 'number' ? item.numericPrice : 0;
 
-  if (price <= 0) return coupons;
+  // إذا كان السعر صفر أو أقل، لا حاجة للكوبونات
+  if (price <= 0) {
+    return coupons;
+  }
 
-  // 🧠 صفقة قوية
+  // 1. منطق "الصفقة القوية"
   if (score >= 80) {
     coupons.push({
       code: 'SMART10',
@@ -108,8 +116,8 @@ function generateCoupons(item, intelligence) {
     });
   }
 
-  // 💰 أعلى من السوق
-  if (avg > 0 && price > avg * 1.05) {
+  // 2. منطق "أعلى من سعر السوق"
+  if (avg > 0 && price > (avg * 1.05)) {
     coupons.push({
       code: 'SAVE25',
       type: 'fixed',
@@ -120,6 +128,9 @@ function generateCoupons(item, intelligence) {
 
   return coupons;
 }
+
+// تأكد من تصدير الدالة إذا كان الملف يُستدعى في مكان آخر
+module.exports = generateCoupons;
 
 /* ================= DB MODELS ================= */
 const alertSchema = new mongoose.Schema({

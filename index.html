@@ -972,31 +972,19 @@
   const userBudget = parseFloat(localStorage.getItem('user_budget')) || 0;
 
   try {
-    // ابحث عن السطر الذي يبدأ بـ const response = await fetch... واستبدله بهذا:
-try {
-    const response = await fetch(`${API_URL}/search?q=${encodeURIComponent(query)}&lang=${lang}&uid=${uid}`);
-    const data = await response.json();
-    
-    loader.style.display = 'none';
+    const res = await fetch(
+      `${API}/search?q=${encodeURIComponent(q)}&lang=${lang}&uid=${localStorage.getItem('findly_uid')}`
+    );
 
-    // الربط مع السيرفر: إذا كان السيرفر يرسل عدد المحاولات (مثلاً باسم energy أو remaining)
-    // سنقوم بتحديث العداد في الواجهة بناءً على رد السيرفر
-    if (data.userEnergy !== undefined) {
-        document.getElementById('energy-count').innerText = data.userEnergy;
-        
-        // إذا السيرفر قال الطاقة 0، أظهر المودال فوراً
-        if (data.userEnergy <= 0) {
-            document.getElementById('premium-modal').style.display = 'flex';
-            return; 
-        }
+    const data = await res.json();
+    status.style.display = 'none';
+
+    if (!data.results || !data.results.length) {
+      status.style.display = 'block';
+      status.innerText = '❌';
+      return;
     }
 
-    if (data.results && data.results.length > 0) {
-        renderResults(data.results);
-    }
-} catch (error) {
-    // معالجة الخطأ
-}
     data.results.forEach(p => {
       const intel = p.intelligence || {};
       const verdict = intel.finalVerdict || {};
@@ -1314,28 +1302,6 @@ ${bestCoupon ? `
 
     // تشغيل التحديث عند تحميل الصفحة
     window.onload = update;
-
-// --- تفعيل عداد الطاقة ---
-let energyCount = parseInt(localStorage.getItem('user_energy')) || 3;
-
-// تحديث الرقم في الشاشة فور فتح الصفحة
-document.addEventListener('DOMContentLoaded', () => {
-    const energyElement = document.getElementById('energy-count');
-    if(energyElement) energyElement.innerText = energyCount;
-});
-
-function reduceEnergy() {
-    if (energyCount > 0) {
-        energyCount--;
-        localStorage.setItem('user_energy', energyCount); // حفظ الرقم الجديد
-        const energyElement = document.getElementById('energy-count');
-        if(energyElement) energyElement.innerText = energyCount;
-    }
-    
-    if (energyCount <= 0) {
-        document.getElementById('premium-modal').style.display = 'flex';
-    }
-}
 </script>
 </body>
 </html>

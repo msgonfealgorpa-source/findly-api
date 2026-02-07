@@ -7,7 +7,9 @@ const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
 const mongoose = require('mongoose');
-
+// ================= CACHE =================
+const searchCache = new Map();
+const CACHE_TTL = 1000 * 60 * 30; // 30 دقيقة
 const app = express();
 
 /* ================= BASIC SETUP ================= */
@@ -130,6 +132,19 @@ app.get('/search', async (req, res) => {
     const TEXTS = DICT[lang] || DICT.ar;
 
     if (!q) return res.json({ results: [] });
+// ================= CACHE CHECK =================
+const cacheKey = `${q}_${lang}`;
+
+if (searchCache.has(cacheKey)) {
+  const cached = searchCache.get(cacheKey);
+
+  if (Date.now() - cached.time < CACHE_TTL) {
+    console.log('⚡ Served from cache');
+    return res.json(cached.data);
+  } else {
+    searchCache.delete(cacheKey);
+  }
+}
 
     try {
         // ✅ استخدام SearchAPI مع محرك Google Shopping (الأكثر استقراراً)
@@ -225,7 +240,15 @@ if (rawResults.length < 3) {
             };
         });
 
-        res.json({ query: q, results });
+        const responseData = { query: q, results };
+
+// حفظ في الكاش
+searchCache.set(cacheKey, {
+  time: Date.now(),
+  data: responseData
+});
+
+res.json(responseData);
 
     } catch (err) {
         console.error('❌ Search Error Details:', err.response?.data || err.message);

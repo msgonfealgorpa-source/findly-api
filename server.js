@@ -275,7 +275,13 @@ searchCache.set(cacheKey, {
   data: responseData
 });
 
-res.json(responseData);
+// 🧠 ENERGY CONSUME (real search)
+if (energy.hasFreePass !== true) {
+  energy.searchesUsed += 1;
+  await energy.save();
+}
+       
+       res.json(responseData);
 
     } catch (err) {
         console.error('❌ Search Error Details:', err.response?.data || err.message);

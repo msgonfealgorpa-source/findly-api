@@ -144,7 +144,19 @@ app.get('/search', async (req, res) => {
         });
 
         // استخراج النتائج
-        const rawResults = response.data?.shopping_results || [];
+        let rawResults = response.data?.shopping_results || [];
+let serperContext = [];
+
+// 👉 شرط واحد واضح: لو النتائج قليلة
+if (rawResults.length < 3) {
+  const serperRes = await axios.post(
+    'https://google.serper.dev/search',
+    { q, gl: 'us', hl: lang },
+    { headers: { 'X-API-KEY': SERPER_API_KEY } }
+  );
+
+  serperContext = serperRes.data?.organic || [];
+}
         console.log(`✅ Found ${rawResults.length} items`);
 
         // ✅ هنا كان الخطأ (Loop Syntax)، تم إصلاحه ليعمل بشكل سليم
@@ -164,7 +176,8 @@ app.get('/search', async (req, res) => {
             const intelligenceRaw = SageCore(
                 standardizedItem,
                 rawResults, 
-                {}, {}, uid, null
+               serperContext,
+               {}, {}, uid, null
             ) || {};
 
             let decisionTitle = TEXTS.fair;

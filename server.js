@@ -267,19 +267,31 @@ if (rawResults.length < 3) {
             };
         });
 
-        const responseData = { query: q, results };
+
+       // 🧠 ENERGY CONSUME (real search)
+if (energy.hasFreePass !== true) {
+  energy.searchesUsed += 1;
+  await energy.save();
+}
+
+const responseData = {
+  query: q,
+  results,
+  energy: {
+    used: energy.searchesUsed,
+    limit: energy.hasFreePass ? '∞' : 3,
+    left: energy.hasFreePass
+      ? '∞'
+      : Math.max(0, 3 - energy.searchesUsed)
+  }
+};
+   
 
 // حفظ في الكاش
 searchCache.set(cacheKey, {
   time: Date.now(),
   data: responseData
 });
-
-// 🧠 ENERGY CONSUME (real search)
-if (energy.hasFreePass !== true) {
-  energy.searchesUsed += 1;
-  await energy.save();
-}
        
        res.json(responseData);
 

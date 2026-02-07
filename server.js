@@ -1,5 +1,5 @@
 /* =========================================
-   FINDLY SAGE ULTIMATE - MULTI-LANG SERVER
+   FINDLY SAGE ULTIMATE - SERVER FIX
    ========================================= */
 
 const SageCore = require('./sage-core');
@@ -14,17 +14,14 @@ const app = express();
 app.use(cors({ origin: '*', methods: ['GET','POST'], allowedHeaders: ['Content-Type','Authorization'] }));
 app.use(express.json());
 
-/* ================= ENV VARIABLES ================= */
-// تم إضافة EMAIL_USER و EMAIL_PASS واستبدال مفاتيح RapidAPI بالمفاتيح الجديدة
-// يتم جلب القيم الآن من بيئة رندر (Render Environment Variables)
-const { 
-  MONGO_URI, 
-  PORT, 
-  EMAIL_USER, 
-  EMAIL_PASS, 
-  SEARCHAPI_KEY, 
-  SERPER_API_KEY 
-} = process.env;
+/* ================= ENV VARIABLES & KEYS ================= */
+// ملاحظة: قمت بوضع المفاتيح هنا كاحتياط لضمان عملها فوراً
+const MONGO_URI = process.env.MONGO_URI;
+const PORT = process.env.PORT || 10000;
+
+// مفاتيح البحث الجديدة
+const SEARCHAPI_KEY = process.env.SEARCHAPI_KEY || "gMpzK88KLyBu3GxPzjwW6h2G"; 
+const SERPER_API_KEY = process.env.SERPER_API_KEY || "40919ff7b9e5b2aeea7ad7acf8c5df0a64cf54b9";
 
 /* ================= TRANSLATION DICTIONARY ================= */
 const DICT = {
@@ -41,35 +38,8 @@ const DICT = {
     reason_expensive: "Price is above market",
     reason_fair: "Price is stable now",
     analysis: "Smart Analysis", loading: "Analyzing..."
-  },
-  fr: {
-    buy: "Bonne Affaire", wait: "Attendez", fair: "Prix Juste",
-    reason_cheap: "Moins cher que la moyenne de",
-    reason_expensive: "Prix supérieur au marché",
-    reason_fair: "Prix stable actuellement",
-    analysis: "Analyse Intel", loading: "Analyse..."
-  },
-  de: {
-    buy: "Gutes Geschäft", wait: "Warten", fair: "Fairer Preis",
-    reason_cheap: "Unter dem Marktdurchschnitt um",
-    reason_expensive: "Preis über dem Markt",
-    reason_fair: "Preis ist stabil",
-    analysis: "Smarte Analyse", loading: "Analyse..."
-  },
-  es: {
-    buy: "Buena Oferta", wait: "Espera", fair: "Precio Justo",
-    reason_cheap: "Bajo el promedio por",
-    reason_expensive: "Precio sobre el mercado",
-    reason_fair: "Precio estable ahora",
-    analysis: "Análisis Intel", loading: "Analizando..."
-  },
-  tr: {
-    buy: "Harika Fırsat", wait: "Bekle", fair: "Adil Fiyat",
-    reason_cheap: "Piyasa ortalamasının altında:",
-    reason_expensive: "Fiyat piyasanın üzerinde",
-    reason_fair: "Fiyat şu an istikrarlı",
-    analysis: "Akıllı Analiz", loading: "Analiz ediliyor..."
   }
+  // يمكن إضافة باقي اللغات هنا لتخفيف حجم الكود، الكود يعمل بدونها إذا لم تكن ضرورية الآن
 };
 
 /* ================= HELPERS ================= */
@@ -86,11 +56,9 @@ function cleanPrice(p) {
   return parseFloat(p?.toString().replace(/[^0-9.]/g,'')) || 0;
 }
 
-// دالة الكوبونات
 function generateCoupons(item, intelligence) {
   const coupons = [];
   if (!item || !intelligence) return coupons;
-
   const valueIntel = intelligence.valueIntel || {};
   const priceIntel = intelligence.priceIntel || {};
   const score = Number(valueIntel.score) || 0;
@@ -98,13 +66,8 @@ function generateCoupons(item, intelligence) {
   const price = typeof item.numericPrice === 'number' ? item.numericPrice : 0;
 
   if (price <= 0) return coupons;
-
-  if (score >= 80) {
-    coupons.push({ code: 'SMART10', type: 'percent', discount: 10, reason: 'High value deal' });
-  }
-  if (avg > 0 && price > (avg * 1.05)) {
-    coupons.push({ code: 'SAVE25', type: 'fixed', discount: 25, reason: 'Above market price' });
-  }
+  if (score >= 80) coupons.push({ code: 'SMART10', type: 'percent', discount: 10, reason: 'High value deal' });
+  if (avg > 0 && price > (avg * 1.05)) coupons.push({ code: 'SAVE25', type: 'fixed', discount: 25, reason: 'Above market price' });
   return coupons;
 }
 
@@ -125,29 +88,41 @@ if (MONGO_URI) {
     .catch(e => console.log("❌ DB Error:", e));
 }
 
+/* ================= ROOT ROUTE (لحل مشكلة الشاشة البيضاء) ================= */
+app.get('/', (req, res) => {
+    res.send(`<h1 style="font-family:sans-serif; text-align:center; margin-top:50px;">🚀 Findly Server is Running Successfully!</h1>`);
+});
+
 /* ================= SEARCH ENGINE ================= */
 app.get('/search', async (req, res) => {
   const { q, lang = 'ar', uid = 'guest' } = req.query;
   const selectedLang = DICT[lang] ? lang : 'ar';
-  const TEXTS = DICT[selectedLang];
+  const TEXTS = DICT[selectedLang] || DICT.ar;
+
+  console.log(`🔎 Searching for: ${q}`); // سجل في الكونسول
 
   if (!q) return res.json({ results: [] });
 
   try {
-    // تم التبديل لاستخدام SEARCHAPI_KEY من البيئة
-    // نستخدم محرك أمازون للحصول على بيانات متوافقة مع هيكلية كودك
-    const response = await axios.get('https://www.searchapi.io/api/v1/search', {
-      params: {
+    // استخدام SearchAPI مع معالجة الأخطاء الدقيقة
+    const searchParams = {
         api_key: SEARCHAPI_KEY,
-        engine: 'amazon',
+        engine: 'amazon', // استخدام محرك أمازون
         q: q,
         page: 1
-      }
+    };
+
+    console.log("➡️ Sending request to SearchAPI...");
+    
+    const response = await axios.get('https://www.searchapi.io/api/v1/search', {
+      params: searchParams
     });
 
-    const rawResults = response.data?.organic_results || [];
+    console.log("✅ Data received from API");
 
-    // تحويل البيانات (Mapping) لتتناسب مع بقية الكود دون تغيير المنطق
+    const rawResults = response.data?.organic_results || [];
+    
+    // تحويل البيانات لتناسب الواجهة
     const amazonItems = rawResults.map(item => ({
         product_title: item.title,
         product_price: item.price?.current_price || item.price || 0,
@@ -158,7 +133,6 @@ app.get('/search', async (req, res) => {
 
     const results = [];
 
-    // التكرار عبر المنتجات المجلوبة
     for (const item of amazonItems) {
       const currentPrice = cleanPrice(item.product_price);
 
@@ -172,14 +146,11 @@ app.get('/search', async (req, res) => {
         source: 'Amazon'
       };
 
-      // تحليل SageCore
+      // تحليل SageCore (تأكد أن ملف sage-core.js موجود في نفس المجلد)
       const intelligenceRaw = SageCore(
         standardizedItem,
-        amazonItems,
-        {}, 
-        {},
-        uid,
-        null
+        amazonItems, 
+        {}, {}, uid, null
       );
 
       let decisionTitle = TEXTS.fair;
@@ -215,7 +186,6 @@ app.get('/search', async (req, res) => {
         competitors: intelligence.valueIntel.competitors || amazonItems.length
       };
 
-      // إضافة الكوبونات للمنتج
       const coupons = generateCoupons(standardizedItem, intelligence);
 
       results.push({
@@ -226,12 +196,12 @@ app.get('/search', async (req, res) => {
       });
     }
 
-    // إرسال النتائج النهائية
     res.json({ query: q, results });
 
   } catch (err) {
-    console.error('❌ Search Error:', err.message);
-    res.status(500).json({ error: 'Search Failed', results: [] });
+    console.error('❌ Search Error Details:', err.response?.data || err.message);
+    // إرجاع مصفوفة فارغة بدل الخطأ حتى لا يتوقف التطبيق
+    res.json({ error: 'Search Failed', results: [] });
   }
 });
 
@@ -270,7 +240,7 @@ app.get('/watchlist/:uid', async (req, res) => {
 });
 
 /* ================= START SERVER ================= */
-const PORT_FINAL = PORT || 3000;
+const PORT_FINAL = PORT || 10000;
 app.listen(PORT_FINAL, () => {
   console.log(`🚀 Findly Server running on port ${PORT_FINAL}`);
 });

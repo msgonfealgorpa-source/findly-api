@@ -546,7 +546,7 @@
 
 <main class="search-area">
     <div class="energy-box">
-        <span id="txt-energy"></span>
+        <span id="energy-count">3</span>
         <span id="r-count" style="background:var(--primary); color:#fff; padding:3px 12px; border-radius:20px; font-weight:900; font-size: 0.9rem;">3</span>
         <i class="fa-solid fa-bolt" style="color:#FFD700;"></i>
     </div>
@@ -977,7 +977,15 @@
     );
 
     const data = await res.json();
-    status.style.display = 'none';
+status.style.display = 'none';
+
+/* 🔋 تحديث عداد طاقة العقل */
+if (data.energy) {
+  const energyEl = document.getElementById('energy-count');
+  if (energyEl) {
+    energyEl.innerText = data.energy.left;
+  }
+}
 
     if (!data.results || !data.results.length) {
       status.style.display = 'block';

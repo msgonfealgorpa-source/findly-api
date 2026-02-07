@@ -172,15 +172,17 @@ if (rawResults.length < 3) {
                 source: 'Google Shopping'
             };
 
-            // تشغيل منطق SageCore الخاص بك
-            const intelligenceRaw = SageCore(
-                standardizedItem,
-                rawResults, 
-               serperContext,
-               {}, {}, uid, null
-            ) || {};
-
-            let decisionTitle = TEXTS.fair;
+            // تشغيل منطق SageCore الخاص ب
+           const intelligenceRaw = SageCore(
+  standardizedItem,
+  rawResults,
+  serperContext,
+  {},
+  uid,
+  null
+) || {};
+           
+           let decisionTitle = TEXTS.fair;
             let decisionReason = TEXTS.reason_fair;
             let decisionEmoji = '⚖️';
 

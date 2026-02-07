@@ -181,7 +181,7 @@ app.get('/search', async (req, res) => {
       const comparison = {
         market_average: intelligence.priceIntel.average ? `$${intelligence.priceIntel.average}` : '—',
         savings_percentage: intelligence.valueIntel.score || 0,
-        competitors: intelligence.valueIntel.competitors || amazonItems.length
+        competitors: intelligence.valueIntel.competitors || google_shoppingItems.length
       };
 
       const coupons = generateCoupons(standardizedItem, intelligence);

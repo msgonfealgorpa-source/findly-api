@@ -24,20 +24,48 @@ const SERPER_API_KEY = process.env.SERPER_API_KEY || "40919ff7b9e5b2aeea7ad7acf8
 
 /* ================= TRANSLATION DICTIONARY ================= */
 const DICT = {
-  ar: {
-    buy: "صفقة ممتازة", wait: "انتظر", fair: "سعر عادل",
-    reason_cheap: "أقل من متوسط السوق بـ",
-    reason_expensive: "السعر أعلى من السوق",
-    reason_fair: "السعر مستقر حالياً",
-    analysis: "تحليل ذكي", loading: "جاري التحليل..."
-  },
-  en: {
-    buy: "Great Deal", wait: "Wait", fair: "Fair Price",
-    reason_cheap: "Below market average by",
-    reason_expensive: "Price is above market",
-    reason_fair: "Price is stable now",
-    analysis: "Smart Analysis", loading: "Analyzing..."
-  }
+  ar: {
+    buy: "صفقة ممتازة", wait: "انتظر", fair: "سعر عادل",
+    reason_cheap: "أقل من متوسط السوق بـ",
+    reason_expensive: "السعر أعلى من السوق",
+    reason_fair: "السعر مستقر حالياً",
+    analysis: "تحليل ذكي", loading: "جاري التحليل..."
+  },
+  en: {
+    buy: "Great Deal", wait: "Wait", fair: "Fair Price",
+    reason_cheap: "Below market average by",
+    reason_expensive: "Price is above market",
+    reason_fair: "Price is stable now",
+    analysis: "Smart Analysis", loading: "Analyzing..."
+  },
+  fr: {
+    buy: "Bonne Affaire", wait: "Attendez", fair: "Prix Justه",
+    reason_cheap: "Moins cher que la moyenne de",
+    reason_expensive: "Prix supérieur au marché",
+    reason_fair: "Prix stable actuellement",
+    analysis: "Analyse Intel", loading: "Analyse..."
+  },
+  de: {
+    buy: "Gutes Geschäft", wait: "Warten", fair: "Fairer Preis",
+    reason_cheap: "Unter dem Marktdurchschnitt um",
+    reason_expensive: "Preis über dem Markt",
+    reason_fair: "Preis ist stabil",
+    analysis: "Smarte Analyse", loading: "Analyse..."
+  },
+  es: {
+    buy: "Buena Oferta", wait: "Espera", fair: "Precio Justo",
+    reason_cheap: "Bajo el promedio por",
+    reason_expensive: "Precio sobre el mercado",
+    reason_fair: "Precio estable ahora",
+    analysis: "Análisis Intel", loading: "Analizando..."
+  },
+  tr: {
+    buy: "Harika Fırsat", wait: "Bekle", fair: "Adil Fiyat",
+    reason_cheap: "Piyasa ortalamasının altında:",
+    reason_expensive: "Fiyat piyasanın üzerinde",
+    reason_fair: "Fiyat şu an istikrarlı",
+    analysis: "Akıllı Analiz", loading: "Analiz ediliyor..."
+  }
 };
 
 /* ================= HELPERS ================= */

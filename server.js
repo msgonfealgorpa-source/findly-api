@@ -7,7 +7,7 @@ const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
 const mongoose = require('mongoose');
-const path = require('path'); // لإدارة مسارات الملفات
+const path = require('path'); // ✅ تمت الإضافة لفتح الملفات
 
 const app = express();
 
@@ -15,7 +15,7 @@ const app = express();
 app.use(cors({ origin: '*', methods: ['GET','POST'], allowedHeaders: ['Content-Type','Authorization'] }));
 app.use(express.json());
 
-// تشغيل الملفات الثابتة (الواجهة)
+// ✅ سطر مهم لفتح ملفات الـ CSS والـ JS من المجلد الحالي
 app.use(express.static(__dirname));
 
 /* ================= ENV VARIABLES ================= */
@@ -105,7 +105,7 @@ if (MONGO_URI) {
     .catch(e => console.log("❌ DB Error:", e));
 }
 
-/* ================= SEARCH ENGINE API ================= */
+/* ================= SEARCH ENGINE API (الدالة الأصلية كاملة) ================= */
 app.get('/search', async (req, res) => {
   const { q, lang = 'ar', uid = 'guest' } = req.query;
   const selectedLang = DICT[lang] ? lang : 'ar';
@@ -202,7 +202,7 @@ app.get('/search', async (req, res) => {
 
 /* ================= ROUTES ================= */
 
-// مسارات الصفحات التعريفية (التي طلبتها)
+// ✅ المسارات الجديدة لصفحاتك دون المساس بالقديم
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 app.get('/privacy', (req, res) => res.sendFile(path.join(__dirname, 'privacy.html')));
 app.get('/terms', (req, res) => res.sendFile(path.join(__dirname, 'terms.html')));

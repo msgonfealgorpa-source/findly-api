@@ -94,46 +94,44 @@ app.get('/', (req, res) => {
 });
 
 /* ================= SEARCH ENGINE ================= */
+
 app.get('/search', async (req, res) => {
-  const { q, lang = 'ar', uid = 'guest' } = req.query;
-  const selectedLang = DICT[lang] ? lang : 'ar';
-  const TEXTS = DICT[selectedLang] || DICT.ar;
+    const { q, lang = 'ar', uid = 'guest' } = req.query;
+    console.log(`🔎 Start Searching for: ${q} (Lang: ${lang})`);
 
-  console.log(`🔎 Searching for: ${q}`); // سجل في الكونسول
+    if (!q) return res.json({ results: [] });
 
-  if (!q) return res.json({ results: [] });
+    try {
+        // الحل الجذري: تغيير المحرك إلى google_shopping بدلاً من amazon لتجنب خطأ الـ Unsupported Engine
+        const response = await axios.get('https://www.searchapi.io/api/v1/search', {
+            params: {
+                api_key: SEARCHAPI_KEY,
+                engine: "google_shopping", // هذا المحرك متوفر للجميع وأكثر دقة
+                q: q,
+                hl: lang === 'ar' ? 'ar' : 'en',
+                gl: 'us' // يمكنك تغييرها لـ 'sa' إذا كنت تستهدف السعودية فقط
+            }
+        });
 
-  try {
-    // استخدام SearchAPI مع معالجة الأخطاء الدقيقة
-    const searchParams = {
-        api_key: SEARCHAPI_KEY,
-        engine: 'amazon', // استخدام محرك أمازون
-        q: q,
-        page: 1
-    };
+        // استخراج النتائج من هيكلية Google Shopping
+        const rawResults = response.data?.shopping_results || [];
+        console.log(`✅ Found ${rawResults.length} items from SearchApi`);
 
-    console.log("➡️ Sending request to SearchAPI...");
-    
-    const response = await axios.get('https://www.searchapi.io/api/v1/search', {
-      params: searchParams
-    });
-
-    console.log("✅ Data received from API");
-
-    const rawResults = response.data?.organic_results || [];
-    
-    // تحويل البيانات لتناسب الواجهة
-    const amazonItems = rawResults.map(item => ({
-        product_title: item.title,
-        product_price: item.price?.current_price || item.price || 0,
-        product_url: item.link,
-        product_photo: item.thumbnail,
-        product_asin: item.asin
-    }));
-
+        const results = rawResults.map(item => {
+            const currentPrice = parseFloat(item.price?.replace(/[^\d.]/g, '')) || 0;
+            
+            // تحويل البيانات لتناسب الواجهة
+            const standardizedItem = {
+                title: item.title,
+                price: item.price,
+                numericPrice: currentPrice,
+                link: item.product_link || item.link,
+                thumbnail: item.thumbnail,
+                source: item.source || 'Marketplace'
+            };
     const results = [];
 
-    for (const item of amazonItems) {
+    for (const item of "google_shopping",  ) {
       const currentPrice = cleanPrice(item.product_price);
 
       const standardizedItem = {
@@ -143,7 +141,7 @@ app.get('/search', async (req, res) => {
         numericPrice: currentPrice,
         link: finalizeUrl(item.product_url),
         thumbnail: item.product_photo,
-        source: 'Amazon'
+        source: ' "google_shopping", '
       };
 
       // تحليل SageCore (تأكد أن ملف sage-core.js موجود في نفس المجلد)

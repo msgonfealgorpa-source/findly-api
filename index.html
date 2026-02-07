@@ -979,13 +979,6 @@
     const data = await res.json();
 status.style.display = 'none';
 
-/* 🔋 تحديث عداد طاقة العقل */
-if (data.energy) {
-  const energyEl = document.getElementById('energy-count');
-  if (energyEl) {
-    energyEl.innerText = data.energy.left;
-  }
-}
 
     if (!data.results || !data.results.length) {
       status.style.display = 'block';

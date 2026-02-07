@@ -140,7 +140,25 @@ app.get('/search', async (req, res) => {
     // ✅ تعريف المتغير TEXTS هنا لتجنب الأخطاء
     const TEXTS = DICT[lang] || DICT.ar;
 
-    if (!q) return res.json({ results: [] });
+// ================= 🧠 BRAIN ENERGY CHECK =================
+let energy = await Energy.findOne({ uid });
+
+if (!energy) {
+  energy = await Energy.create({
+    uid,
+    searchesUsed: 0,
+    hasFreePass: false
+  });
+}
+
+if (energy.hasFreePass !== true && energy.searchesUsed >= 3) {
+  return res.status(429).json({
+    error: 'ENERGY_EMPTY',
+    message: 'تم استهلاك طاقة العقل المجانية 🧠'
+  });
+}
+   
+   if (!q) return res.json({ results: [] });
 // ================= CACHE CHECK =================
 const cacheKey = `${q}_${lang}`;
 

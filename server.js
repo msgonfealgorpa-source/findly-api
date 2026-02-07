@@ -18,7 +18,7 @@ app.use(express.json());
 const { MONGO_URI, X_RAPIDAPI_KEY, PORT } = process.env;
 const X_RAPIDAPI_HOST = "real-time-amazon-data.p.rapidapi.com";
 
-/* ================= TRANSLATION DICTIONARY (القاموس الذكي) ================= */
+/* ================= TRANSLATION DICTIONARY ================= */
 const DICT = {
   ar: {
     buy: "صفقة ممتازة", wait: "انتظر", fair: "سعر عادل",
@@ -35,7 +35,7 @@ const DICT = {
     analysis: "Smart Analysis", loading: "Analyzing..."
   },
   fr: {
-    buy: "Bonne Affaire", wait: "Attendez", fair: "Prix Juste",
+    buy: "Bonne Affaire", wait: "Attendez", fair: "Prix Justه",
     reason_cheap: "Moins cher que la moyenne de",
     reason_expensive: "Prix supérieur au marché",
     reason_fair: "Prix stable actuellement",
@@ -78,46 +78,25 @@ function cleanPrice(p) {
   return parseFloat(p?.toString().replace(/[^0-9.]/g,'')) || 0;
 }
 
-/**
- * دالة توليد الكوبونات (مصححة وآمنة)
- */
+// دالة الكوبونات مدمجة بشكل صحيح داخل الملف
 function generateCoupons(item, intelligence) {
   const coupons = [];
-
-  // التحقق من البيانات
   if (!item || !intelligence) return coupons;
 
   const valueIntel = intelligence.valueIntel || {};
   const priceIntel = intelligence.priceIntel || {};
-
   const score = Number(valueIntel.score) || 0;
   const avg = Number(priceIntel.average) || 0;
-
-  // تحديد السعر
   const price = typeof item.numericPrice === 'number' ? item.numericPrice : 0;
 
   if (price <= 0) return coupons;
 
-  // منطق الصفقة القوية
   if (score >= 80) {
-    coupons.push({
-      code: 'SMART10',
-      type: 'percent',
-      discount: 10,
-      reason: 'High value deal'
-    });
+    coupons.push({ code: 'SMART10', type: 'percent', discount: 10, reason: 'High value deal' });
   }
-
-  // منطق أعلى من السوق
   if (avg > 0 && price > (avg * 1.05)) {
-    coupons.push({
-      code: 'SAVE25',
-      type: 'fixed',
-      discount: 25,
-      reason: 'Above market price'
-    });
+    coupons.push({ code: 'SAVE25', type: 'fixed', discount: 25, reason: 'Above market price' });
   }
-
   return coupons;
 }
 
@@ -132,7 +111,11 @@ const watchlistSchema = new mongoose.Schema({
 });
 const Watchlist = mongoose.model('Watchlist', watchlistSchema);
 
-if (MONGO_URI) mongoose.connect(MONGO_URI).then(() => console.log("✅ DB Connected")).catch(e => console.log("❌ DB Error:", e));
+if (MONGO_URI) {
+  mongoose.connect(MONGO_URI)
+    .then(() => console.log("✅ DB Connected"))
+    .catch(e => console.log("❌ DB Error:", e));
+}
 
 /* ================= SEARCH ENGINE ================= */
 app.get('/search', async (req, res) => {
@@ -156,7 +139,7 @@ app.get('/search', async (req, res) => {
     const amazonItems = response.data?.data?.products || [];
     const results = [];
 
-    // بداية حلقة التكرار للمنتجات
+    // التكرار عبر المنتجات المجلوبة
     for (const item of amazonItems) {
       const currentPrice = cleanPrice(item.product_price);
 
@@ -170,7 +153,7 @@ app.get('/search', async (req, res) => {
         source: 'Amazon'
       };
 
-      // استدعاء العقل الكامل
+      // تحليل SageCore
       const intelligenceRaw = SageCore(
         standardizedItem,
         amazonItems,
@@ -180,7 +163,6 @@ app.get('/search', async (req, res) => {
         null
       );
 
-      // ترجمة القرار
       let decisionTitle = TEXTS.fair;
       let decisionReason = TEXTS.reason_fair;
       let decisionEmoji = '⚖️';
@@ -200,13 +182,8 @@ app.get('/search', async (req, res) => {
         }
       }
 
-      // تجميع بيانات الذكاء
       const intelligence = {
-        finalVerdict: {
-          emoji: decisionEmoji,
-          title: decisionTitle,
-          reason: decisionReason
-        },
+        finalVerdict: { emoji: decisionEmoji, title: decisionTitle, reason: decisionReason },
         priceIntel: intelligenceRaw.priceIntel,
         valueIntel: intelligenceRaw.valueIntel,
         forecastIntel: intelligenceRaw.forecastIntel,
@@ -214,14 +191,12 @@ app.get('/search', async (req, res) => {
       };
 
       const comparison = {
-        market_average: intelligence.priceIntel.average
-          ? `$${intelligence.priceIntel.average}`
-          : '—',
+        market_average: intelligence.priceIntel.average ? `$${intelligence.priceIntel.average}` : '—',
         savings_percentage: intelligence.valueIntel.score || 0,
         competitors: intelligence.valueIntel.competitors || amazonItems.length
       };
 
-      // توليد الكوبونات
+      // إضافة الكوبونات للمنتج
       const coupons = generateCoupons(standardizedItem, intelligence);
 
       results.push({
@@ -230,10 +205,9 @@ app.get('/search', async (req, res) => {
         comparison,
         coupons
       });
-      
-    } // <--- ✅ تم إضافة قوس الإغلاق المفقود هنا ✅
+    }
 
-    // إرسال النتيجة بعد انتهاء الحلقة
+    // إرسال النتائج النهائية
     res.json({ query: q, results });
 
   } catch (err) {
@@ -242,30 +216,42 @@ app.get('/search', async (req, res) => {
   }
 });
 
-/* ================= ROUTES (Alerts & Watchlist) ================= */
+/* ================= ROUTES ================= */
 app.post('/alerts', async (req, res) => {
   try {
-    if (mongoose.connection.readyState === 1) { await new Alert(req.body).save(); res.json({ success: true }); } 
-    else { res.status(503).json({ error: 'DB Offline' }); }
+    if (mongoose.connection.readyState === 1) { 
+      await new Alert(req.body).save(); 
+      res.json({ success: true }); 
+    } else { 
+      res.status(503).json({ error: 'DB Offline' }); 
+    }
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 app.post('/watchlist', async (req, res) => {
   try {
-    if (mongoose.connection.readyState === 1) { await new Watchlist(req.body).save(); res.json({ success: true }); }
-    else { res.status(503).json({ error: 'DB Offline' }); }
+    if (mongoose.connection.readyState === 1) { 
+      await new Watchlist(req.body).save(); 
+      res.json({ success: true }); 
+    } else { 
+      res.status(503).json({ error: 'DB Offline' }); 
+    }
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 app.get('/watchlist/:uid', async (req, res) => {
   try {
-    if (mongoose.connection.readyState === 1) { const list = await Watchlist.find({ uid: req.params.uid }).sort({ addedAt: -1 }); res.json(list); }
-    else { res.status(503).json({ error: 'DB Offline' }); }
+    if (mongoose.connection.readyState === 1) { 
+      const list = await Watchlist.find({ uid: req.params.uid }).sort({ addedAt: -1 }); 
+      res.json(list); 
+    } else { 
+      res.status(503).json({ error: 'DB Offline' }); 
+    }
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 /* ================= START SERVER ================= */
 const PORT_FINAL = PORT || 3000;
 app.listen(PORT_FINAL, () => {
-  console.log(`🚀 Findly Server running on port ${PORT_FINAL} with Multi-Lang Support`);
+  console.log(`🚀 Findly Server running on port ${PORT_FINAL}`);
 });

@@ -543,10 +543,13 @@
         </button>
     </div>
 </header>
-<div class="energy-box">
-  <span id="energy-count">3</span>
-  <i class="fa-solid fa-bolt"></i>
-</div>
+
+<main class="search-area">
+    <div class="energy-box">
+        <span id="txt-energy"></span>
+        <span id="r-count" style="background:var(--primary); color:#fff; padding:3px 12px; border-radius:20px; font-weight:900; font-size: 0.9rem;">3</span>
+        <i class="fa-solid fa-bolt" style="color:#FFD700;"></i>
+    </div>
 
     <h2 id="greeting" style="color: var(--primary); font-size: 1.1rem; margin-bottom: 5px; font-weight: 600;"></h2>
     <h1 id="txt-title"></h1>
@@ -974,8 +977,7 @@
     );
 
     const data = await res.json();
-status.style.display = 'none';
-
+    status.style.display = 'none';
 
     if (!data.results || !data.results.length) {
       status.style.display = 'block';

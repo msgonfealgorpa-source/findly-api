@@ -7,7 +7,7 @@ const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
 const mongoose = require('mongoose');
-const path = require('path'); // ✅ إضافة هذه المكتبة للتعامل مع الملفات
+const path = require('path'); // لإدارة مسارات الملفات
 
 const app = express();
 
@@ -15,7 +15,7 @@ const app = express();
 app.use(cors({ origin: '*', methods: ['GET','POST'], allowedHeaders: ['Content-Type','Authorization'] }));
 app.use(express.json());
 
-// ✅ السطر القادم يضمن استمرار عمل الواجهة (الصور، الستايل) دون مشاكل
+// تشغيل الملفات الثابتة (الواجهة)
 app.use(express.static(__dirname));
 
 /* ================= ENV VARIABLES ================= */
@@ -104,13 +104,6 @@ if (MONGO_URI) {
     .then(() => console.log("✅ DB Connected"))
     .catch(e => console.log("❌ DB Error:", e));
 }
-
-/* ================= NEW PAGE ROUTES ================= */
-// ✅ هذه هي الأسطر التي طلبتها لفتح ملفاتك الجاهزة
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
-app.get('/privacy', (req, res) => res.sendFile(path.join(__dirname, 'privacy.html')));
-app.get('/terms', (req, res) => res.sendFile(path.join(__dirname, 'terms.html')));
-app.get('/about', (req, res) => res.sendFile(path.join(__dirname, 'about.html')));
 
 /* ================= SEARCH ENGINE API ================= */
 app.get('/search', async (req, res) => {
@@ -208,6 +201,13 @@ app.get('/search', async (req, res) => {
 });
 
 /* ================= ROUTES ================= */
+
+// مسارات الصفحات التعريفية (التي طلبتها)
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+app.get('/privacy', (req, res) => res.sendFile(path.join(__dirname, 'privacy.html')));
+app.get('/terms', (req, res) => res.sendFile(path.join(__dirname, 'terms.html')));
+app.get('/about', (req, res) => res.sendFile(path.join(__dirname, 'about.html')));
+
 app.post('/alerts', async (req, res) => {
   try {
     if (mongoose.connection.readyState === 1) { 

@@ -147,7 +147,7 @@ app.get('/search', async (req, res) => {
       // تحليل SageCore (تأكد أن ملف sage-core.js موجود في نفس المجلد)
       const intelligenceRaw = SageCore(
         standardizedItem,
-        amazonItems, 
+        google_shoppingItems, 
         {}, {}, uid, null
       );
 

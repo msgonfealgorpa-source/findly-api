@@ -1,5 +1,5 @@
 /* =========================================
-   FINDLY SAGE ULTIMATE - SERVER FIX
+   FINDLY SAGE ULTIMATE - ORIGINAL SERVER FIXED
    ========================================= */
 
 const SageCore = require('./sage-core');
@@ -15,11 +15,10 @@ app.use(cors({ origin: '*', methods: ['GET','POST'], allowedHeaders: ['Content-T
 app.use(express.json());
 
 /* ================= ENV VARIABLES & KEYS ================= */
-// ملاحظة: قمت بوضع المفاتيح هنا كاحتياط لضمان عملها فوراً
 const MONGO_URI = process.env.MONGO_URI;
 const PORT = process.env.PORT || 10000;
 
-// مفاتيح البحث الجديدة
+// ✅ حافظت على المفاتيح الخاصة بك كما هي
 const SEARCHAPI_KEY = process.env.SEARCHAPI_KEY || "gMpzK88KLyBu3GxPzjwW6h2G"; 
 const SERPER_API_KEY = process.env.SERPER_API_KEY || "40919ff7b9e5b2aeea7ad7acf8c5df0a64cf54b9";
 
@@ -39,12 +38,11 @@ const DICT = {
     reason_fair: "Price is stable now",
     analysis: "Smart Analysis", loading: "Analyzing..."
   }
-  // يمكن إضافة باقي اللغات هنا لتخفيف حجم الكود، الكود يعمل بدونها إذا لم تكن ضرورية الآن
 };
 
 /* ================= HELPERS ================= */
 function finalizeUrl(url) {
-  if (!url) return '';
+  if (!url) return '#';
   let u = url.trim();
   if (u.startsWith('/url') || u.startsWith('/shopping')) return 'https://www.google.com' + u;
   if (u.startsWith('//')) return 'https:' + u;
@@ -53,7 +51,8 @@ function finalizeUrl(url) {
 }
 
 function cleanPrice(p) {
-  return parseFloat(p?.toString().replace(/[^0-9.]/g,'')) || 0;
+  if (!p) return 0;
+  return parseFloat(p.toString().replace(/[^0-9.]/g,'')) || 0;
 }
 
 function generateCoupons(item, intelligence) {
@@ -71,7 +70,7 @@ function generateCoupons(item, intelligence) {
   return coupons;
 }
 
-/* ================= DB MODELS ================= */
+/* ================= DB MODELS (ORIGINAL) ================= */
 const alertSchema = new mongoose.Schema({
   email: String, productName: String, targetPrice: Number, currentPrice: Number, productLink: String, uid: String, createdAt: { type: Date, default: Date.now }
 });
@@ -88,122 +87,111 @@ if (MONGO_URI) {
     .catch(e => console.log("❌ DB Error:", e));
 }
 
-/* ================= ROOT ROUTE (لحل مشكلة الشاشة البيضاء) ================= */
+/* ================= ROOT ROUTE ================= */
 app.get('/', (req, res) => {
-    res.send(`<h1 style="font-family:sans-serif; text-align:center; margin-top:50px;">🚀 Findly Server is Running Successfully!</h1>`);
+    res.send(`<h1 style="font-family:sans-serif; text-align:center; margin-top:50px;">🚀 Findly Server is Running!</h1>`);
 });
 
-/* ================= SEARCH ENGINE ================= */
+/* ================= SEARCH ENGINE (FIXED LOGIC) ================= */
 
 app.get('/search', async (req, res) => {
     const { q, lang = 'ar', uid = 'guest' } = req.query;
     console.log(`🔎 Start Searching for: ${q} (Lang: ${lang})`);
 
+    // ✅ تعريف المتغير TEXTS هنا لتجنب الأخطاء
+    const TEXTS = DICT[lang] || DICT.ar;
+
     if (!q) return res.json({ results: [] });
 
     try {
-        // الحل الجذري: تغيير المحرك إلى google_shopping بدلاً من amazon لتجنب خطأ الـ Unsupported Engine
+        // ✅ استخدام SearchAPI مع محرك Google Shopping (الأكثر استقراراً)
         const response = await axios.get('https://www.searchapi.io/api/v1/search', {
             params: {
-                api_key: SEARCHAPI_KEY,
-                engine: "google_shopping", // هذا المحرك متوفر للجميع وأكثر دقة
+                api_key: SEARCHAPI_KEY, // استخدام مفتاحك الأصلي
+                engine: "google_shopping",
                 q: q,
                 hl: lang === 'ar' ? 'ar' : 'en',
-                gl: 'us' // يمكنك تغييرها لـ 'sa' إذا كنت تستهدف السعودية فقط
+                gl: 'us'
             }
         });
 
-        // استخراج النتائج من هيكلية Google Shopping
+        // استخراج النتائج
         const rawResults = response.data?.shopping_results || [];
-        console.log(`✅ Found ${rawResults.length} items from SearchApi`);
+        console.log(`✅ Found ${rawResults.length} items`);
 
+        // ✅ هنا كان الخطأ (Loop Syntax)، تم إصلاحه ليعمل بشكل سليم
         const results = rawResults.map(item => {
-            const currentPrice = parseFloat(item.price?.replace(/[^\d.]/g, '')) || 0;
-            
-            // تحويل البيانات لتناسب الواجهة
+            const currentPrice = cleanPrice(item.price || item.extracted_price);
+
             const standardizedItem = {
                 title: item.title,
                 price: item.price,
                 numericPrice: currentPrice,
-                link: item.product_link || item.link,
-                thumbnail: item.thumbnail,
-                source: item.source || 'Marketplace'
+                link: finalizeUrl(item.product_link || item.link),
+                thumbnail: item.thumbnail || item.product_image,
+                source: 'Google Shopping'
             };
-    const results = [];
 
-    for (const item of "google_shopping",  ) {
-      const currentPrice = cleanPrice(item.product_price);
+            // تشغيل منطق SageCore الخاص بك
+            const intelligenceRaw = SageCore(
+                standardizedItem,
+                rawResults, 
+                {}, {}, uid, null
+            ) || {};
 
-      const standardizedItem = {
-        name: item.product_title,
-        title: item.product_title,
-        price: item.product_price,
-        numericPrice: currentPrice,
-        link: finalizeUrl(item.product_url),
-        thumbnail: item.product_photo,
-        source: ' "google_shopping", '
-      };
+            let decisionTitle = TEXTS.fair;
+            let decisionReason = TEXTS.reason_fair;
+            let decisionEmoji = '⚖️';
 
-      // تحليل SageCore (تأكد أن ملف sage-core.js موجود في نفس المجلد)
-      const intelligenceRaw = SageCore(
-        standardizedItem,
-        google_shoppingItems, 
-        {}, {}, uid, null
-      );
+            const avg = Number(intelligenceRaw?.priceIntel?.average || 0);
+            const score = intelligenceRaw?.valueIntel?.score || 0;
 
-      let decisionTitle = TEXTS.fair;
-      let decisionReason = TEXTS.reason_fair;
-      let decisionEmoji = '⚖️';
+            if (avg > 0) {
+                if (currentPrice > avg * 1.1) {
+                    decisionTitle = TEXTS.wait;
+                    decisionReason = TEXTS.reason_expensive;
+                    decisionEmoji = '🤖';
+                } else if (currentPrice < avg * 0.95) {
+                    decisionTitle = TEXTS.buy;
+                    decisionReason = `${TEXTS.reason_cheap} ${score}%`;
+                    decisionEmoji = '🟢';
+                }
+            }
 
-      const avg = Number(intelligenceRaw?.priceIntel?.average || 0);
-      const score = intelligenceRaw?.valueIntel?.score || 0;
+            const intelligence = {
+                finalVerdict: { emoji: decisionEmoji, title: decisionTitle, reason: decisionReason },
+                priceIntel: intelligenceRaw.priceIntel || {},
+                valueIntel: intelligenceRaw.valueIntel || {},
+                forecastIntel: intelligenceRaw.forecastIntel || {},
+                trustIntel: intelligenceRaw.trustIntel || {}
+            };
 
-      if (avg > 0) {
-        if (currentPrice > avg * 1.1) {
-          decisionTitle = TEXTS.wait;
-          decisionReason = TEXTS.reason_expensive;
-          decisionEmoji = '🤖';
-        } else if (currentPrice < avg * 0.95) {
-          decisionTitle = TEXTS.buy;
-          decisionReason = `${TEXTS.reason_cheap} ${score}%`;
-          decisionEmoji = '🟢';
-        }
-      }
+            const comparison = {
+                market_average: intelligence.priceIntel.average ? `$${intelligence.priceIntel.average}` : '—',
+                savings_percentage: intelligence.valueIntel.score || 0,
+                competitors: intelligence.valueIntel.competitors || rawResults.length
+            };
 
-      const intelligence = {
-        finalVerdict: { emoji: decisionEmoji, title: decisionTitle, reason: decisionReason },
-        priceIntel: intelligenceRaw.priceIntel,
-        valueIntel: intelligenceRaw.valueIntel,
-        forecastIntel: intelligenceRaw.forecastIntel,
-        trustIntel: intelligenceRaw.trustIntel
-      };
+            const coupons = generateCoupons(standardizedItem, intelligence);
 
-      const comparison = {
-        market_average: intelligence.priceIntel.average ? `$${intelligence.priceIntel.average}` : '—',
-        savings_percentage: intelligence.valueIntel.score || 0,
-        competitors: intelligence.valueIntel.competitors || google_shoppingItems.length
-      };
+            return {
+                ...standardizedItem,
+                intelligence,
+                comparison,
+                coupons
+            };
+        });
 
-      const coupons = generateCoupons(standardizedItem, intelligence);
+        res.json({ query: q, results });
 
-      results.push({
-        ...standardizedItem,
-        intelligence,
-        comparison,
-        coupons
-      });
+    } catch (err) {
+        console.error('❌ Search Error Details:', err.response?.data || err.message);
+        res.json({ error: 'Search Failed', results: [] });
     }
-
-    res.json({ query: q, results });
-
-  } catch (err) {
-    console.error('❌ Search Error Details:', err.response?.data || err.message);
-    // إرجاع مصفوفة فارغة بدل الخطأ حتى لا يتوقف التطبيق
-    res.json({ error: 'Search Failed', results: [] });
-  }
 });
 
-/* ================= ROUTES ================= */
+/* ================= ROUTES (ALERTS & WATCHLIST) ================= */
+// ✅ هذه الروابط بقيت كما هي لتعمل مع قاعدة بياناتك
 app.post('/alerts', async (req, res) => {
   try {
     if (mongoose.connection.readyState === 1) { 
@@ -238,7 +226,6 @@ app.get('/watchlist/:uid', async (req, res) => {
 });
 
 /* ================= START SERVER ================= */
-const PORT_FINAL = PORT || 10000;
-app.listen(PORT_FINAL, () => {
-  console.log(`🚀 Findly Server running on port ${PORT_FINAL}`);
+app.listen(PORT, () => {
+  console.log(`🚀 Findly Server running on port ${PORT}`);
 });

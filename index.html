@@ -972,18 +972,24 @@
   const userBudget = parseFloat(localStorage.getItem('user_budget')) || 0;
 
   try {
-    const res = await fetch(
-      `${API}/search?q=${encodeURIComponent(q)}&lang=${lang}&uid=${localStorage.getItem('findly_uid')}`
-    );
+    const response = await fetch(`${API_URL}/search?q=${encodeURIComponent(query)}&lang=${lang}&uid=${uid}`);
+const data = await response.json();
+loader.style.display = 'none';
 
-    const data = await res.json();
-    status.style.display = 'none';
-
-    if (!data.results || !data.results.length) {
-      status.style.display = 'block';
-      status.innerText = '❌';
-      return;
+// تحديث العداد بناءً على رد السيرفر مباشرة
+if (data.remainingEnergy !== undefined) {
+    document.getElementById('energy-count').innerText = data.remainingEnergy;
+    
+    // إذا أخبرنا السيرفر أن الطاقة 0، أظهر رسالة نفاذ المحاولات
+    if (data.remainingEnergy <= 0) {
+        document.getElementById('premium-modal').style.display = 'flex';
+        return; // توقف هنا ولا تعرض نتائج
     }
+}
+
+if (data.results && data.results.length > 0) {
+    renderResults(data.results);
+}
 
     data.results.forEach(p => {
       const intel = p.intelligence || {};

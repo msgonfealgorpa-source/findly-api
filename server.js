@@ -111,6 +111,15 @@ const watchlistSchema = new mongoose.Schema({
 });
 const Watchlist = mongoose.model('Watchlist', watchlistSchema);
 
+// 🧠 Brain Energy Model
+const energySchema = new mongoose.Schema({
+  uid: { type: String, unique: true },
+  searchesUsed: { type: Number, default: 0 },
+  hasFreePass: { type: Boolean, default: false },
+  lastReset: { type: Date, default: Date.now }
+});
+
+const Energy = mongoose.model('Energy', energySchema);
 if (MONGO_URI) {
   mongoose.connect(MONGO_URI)
     .then(() => console.log("✅ DB Connected"))

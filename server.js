@@ -163,14 +163,14 @@ if (energy.hasFreePass !== true && energy.searchesUsed >= 3) {
 const cacheKey = `${q}_${lang}`;
 
 if (searchCache.has(cacheKey)) {
-  const cached = searchCache.get(cacheKey);
+  const cached = searchCache.get(cacheKey).data;
 
-  if (Date.now() - cached.time < CACHE_TTL) {
-    console.log('⚡ Served from cache');
-    return res.json(cached.data);
-  } else {
-    searchCache.delete(cacheKey);
-  }
+  // 👇 نرسل الطاقة الحالية الحقيقية
+  cached.energy.left = energy.hasFreePass
+    ? '∞'
+    : Math.max(0, 3 - energy.searchesUsed);
+
+  return res.json(cached);
 }
 
     try {

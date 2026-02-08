@@ -1176,11 +1176,12 @@ ${bestCoupon ? `
       ? `<ul>${trust.warnings.map(w => `<li>${w}</li>`).join('')}</ul>`
       : `<p>✅ ${T.no_risks}</p>`
   }
-</div>
 
+
+</div>
 <a
   class="action-btn buy-now"
-  href="/go?q=${encodeURIComponent(query)}"
+  href="https://findly-api.onrender.com/go?url=${encodeURIComponent(p.link)}"
   target="_blank"
   rel="noopener"
 >

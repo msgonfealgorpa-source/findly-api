@@ -189,31 +189,20 @@ if (searchCache.has(cacheKey)) {
   return res.json(cached);
 }
 
-    try {
-        // ✅ استخدام SearchAPI مع محرك Google Shopping (الأكثر استقراراً)
-        const response = await axios.get('https://www.searchapi.io/api/v1/search', {
-            params: {
-                api_key: SEARCHAPI_KEY, // استخدام مفتاحك الأصلي
-                engine: "google_shopping",
-                q: q,
-                hl: lang === 'ar' ? 'ar' : 'en',
-                gl: 'us'
-            }
-        });
-
         // استخراج النتائج
-        let rawResults = response.data?.shopping_results || [];
-let serperContext = [];
+        let rawResults = []
+let serperContext = []
 
-// 👉 شرط واحد واضح: لو النتائج قليلة
+try {
+  const response = await axios.get('https://www.searchapi.io/api/v1/search', {...})
+  rawResults = response.data?.shopping_results || []
+} catch (e) {
+  console.log('⚠️ SearchAPI failed, fallback to Serper')
+}
+
 if (rawResults.length < 3) {
-  const serperRes = await axios.post(
-    'https://google.serper.dev/search',
-    { q, gl: 'us', hl: lang },
-    { headers: { 'X-API-KEY': SERPER_API_KEY } }
-  );
-
-  serperContext = serperRes.data?.organic || [];
+  const serperRes = await axios.post(...)
+  serperContext = serperRes.data?.organic || []
 }
         console.log(`✅ Found ${rawResults.length} items`);
 

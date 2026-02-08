@@ -547,6 +547,45 @@
   from { transform: scale(0.9); opacity: 0; }
   to   { transform: scale(1); opacity: 1; }
 }
+
+
+        .modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-content {
+  width: 90%;
+  max-width: 420px;
+  height: 80%;
+  background: #fff;
+  border-radius: 14px;
+  overflow: hidden;
+  position: relative;
+}
+
+.modal-content iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.close {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  font-size: 22px;
+  cursor: pointer;
+}
         
     </style>
 </head>
@@ -1051,20 +1090,22 @@ function openUpgrade() {
   return best;
 }
 
-function openModal(product) {
-  document.getElementById("modalImg").src = product.thumbnail;
-  document.getElementById("modalTitle").innerText = product.title;
-  document.getElementById("modalPrice").innerText = product.price;
 
-  document.getElementById("modalBuyBtn").onclick = () => {
-    window.open(product.link, "_blank");
-  };
 
-  document.getElementById("productModal").style.display = "flex";
+    function openProductModal(link) {
+  const modal = document.getElementById("productModal");
+  const frame = document.getElementById("productFrame");
+
+  frame.src = decodeURIComponent(link);
+  modal.classList.remove("hidden");
 }
 
-function closeModal() {
-  document.getElementById("productModal").style.display = "none";
+function closeProductModal() {
+  const modal = document.getElementById("productModal");
+  const frame = document.getElementById("productFrame");
+
+  frame.src = "";
+  modal.classList.add("hidden");
 }
     
     async function runSearch() {
@@ -1253,10 +1294,10 @@ ${bestCoupon ? `
   }
 </div>
 
-<div class="btn-group">
-  <a href="${p.link}" target="_blank" class="action-btn buy-now">
-    ${T.buy}
-  </a>
+<button class="action-btn buy-now"
+  onclick="openProductModal('${encodeURIComponent(p.link)}')">
+  ${T.buy}
+</button>
 
   <button class="action-btn analyze-btn"
     onclick="openAnalysisModal('${encodeURIComponent(JSON.stringify({
@@ -1452,28 +1493,14 @@ ${bestCoupon ? `
     // تشغيل التحديث عند تحميل الصفحة
     window.onload = update;
 </script>
+</div>
 
-<!-- Product Modal -->
-<div id="productModal" class="modal">
+<div id="productModal" class="modal hidden">
   <div class="modal-content">
-    <span class="close" onclick="closeModal()">×</span>
-
-    <img id="modalImg" src="" alt="product" />
-    <h3 id="modalTitle"></h3>
-    <p id="modalPrice"></p>
-
-    <button onclick='openModal({
-  title: "${item.title}",
-  price: "${item.price}",
-  thumbnail: "${item.thumbnail}",
-  link: "${item.link}"
-})'>
-  👁️ عرض المنتج
-</button>
-  
-
-  
+    <span class="close" onclick="closeProductModal()">×</span>
+    <iframe id="productFrame" src="" loading="lazy"></iframe>
   </div>
 </div>
+
 </body>
 </html>

@@ -1246,10 +1246,12 @@ ${bestCoupon ? `
   }
 </div>
 
-<button class="action-btn buy-now"
-  onclick="openProductModal('${encodeURIComponent(p.link)}')">
+<a class="action-btn buy-now"
+   href="${p.link}"
+   target="_blank"
+   rel="noopener noreferrer">
   ${T.buy}
-</button>
+</a>
 
   <button class="action-btn analyze-btn"
     onclick="openAnalysisModal('${encodeURIComponent(JSON.stringify({

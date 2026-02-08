@@ -354,8 +354,6 @@ app.get('/watchlist/:uid', async (req, res) => {
 
 
 // ===== ALIEXPRESS AFFILIATE REDIRECT =====
-app.get('/go', (req, res) => {
-  const q = req.query.q || '';
 
 // ===== ALIEXPRESS AFFILIATE REDIRECT (USING AFFILIATE ID) =====
 app.get('/go', (req, res) => {

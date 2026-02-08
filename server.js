@@ -352,6 +352,32 @@ app.get('/watchlist/:uid', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+
+// ===== ALIEXPRESS AFFILIATE REDIRECT =====
+app.get('/go', (req, res) => {
+  const q = req.query.q || '';
+
+// ===== ALIEXPRESS AFFILIATE REDIRECT (USING AFFILIATE ID) =====
+app.get('/go', (req, res) => {
+  const q = req.query.q || '';
+
+  const AFF_ID = 'LY20260129XmLf';
+
+  const targetUrl =
+    'https://ar.aliexpress.com/wholesale?SearchText=' +
+    encodeURIComponent(q);
+
+  const affiliateLink =
+    'https://s.click.aliexpress.com/deep_link.htm' +
+    '?aff_fcid=' + AFF_ID +
+    '&aff_fsk=' + AFF_ID +
+    '&aff_platform=api-new' +
+    '&sk=' + AFF_ID +
+    '&terminal_id=' + AFF_ID +
+    '&redirectUrl=' + encodeURIComponent(targetUrl);
+
+  res.redirect(affiliateLink);
+});
 /* ================= NOWPAYMENTS WEBHOOK ================= */
 app.post(
   '/nowpayments/webhook',

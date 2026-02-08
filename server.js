@@ -150,57 +150,136 @@ app.get('/buy', (req, res) => {
 /* ================= SEARCH ENGINE (FIXED LOGIC) ================= */
 
 app.get('/search', async (req, res) => {
-    const { q, lang = 'ar', uid = 'guest' } = req.query;
-    console.log(`🔎 Start Searching for: ${q} (Lang: ${lang})`);
+  const { q, lang = 'ar', uid = 'guest' } = req.query;
+  if (!q) return res.json({ results: [] });
 
-    // ✅ تعريف المتغير TEXTS هنا لتجنب الأخطاء
-    const TEXTS = DICT[lang] || DICT.ar;
+  const TEXTS = DICT[lang] || DICT.ar;
 
-// ================= 🧠 BRAIN ENERGY CHECK =================
-let energy = await Energy.findOne({ uid });
+  /* ================= ENERGY ================= */
+  let energy = await Energy.findOne({ uid });
+  if (!energy) {
+    energy = await Energy.create({
+      uid,
+      searchesUsed: 0,
+      hasFreePass: false
+    });
+  }
 
-if (!energy) {
-  energy = await Energy.create({
-    uid,
-    searchesUsed: 0,
-    hasFreePass: false
+  if (energy.hasFreePass !== true && energy.searchesUsed >= 3) {
+    return res.status(429).json({
+      error: 'ENERGY_EMPTY',
+      message: TEXTS.energy_empty
+    });
+  }
+
+  /* ================= CACHE ================= */
+  const cacheKey = `${q}_${lang}`;
+  if (searchCache.has(cacheKey)) {
+    const cached = searchCache.get(cacheKey).data;
+    cached.energy.left = energy.hasFreePass
+      ? '∞'
+      : Math.max(0, 3 - energy.searchesUsed);
+    return res.json(cached);
+  }
+
+  /* ================= SEARCH ================= */
+  let rawResults = [];
+  let serperContext = [];
+
+  /* -------- SERPER (PRIMARY) -------- */
+  try {
+    const serperRes = await axios.post(
+      'https://google.serper.dev/search',
+      {
+        q,
+        gl: 'us',
+        hl: lang
+      },
+      {
+        headers: {
+          'X-API-KEY': SERPER_API_KEY,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    serperContext = serperRes.data.organic || [];
+  } catch (e) {
+    console.log('❌ Serper failed');
+  }
+
+  /* -------- SEARCHAPI (FALLBACK) -------- */
+  if (serperContext.length < 3 && SEARCHAPI_KEY) {
+    try {
+      const response = await axios.get(
+        'https://www.searchapi.io/api/v1/search',
+        {
+          params: {
+            api_key: SEARCHAPI_KEY,
+            engine: 'google_shopping',
+            q,
+            hl: lang === 'ar' ? 'ar' : 'en',
+            gl: 'us'
+          }
+        }
+      );
+
+      rawResults = response.data?.shopping_results || [];
+    } catch (e) {
+      console.log('⚠️ SearchAPI failed');
+    }
+  }
+
+  /* ================= RESULTS ================= */
+  const results = rawResults.map(item => {
+    const currentPrice = cleanPrice(item.price || item.extracted_price);
+
+    const standardizedItem = {
+      title: item.title,
+      price: item.price,
+      numericPrice: currentPrice,
+      link: finalizeUrl(item.product_link || item.link),
+      thumbnail: item.thumbnail || item.product_image,
+      source: 'Google Shopping'
+    };
+
+    const intelligenceRaw = SageCore(
+      standardizedItem,
+      rawResults,
+      serperContext,
+      {},
+      uid,
+      null
+    ) || {};
+
+    return {
+      ...standardizedItem,
+      intelligence: intelligenceRaw
+    };
   });
-}
 
-if (energy.hasFreePass !== true && energy.searchesUsed >= 3) {
-  return res.status(429).json({
-    error: 'ENERGY_EMPTY',
-    message: 'تم استهلاك طاقة العقل المجانية 🧠'
+  /* ================= SAVE ENERGY ================= */
+  if (!energy.hasFreePass) {
+    energy.searchesUsed += 1;
+    await energy.save();
+  }
+
+  const payload = {
+    results,
+    energy: {
+      left: energy.hasFreePass
+        ? '∞'
+        : Math.max(0, 3 - energy.searchesUsed)
+    }
+  };
+
+  searchCache.set(cacheKey, {
+    data: payload,
+    expires: Date.now() + 1000 * 60 * 5
   });
-}
-   
-   if (!q) return res.json({ results: [] });
-// ================= CACHE CHECK =================
-const cacheKey = `${q}_${lang}`;
 
-if (searchCache.has(cacheKey)) {
-  const cached = searchCache.get(cacheKey).data;
-
-  // 👇 نرسل الطاقة الحالية الحقيقية
-  cached.energy.left = energy.hasFreePass
-    ? '∞'
-    : Math.max(0, 3 - energy.searchesUsed);
-
-  return res.json(cached);
-}
-
-        // استخراج النتائج
-        let rawResults = []
-let serperContext = []
-
-try {
-  const response = await axios.get('https://www.searchapi.io/api/v1/search', {...})
-  rawResults = response.data?.shopping_results || []
-} catch (e) {
-  console.log('⚠️ SearchAPI failed, fallback to Serper')
-}
-
- console.log('❌ SearchAPI failed')
+  res.json(payload);
+});
 
         // ✅ هنا كان الخطأ (Loop Syntax)، تم إصلاحه ليعمل بشكل سليم
         const results = rawResults.map(item => {

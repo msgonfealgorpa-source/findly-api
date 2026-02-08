@@ -932,13 +932,25 @@
     upgrade: 'Upgrade now'
   }
 };
+
+
+// رابط الدفع الذي أنشأناه
+
     
+    
+function openUpgrade() {
+  const uid =
+    localStorage.getItem("uid") || ("guest_" + Date.now());
 
+  localStorage.setItem("uid", uid);
 
-    function openUpgrade() {
-  const paymentLink = "https://nowpayments.io/payment/?iid=5541830175";
-  window.open(paymentLink, "_blank");
+  const link =
+    "https://nowpayments.io/payment/?iid=5541830175&order_id=" + uid;
+
+  window.open(link, "_blank");
 }
+
+
     
     
     function applyCoupon(price, coupon) {

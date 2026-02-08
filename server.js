@@ -132,6 +132,11 @@ app.get('/', (req, res) => {
     res.send(`<h1 style="font-family:sans-serif; text-align:center; margin-top:50px;">🚀 Findly Server is Running!</h1>`);
 });
 
+app.get('/buy', (req, res) => {
+  res.redirect(
+    'https://ar.aliexpress.com/item/1005009726061044.html'
+  );
+});
 /* ================= SEARCH ENGINE (FIXED LOGIC) ================= */
 
 app.get('/search', async (req, res) => {

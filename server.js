@@ -16,7 +16,7 @@ const app = express();
 /* ================= BASIC SETUP ================= */
 app.use(cors({ origin: '*', methods: ['GET','POST'], allowedHeaders: ['Content-Type','Authorization'] }));
 app.use(express.json());
-
+app.use(express.static('public'));
 /* ================= ENV VARIABLES & KEYS ================= */
 const MONGO_URI = process.env.MONGO_URI;
 const PORT = process.env.PORT || 10000;
@@ -126,6 +126,16 @@ if (MONGO_URI) {
     .then(() => console.log("✅ DB Connected"))
     .catch(e => console.log("❌ DB Error:", e));
 }
+
+app.get('/subscription/status', async (req, res) => {
+  const { uid } = req.query;
+  if (!uid) return res.json({ active: false });
+
+  const energy = await Energy.findOne({ uid });
+  res.json({
+    active: energy?.hasFreePass === true
+  });
+});
 
 /* ================= ROOT ROUTE ================= */
 app.get('/', (req, res) => {

@@ -338,42 +338,46 @@ app.get('/watchlist/:uid', async (req, res) => {
 });
 
 /* ================= NOWPAYMENTS WEBHOOK ================= */
-app.post('/nowpayments/webhook', express.json(), async (req, res) => {
-  try {
-    const signature = req.headers['x-nowpayments-sig'];
-    const payload = JSON.stringify(req.body);
+app.post(
+  '/nowpayments/webhook',
+  express.raw({ type: 'application/json' }),
+  async (req, res) => {
+    try {
+      const signature = req.headers['x-nowpayments-sig'];
+      const payload = req.body.toString();
 
-    const expected = crypto
-      .createHmac('sha512', NOWPAYMENTS_IPN_SECRET)
-      .update(payload)
-      .digest('hex');
+      const expected = crypto
+        .createHmac('sha512', NOWPAYMENTS_IPN_SECRET)
+        .update(payload)
+        .digest('hex');
 
-    if (signature !== expected) {
-      return res.status(403).json({ error: 'Invalid signature' });
+      if (signature !== expected) {
+        return res.status(403).json({ error: 'Invalid signature' });
+      }
+
+      const payment = JSON.parse(payload);
+
+      if (payment.payment_status === 'finished') {
+        const uid = payment.order_id;
+        if (!uid) return res.status(400).json({ error: 'Missing UID' });
+
+        let energy = await Energy.findOne({ uid });
+        if (!energy) energy = await Energy.create({ uid });
+
+        energy.hasFreePass = true;
+        energy.searchesUsed = 0;
+        await energy.save();
+
+        console.log(`✅ Subscription activated for UID: ${uid}`);
+      }
+
+      res.json({ success: true });
+    } catch (e) {
+      console.error('❌ Webhook Error:', e.message);
+      res.status(500).json({ error: 'Webhook failed' });
     }
-
-    const payment = req.body;
-
-    if (payment.payment_status === 'finished') {
-      const uid = payment.order_id;
-      if (!uid) return res.status(400).json({ error: 'Missing UID' });
-
-      let energy = await Energy.findOne({ uid });
-      if (!energy) energy = await Energy.create({ uid });
-
-      energy.hasFreePass = true;
-      energy.searchesUsed = 0;
-      await energy.save();
-
-      console.log(`✅ Subscription activated for UID: ${uid}`);
-    }
-
-    res.json({ success: true });
-  } catch (e) {
-    console.error('❌ Webhook Error:', e.message);
-    res.status(500).json({ error: 'Webhook failed' });
   }
-});
+);
 
 /* ================= START SERVER ================= */
 app.listen(PORT, () => {

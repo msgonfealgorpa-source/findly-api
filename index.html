@@ -1117,22 +1117,7 @@ function openUpgrade() {
 
 
 
-    function openProductModal(link) {
-  const modal = document.getElementById("productModal");
-  const frame = document.getElementById("productFrame");
-
-  frame.src = decodeURIComponent(link);
-  modal.classList.remove("hidden");
-}
-
-function closeProductModal() {
-  const modal = document.getElementById("productModal");
-  const frame = document.getElementById("productFrame");
-
-  frame.src = "";
-  modal.classList.add("hidden");
-}
-    
+      
     async function runSearch() {
   const q = document.getElementById('s-input').value.trim();
   const status = document.getElementById('status');
@@ -1519,8 +1504,6 @@ ${bestCoupon ? `
     window.onload = update;
 </script>
 </div>
-
-<div id="productModal" class="modal hidden">
 
 </body>
 </html>

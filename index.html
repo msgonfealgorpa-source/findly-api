@@ -485,6 +485,51 @@
   font-size: 1.1em;
 }
 
+
+
+
+.actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.action-btn {
+  flex: 1;
+  height: 48px;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+/* زر الشراء */
+.action-btn.buy {
+  background: linear-gradient(135deg, #7b61ff, #9b7bff);
+  color: #fff;
+}
+
+/* الأزرار الثانوية */
+.action-btn.ghost {
+  background: rgba(255,255,255,0.06);
+  color: #cfc7ff;
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+.action-btn:hover {
+  transform: translateY(-1px);
+  opacity: 0.95;
+}
+
+
+
+        
       
     </style>
 </head>
@@ -1178,16 +1223,24 @@ ${bestCoupon ? `
   }
 
 
-</div>
-<a
-  class="action-btn buy-now"
-  href="https://findly-api.onrender.com/go?url=${encodeURIComponent(p.link)}"
-  target="_blank"
-  rel="noopener"
->
-  🛒 اشترِ الآن
-</a>
 
+<div class="actions">
+  <a
+    class="action-btn buy"
+    href="https://findly-api.onrender.com/go?url=${encodeURIComponent(p.link)}"
+    target="_blank"
+    rel="noopener"
+  >
+    🛒 اشترِ الآن
+  </a>
+
+  <button class="action-btn ghost">تحليل</button>
+  <button class="action-btn ghost">راقب</button>
+</div>
+
+
+
+    
   <button class="action-btn analyze-btn"
     onclick="openAnalysisModal('${encodeURIComponent(JSON.stringify({
       title: verdict.title,

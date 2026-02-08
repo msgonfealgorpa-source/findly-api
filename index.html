@@ -1178,12 +1178,15 @@ ${bestCoupon ? `
   }
 </div>
 
-<a class="action-btn buy-now"
-   href="/buy"
-   target="_blank"
-   rel="noopener noreferrer">
-  ${T.buy}
-</a>
+<button
+  class="buy-btn"
+  onclick="window.open(
+    'https://ar.aliexpress.com/item/1005009726061044.html',
+    '_blank'
+  )"
+>
+  اشترِ
+</button>
 
   <button class="action-btn analyze-btn"
     onclick="openAnalysisModal('${encodeURIComponent(JSON.stringify({

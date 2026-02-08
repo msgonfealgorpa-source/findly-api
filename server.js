@@ -138,15 +138,36 @@ app.get('/subscription/status', async (req, res) => {
 });
 
 /* ================= ROOT ROUTE ================= */
-app.get('/', (req, res) => {
-    res.send(`<h1 style="font-family:sans-serif; text-align:center; margin-top:50px;">🚀 Findly Server is Running!</h1>`);
-});
-
 app.get('/buy', (req, res) => {
   res.redirect(
     'https://ar.aliexpress.com/item/1005009726061044.html'
   );
 });
+
+/* ================= AFFILIATE REDIRECT ================= */
+app.get('/go', (req, res) => {
+  const { url } = req.query;
+
+  if (!url) {
+    return res.status(400).send('Missing product url');
+  }
+
+  const affiliateId = 'LY20260129XmLf';
+
+  const decodedUrl = decodeURIComponent(url);
+
+  const affiliateUrl =
+    `https://www.aliexpress.com/wholesale?` +
+    `aff_fcid=${affiliateId}` +
+    `&aff_fsk=${affiliateId}` +
+    `&aff_platform=link-c-tool` +
+    `&sk=${affiliateId}` +
+    `&redirectUrl=${encodeURIComponent(decodedUrl)}`;
+
+  res.redirect(affiliateUrl);
+});
+
+/* ================= SEARCH ENGINE ================= */
 /* ================= SEARCH ENGINE (FIXED LOGIC) ================= */
 
 app.get('/search', async (req, res) => {

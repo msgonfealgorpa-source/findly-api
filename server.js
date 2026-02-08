@@ -336,6 +336,43 @@ app.get('/watchlist/:uid', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+/* ================= NOWPAYMENTS WEBHOOK ================= */
+app.post('/nowpayments/webhook', express.json(), async (req, res) => {
+  try {
+    const payment = req.body;
+
+    console.log('💰 NOWPayments Webhook:', payment);
+
+    // نتحقق أن الدفع مكتمل
+    if (payment.payment_status === 'finished') {
+      const uid = payment.order_id; 
+      // order_id سنستخدمه لاحقًا لربط المستخدم
+
+      if (!uid) {
+        return res.status(400).json({ error: 'Missing UID' });
+      }
+
+      let energy = await Energy.findOne({ uid });
+
+      if (!energy) {
+        energy = await Energy.create({ uid });
+      }
+
+      energy.hasFreePass = true;
+      energy.searchesUsed = 0;
+      await energy.save();
+
+      console.log(`✅ Subscription activated for UID: ${uid}`);
+    }
+
+    res.json({ success: true });
+  } catch (e) {
+    console.error('❌ Webhook Error:', e.message);
+    res.status(500).json({ error: 'Webhook failed' });
+  }
+});
+
+
 /* ================= START SERVER ================= */
 app.listen(PORT, () => {
   console.log(`🚀 Findly Server running on port ${PORT}`);

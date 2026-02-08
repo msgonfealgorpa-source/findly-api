@@ -485,11 +485,75 @@
   font-size: 1.1em;
 }
 
+
+        .modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 999;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background: #fff;
+  width: 90%;
+  max-width: 400px;
+  border-radius: 16px;
+  padding: 20px;
+  text-align: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-content img {
+  width: 100%;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+
+.modal-content h3 {
+  font-size: 1.1rem;
+  margin: 8px 0;
+}
+
+.modal-content p {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #27ae60;
+}
+
+.modal-content button {
+  margin-top: 12px;
+  padding: 10px;
+  width: 100%;
+  border: none;
+  border-radius: 10px;
+  background: #ff6a00;
+  color: #fff;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+@keyframes fadeIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
         
     </style>
 </head>
 <body>
 
+
+    
 <div id="auth-overlay" class="auth-overlay">
     <div class="auth-card">
         <div class="auth-header">
@@ -986,6 +1050,22 @@ function openUpgrade() {
 
   return best;
 }
+
+function openModal(product) {
+  document.getElementById("modalImg").src = product.thumbnail;
+  document.getElementById("modalTitle").innerText = product.title;
+  document.getElementById("modalPrice").innerText = product.price;
+
+  document.getElementById("modalBuyBtn").onclick = () => {
+    window.open(product.link, "_blank");
+  };
+
+  document.getElementById("productModal").style.display = "flex";
+}
+
+function closeModal() {
+  document.getElementById("productModal").style.display = "none";
+}
     
     async function runSearch() {
   const q = document.getElementById('s-input').value.trim();
@@ -1372,5 +1452,28 @@ ${bestCoupon ? `
     // تشغيل التحديث عند تحميل الصفحة
     window.onload = update;
 </script>
+
+<!-- Product Modal -->
+<div id="productModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">×</span>
+
+    <img id="modalImg" src="" alt="product" />
+    <h3 id="modalTitle"></h3>
+    <p id="modalPrice"></p>
+
+    <button onclick='openModal({
+  title: "${item.title}",
+  price: "${item.price}",
+  thumbnail: "${item.thumbnail}",
+  link: "${item.link}"
+})'>
+  👁️ عرض المنتج
+</button>
+  
+
+  
+  </div>
+</div>
 </body>
 </html>

@@ -1,36 +1,70 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>تم تفعيل الاشتراك</title>
   <style>
     body {
+      font-family: sans-serif;
       background: #0f172a;
-      color: #fff;
-      font-family: Arial, sans-serif;
+      color: white;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
+      text-align: center;
     }
     .box {
       background: #020617;
       padding: 30px;
       border-radius: 16px;
-      text-align: center;
-      box-shadow: 0 0 30px rgba(0,0,0,.5);
+      max-width: 400px;
+      box-shadow: 0 0 30px rgba(0,255,170,.15);
     }
-    h1 { color: #22c55e; }
+    .ok {
+      font-size: 60px;
+    }
+    button {
+      margin-top: 20px;
+      padding: 12px 20px;
+      border-radius: 10px;
+      border: none;
+      background: #22c55e;
+      color: black;
+      font-size: 16px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
-  <div class="box">
-    <h1>🎉 تم تفعيل اشتراكك بنجاح</h1>
-    <p>
-      شكرًا لاشتراكك معنا 💙<br>
-      يمكنك الآن الاستفادة من جميع الميزات بدون أي قيود.
-    </p>
-    <a href="/" style="color:#38bdf8">العودة للرئيسية</a>
-  </div>
+
+<div class="box" id="box">
+  ⏳ جارٍ التحقق من الاشتراك...
+</div>
+
+<script>
+  const uid = localStorage.getItem('uid') || 'guest';
+
+  fetch(`/subscription/status?uid=${uid}`)
+    .then(r => r.json())
+    .then(data => {
+      const box = document.getElementById('box');
+
+      if (data.active) {
+        box.innerHTML = `
+          <div class="ok">🎉</div>
+          <h2>تم تفعيل اشتراكك بنجاح!</h2>
+          <p>أصبح لديك وصول غير محدود 🧠⚡</p>
+          <button onclick="location.href='/'">ابدأ الاستخدام</button>
+        `;
+      } else {
+        box.innerHTML = `
+          <h2>⏳ جاري التفعيل</h2>
+          <p>قد يستغرق الأمر بضع ثوانٍ…</p>
+        `;
+      }
+    });
+</script>
+
 </body>
 </html>

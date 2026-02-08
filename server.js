@@ -110,35 +110,49 @@ app.get('/search', async (req, res) => {
       return res.json(searchCache.get(cacheKey));
     }
 
-    let rawResults = [];
-    let context = [];
+    /* ================= SEARCH ================= */
+  let rawResults = [];
+  let serperContext = [];
 
-    /* ===== SERPER ===== */
+  // ===== 1️⃣ SEARCHAPI (PRIMARY – PRODUCTS) =====
+  try {
+    const response = await axios.get(
+      'https://www.searchapi.io/api/v1/search',
+      {
+        params: {
+          api_key: SEARCHAPI_KEY,
+          engine: 'google_shopping',
+          q,
+          hl: lang === 'ar' ? 'ar' : 'en',
+          gl: 'us'
+        }
+      }
+    );
+
+    rawResults = response.data?.shopping_results || [];
+  } catch (e) {
+    console.error('❌ SearchAPI failed:', e.message);
+  }
+
+  // ===== 2️⃣ SERPER (SECONDARY – CONTEXT) =====
+  if (rawResults.length > 0) {
     try {
-      const r = await axios.post(
+      const serperRes = await axios.post(
         'https://google.serper.dev/search',
-        { q, hl: lang, gl: 'us' },
-        { headers: { 'X-API-KEY': SERPER_API_KEY } }
-      );
-      context = r.data.organic || [];
-    } catch {}
-
-    /* ===== SEARCHAPI FALLBACK ===== */
-    if (context.length < 3 && SEARCHAPI_KEY) {
-      try {
-        const r = await axios.get(
-          'https://www.searchapi.io/api/v1/search',
-          {
-            params: {
-              engine: 'google_shopping',
-              q,
-              api_key: SEARCHAPI_KEY
-            }
+        { q, gl: 'us', hl: lang },
+        {
+          headers: {
+            'X-API-KEY': SERPER_API_KEY,
+            'Content-Type': 'application/json'
           }
-        );
-        rawResults = r.data.shopping_results || [];
-      } catch {}
+        }
+      );
+
+      serperContext = serperRes.data?.organic || [];
+    } catch (e) {
+      console.log('⚠️ Serper failed');
     }
+  }
 
     /* ===== Normalize ===== */
     const results = rawResults.map(item => {

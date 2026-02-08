@@ -1,6 +1,11 @@
 /**
- * Sage Core v2 – Competitive Price Intelligence Engine
- * يعمل فورًا + يتطور مع الاستخدام
+ * Sage Core v3 – Adaptive Price & Personality Intelligence
+ * يدمج:
+ * - Market Intelligence
+ * - User Learning
+ * - Price Forecast
+ * - Fake Deal Detection
+ * - User Personality Engine (NEW)
  */
 
 function cleanPrice(p) {
@@ -8,11 +13,36 @@ function cleanPrice(p) {
   return parseFloat(p.toString().replace(/[^0-9.]/g, '')) || 0;
 }
 
+/* ===============================
+   🧠 Personality Detection
+================================ */
+function detectPersonality(userEvents, price, marketAverage) {
+  if (!marketAverage) return 'neutral';
+
+  if (userEvents?.bought && price > marketAverage) {
+    return 'impulse';
+  }
+
+  if (userEvents?.clickedAnalysis && !userEvents?.bought) {
+    return 'analyst';
+  }
+
+  if (userEvents?.bought && price < marketAverage * 0.9) {
+    return 'hunter';
+  }
+
+  if (userEvents?.bought && price >= marketAverage) {
+    return 'premium';
+  }
+
+  return 'neutral';
+}
+
 module.exports = function SageCore(
   product,
   marketProducts = [],
+  serperContext = [],
   userEvents = {},     // { viewed, clickedAnalysis, bought }
-  userHistory = {},    // مستقبلًا
   userId = 'guest',
   userOutcome = null
 ) {
@@ -52,27 +82,66 @@ module.exports = function SageCore(
 
   /* ===============================
      2️⃣ User Learning Intelligence
-     (يتفعل تدريجيًا)
   =============================== */
   let learningBoost = 0;
   let learningReason = null;
 
-  if (userEvents.clickedAnalysis) {
+  if (userEvents?.clickedAnalysis) {
     learningBoost += 5;
     learningReason = 'User shows high interest';
   }
-  if (userEvents.bought) {
+
+  if (userEvents?.bought) {
     learningBoost += 15;
-    learningReason = 'User tends to buy at this range';
+    learningReason = 'User tends to buy at this price range';
   }
-  if (userEvents.viewed && !userEvents.clickedAnalysis) {
+
+  if (userEvents?.viewed && !userEvents?.clickedAnalysis) {
     learningBoost -= 5;
   }
 
   dealScore = Math.max(0, Math.min(100, dealScore + learningBoost));
 
   /* ===============================
-     3️⃣ 7-Day Price Forecast (Approx)
+     3️⃣ Personality Engine (NEW)
+  =============================== */
+  const personality = detectPersonality(userEvents, price, marketAverage);
+
+  switch (personality) {
+    case 'hunter':
+      if (price <= marketAverage * 0.92) {
+        decision = 'اشتري الآن';
+        label = 'صفقة ممتازة لصيّاد الصفقات';
+        color = '#16a34a';
+      } else {
+        decision = 'انتظر';
+        label = 'لم يصل لأفضل سعر بعد';
+      }
+      break;
+
+    case 'analyst':
+      decision = 'انتظر';
+      label = 'المستخدم يفضل التحليل والتأكد';
+      color = '#6366f1';
+      break;
+
+    case 'impulse':
+      if (dealScore >= 55) {
+        decision = 'اشتري الآن';
+        label = 'قرار مناسب للمستخدم السريع';
+        color = '#f59e0b';
+      }
+      break;
+
+    case 'premium':
+      decision = 'اشتري الآن';
+      label = 'السعر مقبول لمستخدم Premium';
+      color = '#9333ea';
+      break;
+  }
+
+  /* ===============================
+     4️⃣ 7-Day Price Forecast
   =============================== */
   let forecast = {
     trend: 'stable',
@@ -100,7 +169,7 @@ module.exports = function SageCore(
   }
 
   /* ===============================
-     4️⃣ Fake Deal Detection
+     5️⃣ Fake Deal Detection
   =============================== */
   const warnings = [];
   let riskScore = 0;
@@ -119,7 +188,7 @@ module.exports = function SageCore(
   }
 
   /* ===============================
-     FINAL OUTPUT (متوافق مع الواجهة)
+     FINAL OUTPUT (متوافق 100%)
   =============================== */
   return {
     priceIntel: {
@@ -143,6 +212,17 @@ module.exports = function SageCore(
     trustIntel: {
       warnings,
       riskScore
+    },
+
+    personalityIntel: {
+      type: personality,
+      description: {
+        hunter: 'يبحث عن أقل سعر ممكن',
+        analyst: 'يفضل التحليل قبل الشراء',
+        impulse: 'يتخذ قرارات سريعة',
+        premium: 'يهتم بالجودة أكثر من السعر',
+        neutral: 'سلوك متوازن'
+      }[personality]
     }
   };
 };

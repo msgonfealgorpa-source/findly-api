@@ -200,11 +200,7 @@ try {
   console.log('⚠️ SearchAPI failed, fallback to Serper')
 }
 
-if (rawResults.length < 3) {
-  const serperRes = await axios.post(...)
-  serperContext = serperRes.data?.organic || []
-}
-        console.log(`✅ Found ${rawResults.length} items`);
+ console.log('❌ SearchAPI failed')
 
         // ✅ هنا كان الخطأ (Loop Syntax)، تم إصلاحه ليعمل بشكل سليم
         const results = rawResults.map(item => {

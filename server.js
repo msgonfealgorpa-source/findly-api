@@ -9,7 +9,8 @@ const axios = require('axios');
 const mongoose = require('mongoose');
 const crypto = require('crypto');
 // ================= CACHE =================
-const SearchCache = require('./models/SearchCache');
+const searchCache = new Map();
+const CACHE_TTL = 1000 * 60 * 30; // 30 دقيقة
 const app = express();
 
 /* ================= BASIC SETUP ================= */
@@ -26,48 +27,48 @@ const SERPER_API_KEY = process.env.SERPER_API_KEY || "40919ff7b9e5b2aeea7ad7acf8
 
 /* ================= TRANSLATION DICTIONARY ================= */
 const DICT = {
-  ar: {
-    buy: "صفقة ممتازة", wait: "انتظر", fair: "سعر عادل",
-    reason_cheap: "أقل من متوسط السوق بـ",
-    reason_expensive: "السعر أعلى من السوق",
-    reason_fair: "السعر مستقر حالياً",
-    analysis: "تحليل ذكي", loading: "جاري التحليل..."
-  },
-  en: {
-    buy: "Great Deal", wait: "Wait", fair: "Fair Price",
-    reason_cheap: "Below market average by",
-    reason_expensive: "Price is above market",
-    reason_fair: "Price is stable now",
-    analysis: "Smart Analysis", loading: "Analyzing..."
-  },
-  fr: {
-    buy: "Bonne Affaire", wait: "Attendez", fair: "Prix Justه",
-    reason_cheap: "Moins cher que la moyenne de",
-    reason_expensive: "Prix supérieur au marché",
-    reason_fair: "Prix stable actuellement",
-    analysis: "Analyse Intel", loading: "Analyse..."
-  },
-  de: {
-    buy: "Gutes Geschäft", wait: "Warten", fair: "Fairer Preis",
-    reason_cheap: "Unter dem Marktdurchschnitt um",
-    reason_expensive: "Preis über dem Markt",
-    reason_fair: "Preis ist stabil",
-    analysis: "Smarte Analyse", loading: "Analyse..."
-  },
-  es: {
-    buy: "Buena Oferta", wait: "Espera", fair: "Precio Justo",
-    reason_cheap: "Bajo el promedio por",
-    reason_expensive: "Precio sobre el mercado",
-    reason_fair: "Precio estable ahora",
-    analysis: "Análisis Intel", loading: "Analizando..."
-  },
-  tr: {
-    buy: "Harika Fırsat", wait: "Bekle", fair: "Adil Fiyat",
-    reason_cheap: "Piyasa ortalamasının altında:",
-    reason_expensive: "Fiyat piyasanın üzerinde",
-    reason_fair: "Fiyat şu an istikrarlı",
-    analysis: "Akıllı Analiz", loading: "Analiz ediliyor..."
-  }
+  ar: {
+    buy: "صفقة ممتازة", wait: "انتظر", fair: "سعر عادل",
+    reason_cheap: "أقل من متوسط السوق بـ",
+    reason_expensive: "السعر أعلى من السوق",
+    reason_fair: "السعر مستقر حالياً",
+    analysis: "تحليل ذكي", loading: "جاري التحليل..."
+  },
+  en: {
+    buy: "Great Deal", wait: "Wait", fair: "Fair Price",
+    reason_cheap: "Below market average by",
+    reason_expensive: "Price is above market",
+    reason_fair: "Price is stable now",
+    analysis: "Smart Analysis", loading: "Analyzing..."
+  },
+  fr: {
+    buy: "Bonne Affaire", wait: "Attendez", fair: "Prix Justه",
+    reason_cheap: "Moins cher que la moyenne de",
+    reason_expensive: "Prix supérieur au marché",
+    reason_fair: "Prix stable actuellement",
+    analysis: "Analyse Intel", loading: "Analyse..."
+  },
+  de: {
+    buy: "Gutes Geschäft", wait: "Warten", fair: "Fairer Preis",
+    reason_cheap: "Unter dem Marktdurchschnitt um",
+    reason_expensive: "Preis über dem Markt",
+    reason_fair: "Preis ist stabil",
+    analysis: "Smarte Analyse", loading: "Analyse..."
+  },
+  es: {
+    buy: "Buena Oferta", wait: "Espera", fair: "Precio Justo",
+    reason_cheap: "Bajo el promedio por",
+    reason_expensive: "Precio sobre el mercado",
+    reason_fair: "Precio estable ahora",
+    analysis: "Análisis Intel", loading: "Analizando..."
+  },
+  tr: {
+    buy: "Harika Fırsat", wait: "Bekle", fair: "Adil Fiyat",
+    reason_cheap: "Piyasa ortalamasının altında:",
+    reason_expensive: "Fiyat piyasanın üzerinde",
+    reason_fair: "Fiyat şu an istikrarlı",
+    analysis: "Akıllı Analiz", loading: "Analiz ediliyor..."
+  }
 };
 
 /* ================= HELPERS ================= */
@@ -196,170 +197,146 @@ if (energy.hasFreePass !== true && energy.searchesUsed >= 3) {
    
    if (!q) return res.json({ results: [] });
 // ================= CACHE CHECK =================
+const cacheKey = `${q}_${lang}`;
 
-// ========== CACHE CHECK (MongoDB) ==========
-const cached = await SearchCache.findOne({ query: q, lang });
+if (searchCache.has(cacheKey)) {
+  const cached = searchCache.get(cacheKey).data;
 
-if (cached) {
-  return res.json({
-    cached: true,
-    results: cached.results
-  });
+  // 👇 نرسل الطاقة الحالية الحقيقية
+  cached.energy.left = energy.hasFreePass
+    ? '∞'
+    : Math.max(0, 3 - energy.searchesUsed);
+
+  return res.json(cached);
 }
 
+    try {
+        // ✅ استخدام SearchAPI مع محرك Google Shopping (الأكثر استقراراً)
+        const response = await axios.get('https://www.searchapi.io/api/v1/search', {
+            params: {
+                api_key: SEARCHAPI_KEY, // استخدام مفتاحك الأصلي
+                engine: "google_shopping",
+                q: q,
+                hl: lang === 'ar' ? 'ar' : 'en',
+                gl: 'us'
+            }
+        });
+
+        // استخراج النتائج
+        let rawResults = response.data?.shopping_results || [];
+let serperContext = [];
+
+// 👉 شرط واحد واضح: لو النتائج قليلة
+if (rawResults.length < 3) {
+  const serperRes = await axios.post(
+    'https://google.serper.dev/search',
+    { q, gl: 'us', hl: lang },
+    { headers: { 'X-API-KEY': SERPER_API_KEY } }
+  );
+
+  serperContext = serperRes.data?.organic || [];
+}
+        console.log(`✅ Found ${rawResults.length} items`);
+
+        // ✅ هنا كان الخطأ (Loop Syntax)، تم إصلاحه ليعمل بشكل سليم
+        const results = rawResults.map(item => {
+            const currentPrice = cleanPrice(item.price || item.extracted_price);
+
+            const standardizedItem = {
+                title: item.title,
+                price: item.price,
+                numericPrice: currentPrice,
+                link: finalizeUrl(item.product_link || item.link),
+                thumbnail: item.thumbnail || item.product_image,
+                source: 'Google Shopping'
+            };
+
+            // تشغيل منطق SageCore الخاص ب
+           const intelligenceRaw = SageCore(
+  standardizedItem,
+  rawResults,
+  serperContext,
+  {},
+  uid,
+  null
+) || {};
+           
+           let decisionTitle = TEXTS.fair;
+            let decisionReason = TEXTS.reason_fair;
+            let decisionEmoji = '⚖️';
+
+            const avg = Number(intelligenceRaw?.priceIntel?.average || 0);
+            const score = intelligenceRaw?.valueIntel?.score || 0;
+
+            if (avg > 0) {
+                if (currentPrice > avg * 1.1) {
+                    decisionTitle = TEXTS.wait;
+                    decisionReason = TEXTS.reason_expensive;
+                    decisionEmoji = '🤖';
+                } else if (currentPrice < avg * 0.95) {
+                    decisionTitle = TEXTS.buy;
+                    decisionReason = `${TEXTS.reason_cheap} ${score}%`;
+                    decisionEmoji = '🟢';
+                }
+            }
+
+            const intelligence = {
+                finalVerdict: { emoji: decisionEmoji, title: decisionTitle, reason: decisionReason },
+                priceIntel: intelligenceRaw.priceIntel || {},
+                valueIntel: intelligenceRaw.valueIntel || {},
+                forecastIntel: intelligenceRaw.forecastIntel || {},
+                trustIntel: intelligenceRaw.trustIntel || {}
+            };
+
+            const comparison = {
+                market_average: intelligence.priceIntel.average ? `$${intelligence.priceIntel.average}` : '—',
+                savings_percentage: intelligence.valueIntel.score || 0,
+                competitors: intelligence.valueIntel.competitors || rawResults.length
+            };
+
+            const coupons = generateCoupons(standardizedItem, intelligence);
+
+            return {
+                ...standardizedItem,
+                intelligence,
+                comparison,
+                coupons
+            };
+        });
+
+       // 🧠 ENERGY CONSUME (real search)
+if (energy.hasFreePass !== true) {
+  energy.searchesUsed += 1;
+  await energy.save();
+}
+
+const responseData = {
+  query: q,
+  results,
+  energy: {
+    used: energy.searchesUsed,
+    limit: energy.hasFreePass ? '∞' : 3,
+    left: energy.hasFreePass
+      ? '∞'
+      : Math.max(0, 3 - energy.searchesUsed)
+  }
+};
    
-   try {
-  /* =========================
-     1️⃣ SEARCHAPI (Google Shopping)
-     ========================= */
-  const response = await axios.get(
-    'https://www.searchapi.io/api/v1/search',
-    {
-      params: {
-        api_key: SEARCHAPI_KEY,
-        engine: 'google_shopping',
-        q,
-        hl: lang === 'ar' ? 'ar' : 'en',
-        gl: 'us'
-      }
+
+// حفظ في الكاش
+searchCache.set(cacheKey, {
+  time: Date.now(),
+  data: responseData
+});
+       
+       res.json(responseData);
+
+    } catch (err) {
+        console.error('❌ Search Error Details:', err.response?.data || err.message);
+        res.json({ error: 'Search Failed', results: [] });
     }
-  );
+});
 
-  let rawResults = response.data?.shopping_results || [];
-  let serperContext = [];
-
-  /* =========================
-     2️⃣ FALLBACK: SERPER
-     ========================= */
-  if (rawResults.length < 3) {
-    const serperRes = await axios.post(
-      'https://google.serper.dev/search',
-      { q, gl: 'us', hl: lang },
-      { headers: { 'X-API-KEY': SERPER_API_KEY } }
-    );
-
-    serperContext = serperRes.data?.organic || [];
-  }
-
-  console.log(`✅ Found ${rawResults.length} items`);
-
-  /* =========================
-     3️⃣ BUILD RESULTS + SAGECORE
-     ========================= */
-  const results = rawResults.map(item => {
-    const currentPrice = cleanPrice(item.price || item.extracted_price);
-
-    const standardizedItem = {
-      title: item.title,
-      price: item.price,
-      numericPrice: currentPrice,
-      link: finalizeUrl(item.product_link || item.link),
-      thumbnail: item.thumbnail || item.product_image,
-      source: 'Google Shopping'
-    };
-
-    const intelligenceRaw =
-      SageCore(
-        standardizedItem,
-        rawResults,
-        serperContext,
-        {},
-        uid,
-        null
-      ) || {};
-
-    let decisionTitle = TEXTS.fair;
-    let decisionReason = TEXTS.reason_fair;
-    let decisionEmoji = '⚖️';
-
-    const avg = Number(intelligenceRaw?.priceIntel?.average || 0);
-    const score = intelligenceRaw?.valueIntel?.score || 0;
-
-    if (avg > 0) {
-      if (currentPrice > avg * 1.1) {
-        decisionTitle = TEXTS.wait;
-        decisionReason = TEXTS.reason_expensive;
-        decisionEmoji = '🤖';
-      } else if (currentPrice < avg * 0.95) {
-        decisionTitle = TEXTS.buy;
-        decisionReason = `${TEXTS.reason_cheap} ${score}%`;
-        decisionEmoji = '🟢';
-      }
-    }
-
-    const intelligence = {
-      finalVerdict: {
-        emoji: decisionEmoji,
-        title: decisionTitle,
-        reason: decisionReason
-      },
-      priceIntel: intelligenceRaw.priceIntel || {},
-      valueIntel: intelligenceRaw.valueIntel || {},
-      forecastIntel: intelligenceRaw.forecastIntel || {},
-      trustIntel: intelligenceRaw.trustIntel || {}
-    };
-
-    return {
-      ...standardizedItem,
-      intelligence,
-      comparison: {
-        market_average: intelligence.priceIntel.average
-          ? `$${intelligence.priceIntel.average}`
-          : '—',
-        savings_percentage: intelligence.valueIntel.score || 0,
-        competitors:
-          intelligence.valueIntel.competitors || rawResults.length
-      },
-      coupons: generateCoupons(standardizedItem, intelligence)
-    };
-  });
-
-  /* =========================
-     4️⃣ ENERGY CONSUME (REAL SEARCH)
-     ========================= */
-  if (!energy.hasFreePass) {
-    energy.searchesUsed += 1;
-    await energy.save();
-  }
-
-  /* =========================
-     5️⃣ RESPONSE DATA
-     ========================= */
-  const responseData = {
-    query: q,
-    cached: false,
-    results,
-    energy: {
-      used: energy.searchesUsed,
-      limit: energy.hasFreePass ? '∞' : 3,
-      left: energy.hasFreePass
-        ? '∞'
-        : Math.max(0, 3 - energy.searchesUsed)
-    }
-  };
-
-  /* =========================
-     6️⃣ SAVE TO MONGODB CACHE
-     ========================= */
-  await SearchCache.create({
-    query: q,
-    lang,
-    results: responseData.results
-  });
-
-  return res.json(responseData);
-
-} catch (err) {
-  console.error(
-    '❌ Search Error Details:',
-    err.response?.data || err.message
-  );
-
-  return res.status(500).json({
-    error: 'Search Failed',
-    results: []
-  });
-}
 /* ================= ROUTES (ALERTS & WATCHLIST) ================= */
 // ✅ هذه الروابط بقيت كما هي لتعمل مع قاعدة بياناتك
 app.post('/alerts', async (req, res) => {

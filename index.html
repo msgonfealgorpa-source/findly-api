@@ -1628,13 +1628,7 @@ function update() { const d = dict[lang] || dict['ar']; const userName = local
     }
 
     // تشغيل التحديث عند تحميل الصفحة
-    // تشغيل الدالة فوراً إذا كان المستند جاهزاً
-if (document.readyState === 'complete' || document.readyState === 'interactive') {
-    update();
-} else {
-    document.addEventListener('DOMContentLoaded', update);
-}
-</script>
+    window.onload = update;
 </div>
 
 </body>

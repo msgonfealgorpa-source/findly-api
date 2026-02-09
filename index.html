@@ -1560,23 +1560,34 @@ function openAnalysisFromBtn(btn) {
         m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
     }
 
-function update() { const d = dict[lang] || dict['ar']; const userName = localStorage.getItem('fn') || (lang === 'ar' ? 'أيها الباحث' : 'Seeker'); document.getElementById('txt-energy').innerText = d.ui.energy; document.getElementById('greeting').innerText = d.ui.welcome + " " + userName; document.getElementById('txt-title').innerText = d.ui.title; document.getElementById('txt-sub').innerText = d.ui.sub; document.getElementById('txt-deep').innerText = d.ui.deep; document.getElementById('tag-cheap').innerText = d.ui.cheap; document.getElementById('tag-top').innerText = d.ui.top; document.getElementById('tag-new').innerText = d.ui.new;
-   // تحديث نصوص المودال  
-    document.getElementById('p-head').innerText = d.ui.p_head;  
-    document.getElementById('lbl-name').innerText = d.ui.lbl_name || "اسم المستخدم";  
-    document.getElementById('lbl-budget').innerText = d.ui.lbl_budget || "الميزانية ($)";  
+function update() {
+  const d = dict[lang] || dict['ar'];
+  const userName = localStorage.getItem('fn') || (lang === 'ar' ? 'أيها الباحث' : 'Seeker');
 
-    document.getElementById('cat-game').innerText = d.ui.game;    
-    document.getElementById('cat-beauty').innerText = d.ui.beauty;    
-    document.getElementById('cat-home').innerText = d.ui.home;    
-    document.getElementById('cat-c1').innerText = d.ui.c1;    
-    document.getElementById('cat-c2').innerText = d.ui.c2;    
-    document.getElementById('cat-c4').innerText = d.ui.c4;    
+  document.getElementById('txt-energy').innerText = d.ui.energy;
+  document.getElementById('greeting').innerText = d.ui.welcome + " " + userName;
+  document.getElementById('txt-title').innerText = d.ui.title;
+  document.getElementById('txt-sub').innerText = d.ui.sub;
+  document.getElementById('txt-deep').innerText = d.ui.deep;
+  document.getElementById('tag-cheap').innerText = d.ui.cheap;
+  document.getElementById('tag-top').innerText = d.ui.top;
+  document.getElementById('tag-new').innerText = d.ui.new;
 
-    document.getElementById('main-html').lang = lang;    
-    document.getElementById('main-html').dir = (lang === 'ar') ? 'rtl' : 'ltr';  
+  // تحديث نصوص المودال
+  document.getElementById('p-head').innerText = d.ui.p_head;
+  document.getElementById('lbl-name').innerText = d.ui.lbl_name || "اسم المستخدم";
+  document.getElementById('lbl-budget').innerText = d.ui.lbl_budget || "الميزانية ($)";
+
+  document.getElementById('cat-game').innerText = d.ui.game;
+  document.getElementById('cat-beauty').innerText = d.ui.beauty;
+  document.getElementById('cat-home').innerText = d.ui.home;
+  document.getElementById('cat-c1').innerText = d.ui.c1;
+  document.getElementById('cat-c2').innerText = d.ui.c2;
+  document.getElementById('cat-c4').innerText = d.ui.c4;
+
+  document.getElementById('main-html').lang = lang;
+  document.getElementById('main-html').dir = (lang === 'ar') ? 'rtl' : 'ltr';
 }
-    
   
     // دالة البحث الصوتي
     function startVoice() {

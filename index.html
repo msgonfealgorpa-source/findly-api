@@ -826,9 +826,14 @@
 
 <script>
     const API = "https://findly-api.onrender.com";
-      
-    let lang = localStorage.getItem('findly_lang') || 'ar';  
-    updateInviteText(lang);
+    function setLang(l) {
+  lang = l;
+  localStorage.setItem('findly_lang', l);
+
+  update();              // تحديث كل نصوص الواجهة
+  updateInviteText(l);   // تحديث بطاقة "ادعُ أصدقاءك"
+    }
+    
     let savedAttempts = localStorage.getItem('findly_attempts');  
     let attempts = (savedAttempts !== null) ? parseInt(savedAttempts) : 3;  
     if (savedAttempts === null) localStorage.setItem('findly_attempts', 3);  

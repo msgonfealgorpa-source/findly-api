@@ -529,7 +529,35 @@
 
 
 
-        
+       .sage-quick-brains {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.brain-item {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 8px 10px;
+  font-size: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+}
+
+.brain-item span {
+  opacity: 0.85;
+}
+
+.brain-item.good { border-color: #10b981; }
+.brain-item.buy { border-color: #22c55e; }
+.brain-item.wait { border-color: #f59e0b; }
+.brain-item.safe { border-color: #3b82f6; }
+.brain-item.risk { border-color: #ef4444; }
+.brain-item.learn { border-color: #8b5cf6; } 
       
     </style>
 </head>
@@ -1163,6 +1191,50 @@ ${budgetBadge}
   }
 </div>
 
+<!-- Sage Quick Brains -->
+<div class="sage-quick-brains">
+
+  <div class="brain-item good">
+    💰 السعر
+    <span>${priceIntel.score >= 70 ? 'ممتاز' : priceIntel.score >= 50 ? 'جيد' : 'ضعيف'}</span>
+  </div>
+
+  <div class="brain-item ${
+    forecast.trend === 'down' ? 'wait' :
+    forecast.trend === 'up' ? 'buy' : 'neutral'
+  }">
+    📈 التوقيت
+    <span>
+      ${
+        forecast.trend === 'down'
+          ? 'انتظر'
+          : forecast.trend === 'up'
+          ? 'قد يرتفع'
+          : 'مستقر'
+      }
+    </span>
+  </div>
+
+  <div class="brain-item ${
+    trust.riskScore > 50 ? 'risk' : 'safe'
+  }">
+    🛡️ الثقة
+    <span>
+      ${trust.riskScore > 50 ? 'مخاطرة' : 'آمن'}
+    </span>
+  </div>
+
+  <div class="brain-item learn">
+    🧠 السلوك
+    <span>
+      ${valueIntel.learningBoost > 0 ? 'مناسب لك' : 'عام'}
+    </span>
+  </div>
+
+</div>
+
+
+    
 <div class="analysis-engine">
   <span class="analysis-label">
     ${verdict.emoji || '🤖'} ${verdict.title || ''}
@@ -1240,16 +1312,14 @@ ${bestCoupon ? `
 </div>
 
 
-    
-  <button class="action-btn analyze-btn"
     onclick="openAnalysisModal('${encodeURIComponent(JSON.stringify({
-      title: verdict.title,
-      reason: verdict.reason,
-      average: priceIntel.average,
-      score: valueIntel.score
-    }))}')">
-    ${T.analyze}
-  </button>
+  verdict,
+  priceIntel,
+  valueIntel,
+  forecastIntel: forecast,
+  trustIntel: trust
+}))}')"
+
 
   <button class="action-btn watch-btn"
     onclick="addToWatch(
@@ -1313,15 +1383,35 @@ ${bestCoupon ? `
     const body = document.getElementById('analysis-content-body');
 
     body.innerHTML = `
-      <p><b>التقييم:</b> ${data.title || '—'}</p>
-      <p style="opacity:.8">${data.reason || '—'}</p>
-      <hr>
-      <p><b>متوسط السوق:</b> ${data.average}</p>
-      <p><b>كفاءة الصفقة:</b> ${data.score}%</p>
-    `;
+<h3>🧠 تحليل Sage الذكي</h3>
+<hr>
 
-    modal.style.display = 'flex';
+<p><strong>📊 السوق:</strong></p>
+<ul>
+  <li>متوسط السعر: $${data.priceIntel?.average || '—'}</li>
+  <li>عدد المنافسين: ${data.valueIntel?.competitors || 0}</li>
+</ul>
+
+<p><strong>💎 الصفقة:</strong></p>
+<ul>
+  <li>درجة الصفقة: ${data.valueIntel?.score || 0}%</li>
+  <li>سبب القرار: ${data.verdict?.reason || 'تحليل سوقي ذكي'}</li>
+</ul>
+
+<p><strong>🔮 التوقع:</strong></p>
+<ul>
+  <li>الاتجاه: ${data.forecastIntel?.trend || '—'}</li>
+  <li>سعر متوقع: $${data.forecastIntel?.expectedPrice || '—'}</li>
+  <li>ثقة التوقع: ${Math.round((data.forecastIntel?.confidence || 0) * 100)}%</li>
+</ul>
+
+<p><strong>⚠️ الثقة والمخاطر:</strong></p>
+${
+  data.trustIntel?.warnings?.length
+    ? `<ul>${data.trustIntel.warnings.map(w => `<li>${w}</li>`).join('')}</ul>`
+    : `<p>لا توجد مخاطر واضحة</p>`
 }
+`;
     
     // 3. دوال التحكم في الواجهة واللغة
     function saveSet() {

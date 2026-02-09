@@ -1638,7 +1638,12 @@ function openAnalysisFromBtn(btn) {
     }
 
     // تشغيل التحديث عند تحميل الصفحة
-    window.onload = update;
+    // تشغيل الدالة فوراً إذا كان المستند جاهزاً
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    update();
+} else {
+    document.addEventListener('DOMContentLoaded', update);
+}
 </script>
 </div>
 

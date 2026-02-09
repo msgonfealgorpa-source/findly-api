@@ -559,6 +559,30 @@
 .brain-item.risk { border-color: #ef4444; }
 .brain-item.learn { border-color: #8b5cf6; } 
       
+   
+    .invite-box {
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 18px;
+  background: var(--bg-card);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.15);
+}
+
+.invite-box h4 {
+  margin-bottom: 8px;
+  color: var(--primary);
+}
+
+.invite-box p {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+    
+    
     </style>
 </head>
 <body>
@@ -642,6 +666,20 @@
         <button class="send-btn" onclick="runSearch()"><i class="fa-solid fa-magnifying-glass"></i></button>
     </div>
 
+
+    <div class="invite-box">
+  <h4>🤝 ادعُ أصدقاءك</h4>
+  <p>
+    نحن نعمل على نظام مكافآت ذكي.<br>
+    <strong>الداعون الأوائل</strong> سيحصلون على مزايا خاصة قريبًا.
+  </p>
+
+  <button class="action-btn buy" onclick="copyInvite()">
+    🔗 نسخ رابط الدعوة
+  </button>
+    </div>
+
+    
     <div class="ai-options">
         <div class="ai-tag" onclick="quickFilter('cheap')"><i class="fa-solid fa-sack-dollar"></i> <span id="tag-cheap"></span></div>
         <div class="ai-tag" onclick="quickFilter('top')"><i class="fa-solid fa-star"></i> <span id="tag-top"></span></div>
@@ -1382,6 +1420,18 @@ ${bestCoupon ? `
     }
 
 
+function getInviteLink() {
+  const uid = localStorage.getItem('findly_uid') || 'guest';
+  return `${location.origin}/?ref=${uid}`;
+}
+
+function copyInvite() {
+  const link = getInviteLink();
+  navigator.clipboard.writeText(link);
+  alert('تم نسخ رابط الدعوة ✨');
+}
+
+    
 
 function openAnalysisFromBtn(btn) {
   const data = {

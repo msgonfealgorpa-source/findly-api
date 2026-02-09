@@ -1312,7 +1312,7 @@ ${bestCoupon ? `
 </div>
 
 
-    <button
+<button
   class="action-btn analyze-btn"
   data-verdict="${encodeURIComponent(JSON.stringify(verdict))}"
   data-price="${encodeURIComponent(JSON.stringify(priceIntel))}"
@@ -1381,7 +1381,9 @@ ${bestCoupon ? `
         }
     }
 
-   function openAnalysisFromBtn(btn) {
+
+
+function openAnalysisFromBtn(btn) {
   const data = {
     verdict: JSON.parse(decodeURIComponent(btn.dataset.verdict)),
     priceIntel: JSON.parse(decodeURIComponent(btn.dataset.price)),
@@ -1390,39 +1392,44 @@ ${bestCoupon ? `
     trustIntel: JSON.parse(decodeURIComponent(btn.dataset.trust))
   };
 
-  openAnalysisModal(data);
+  const modal = document.getElementById('analysis-modal');
+  const body = document.getElementById('analysis-content-body');
+
+  body.innerHTML = `
+    <h3>🧠 تحليل Sage الذكي</h3>
+    <hr>
+
+    <p><strong>📊 السوق</strong></p>
+    <ul>
+      <li>متوسط السعر: $${data.priceIntel.average ?? '—'}</li>
+      <li>عدد المنافسين: ${data.valueIntel.competitors ?? 0}</li>
+    </ul>
+
+    <p><strong>💎 الصفقة</strong></p>
+    <ul>
+      <li>درجة الصفقة: ${data.valueIntel.score ?? 0}%</li>
+      <li>${data.priceIntel.label ?? ''}</li>
+    </ul>
+
+    <p><strong>🔮 التوقع</strong></p>
+    <ul>
+      <li>الاتجاه: ${data.forecastIntel.trend}</li>
+      <li>سعر متوقع: $${data.forecastIntel.expectedPrice}</li>
+      <li>ثقة: ${Math.round(data.forecastIntel.confidence * 100)}%</li>
+    </ul>
+
+    <p><strong>⚠️ الثقة والمخاطر</strong></p>
+    ${
+      data.trustIntel.warnings.length
+        ? `<ul>${data.trustIntel.warnings.map(w => `<li>${w}</li>`).join('')}</ul>`
+        : `<p>لا توجد مخاطر واضحة</p>`
+    }
+  `;
+
+  modal.style.display = 'flex';
 }
 
-    body.innerHTML = `
-<h3>🧠 تحليل Sage الذكي</h3>
-<hr>
 
-<p><strong>📊 السوق:</strong></p>
-<ul>
-  <li>متوسط السعر: $${data.priceIntel?.average || '—'}</li>
-  <li>عدد المنافسين: ${data.valueIntel?.competitors || 0}</li>
-</ul>
-
-<p><strong>💎 الصفقة:</strong></p>
-<ul>
-  <li>درجة الصفقة: ${data.valueIntel?.score || 0}%</li>
-  <li>سبب القرار: ${data.verdict?.reason || 'تحليل سوقي ذكي'}</li>
-</ul>
-
-<p><strong>🔮 التوقع:</strong></p>
-<ul>
-  <li>الاتجاه: ${data.forecastIntel?.trend || '—'}</li>
-  <li>سعر متوقع: $${data.forecastIntel?.expectedPrice || '—'}</li>
-  <li>ثقة التوقع: ${Math.round((data.forecastIntel?.confidence || 0) * 100)}%</li>
-</ul>
-
-<p><strong>⚠️ الثقة والمخاطر:</strong></p>
-${
-  data.trustIntel?.warnings?.length
-    ? `<ul>${data.trustIntel.warnings.map(w => `<li>${w}</li>`).join('')}</ul>`
-    : `<p>لا توجد مخاطر واضحة</p>`
-}
-`;
     
     // 3. دوال التحكم في الواجهة واللغة
     function saveSet() {

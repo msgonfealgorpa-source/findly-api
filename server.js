@@ -196,20 +196,19 @@ if (energy.hasFreePass !== true && energy.searchesUsed >= 3) {
    
    if (!q) return res.json({ results: [] });
 // ================= CACHE CHECK =================
-const cacheKey = `${q}_${lang}`;
 
-if (searchCache.has(cacheKey)) {
-  const cached = searchCache.get(cacheKey).data;
+// ========== CACHE CHECK (MongoDB) ==========
+const cached = await SearchCache.findOne({ query: q, lang });
 
-  // 👇 نرسل الطاقة الحالية الحقيقية
-  cached.energy.left = energy.hasFreePass
-    ? '∞'
-    : Math.max(0, 3 - energy.searchesUsed);
-
-  return res.json(cached);
+if (cached) {
+  return res.json({
+    cached: true,
+    results: cached.results
+  });
 }
 
-    try {
+   
+   try {
         // ✅ استخدام SearchAPI مع محرك Google Shopping (الأكثر استقراراً)
         const response = await axios.get('https://www.searchapi.io/api/v1/search', {
             params: {

@@ -1560,29 +1560,25 @@ function openAnalysisFromBtn(btn) {
         m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
     }
 
-    
 function update() {
     try {
-        // 1. فحص وجود القاموس
-        if (typeof dict === 'undefined') throw new Error("القاموس dict غير موجود - تأكد من عدم وجود خطأ في الكود قبله");
+        // 1. التأكد من وجود القاموس
+        if (typeof dict === 'undefined') return;
         
-        // 2. فحص اللغة
         const d = dict[lang] || dict['ar'];
-        if (!d) throw new Error("بيانات اللغة مفقودة: " + lang);
+        if (!d) return;
 
         const userName = localStorage.getItem('fn') || (lang === 'ar' ? 'أيها الباحث' : 'Seeker');
         
-        // 3. دالة آمنة لتعبئة النصوص (تمنع توقف الكود إذا اختفى عنصر واحد)
+        // 2. دالة داخلية للتأكد من وجود العنصر قبل الكتابة فيه (تمنع توقف الكود)
         const safeSet = (id, text) => {
             const el = document.getElementById(id);
             if (el) {
                 el.innerText = text;
-            } else {
-                console.warn("عنصر مفقود: " + id); // لن يوقف الكود
             }
         };
 
-        // تعبئة البيانات بأمان
+        // 3. تحديث النصوص الأساسية
         safeSet('txt-energy', d.ui.energy);
         safeSet('greeting', d.ui.welcome + " " + userName);
         safeSet('txt-title', d.ui.title);
@@ -1593,31 +1589,36 @@ function update() {
         safeSet('tag-top', d.ui.top);
         safeSet('tag-new', d.ui.new);
         
+        // 4. تحديث نصوص الملف الشخصي
         safeSet('p-head', d.ui.p_head);
-        safeSet('lbl-name', d.ui.lbl_name || "اسم المستخدم");
-        safeSet('lbl-budget', d.ui.lbl_budget || "الميزانية ($)");
+        safeSet('lbl-name', d.ui.lbl_name || (lang === 'ar' ? "اسم المستخدم" : "Username"));
+        safeSet('lbl-budget', d.ui.lbl_budget || (lang === 'ar' ? "الميزانية ($)" : "Budget ($)"));
 
+        // 5. تحديث الأقسام (Categories)
         safeSet('cat-game', d.ui.game);
         safeSet('cat-beauty', d.ui.beauty);
         safeSet('cat-home', d.ui.home);
         safeSet('cat-c1', d.ui.c1);
         safeSet('cat-c2', d.ui.c2);
         safeSet('cat-c4', d.ui.c4);
-        
-        safeSet('txt-watch-title', d.ui.watchTitle || "قائمة المراقبة");
 
-        // إعدادات الصفحة
+        // 6. اتجاه الصفحة واللغة
         const mainHtml = document.getElementById('main-html');
         if (mainHtml) {
             mainHtml.lang = lang;
             mainHtml.dir = (lang === 'ar') ? 'rtl' : 'ltr';
         }
+        
+        // تحديث نص الدعوة (Invite Text)
+        if (typeof updateInviteText === 'function') {
+            updateInviteText(lang);
+        }
 
     } catch (error) {
-        // هذه الرسالة ستظهر لك على الشاشة وتخبرك بالخطأ
-        alert("⚠️ خطأ في الكود: " + error.message);
+        console.error("Update Error:", error);
     }
 }
+    
     // دالة البحث الصوتي
     function startVoice() {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;

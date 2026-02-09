@@ -1460,15 +1460,13 @@ ${bestCoupon ? `
         }
     }
 
+function updateInviteText(lang) {
+  const el = document.getElementById("inviteText");
+  if (!el) return;
 
-function getInviteLink() {
-  const uid = localStorage.getItem('findly_uid') || 'guest';
-
-  // يدعم GitHub Pages + Render + Localhost
-  const basePath = location.origin + location.pathname.replace(/\/$/, '');
-
-  return `${basePath}/?ref=${uid}`;
+  el.textContent = INVITE_TEXT[lang] || INVITE_TEXT.ar;
 }
+
 
 function copyInvite() {
   const link = getInviteLink();

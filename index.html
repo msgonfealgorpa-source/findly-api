@@ -560,26 +560,56 @@
 .brain-item.learn { border-color: #8b5cf6; } 
       
    
-    .invite-box {
-  max-width: 600px;
-  margin: 20px auto;
-  padding: 18px;
-  background: var(--bg-card);
-  border: 1px solid var(--glass-border);
-  border-radius: 20px;
-  text-align: center;
-  box-shadow: 0 0 20px rgba(139, 92, 246, 0.15);
+.invite-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(135deg, #1f1b3a, #2a225c);
+  border: 1px solid rgba(138, 99, 255, 0.35);
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin-top: 12px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.invite-box h4 {
-  margin-bottom: 8px;
-  color: var(--primary);
+.invite-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(138, 99, 255, 0.25);
 }
 
-.invite-box p {
-  font-size: 0.9rem;
-  color: var(--text-muted);
-  line-height: 1.6;
+.invite-icon {
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.invite-text {
+  overflow: hidden;
+  width: 100%;
+}
+
+.invite-marquee {
+  white-space: nowrap;
+  overflow: hidden;
+  position: relative;
+}
+
+.invite-marquee span {
+  display: inline-block;
+  padding-left: 100%;
+  animation: invite-scroll 12s linear infinite;
+  font-size: 14px;
+  color: #d6ccff;
+}
+
+@keyframes invite-scroll {
+  from {
+    transform: translateX(0%);
+  }
+  to {
+    transform: translateX(-100%);
+  }
 }
     
     
@@ -666,18 +696,17 @@
         <button class="send-btn" onclick="runSearch()"><i class="fa-solid fa-magnifying-glass"></i></button>
     </div>
 
+<div class="invite-card" onclick="copyInvite()">
+  <div class="invite-icon">🚀</div>
 
-    <div class="invite-box">
-  <h4>🤝 ادعُ أصدقاءك</h4>
-  <p>
-    نحن نعمل على نظام مكافآت ذكي.<br>
-    <strong>الداعون الأوائل</strong> سيحصلون على مزايا خاصة قريبًا.
-  </p>
-
-  <button class="action-btn buy" onclick="copyInvite()">
-    🔗 نسخ رابط الدعوة
-  </button>
+  <div class="invite-text">
+    <div class="invite-marquee">
+      <span>
+        ادعُ أصدقاءك الآن ✨ — ميزات ومكافآت قادمة قريبًا 🎁 — كن من الأوائل 🚀
+      </span>
     </div>
+  </div>
+</div>
 
     
     <div class="ai-options">

@@ -1312,15 +1312,19 @@ ${bestCoupon ? `
 </div>
 
 
-    onclick="openAnalysisModal('${encodeURIComponent(JSON.stringify({
-  verdict,
-  priceIntel,
-  valueIntel,
-  forecastIntel: forecast,
-  trustIntel: trust
-}))}')"
+    <button
+  class="action-btn analyze-btn"
+  data-verdict="${encodeURIComponent(JSON.stringify(verdict))}"
+  data-price="${encodeURIComponent(JSON.stringify(priceIntel))}"
+  data-value="${encodeURIComponent(JSON.stringify(valueIntel))}"
+  data-forecast="${encodeURIComponent(JSON.stringify(forecast))}"
+  data-trust="${encodeURIComponent(JSON.stringify(trust))}"
+  onclick="openAnalysisFromBtn(this)"
+>
+  ${T.analyze}
+</button>
 
-
+  
   <button class="action-btn watch-btn"
     onclick="addToWatch(
       '${(p.title || '').replace(/'/g, '')}',
@@ -1377,10 +1381,17 @@ ${bestCoupon ? `
         }
     }
 
-   function openAnalysisModal(encoded) {
-    const data = JSON.parse(decodeURIComponent(encoded));
-    const modal = document.getElementById('analysis-modal');
-    const body = document.getElementById('analysis-content-body');
+   function openAnalysisFromBtn(btn) {
+  const data = {
+    verdict: JSON.parse(decodeURIComponent(btn.dataset.verdict)),
+    priceIntel: JSON.parse(decodeURIComponent(btn.dataset.price)),
+    valueIntel: JSON.parse(decodeURIComponent(btn.dataset.value)),
+    forecastIntel: JSON.parse(decodeURIComponent(btn.dataset.forecast)),
+    trustIntel: JSON.parse(decodeURIComponent(btn.dataset.trust))
+  };
+
+  openAnalysisModal(data);
+}
 
     body.innerHTML = `
 <h3>🧠 تحليل Sage الذكي</h3>

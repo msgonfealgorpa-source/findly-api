@@ -694,7 +694,14 @@
     </div>
 
 
+<div class="invite-card" onclick="copyInvite()">
+  <div class="invite-icon">🚀</div>
 
+  <div class="invite-text" id="inviteText">
+    ادعُ أصدقاءك الآن ✨ — ميزات ومكافآت قادمة قريبًا 🎁 — كن من الأوائل 🚀
+  </div>
+</div>
+    
     
     <div class="ai-options">
         <div class="ai-tag" onclick="quickFilter('cheap')"><i class="fa-solid fa-sack-dollar"></i> <span id="tag-cheap"></span></div>
@@ -710,12 +717,12 @@
         <div class="cat-card" onclick="quickSearch('لابتوب')"><i class="fa-solid fa-laptop"></i><span id="cat-c2"></span></div>
         <div class="cat-card" onclick="quickSearch('ساعات')"><i class="fa-solid fa-stopwatch"></i><span id="cat-c4"></span></div>
     </div>
-</div>
+
 
 <a href="privacy.html">سياسة الخصوصية</a>
 <a href="terms.html">شروط الاستخدام</a>
 <a href="about.html">من نحن</a>
- </div>
+ 
    
     <div id="status" style="display:none; color:var(--primary); font-weight:bold; margin-top:30px; font-size: 1.1rem;"></div>
     <div id="results"></div>
@@ -749,7 +756,7 @@
     </div>
 </div>
 
-<script> type="module">
+<script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-analytics.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
@@ -819,12 +826,15 @@
 
 <script>
     const API = "https://findly-api.onrender.com";
-let lang = localStorage.getItem('findly_lang') || 'ar';    
-let savedAttempts = localStorage.getItem('findly_attempts');    
-let attempts = (savedAttempts !== null) ? parseInt(savedAttempts) : 3;    
-if (savedAttempts === null) localStorage.setItem('findly_attempts', 3);    
+      
+    let lang = localStorage.getItem('findly_lang') || 'ar';  
+    updateInviteText(lang);
+    let savedAttempts = localStorage.getItem('findly_attempts');  
+    let attempts = (savedAttempts !== null) ? parseInt(savedAttempts) : 3;  
+    if (savedAttempts === null) localStorage.setItem('findly_attempts', 3);  
 
-let watchList = JSON.parse(localStorage.getItem('findly_watch')) || [];   
+    let watchList = JSON.parse(localStorage.getItem('findly_watch')) || [];  
+
 
     const dict = {
   ar: {
@@ -1047,7 +1057,14 @@ let watchList = JSON.parse(localStorage.getItem('findly_watch')) || [];
 };
     
 
-
+const INVITE_TEXT = {
+  ar: "ادعُ أصدقاءك الآن ✨ — ميزات ومكافآت قادمة قريبًا 🎁 — كن من الأوائل 🚀",
+  en: "Invite your friends now ✨ — features & rewards coming soon 🎁 — be among the first 🚀",
+  fr: "Invitez vos amis maintenant ✨ — fonctionnalités et récompenses bientôt 🎁 — soyez parmi les premiers 🚀",
+  de: "Lade jetzt deine Freunde ein ✨ — neue Funktionen & Belohnungen bald 🎁 — sei unter den Ersten 🚀",
+  es: "Invita a tus amigos ahora ✨ — funciones y recompensas próximamente 🎁 — sé de los primeros 🚀",
+  tr: "Arkadaşlarını şimdi davet et ✨ — yakında özellikler ve ödüller 🎁 — ilklerden ol 🚀"
+};
 
     
     const i18n = {
@@ -1066,6 +1083,14 @@ let watchList = JSON.parse(localStorage.getItem('findly_watch')) || [];
 
 // رابط الدفع الذي أنشأناه
 
+    
+
+function updateInviteText(lang) {
+    const el = document.getElementById("inviteText");
+  if (!el) return;
+
+  el.textContent = INVITE_TEXT[lang] || INVITE_TEXT.ar;
+}
     
 function openUpgrade() {
   const uid =
@@ -1147,8 +1172,8 @@ function openUpgrade() {
 
     if (data.error === 'ENERGY_EMPTY') {
   const status = document.getElementById('status');
-  const lang = window.currentLang || 'ar'; // حسب لغتك الحالية
-  const t = i18n[lang] || i18n.ar;
+  const currentLang = lang || 'ar'; 
+  const t = i18n[currentLang] || i18n.ar;
 
   status.style.display = 'block';
   status.innerHTML = `
@@ -1245,7 +1270,6 @@ ${budgetBadge}
   }
 </div>
 
-<!-- Sage Quick Brains -->
 <div class="sage-quick-brains">
 
   <div class="brain-item good">
@@ -1347,7 +1371,7 @@ ${bestCoupon ? `
       ? `<ul>${trust.warnings.map(w => `<li>${w}</li>`).join('')}</ul>`
       : `<p>✅ ${T.no_risks}</p>`
   }
-
+</div>
 
 
 <div class="actions">
@@ -1435,13 +1459,15 @@ ${bestCoupon ? `
         }
     }
 
-function updateInviteText(lang) {
-  const el = document.getElementById("inviteText");
-  if (!el) return;
 
-  el.textContent = INVITE_TEXT[lang] || INVITE_TEXT.ar;
+function getInviteLink() {
+  const uid = localStorage.getItem('findly_uid') || 'guest';
+
+  // يدعم GitHub Pages + Render + Localhost
+  const basePath = location.origin + location.pathname.replace(/\/$/, '');
+
+  return `${basePath}/?ref=${uid}`;
 }
-
 
 function copyInvite() {
   const link = getInviteLink();
@@ -1533,35 +1559,34 @@ function openAnalysisFromBtn(btn) {
         m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
     }
 
-function update() {
-  const d = dict[lang] || dict['ar'];
-  const userName = localStorage.getItem('fn') || (lang === 'ar' ? 'أيها الباحث' : 'Seeker');
+    function update() {
+        const d = dict[lang] || dict['ar'];
+        const userName = localStorage.getItem('fn') || (lang === 'ar' ? 'أيها الباحث' : 'Seeker');
+        document.getElementById('txt-energy').innerText = d.ui.energy;  
+        document.getElementById('greeting').innerText = d.ui.welcome + " " + userName;  
+        document.getElementById('txt-title').innerText = d.ui.title;  
+        document.getElementById('txt-sub').innerText = d.ui.sub;  
+        document.getElementById('txt-deep').innerText = d.ui.deep;  
+        document.getElementById('tag-cheap').innerText = d.ui.cheap;  
+        document.getElementById('tag-top').innerText = d.ui.top;  
+        document.getElementById('tag-new').innerText = d.ui.new;  
+        
+        // تحديث نصوص المودال
+        document.getElementById('p-head').innerText = d.ui.p_head;
+        document.getElementById('lbl-name').innerText = d.ui.lbl_name || "اسم المستخدم";
+        document.getElementById('lbl-budget').innerText = d.ui.lbl_budget || "الميزانية ($)";
 
-  document.getElementById('txt-energy').innerText = d.ui.energy;
-  document.getElementById('greeting').innerText = d.ui.welcome + " " + userName;
-  document.getElementById('txt-title').innerText = d.ui.title;
-  document.getElementById('txt-sub').innerText = d.ui.sub;
-  document.getElementById('txt-deep').innerText = d.ui.deep;
-  document.getElementById('tag-cheap').innerText = d.ui.cheap;
-  document.getElementById('tag-top').innerText = d.ui.top;
-  document.getElementById('tag-new').innerText = d.ui.new;
+        document.getElementById('cat-game').innerText = d.ui.game;  
+        document.getElementById('cat-beauty').innerText = d.ui.beauty;  
+        document.getElementById('cat-home').innerText = d.ui.home;  
+        document.getElementById('cat-c1').innerText = d.ui.c1;  
+        document.getElementById('cat-c2').innerText = d.ui.c2;  
+        document.getElementById('cat-c4').innerText = d.ui.c4;  
 
-  // تحديث نصوص المودال
-  document.getElementById('p-head').innerText = d.ui.p_head;
-  document.getElementById('lbl-name').innerText = d.ui.lbl_name || "اسم المستخدم";
-  document.getElementById('lbl-budget').innerText = d.ui.lbl_budget || "الميزانية ($)";
+        document.getElementById('main-html').lang = lang;  
+        document.getElementById('main-html').dir = (lang === 'ar') ? 'rtl' : 'ltr';
+    }
 
-  document.getElementById('cat-game').innerText = d.ui.game;
-  document.getElementById('cat-beauty').innerText = d.ui.beauty;
-  document.getElementById('cat-home').innerText = d.ui.home;
-  document.getElementById('cat-c1').innerText = d.ui.c1;
-  document.getElementById('cat-c2').innerText = d.ui.c2;
-  document.getElementById('cat-c4').innerText = d.ui.c4;
-
-  document.getElementById('main-html').lang = lang;
-  document.getElementById('main-html').dir = (lang === 'ar') ? 'rtl' : 'ltr';
-}
-  
     // دالة البحث الصوتي
     function startVoice() {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -1611,12 +1636,8 @@ function update() {
         }
     }
 
-
-    
     // تشغيل التحديث عند تحميل الصفحة
-window.onload = update;
-<script
-</div>
-
+    window.onload = update;
+</script>
 </body>
 </html>

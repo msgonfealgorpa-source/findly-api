@@ -694,14 +694,7 @@
     </div>
 
 
-<div class="invite-card" onclick="copyInvite()">
-  <div class="invite-icon">🚀</div>
 
-  <div class="invite-text" id="inviteText">
-    ادعُ أصدقاءك الآن ✨ — ميزات ومكافآت قادمة قريبًا 🎁 — كن من الأوائل 🚀
-  </div>
-</div>
-    
     
     <div class="ai-options">
         <div class="ai-tag" onclick="quickFilter('cheap')"><i class="fa-solid fa-sack-dollar"></i> <span id="tag-cheap"></span></div>
@@ -1054,15 +1047,7 @@ let watchList = JSON.parse(localStorage.getItem('findly_watch')) || [];
 };
     
 
-const dict = { 
-  ar: "ادعُ أصدقاءك الآن ✨ — ميزات ومكافآت قادمة قريبًا 🎁 — كن من الأوائل 🚀",
-  en: "Invite your friends now ✨ — features & rewards coming soon 🎁 — be among the first 🚀",
-  fr: "Invitez vos amis maintenant ✨ — fonctionnalités et récompenses bientôt 🎁 — soyez parmi les premiers 🚀",
-  de: "Lade jetzt deine Freunde ein ✨ — neue Funktionen & Belohnungen bald 🎁 — sei unter den Ersten 🚀",
-  es: "Invita a tus amigos ahora ✨ — funciones y recompensas próximamente 🎁 — sé de los primeros 🚀",
-  tr: "Arkadaşlarını şimdi davet et ✨ — yakında özellikler ve ödüller 🎁 — ilklerden ol 🚀"
 
-};
 
     
     const i18n = {
@@ -1626,12 +1611,7 @@ function update() {
         }
     }
 
-function updateInviteText(lang) {
-  const el = document.getElementById("inviteText");
-  if (!el) return;
 
-  el.textContent = INVITE_TEXT[lang] || INVITE_TEXT.ar;
-}
     
     // تشغيل التحديث عند تحميل الصفحة
 window.onload = update;

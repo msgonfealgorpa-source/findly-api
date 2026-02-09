@@ -826,20 +826,12 @@
 
 <script>
     const API = "https://findly-api.onrender.com";
-    function setLang(l) {
-  lang = l;
-  localStorage.setItem('findly_lang', l);
+let lang = localStorage.getItem('findly_lang') || 'ar';    
+let savedAttempts = localStorage.getItem('findly_attempts');    
+let attempts = (savedAttempts !== null) ? parseInt(savedAttempts) : 3;    
+if (savedAttempts === null) localStorage.setItem('findly_attempts', 3);    
 
-  update();              // تحديث كل نصوص الواجهة
-  updateInviteText(l);   // تحديث بطاقة "ادعُ أصدقاءك"
-    }
-    
-    let savedAttempts = localStorage.getItem('findly_attempts');  
-    let attempts = (savedAttempts !== null) ? parseInt(savedAttempts) : 3;  
-    if (savedAttempts === null) localStorage.setItem('findly_attempts', 3);  
-
-    let watchList = JSON.parse(localStorage.getItem('findly_watch')) || [];  
-
+let watchList = JSON.parse(localStorage.getItem('findly_watch')) || [];   
 
     const dict = {
   ar: {
@@ -1062,13 +1054,15 @@
 };
     
 
-const INVITE_TEXT = {
+const dict = { 
   ar: "ادعُ أصدقاءك الآن ✨ — ميزات ومكافآت قادمة قريبًا 🎁 — كن من الأوائل 🚀",
   en: "Invite your friends now ✨ — features & rewards coming soon 🎁 — be among the first 🚀",
   fr: "Invitez vos amis maintenant ✨ — fonctionnalités et récompenses bientôt 🎁 — soyez parmi les premiers 🚀",
   de: "Lade jetzt deine Freunde ein ✨ — neue Funktionen & Belohnungen bald 🎁 — sei unter den Ersten 🚀",
   es: "Invita a tus amigos ahora ✨ — funciones y recompensas próximamente 🎁 — sé de los primeros 🚀",
   tr: "Arkadaşlarını şimdi davet et ✨ — yakında özellikler ve ödüller 🎁 — ilklerden ol 🚀"
+}
+    }
 };
 
     
@@ -1088,14 +1082,6 @@ const INVITE_TEXT = {
 
 // رابط الدفع الذي أنشأناه
 
-    
-
-function updateInviteText(lang) {
-    const el = document.getElementById("inviteText");
-  if (!el) return;
-
-  el.textContent = INVITE_TEXT[lang] || INVITE_TEXT.ar;
-}
     
 function openUpgrade() {
   const uid =

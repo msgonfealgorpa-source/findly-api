@@ -696,10 +696,9 @@
 <div class="invite-card" onclick="copyInvite()">
   <div class="invite-icon">🚀</div>
 
-  <div class="invite-text">
-    ادعُ أصدقاءك الآن ✨ — ميزات ومكافآت قادمة قريبًا 🎁 — كن من الأوائل 🚀
+  <div class="invite-text" id="inviteText">
+  ادعُ أصدقاءك الآن ✨ — ميزات ومكافآت قادمة قريبًا 🎁 — كن من الأوائل 🚀
   </div>
-</div>
     
     <div class="ai-options">
         <div class="ai-tag" onclick="quickFilter('cheap')"><i class="fa-solid fa-sack-dollar"></i> <span id="tag-cheap"></span></div>
@@ -826,6 +825,7 @@
     const API = "https://findly-api.onrender.com";
       
     let lang = localStorage.getItem('findly_lang') || 'ar';  
+    updateInviteText(lang);
     let savedAttempts = localStorage.getItem('findly_attempts');  
     let attempts = (savedAttempts !== null) ? parseInt(savedAttempts) : 3;  
     if (savedAttempts === null) localStorage.setItem('findly_attempts', 3);  
@@ -1054,6 +1054,16 @@
 };
     
 
+const INVITE_TEXT = {
+  ar: "ادعُ أصدقاءك الآن ✨ — ميزات ومكافآت قادمة قريبًا 🎁 — كن من الأوائل 🚀",
+  en: "Invite your friends now ✨ — features & rewards coming soon 🎁 — be among the first 🚀",
+  fr: "Invitez vos amis maintenant ✨ — fonctionnalités et récompenses bientôt 🎁 — soyez parmi les premiers 🚀",
+  de: "Lade jetzt deine Freunde ein ✨ — neue Funktionen & Belohnungen bald 🎁 — sei unter den Ersten 🚀",
+  es: "Invita a tus amigos ahora ✨ — funciones y recompensas próximamente 🎁 — sé de los primeros 🚀",
+  tr: "Arkadaşlarını şimdi davet et ✨ — yakında özellikler ve ödüller 🎁 — ilklerden ol 🚀"
+};
+
+    
     const i18n = {
   ar: {
     title: 'انتهت المحاولات المجانية',
@@ -1071,6 +1081,13 @@
 // رابط الدفع الذي أنشأناه
 
     
+
+function updateInviteText(lang) {
+    const el = document.getElementById("inviteText");
+  if (!el) return;
+
+  el.textContent = INVITE_TEXT[lang] || INVITE_TEXT.ar;
+}
     
 function openUpgrade() {
   const uid =
@@ -1543,7 +1560,6 @@ function openAnalysisFromBtn(btn) {
     function update() {
         const d = dict[lang] || dict['ar'];
         const userName = localStorage.getItem('fn') || (lang === 'ar' ? 'أيها الباحث' : 'Seeker');
-
         document.getElementById('txt-energy').innerText = d.ui.energy;  
         document.getElementById('greeting').innerText = d.ui.welcome + " " + userName;  
         document.getElementById('txt-title').innerText = d.ui.title;  

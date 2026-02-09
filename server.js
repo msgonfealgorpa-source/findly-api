@@ -209,133 +209,157 @@ if (cached) {
 
    
    try {
-        // ✅ استخدام SearchAPI مع محرك Google Shopping (الأكثر استقراراً)
-        const response = await axios.get('https://www.searchapi.io/api/v1/search', {
-            params: {
-                api_key: SEARCHAPI_KEY, // استخدام مفتاحك الأصلي
-                engine: "google_shopping",
-                q: q,
-                hl: lang === 'ar' ? 'ar' : 'en',
-                gl: 'us'
-            }
-        });
-
-        // استخراج النتائج
-        let rawResults = response.data?.shopping_results || [];
-let serperContext = [];
-
-// 👉 شرط واحد واضح: لو النتائج قليلة
-if (rawResults.length < 3) {
-  const serperRes = await axios.post(
-    'https://google.serper.dev/search',
-    { q, gl: 'us', hl: lang },
-    { headers: { 'X-API-KEY': SERPER_API_KEY } }
+  /* =========================
+     1️⃣ SEARCHAPI (Google Shopping)
+     ========================= */
+  const response = await axios.get(
+    'https://www.searchapi.io/api/v1/search',
+    {
+      params: {
+        api_key: SEARCHAPI_KEY,
+        engine: 'google_shopping',
+        q,
+        hl: lang === 'ar' ? 'ar' : 'en',
+        gl: 'us'
+      }
+    }
   );
 
-  serperContext = serperRes.data?.organic || [];
-}
-        console.log(`✅ Found ${rawResults.length} items`);
+  let rawResults = response.data?.shopping_results || [];
+  let serperContext = [];
 
-        // ✅ هنا كان الخطأ (Loop Syntax)، تم إصلاحه ليعمل بشكل سليم
-        const results = rawResults.map(item => {
-            const currentPrice = cleanPrice(item.price || item.extracted_price);
+  /* =========================
+     2️⃣ FALLBACK: SERPER
+     ========================= */
+  if (rawResults.length < 3) {
+    const serperRes = await axios.post(
+      'https://google.serper.dev/search',
+      { q, gl: 'us', hl: lang },
+      { headers: { 'X-API-KEY': SERPER_API_KEY } }
+    );
 
-            const standardizedItem = {
-                title: item.title,
-                price: item.price,
-                numericPrice: currentPrice,
-                link: finalizeUrl(item.product_link || item.link),
-                thumbnail: item.thumbnail || item.product_image,
-                source: 'Google Shopping'
-            };
-
-            // تشغيل منطق SageCore الخاص ب
-           const intelligenceRaw = SageCore(
-  standardizedItem,
-  rawResults,
-  serperContext,
-  {},
-  uid,
-  null
-) || {};
-           
-           let decisionTitle = TEXTS.fair;
-            let decisionReason = TEXTS.reason_fair;
-            let decisionEmoji = '⚖️';
-
-            const avg = Number(intelligenceRaw?.priceIntel?.average || 0);
-            const score = intelligenceRaw?.valueIntel?.score || 0;
-
-            if (avg > 0) {
-                if (currentPrice > avg * 1.1) {
-                    decisionTitle = TEXTS.wait;
-                    decisionReason = TEXTS.reason_expensive;
-                    decisionEmoji = '🤖';
-                } else if (currentPrice < avg * 0.95) {
-                    decisionTitle = TEXTS.buy;
-                    decisionReason = `${TEXTS.reason_cheap} ${score}%`;
-                    decisionEmoji = '🟢';
-                }
-            }
-
-            const intelligence = {
-                finalVerdict: { emoji: decisionEmoji, title: decisionTitle, reason: decisionReason },
-                priceIntel: intelligenceRaw.priceIntel || {},
-                valueIntel: intelligenceRaw.valueIntel || {},
-                forecastIntel: intelligenceRaw.forecastIntel || {},
-                trustIntel: intelligenceRaw.trustIntel || {}
-            };
-
-            const comparison = {
-                market_average: intelligence.priceIntel.average ? `$${intelligence.priceIntel.average}` : '—',
-                savings_percentage: intelligence.valueIntel.score || 0,
-                competitors: intelligence.valueIntel.competitors || rawResults.length
-            };
-
-            const coupons = generateCoupons(standardizedItem, intelligence);
-
-            return {
-                ...standardizedItem,
-                intelligence,
-                comparison,
-                coupons
-            };
-        });
-
-
-       // 🧠 ENERGY CONSUME (real search)
-if (energy.hasFreePass !== true) {
-  energy.searchesUsed += 1;
-  await energy.save();
-}
-
-const responseData = {
-  query: q,
-  results,
-  energy: {
-    used: energy.searchesUsed,
-    limit: energy.hasFreePass ? '∞' : 3,
-    left: energy.hasFreePass
-      ? '∞'
-      : Math.max(0, 3 - energy.searchesUsed)
+    serperContext = serperRes.data?.organic || [];
   }
-};
-   
 
-// حفظ في الكاش
-searchCache.set(cacheKey, {
-  time: Date.now(),
-  data: responseData
-});
-       
-       res.json(responseData);
+  console.log(`✅ Found ${rawResults.length} items`);
 
-    } catch (err) {
-        console.error('❌ Search Error Details:', err.response?.data || err.message);
-        res.json({ error: 'Search Failed', results: [] });
+  /* =========================
+     3️⃣ BUILD RESULTS + SAGECORE
+     ========================= */
+  const results = rawResults.map(item => {
+    const currentPrice = cleanPrice(item.price || item.extracted_price);
+
+    const standardizedItem = {
+      title: item.title,
+      price: item.price,
+      numericPrice: currentPrice,
+      link: finalizeUrl(item.product_link || item.link),
+      thumbnail: item.thumbnail || item.product_image,
+      source: 'Google Shopping'
+    };
+
+    const intelligenceRaw =
+      SageCore(
+        standardizedItem,
+        rawResults,
+        serperContext,
+        {},
+        uid,
+        null
+      ) || {};
+
+    let decisionTitle = TEXTS.fair;
+    let decisionReason = TEXTS.reason_fair;
+    let decisionEmoji = '⚖️';
+
+    const avg = Number(intelligenceRaw?.priceIntel?.average || 0);
+    const score = intelligenceRaw?.valueIntel?.score || 0;
+
+    if (avg > 0) {
+      if (currentPrice > avg * 1.1) {
+        decisionTitle = TEXTS.wait;
+        decisionReason = TEXTS.reason_expensive;
+        decisionEmoji = '🤖';
+      } else if (currentPrice < avg * 0.95) {
+        decisionTitle = TEXTS.buy;
+        decisionReason = `${TEXTS.reason_cheap} ${score}%`;
+        decisionEmoji = '🟢';
+      }
     }
-});
 
+    const intelligence = {
+      finalVerdict: {
+        emoji: decisionEmoji,
+        title: decisionTitle,
+        reason: decisionReason
+      },
+      priceIntel: intelligenceRaw.priceIntel || {},
+      valueIntel: intelligenceRaw.valueIntel || {},
+      forecastIntel: intelligenceRaw.forecastIntel || {},
+      trustIntel: intelligenceRaw.trustIntel || {}
+    };
+
+    return {
+      ...standardizedItem,
+      intelligence,
+      comparison: {
+        market_average: intelligence.priceIntel.average
+          ? `$${intelligence.priceIntel.average}`
+          : '—',
+        savings_percentage: intelligence.valueIntel.score || 0,
+        competitors:
+          intelligence.valueIntel.competitors || rawResults.length
+      },
+      coupons: generateCoupons(standardizedItem, intelligence)
+    };
+  });
+
+  /* =========================
+     4️⃣ ENERGY CONSUME (REAL SEARCH)
+     ========================= */
+  if (!energy.hasFreePass) {
+    energy.searchesUsed += 1;
+    await energy.save();
+  }
+
+  /* =========================
+     5️⃣ RESPONSE DATA
+     ========================= */
+  const responseData = {
+    query: q,
+    cached: false,
+    results,
+    energy: {
+      used: energy.searchesUsed,
+      limit: energy.hasFreePass ? '∞' : 3,
+      left: energy.hasFreePass
+        ? '∞'
+        : Math.max(0, 3 - energy.searchesUsed)
+    }
+  };
+
+  /* =========================
+     6️⃣ SAVE TO MONGODB CACHE
+     ========================= */
+  await SearchCache.create({
+    query: q,
+    lang,
+    results: responseData.results
+  });
+
+  return res.json(responseData);
+
+} catch (err) {
+  console.error(
+    '❌ Search Error Details:',
+    err.response?.data || err.message
+  );
+
+  return res.status(500).json({
+    error: 'Search Failed',
+    results: []
+  });
+}
 /* ================= ROUTES (ALERTS & WATCHLIST) ================= */
 // ✅ هذه الروابط بقيت كما هي لتعمل مع قاعدة بياناتك
 app.post('/alerts', async (req, res) => {

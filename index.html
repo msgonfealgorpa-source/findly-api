@@ -756,7 +756,7 @@
     </div>
 </div>
 
-<script type="module">
+<script> type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-analytics.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
@@ -1628,7 +1628,8 @@ function update() { const d = dict[lang] || dict['ar']; const userName = local
     }
 
     // تشغيل التحديث عند تحميل الصفحة
-    window.onload = update;
+window.onload = update;
+<script>
 </div>
 
 </body>

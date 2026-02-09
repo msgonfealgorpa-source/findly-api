@@ -718,12 +718,12 @@
         <div class="cat-card" onclick="quickSearch('ساعات')"><i class="fa-solid fa-stopwatch"></i><span id="cat-c4"></span></div>
     </div>
 
+    <div style="margin-top: 30px; text-align: center; font-size: 0.8rem;">
+        <a href="privacy.html" style="color: var(--text-muted); margin: 0 10px; text-decoration: none;">سياسة الخصوصية</a>
+        <a href="terms.html" style="color: var(--text-muted); margin: 0 10px; text-decoration: none;">شروط الاستخدام</a>
+        <a href="about.html" style="color: var(--text-muted); margin: 0 10px; text-decoration: none;">من نحن</a>
+    </div>
 
-<a href="privacy.html">سياسة الخصوصية</a>
-<a href="terms.html">شروط الاستخدام</a>
-<a href="about.html">من نحن</a>
- 
-   
     <div id="status" style="display:none; color:var(--primary); font-weight:bold; margin-top:30px; font-size: 1.1rem;"></div>
     <div id="results"></div>
 </main>
@@ -1172,8 +1172,8 @@ function openUpgrade() {
 
     if (data.error === 'ENERGY_EMPTY') {
   const status = document.getElementById('status');
-  const currentLang = lang || 'ar'; 
-  const t = i18n[currentLang] || i18n.ar;
+  const lang = window.currentLang || 'ar'; // حسب لغتك الحالية
+  const t = i18n[lang] || i18n.ar;
 
   status.style.display = 'block';
   status.innerHTML = `
@@ -1371,7 +1371,7 @@ ${bestCoupon ? `
       ? `<ul>${trust.warnings.map(w => `<li>${w}</li>`).join('')}</ul>`
       : `<p>✅ ${T.no_risks}</p>`
   }
-</div>
+
 
 
 <div class="actions">
@@ -1639,5 +1639,7 @@ function openAnalysisFromBtn(btn) {
     // تشغيل التحديث عند تحميل الصفحة
     window.onload = update;
 </script>
+</div>
+
 </body>
 </html>

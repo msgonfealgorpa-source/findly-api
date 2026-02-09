@@ -1626,6 +1626,13 @@ function update() {
         }
     }
 
+function updateInviteText(lang) {
+  const el = document.getElementById("inviteText");
+  if (!el) return;
+
+  el.textContent = INVITE_TEXT[lang] || INVITE_TEXT.ar;
+}
+    
     // تشغيل التحديث عند تحميل الصفحة
 window.onload = update;
 <script

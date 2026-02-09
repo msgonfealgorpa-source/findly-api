@@ -1560,65 +1560,24 @@ function openAnalysisFromBtn(btn) {
         m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
     }
 
-function update() {
-    try {
-        // 1. التأكد من وجود القاموس
-        if (typeof dict === 'undefined') return;
-        
-        const d = dict[lang] || dict['ar'];
-        if (!d) return;
+function update() { const d = dict[lang] || dict['ar']; const userName = localStorage.getItem('fn') || (lang === 'ar' ? 'أيها الباحث' : 'Seeker'); document.getElementById('txt-energy').innerText = d.ui.energy; document.getElementById('greeting').innerText = d.ui.welcome + " " + userName; document.getElementById('txt-title').innerText = d.ui.title; document.getElementById('txt-sub').innerText = d.ui.sub; document.getElementById('txt-deep').innerText = d.ui.deep; document.getElementById('tag-cheap').innerText = d.ui.cheap; document.getElementById('tag-top').innerText = d.ui.top; document.getElementById('tag-new').innerText = d.ui.new;
+   // تحديث نصوص المودال  
+    document.getElementById('p-head').innerText = d.ui.p_head;  
+    document.getElementById('lbl-name').innerText = d.ui.lbl_name || "اسم المستخدم";  
+    document.getElementById('lbl-budget').innerText = d.ui.lbl_budget || "الميزانية ($)";  
 
-        const userName = localStorage.getItem('fn') || (lang === 'ar' ? 'أيها الباحث' : 'Seeker');
-        
-        // 2. دالة داخلية للتأكد من وجود العنصر قبل الكتابة فيه (تمنع توقف الكود)
-        const safeSet = (id, text) => {
-            const el = document.getElementById(id);
-            if (el) {
-                el.innerText = text;
-            }
-        };
+    document.getElementById('cat-game').innerText = d.ui.game;    
+    document.getElementById('cat-beauty').innerText = d.ui.beauty;    
+    document.getElementById('cat-home').innerText = d.ui.home;    
+    document.getElementById('cat-c1').innerText = d.ui.c1;    
+    document.getElementById('cat-c2').innerText = d.ui.c2;    
+    document.getElementById('cat-c4').innerText = d.ui.c4;    
 
-        // 3. تحديث النصوص الأساسية
-        safeSet('txt-energy', d.ui.energy);
-        safeSet('greeting', d.ui.welcome + " " + userName);
-        safeSet('txt-title', d.ui.title);
-        safeSet('txt-sub', d.ui.sub);
-        safeSet('txt-deep', d.ui.deep);
-        
-        safeSet('tag-cheap', d.ui.cheap);
-        safeSet('tag-top', d.ui.top);
-        safeSet('tag-new', d.ui.new);
-        
-        // 4. تحديث نصوص الملف الشخصي
-        safeSet('p-head', d.ui.p_head);
-        safeSet('lbl-name', d.ui.lbl_name || (lang === 'ar' ? "اسم المستخدم" : "Username"));
-        safeSet('lbl-budget', d.ui.lbl_budget || (lang === 'ar' ? "الميزانية ($)" : "Budget ($)"));
-
-        // 5. تحديث الأقسام (Categories)
-        safeSet('cat-game', d.ui.game);
-        safeSet('cat-beauty', d.ui.beauty);
-        safeSet('cat-home', d.ui.home);
-        safeSet('cat-c1', d.ui.c1);
-        safeSet('cat-c2', d.ui.c2);
-        safeSet('cat-c4', d.ui.c4);
-
-        // 6. اتجاه الصفحة واللغة
-        const mainHtml = document.getElementById('main-html');
-        if (mainHtml) {
-            mainHtml.lang = lang;
-            mainHtml.dir = (lang === 'ar') ? 'rtl' : 'ltr';
-        }
-        
-        // تحديث نص الدعوة (Invite Text)
-        if (typeof updateInviteText === 'function') {
-            updateInviteText(lang);
-        }
-
-    } catch (error) {
-        console.error("Update Error:", error);
-    }
+    document.getElementById('main-html').lang = lang;    
+    document.getElementById('main-html').dir = (lang === 'ar') ? 'rtl' : 'ltr';  
 }
     
+  
     // دالة البحث الصوتي
     function startVoice() {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;

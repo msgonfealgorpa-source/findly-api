@@ -951,6 +951,16 @@
                 const forecast = intel.forecastIntel || {};
                 const trust = intel.trustIntel || {};
 
+
+                console.log(
+  'DECISION KEY:',
+  p.intelligence?.priceIntel?.decision
+);
+
+console.log(
+  'PERSONALITY KEY:',
+  p.intelligence?.personalityIntel?.type
+);
                 // Budget Logic
                 let budgetClass = '';
                 let budgetBadge = '';

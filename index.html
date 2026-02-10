@@ -896,36 +896,94 @@
 };
     
     async function runSearch() {
-  const q = document.getElementById('s-input').value.trim();
+  const input = document.getElementById('s-input');
   const status = document.getElementById('status');
   const resultsBox = document.getElementById('results');
 
+  if (!input || !status || !resultsBox) {
+    console.error('Missing DOM elements');
+    return;
+  }
+
+  const q = input.value.trim();
   if (!q) return;
 
   const T = dict[lang]?.search || dict.en.search;
-  const UI = dict[lang]?.ui || dict.en.ui; // للحصول على نص التحذير
+  const UI = dict[lang]?.ui || dict.en.ui;
 
   status.style.display = 'block';
   status.innerText = '🔍 ...';
   resultsBox.innerHTML = '';
 
-  // جلب الميزانية المحفوظة
   const userBudget = parseFloat(localStorage.getItem('user_budget')) || 0;
 
   try {
     const res = await fetch(
-      `${API}/search?q=${encodeURIComponent(q)}&lang=${lang}&uid=${localStorage.getItem('findly_uid')}`
+      `${API}/search?q=${encodeURIComponent(q)}&lang=${lang}&uid=${uid}`
     );
+
+    if (!res.ok) {
+      throw new Error(`API_ERROR_${res.status}`);
+    }
 
     const data = await res.json();
     status.style.display = 'none';
 
-    if (!data.results || !data.results.length) {
+    /* ===============================
+       🔴 نفاد المحاولات
+       =============================== */
+    if (data.error === 'ENERGY_EMPTY') {
+      const currentLang = lang || 'ar';
+      const t = i18n[currentLang] || i18n.ar;
+
       status.style.display = 'block';
-      status.innerText = '❌';
+      status.innerHTML = `
+        <div style="
+          background:#1b1b2f;
+          border:1px solid #ff4d4d;
+          padding:15px;
+          border-radius:12px;
+          text-align:center;
+          color:#fff;
+        ">
+          <h3 style="color:#ff4d4d; margin-bottom:8px;">
+            ${t.title}
+          </h3>
+          <p style="font-size:0.95rem; opacity:0.9;">
+            ${t.message}
+          </p>
+          <button
+            onclick="openUpgrade()"
+            style="
+              margin-top:10px;
+              padding:8px 18px;
+              border:none;
+              border-radius:20px;
+              background:#6c5ce7;
+              color:#fff;
+              font-weight:700;
+              cursor:pointer;
+            "
+          >
+            ${t.upgrade}
+          </button>
+        </div>
+      `;
       return;
     }
 
+    /* ===============================
+       🟡 لا نتائج
+       =============================== */
+    if (!Array.isArray(data.results) || data.results.length === 0) {
+      status.style.display = 'block';
+      status.innerText = T.no_results || 'لا توجد نتائج';
+      return;
+    }
+
+    /* ===============================
+       ✅ عرض النتائج (الكرت كامل)
+       =============================== */
     data.results.forEach(p => {
       const intel = p.intelligence || {};
       const verdict = intel.finalVerdict || {};
@@ -934,28 +992,59 @@
       const forecast = intel.forecastIntel || {};
       const trust = intel.trustIntel || {};
 
-      // --- منطق الميزانية (الذي كان مفقوداً) ---
       let budgetClass = '';
       let budgetBadge = '';
-      
-      // استخراج الرقم من سعر المنتج
-      const priceVal = parseFloat(String(p.price).replace(/[^\d.]/g, '')) || 0;
+
+      const priceVal =
+        parseFloat(String(p.price || '').replace(/[^\d.]/g, '')) || 0;
 
       if (userBudget > 0 && priceVal > userBudget) {
         budgetClass = 'over-budget';
         budgetBadge = `<div class="budget-alert">⚠️ ${UI.over || 'Over Budget!'}</div>`;
       }
-      // ----------------------------------------
 
       const card = document.createElement('div');
-      card.className = `product-card ${budgetClass}`; // إضافة كلاس التنبيه
+      card.className = `product-card ${budgetClass}`;
 
       card.innerHTML = `
-${budgetBadge} 
+${budgetBadge}
+
 <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/200'">
 
 <h3>${p.title || '—'}</h3>
-<div class="price">${p.price || '—'}</div>
+
+<div class="price">$${priceVal || '-'}</div>
+
+<div class="sage-quick-brains">
+  <div class="brain-item good">
+    💰 السعر
+    <span>${priceIntel.score >= 70 ? 'ممتاز' : priceIntel.score >= 50 ? 'جيد' : 'ضعيف'}</span>
+  </div>
+
+  <div class="brain-item ${
+    forecast.trend === 'down' ? 'wait' :
+    forecast.trend === 'up' ? 'buy' : 'neutral'
+  }">
+    📈 التوقيت
+    <span>
+      ${forecast.trend === 'down'
+        ? 'انتظر'
+        : forecast.trend === 'up'
+        ? 'قد يرتفع'
+        : 'مستقر'}
+    </span>
+  </div>
+
+  <div class="brain-item ${trust.riskScore > 50 ? 'risk' : 'safe'}">
+    🛡️ الثقة
+    <span>${trust.riskScore > 50 ? 'مخاطرة' : 'آمن'}</span>
+  </div>
+
+  <div class="brain-item learn">
+    🧠 السلوك
+    <span>${valueIntel.learningBoost > 0 ? 'مناسب لك' : 'عام'}</span>
+  </div>
+</div>
 
 <div class="analysis-engine">
   <span class="analysis-label">
@@ -966,69 +1055,44 @@ ${budgetBadge}
 
 <div class="intel-section">
   <h4>📊 ${T.market}</h4>
-  <p>${T.avg_price}: <strong>${priceIntel.average ? `$${priceIntel.average}` : '—'}</strong></p>
+  <p>${T.avg_price}: <strong>$${priceIntel.average || '—'}</strong></p>
   <p>${T.competitors}: <strong>${valueIntel.competitors || 0}</strong></p>
-</div>
-
-<div class="intel-section">
-  <h4>💎 ${T.value}</h4>
-  <p>${T.deal_score}: <strong>${valueIntel.score || 0}%</strong></p>
-  <p>
-    ${valueIntel.learningBoost > 0
-      ? T.learning_on
-      : T.learning_later}
-  </p>
 </div>
 
 <div class="intel-section">
   <h4>🔮 ${T.forecast}</h4>
   <p>${T.trend[forecast.trend] || T.trend.stable}</p>
   <p>${T.expected_price}: <strong>$${forecast.expectedPrice || '—'}</strong></p>
-  <p>${T.confidence}: <strong>${Math.round((forecast.confidence || 0) * 100)}%</strong></p>
 </div>
 
 <div class="intel-section">
   <h4>⚠️ ${T.trust}</h4>
   ${
-    trust.warnings && trust.warnings.length
+    trust.warnings?.length
       ? `<ul>${trust.warnings.map(w => `<li>${w}</li>`).join('')}</ul>`
       : `<p>✅ ${T.no_risks}</p>`
   }
 </div>
 
-<div class="btn-group">
-  <a href="${p.link}" target="_blank" class="action-btn buy-now">
-    ${T.buy}
+<div class="actions">
+  <a
+    class="action-btn buy"
+    href="https://findly-api.onrender.com/go?url=${encodeURIComponent(p.link)}"
+    target="_blank"
+    rel="noopener"
+  >
+    🛒 اشترِ الآن
   </a>
-
-  <button class="action-btn analyze-btn"
-    onclick="openAnalysisModal('${encodeURIComponent(JSON.stringify({
-      title: verdict.title,
-      reason: verdict.reason,
-      average: priceIntel.average,
-      score: valueIntel.score
-    }))}')">
-    ${T.analyze}
-  </button>
-
-  <button class="action-btn watch-btn"
-    onclick="addToWatch(
-      '${(p.title || '').replace(/'/g, '')}',
-      '${p.price}',
-      '${p.link}'
-    )">
-    ${T.watch}
-  </button>
 </div>
 `;
 
       resultsBox.appendChild(card);
     });
 
-  } catch (e) {
-    console.error(e);
+  } catch (err) {
+    console.error('Search error:', err);
     status.style.display = 'block';
-    status.innerText = '❌';
+    status.innerText = '❌ فشل البحث';
   }
 }
 

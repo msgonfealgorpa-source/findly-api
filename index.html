@@ -1141,34 +1141,11 @@ async function runSearch() {
     data.results.forEach(p => {
       
         const intel = p.intelligence || {};
-
-const verdict = intel.finalVerdict || {
-  title: '',
-  reason: '',
-  emoji: '🤖'
-};
-
-const priceIntel = intel.priceIntel || {
-  score: 0,
-  average: null
-};
-
-const valueIntel = intel.valueIntel || {
-  score: 0,
-  competitors: 0,
-  learningBoost: 0
-};
-
-const forecast = intel.forecastIntel || {
-  trend: 'stable',
-  expectedPrice: null,
-  confidence: 0
-};
-
-const trust = intel.trustIntel || {
-  riskScore: 0,
-  warnings: []
-};
+const verdict = intel.finalVerdict || {};
+const priceIntel = intel.priceIntel || {};
+const valueIntel = intel.valueIntel || {};
+const forecast = intel.forecastIntel || {};
+const trust = intel.trustIntel || {};
 
     
       let budgetClass = '';

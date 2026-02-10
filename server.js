@@ -14,7 +14,43 @@ const app = express();
 /* ================= BASIC ================= */
 app.use(cors({ origin: '*', methods: ['GET', 'POST'] }));
 app.use(express.json());
+// ================= CREATE PAYMENT =================
+app.post('/create-payment', async (req, res) => {
+  try {
+    const { uid } = req.body;
 
+    if (!uid) {
+      return res.status(400).json({ error: 'UID_REQUIRED' });
+    }
+
+    const response = await axios.post(
+      'https://api.nowpayments.io/v1/invoice',
+      {
+        price_amount: 5,
+        price_currency: 'usd',
+        pay_currency: 'usdttrc20',
+        order_id: uid,
+        order_description: 'Findly Pro Subscription',
+        success_url: 'https://findly.source.github.io/upgrade-success',
+        cancel_url: 'https://findly.source.github.io/upgrade-cancel'
+      },
+      {
+        headers: {
+          'x-api-key': process.env.NOWPAYMENTS_API_KEY,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    return res.json({
+      url: response.data.invoice_url
+    });
+
+  } catch (err) {
+    console.error('❌ NOWPayments Error:', err.response?.data || err.message);
+    return res.status(500).json({ error: 'PAYMENT_FAILED' });
+  }
+});
 /* ================= ENV ================= */
 const PORT = process.env.PORT || 10000;
 const MONGO_URI = process.env.MONGO_URI;

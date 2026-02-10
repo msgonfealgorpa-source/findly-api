@@ -965,7 +965,54 @@
 
 
 
+function openUpgrade() {
+  const uid =
+    localStorage.getItem("uid") || ("guest_" + Date.now());
 
+  localStorage.setItem("uid", uid);
+
+  const link =
+    "https://nowpayments.io/payment/?iid=5541830175&order_id=" + uid;
+
+  window.open(link, "_blank");
+}
+
+
+    
+    
+    function applyCoupon(price, coupon) {
+  if (!price || !coupon) return price;
+
+  let final = price;
+
+  if (coupon.type === 'percent') {
+    final = price - (price * coupon.discount / 100);
+  }
+
+  if (coupon.type === 'fixed') {
+    final = price - coupon.discount;
+  }
+
+  return Math.max(final, 0).toFixed(2);
+}
+    
+   
+    function pickBestCoupon(price, coupons = []) {
+  if (!price || !coupons.length) return null;
+
+  let best = null;
+  let bestPrice = price;
+
+  coupons.forEach(c => {
+    const discounted = parseFloat(applyCoupon(price, c));
+    if (discounted < bestPrice) {
+      bestPrice = discounted;
+      best = c;
+    }
+  });
+
+  return best;
+}
 
 
 

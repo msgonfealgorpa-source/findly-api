@@ -1061,8 +1061,8 @@ function copyInvite() {
 
   try {
     const res = await fetch(
-      `${API}/search?q=${encodeURIComponent(q)}&lang=${lang}&uid=${localStorage.getItem('findly_uid')}`
-    );
+  `${API}/search?q=${encodeURIComponent(q)}&lang=${lang}&uid=${uid}`
+);
 
     const data = await res.json();
     status.style.display = 'none';

@@ -988,29 +988,29 @@
             status.style.display = 'none';
 
             if (data.error === 'ENERGY_EMPTY') {
-                const currentLang = localStorage.getItem('findly_lang') || 'ar';
-                const t = i18n[currentLang] || i18n.ar;
-        
-                status.style.display = 'block';
+  const currentLang = localStorage.getItem('findly_lang') || 'ar';
+  const t = i18n[currentLang] || i18n.ar;
+
+  status.style.display = 'block';
+  
 status.innerHTML = `
-  <div style="background:#1b1b2f; border:1px solid #ff4d4d; padding:12px; border-radius:8px">
-    <h3 style="color:#ff4d4d; margin-bottom:8px">${t.title}</h3>
-    <p style="font-size:0.95rem; opacity:0.9">${t.message}</p>
+<div style="background:#1b1b2f; border:1px solid #ff4d4d; padding:12px; border-radius:8px">
+  <h3 style="color:#ff4d4d; margin-bottom:8px">${t.title}</h3>
+  <p style="font-size:0.95rem; opacity:0.9">${t.message}</p>
 
-    <button
-      id="upgradeBtn"
-      class="upgrade-btn"
-      onclick="openUpgrade()"
-      style="margin-top:10px"
-    >
-      ${t.upgrade}
-    </button>
-  </div>
+  <button
+    id="upgradeBtn"
+    class="upgrade-btn"
+    onclick="openUpgrade()"
+    style="margin-top:10px"
+  >
+    ${t.upgrade}
+  </button>
+</div>
 `;
-
 handleUpgradeButton();
-return;
-
+resultsBox.innerHTML = '';
+}
             if (!data.results) {
                 status.style.display = 'block';
                 status.innerText = lang === 'ar' ? 'لا توجد نتائج' : 'No results found';

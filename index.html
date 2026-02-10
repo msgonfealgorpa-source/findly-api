@@ -729,7 +729,14 @@
 
 <script>
     const API = "https://findly-api.onrender.com";
-      
+
+    let uid = localStorage.getItem('uid');
+if (!uid) {
+  uid = 'guest_' + Math.random().toString(36).slice(2);
+  localStorage.setItem('uid', uid);
+}
+
+    
     let lang = localStorage.getItem('findly_lang') || 'ar';  
     let savedAttempts = localStorage.getItem('findly_attempts');  
     let attempts = (savedAttempts !== null) ? parseInt(savedAttempts) : 3;  

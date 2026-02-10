@@ -775,17 +775,21 @@
     };
 
     const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
-
+    
     onAuthStateChanged(auth, (user) => {
         const overlay = document.getElementById('auth-overlay');
         if (user) {
             overlay.style.setProperty('display', 'none', 'important');
             document.body.style.overflow = 'auto';
             localStorage.setItem('findly_uid', user.uid);
-            
+            let analytics;
+try {
+    analytics = getAnalytics(app);
+} catch (e) {
+    console.warn("Analytics disabled:", e.message);
+}
             if (!sessionStorage.getItem('welcome_shown')) {
                 const name = user.displayName || 'أيها الباحث الحكيم';
                 // alert(`مرحباً بك في Findly Sage، ${name}! ✨`);

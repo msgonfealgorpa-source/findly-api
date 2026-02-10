@@ -957,6 +957,40 @@
   }
 };
     
+   
+    
+
+
+
+
+
+
+
+
+
+
+
+    
+    
+    function getInviteLink() {
+  const uid = localStorage.getItem('findly_uid') || 'guest';
+
+  // يدعم GitHub Pages + Render + Localhost
+  const basePath = location.origin + location.pathname.replace(/\/$/, '');
+
+  return `${basePath}/?ref=${uid}`;
+}
+
+function copyInvite() {
+  const link = getInviteLink();
+
+  navigator.clipboard.writeText(link).then(() => {
+    alert('تم نسخ رابط الدعوة ✨');
+  }).catch(() => {
+    alert('لم يتم نسخ الرابط، انسخه يدويًا:\n' + link);
+  });
+}
+
     async function runSearch() {
   const q = document.getElementById('s-input').value.trim();
   const status = document.getElementById('status');

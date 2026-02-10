@@ -280,20 +280,35 @@ if (rawResults.length < 3) {
                 }
             }
 
-            const intelligence = {
-                finalVerdict: { emoji: decisionEmoji, title: decisionTitle, reason: decisionReason },
-                priceIntel: intelligenceRaw.priceIntel || {},
-                valueIntel: intelligenceRaw.valueIntel || {},
-                forecastIntel: intelligenceRaw.forecastIntel || {},
-                trustIntel: intelligenceRaw.trustIntel || {}
-            };
+           // ====== RUN SAGE CORE ======
+const intelligenceRaw = SageCore({
+  prices,
+  userHistory,
+  keyword,
+  locale
+});
 
-            const comparison = {
-                market_average: intelligence.priceIntel.average ? `$${intelligence.priceIntel.average}` : '—',
-                savings_percentage: intelligence.valueIntel.score || 0,
-                competitors: intelligence.valueIntel.competitors || rawResults.length
-            };
+// ====== BUILD FINAL VERDICT (NON-DESTRUCTIVE) ======
+const decision = intelligenceRaw?.priceIntel?.decision || 'محايد';
+const label = intelligenceRaw?.priceIntel?.label || '';
+const emojiMap = {
+  'اشتري الآن': '🟢',
+  'انتظر': '🟡',
+  'سعر عادل': '⚖️'
+};
 
+const finalVerdict = {
+  emoji: emojiMap[decision] || '🤔',
+  title: decision,
+  reason: label
+};
+
+// ====== FULL INTELLIGENCE (PASS-THROUGH) ======
+const intelligence = {
+  ...intelligenceRaw,
+  finalVerdict
+};
+            
             const coupons = generateCoupons(standardizedItem, intelligence);
 
             return {

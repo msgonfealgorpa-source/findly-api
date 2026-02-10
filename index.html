@@ -977,8 +977,6 @@
         status.style.display = 'block';
         status.innerText = '🔍 ...';
         resultsBox.innerHTML = '';
-
-        handleUpgradeButton();
         
         const userBudget = parseFloat(localStorage.getItem('user_budget')) || 0;
 
@@ -992,14 +990,26 @@
             if (data.error === 'ENERGY_EMPTY') {
                 const currentLang = localStorage.getItem('findly_lang') || 'ar';
                 const t = i18n[currentLang] || i18n.ar;
+        
                 status.style.display = 'block';
-                status.innerHTML = `
-                <div style="background:#1b1b2f; border:1px solid #ff4d4d; padding:15px; border-radius:12px; text-align:center; color:#fff;">
-                    <h3 style="color:#ff4d4d; margin-bottom:8px;">${t.title}</h3>
-                    <p style="font-size:0.95rem; opacity:0.9;">${t.message}</p>
-                    <button class="upgrade-btn" onclick="openUpgrade()" style="margin-top:10px">
-                return;
-            }
+status.innerHTML = `
+  <div style="background:#1b1b2f; border:1px solid #ff4d4d; padding:12px; border-radius:8px">
+    <h3 style="color:#ff4d4d; margin-bottom:8px">${t.title}</h3>
+    <p style="font-size:0.95rem; opacity:0.9">${t.message}</p>
+
+    <button
+      id="upgradeBtn"
+      class="upgrade-btn"
+      onclick="openUpgrade()"
+      style="margin-top:10px"
+    >
+      ${t.upgrade}
+    </button>
+  </div>
+`;
+
+handleUpgradeButton();
+return;
 
             if (!data.results) {
                 status.style.display = 'block';
@@ -1389,16 +1399,10 @@ const lang = localStorage.getItem("findly_lang") || "ar";
 function handleUpgradeButton() {
   const isPro = localStorage.getItem("findly_pro") === "true";
 
-  const upgradeBtn = document.querySelector(".upgrade-btn");
-  // ⬆️ غيّر الـ selector لو اسم الزر مختلف عندك
-
+  const upgradeBtn = document.getElementById("upgradeBtn");
   if (!upgradeBtn) return;
 
-  if (isPro) {
-    upgradeBtn.style.display = "none";
-  } else {
-    upgradeBtn.style.display = "inline-block";
-  }
+  upgradeBtn.style.display = isPro ? "none" : "inline-block";
 }
     
     window.onload = () => {

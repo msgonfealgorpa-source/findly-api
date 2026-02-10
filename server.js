@@ -1,5 +1,5 @@
 /* =========================================
-   FINDLY SAGE - CLEAN SERVER (48H CACHE)
+   FINDLY SERVER - CLEAN (KEYS ONLY)
    ========================================= */
 
 const express = require('express');
@@ -11,7 +11,7 @@ const SageCore = require('./sage-core');
 
 const app = express();
 
-/* ================= BASIC SETUP ================= */
+/* ================= BASIC ================= */
 app.use(cors({ origin: '*', methods: ['GET', 'POST'] }));
 app.use(express.json());
 
@@ -22,28 +22,27 @@ const SEARCHAPI_KEY = process.env.SEARCHAPI_KEY;
 const SERPER_API_KEY = process.env.SERPER_API_KEY;
 const NOWPAYMENTS_IPN_SECRET = process.env.NOWPAYMENTS_IPN_SECRET;
 
-/* ================= CACHE (48 HOURS) ================= */
+/* ================= CACHE (48H) ================= */
 const searchCache = new Map();
-const CACHE_TTL = 1000 * 60 * 60 * 24 * 2; // 48 ساعة
+const CACHE_TTL = 1000 * 60 * 60 * 24 * 2;
 
-function getCache(key) {
-  const cached = searchCache.get(key);
-  if (!cached) return null;
-  if (Date.now() - cached.time > CACHE_TTL) {
+const getCache = key => {
+  const c = searchCache.get(key);
+  if (!c) return null;
+  if (Date.now() - c.time > CACHE_TTL) {
     searchCache.delete(key);
     return null;
   }
-  return cached.data;
-}
+  return c.data;
+};
 
-function setCache(key, data) {
+const setCache = (key, data) =>
   searchCache.set(key, { time: Date.now(), data });
-}
 
 /* ================= DB ================= */
 mongoose.connect(MONGO_URI)
   .then(() => console.log('✅ DB Connected'))
-  .catch(e => console.log('❌ DB Error', e));
+  .catch(e => console.log('❌ DB Error', e.message));
 
 const Energy = mongoose.model(
   'Energy',
@@ -79,7 +78,7 @@ app.get('/search', async (req, res) => {
   }
 
   /* ===== CACHE ===== */
-  const cacheKey = `${q}_${lang}`;
+  const cacheKey = `${q}`;
   const cached = getCache(cacheKey);
   if (cached) {
     cached.energy.left = energy.hasFreePass
@@ -128,14 +127,14 @@ app.get('/search', async (req, res) => {
         source: 'Google Shopping'
       };
 
-      // 🧠 SageCore = المصدر الوحيد
+      // 🧠 SageCore (KEYS ONLY)
       const intelligence = SageCore(
         product,
         rawResults,
         serperContext,
         {},
         uid,
-        lang
+        null
       ) || {};
 
       return {
@@ -165,7 +164,7 @@ app.get('/search', async (req, res) => {
     res.json(responseData);
 
   } catch (e) {
-    console.error('❌ Search Error', e.message);
+    console.error('❌ SEARCH ERROR', e.message);
     res.json({ error: 'SEARCH_FAILED', results: [] });
   }
 });

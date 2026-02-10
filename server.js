@@ -21,7 +21,7 @@ const MONGO_URI = process.env.MONGO_URI;
 const SEARCHAPI_KEY = process.env.SEARCHAPI_KEY;
 const SERPER_API_KEY = process.env.SERPER_API_KEY;
 const NOWPAYMENTS_IPN_SECRET = process.env.NOWPAYMENTS_IPN_SECRET;
-
+const NOWPAYMENTS_API_KEY = process.env.NOWPAYMENTS_API_KEY;
 /* ================= CACHE (48H) ================= */
 const searchCache = new Map();
 const CACHE_TTL = 1000 * 60 * 60 * 24 * 2;
@@ -166,6 +166,46 @@ app.get('/search', async (req, res) => {
   } catch (e) {
     console.error('❌ SEARCH ERROR', e.message);
     res.json({ error: 'SEARCH_FAILED', results: [] });
+  }
+});
+
+
+app.post('/create-payment', async (req, res) => {
+  try {
+    const { uid } = req.body;
+    if (!uid) {
+      return res.status(400).json({ error: 'UID_REQUIRED' });
+    }
+
+    const response = await axios.post(
+      'https://api.nowpayments.io/v1/invoice',
+      {
+        price_amount: 5, // سعر الاشتراك
+        price_currency: 'usd',
+        pay_currency: 'usdttrc20', // ثابت – الأكثر استقرارًا
+        order_id: uid,
+        order_description: 'Findly Pro Subscription',
+        success_url: 'https://findly.source.github.io/?upgrade=success',
+        cancel_url: 'https://findly.source.github.io/?upgrade=cancel'
+      },
+      {
+        headers: {
+          'x-api-key': process.env.NOWPAYMENTS_API_KEY,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    return res.json({
+      url: response.data.invoice_url
+    });
+
+  } catch (err) {
+    console.error(
+      '❌ NOWPayments create-payment error:',
+      err.response?.data || err.message
+    );
+    return res.status(500).json({ error: 'PAYMENT_FAILED' });
   }
 });
 

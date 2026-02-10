@@ -868,12 +868,35 @@
         el.textContent = INVITE_TEXT[lang] || INVITE_TEXT.ar;
     }
 
-    function openUpgrade() {
-        const uid = localStorage.getItem("findly_uid") || ("guest_" + Date.now());
-        const link = "https://nowpayments.io/payment/?iid=5541830175&order_id=" + uid;
-        window.open(link, "_blank");
+    
+
+
+    async function openUpgrade() {
+  const uid =
+    localStorage.getItem("findly_uid") ||
+    ("guest_" + Date.now());
+
+  try {
+    const res = await fetch("https://findly-api.onrender.com/create-payment", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uid })
+    });
+
+    const data = await res.json();
+
+    if (data.url) {
+      window.open(data.url, "_blank");
+    } else {
+      alert("⚠️ Payment unavailable, try again later");
     }
 
+  } catch (e) {
+    alert("❌ Payment service error");
+  }
+}
+
+    
     function applyCoupon(price, coupon) {
         if (!price || !coupon) return price;
         let final = price;

@@ -971,6 +971,14 @@ console.log(
                     budgetBadge = `<div class="budget-alert">⚠️ ${UI.over || 'Over Budget!'}</div>`;
                 }
 
+
+
+
+                const safeLink =
+  typeof p.link === 'string' && p.link.startsWith('http')
+    ? p.link
+    : null;
+                
                 const card = document.createElement('div');
                 card.className = `product-card ${budgetClass}`;
 
@@ -1045,11 +1053,20 @@ console.log(
                     ${trust.warnings && trust.warnings.length ? `<ul>${trust.warnings.map(w => `<li>${w}</li>`).join('')}</ul>` : `<p>✅ ${T.no_risks}</p>`}
                 </div>
 
-                <div class="actions">
-                    <button class="action-btn ghost" onclick="addToWatch('${(p.title || '').replace(/'/g, '')}', '${p.price}', '${p.link}')">${T.watch}</button>
-                    <a class="action-btn buy" href="https://findly-api.onrender.com/go?url=${encodeURIComponent(p.link)}" target="_blank" rel="noopener">${T.buy}</a>
-                </div>
-
+        
+                ${safeLink ? `
+<a class="action-btn buy"
+   href="https://findly-api.onrender.com/go?url=${encodeURIComponent(safeLink)}"
+   target="_blank"
+   rel="noopener noreferrer">
+   ${T.buy}
+</a>
+` : `
+<button class="action-btn buy disabled" disabled>
+   ${T.no_link || 'الرابط غير متوفر'}
+</button>
+`}
+                
                 <button class="action-btn analyze-btn" style="width:100%; margin-top:10px;"
                     data-verdict="${encodeURIComponent(JSON.stringify(verdict))}"
                     data-price="${encodeURIComponent(JSON.stringify(priceIntel))}"

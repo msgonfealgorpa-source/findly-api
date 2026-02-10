@@ -1077,13 +1077,7 @@
 
     
 
-function updateInviteText(lang) {
-    const el = document.getElementById("inviteText");
-  if (!el) return;
-
-  el.textContent = INVITE_TEXT[lang] || INVITE_TEXT.ar;
-}
-    
+ 
 function openUpgrade() {
   const uid =
     localStorage.getItem("uid") || ("guest_" + Date.now());

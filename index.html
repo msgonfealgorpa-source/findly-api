@@ -1048,73 +1048,96 @@ function copyInvite() {
 
 
 
-    async function runSearch() {
-  const q = document.getElementById('s-input').value.trim();
+    
+async function runSearch() {
+  const input = document.getElementById('s-input');
   const status = document.getElementById('status');
   const resultsBox = document.getElementById('results');
-        
 
-    if (!q) return;
+  if (!input || !status || !resultsBox) {
+    console.error('Missing DOM elements');
+    return;
+  }
+
+  const q = input.value.trim();
+  if (!q) return;
 
   const T = dict[lang]?.search || dict.en.search;
-  const UI = dict[lang]?.ui || dict.en.ui; // للحصول على نص التحذير
+  const UI = dict[lang]?.ui || dict.en.ui;
 
   status.style.display = 'block';
   status.innerText = '🔍 ...';
   resultsBox.innerHTML = '';
 
-  // جلب الميزانية المحفوظة
   const userBudget = parseFloat(localStorage.getItem('user_budget')) || 0;
 
   try {
     const res = await fetch(
-  `${API}/search?q=${encodeURIComponent(q)}&lang=${lang}&uid=${uid}`
-);
+      `${API}/search?q=${encodeURIComponent(q)}&lang=${lang}&uid=${uid}`
+    );
+
+    if (!res.ok) {
+      throw new Error(`API_ERROR_${res.status}`);
+    }
 
     const data = await res.json();
     status.style.display = 'none';
 
+    /* ===============================
+       🔴 نفاد المحاولات
+       =============================== */
     if (data.error === 'ENERGY_EMPTY') {
-  const status = document.getElementById('status');
-  const currentLang = lang || 'ar'; 
-  const t = i18n[currentLang] || i18n.ar;
+      const currentLang = lang || 'ar';
+      const t = i18n[currentLang] || i18n.ar;
 
-  status.style.display = 'block';
-  status.innerHTML = `
-    <div style="
-      background:#1b1b2f;
-      border:1px solid #ff4d4d;
-      padding:15px;
-      border-radius:12px;
-      text-align:center;
-      color:#fff;
-    ">
-      <h3 style="color:#ff4d4d; margin-bottom:8px;">
-        ${t.title}
-      </h3>
-      <p style="font-size:0.95rem; opacity:0.9;">
-        ${t.message}
-      </p>
-      <button
-        onclick="openUpgrade()"
-        style="
-          margin-top:10px;
-          padding:8px 18px;
-          border:none;
-          border-radius:20px;
-          background:#6c5ce7;
+      status.style.display = 'block';
+      status.innerHTML = `
+        <div style="
+          background:#1b1b2f;
+          border:1px solid #ff4d4d;
+          padding:15px;
+          border-radius:12px;
+          text-align:center;
           color:#fff;
-          font-weight:700;
-          cursor:pointer;
-        "
-      >
-        ${t.upgrade}
-      </button>
-    </div>
-  `;
-  return;
-}
+        ">
+          <h3 style="color:#ff4d4d; margin-bottom:8px;">
+            ${t.title}
+          </h3>
+          <p style="font-size:0.95rem; opacity:0.9;">
+            ${t.message}
+          </p>
+          <button
+            onclick="openUpgrade()"
+            style="
+              margin-top:10px;
+              padding:8px 18px;
+              border:none;
+              border-radius:20px;
+              background:#6c5ce7;
+              color:#fff;
+              font-weight:700;
+              cursor:pointer;
+            "
+          >
+            ${t.upgrade}
+          </button>
+        </div>
+      `;
+      return;
+    }
 
+    /* ===============================
+       🟡 لا نتائج
+       =============================== */
+    if (!Array.isArray(data.results) || data.results.length === 0) {
+      status.style.display = 'block';
+      status.innerText = T.no_results || 'لا توجد نتائج';
+      return;
+    }
+
+    /* ===============================
+       ✅ عرض النتائج (الكرت كامل)
+       =============================== */
     data.results.forEach(p => {
       const intel = p.intelligence || {};
       const verdict = intel.finalVerdict || {};
@@ -1123,59 +1146,30 @@ function copyInvite() {
       const forecast = intel.forecastIntel || {};
       const trust = intel.trustIntel || {};
 
-      // --- منطق الميزانية (الذي كان مفقوداً) ---
       let budgetClass = '';
       let budgetBadge = '';
-      
-      // استخراج الرقم من سعر المنتج
-      const priceVal = parseFloat(String(p.price).replace(/[^\d.]/g, '')) || 0;
+
+      const priceVal =
+        parseFloat(String(p.price || '').replace(/[^\d.]/g, '')) || 0;
 
       if (userBudget > 0 && priceVal > userBudget) {
         budgetClass = 'over-budget';
         budgetBadge = `<div class="budget-alert">⚠️ ${UI.over || 'Over Budget!'}</div>`;
       }
-      // ----------------------------------------
 
       const card = document.createElement('div');
-      card.className = `product-card ${budgetClass}`; // إضافة كلاس التنبيه
+      card.className = `product-card ${budgetClass}`;
 
-
-
-        // --- الكوبونات ---
-
-const coupons = p.coupons || [];
-
-// استخراج السعر الرقمي أولاً
-const numericPriceRaw = String(p.price || '').replace(/[^\d.]/g, '');
-const numericPrice = numericPriceRaw ? parseFloat(numericPriceRaw) : null;
-// اختيار أفضل كوبون
-const bestCoupon = (numericPrice && coupons.length)
-  ? pickBestCoupon(numericPrice, coupons)
-  : null;
-
-// حساب السعر بعد الخصم
-const discountedPrice = (numericPrice && bestCoupon)
-  ? applyCoupon(numericPrice, bestCoupon)
-  : null;
-
-        
       card.innerHTML = `
-${budgetBadge} 
+${budgetBadge}
+
 <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/200'">
 
 <h3>${p.title || '—'}</h3>
 
-
-<div class="price">
-  ${bestCoupon && discountedPrice
-    ? `<span class="old-price">$${numericPrice}</span>
-       <span class="new-price">$${discountedPrice}</span>`
-    : `$${numericPrice || '-'}`
-  }
-</div>
+<div class="price">$${priceVal || '-'}</div>
 
 <div class="sage-quick-brains">
-
   <div class="brain-item good">
     💰 السعر
     <span>${priceIntel.score >= 70 ? 'ممتاز' : priceIntel.score >= 50 ? 'جيد' : 'ضعيف'}</span>
@@ -1187,36 +1181,25 @@ ${budgetBadge}
   }">
     📈 التوقيت
     <span>
-      ${
-        forecast.trend === 'down'
-          ? 'انتظر'
-          : forecast.trend === 'up'
-          ? 'قد يرتفع'
-          : 'مستقر'
-      }
+      ${forecast.trend === 'down'
+        ? 'انتظر'
+        : forecast.trend === 'up'
+        ? 'قد يرتفع'
+        : 'مستقر'}
     </span>
   </div>
 
-  <div class="brain-item ${
-    trust.riskScore > 50 ? 'risk' : 'safe'
-  }">
+  <div class="brain-item ${trust.riskScore > 50 ? 'risk' : 'safe'}">
     🛡️ الثقة
-    <span>
-      ${trust.riskScore > 50 ? 'مخاطرة' : 'آمن'}
-    </span>
+    <span>${trust.riskScore > 50 ? 'مخاطرة' : 'آمن'}</span>
   </div>
 
   <div class="brain-item learn">
     🧠 السلوك
-    <span>
-      ${valueIntel.learningBoost > 0 ? 'مناسب لك' : 'عام'}
-    </span>
+    <span>${valueIntel.learningBoost > 0 ? 'مناسب لك' : 'عام'}</span>
   </div>
-
 </div>
 
-
-    
 <div class="analysis-engine">
   <span class="analysis-label">
     ${verdict.emoji || '🤖'} ${verdict.title || ''}
@@ -1224,65 +1207,28 @@ ${budgetBadge}
   <div>${verdict.reason || ''}</div>
 </div>
 
-
-${bestCoupon ? `
-  <div class="coupon-box">
-    🎟️ <strong>${bestCoupon.code}</strong>
-    (${bestCoupon.type === 'percent'
-      ? `-${bestCoupon.discount}%`
-      : `-$${bestCoupon.discount}`})
-
-    <div class="discounted-price">
-      ${T.after_discount || 'After discount'}:
-      <strong>$${discountedPrice}</strong>
-    </div>
-
-    <button class="action-btn coupon-btn"
-      onclick="navigator.clipboard.writeText('${bestCoupon.code}')">
-      ${T.copy_coupon || 'Copy coupon'}
-    </button>
-  </div>
-` : ''}
-
-                         
 <div class="intel-section">
   <h4>📊 ${T.market}</h4>
-  <p>${T.avg_price}: <strong>${priceIntel.average ? `$${priceIntel.average}` : '—'}</strong></p>
+  <p>${T.avg_price}: <strong>$${priceIntel.average || '—'}</strong></p>
   <p>${T.competitors}: <strong>${valueIntel.competitors || 0}</strong></p>
-</div>
-
-<div class="intel-section">
-  <h4>💎 ${T.value}</h4>
-  <p>${T.deal_score}: <strong>${valueIntel.score || 0}%</strong></p>
-  <p>
-    ${valueIntel.learningBoost > 0
-      ? T.learning_on
-      : T.learning_later}
-  </p>
 </div>
 
 <div class="intel-section">
   <h4>🔮 ${T.forecast}</h4>
   <p>${T.trend[forecast.trend] || T.trend.stable}</p>
   <p>${T.expected_price}: <strong>$${forecast.expectedPrice || '—'}</strong></p>
-  <p>${T.confidence}: <strong>${Math.round((forecast.confidence || 0) * 100)}%</strong></p>
 </div>
 
 <div class="intel-section">
   <h4>⚠️ ${T.trust}</h4>
   ${
-    trust.warnings && trust.warnings.length
+    trust.warnings?.length
       ? `<ul>${trust.warnings.map(w => `<li>${w}</li>`).join('')}</ul>`
       : `<p>✅ ${T.no_risks}</p>`
   }
 </div>
 
-
 <div class="actions">
-  <button class="action-btn ghost">راقب</button>
-
-  <button class="action-btn ghost">تحليل</button>
-
   <a
     class="action-btn buy"
     href="https://findly-api.onrender.com/go?url=${encodeURIComponent(p.link)}"
@@ -1292,42 +1238,17 @@ ${bestCoupon ? `
     🛒 اشترِ الآن
   </a>
 </div>
-
-
-<button
-  class="action-btn analyze-btn"
-  data-verdict="${encodeURIComponent(JSON.stringify(verdict))}"
-  data-price="${encodeURIComponent(JSON.stringify(priceIntel))}"
-  data-value="${encodeURIComponent(JSON.stringify(valueIntel))}"
-  data-forecast="${encodeURIComponent(JSON.stringify(forecast))}"
-  data-trust="${encodeURIComponent(JSON.stringify(trust))}"
-  onclick="openAnalysisFromBtn(this)"
->
-  ${T.analyze}
-</button>
-
-  
-  <button class="action-btn watch-btn"
-    onclick="addToWatch(
-      '${(p.title || '').replace(/'/g, '')}',
-      '${p.price}',
-      '${p.link}'
-    )">
-    ${T.watch}
-  </button>
-</div>
 `;
 
       resultsBox.appendChild(card);
     });
 
-  } catch (e) {
-    console.error(e);
+  } catch (err) {
+    console.error('Search error:', err);
     status.style.display = 'block';
-    status.innerText = '❌';
+    status.innerText = '❌ فشل البحث';
   }
 }
-
     
 
     // 2. دالة إضافة التنبيهات (المراقبة)

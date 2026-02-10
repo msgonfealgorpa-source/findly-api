@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl" id="main-html">
 <head>
@@ -331,6 +332,7 @@
         }
         .watch-btn:hover { background: rgba(139, 92, 246, 0.1); border-color: var(--primary); }
 
+
         .budget-error {
             background: rgba(239, 68, 68, 0.15); color: #ef4444;
             padding: 8px 12px; border-radius: 12px; font-size: 0.8rem;
@@ -395,6 +397,7 @@
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(139, 92, 246, 0.2);
             animation: fadeInScale 0.4s ease-out;
         }
+
 
         /* شعار Findly Sage داخل الكارت */
         .auth-header h1 {
@@ -469,10 +472,151 @@
             to { opacity: 1; transform: scale(1); }
         }
 
+
+
+        .old-price {
+  text-decoration: line-through;
+  opacity: 0.6;
+  margin-right: 6px;
+}
+
+.new-price {
+  color: #2ecc71;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+
+
+
+.actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.action-btn {
+  flex: 1;
+  height: 48px;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+/* زر الشراء */
+.action-btn.buy {
+  background: linear-gradient(135deg, #7b61ff, #9b7bff);
+  color: #fff;
+}
+
+/* الأزرار الثانوية */
+.action-btn.ghost {
+  background: rgba(255,255,255,0.06);
+  color: #cfc7ff;
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+.action-btn:hover {
+  transform: translateY(-1px);
+  opacity: 0.95;
+}
+
+
+
+       .sage-quick-brains {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.brain-item {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 8px 10px;
+  font-size: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+}
+
+.brain-item span {
+  opacity: 0.85;
+}
+
+.brain-item.good { border-color: #10b981; }
+.brain-item.buy { border-color: #22c55e; }
+.brain-item.wait { border-color: #f59e0b; }
+.brain-item.safe { border-color: #3b82f6; }
+.brain-item.risk { border-color: #ef4444; }
+.brain-item.learn { border-color: #8b5cf6; } 
+      
+   
+.invite-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  background: linear-gradient(
+    135deg,
+    rgba(40, 32, 90, 0.85),
+    rgba(28, 22, 60, 0.9)
+  );
+
+  border: 1px solid rgba(138, 99, 255, 0.35);
+  border-radius: 16px;
+
+  padding: 14px 16px;
+  margin-top: 14px;
+
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.invite-card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 22px rgba(138, 99, 255, 0.25),
+    inset 0 0 0 1px rgba(138, 99, 255, 0.15);
+}
+
+.invite-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+
+  background: radial-gradient(
+    circle at top left,
+    #9f8cff,
+    #6f5cff
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.invite-text {
+  font-size: 14.5px;
+  color: #e1dbff;
+  line-height: 1.6;
+  text-align: center;
+  width: 100%;
+}
+        
+    
     </style>
 </head>
 <body>
 
+
+    
 <div id="auth-overlay" class="auth-overlay">
     <div class="auth-card">
         <div class="auth-header">
@@ -493,12 +637,12 @@
             متابعة باستخدام جوجل
         </button>
 
-        <div class="auth-footer-links" style="margin-top:20px; font-size:0.8rem;">
-            <a href="terms.html" target="_blank" style="color:#a78bfa;">شروط الاستخدام</a>
-            <span class="dot" style="color:white; margin:0 5px;">•</span>
-            <a href="privacy.html" target="_blank" style="color:#a78bfa;">سياسة الخصوصية</a>
-        </div>
-    </div>
+
+<a href="privacy.html">سياسة الخصوصية</a>
+<a href="terms.html">شروط الاستخدام</a>
+<a href="about.html">من نحن</a>
+        
+</div>
 </div>
 
 <header>
@@ -550,6 +694,16 @@
         <button class="send-btn" onclick="runSearch()"><i class="fa-solid fa-magnifying-glass"></i></button>
     </div>
 
+
+<div class="invite-card" onclick="copyInvite()">
+  <div class="invite-icon">🚀</div>
+
+  <div class="invite-text" id="inviteText">
+    ادعُ أصدقاءك الآن ✨ — ميزات ومكافآت قادمة قريبًا 🎁 — كن من الأوائل 🚀
+  </div>
+</div>
+    
+    
     <div class="ai-options">
         <div class="ai-tag" onclick="quickFilter('cheap')"><i class="fa-solid fa-sack-dollar"></i> <span id="tag-cheap"></span></div>
         <div class="ai-tag" onclick="quickFilter('top')"><i class="fa-solid fa-star"></i> <span id="tag-top"></span></div>
@@ -563,6 +717,12 @@
         <div class="cat-card" onclick="quickSearch('هواتف')"><i class="fa-solid fa-mobile-screen-button"></i><span id="cat-c1"></span></div>
         <div class="cat-card" onclick="quickSearch('لابتوب')"><i class="fa-solid fa-laptop"></i><span id="cat-c2"></span></div>
         <div class="cat-card" onclick="quickSearch('ساعات')"><i class="fa-solid fa-stopwatch"></i><span id="cat-c4"></span></div>
+    </div>
+
+    <div style="margin-top: 30px; text-align: center; font-size: 0.8rem;">
+        <a href="privacy.html" style="color: var(--text-muted); margin: 0 10px; text-decoration: none;">سياسة الخصوصية</a>
+        <a href="terms.html" style="color: var(--text-muted); margin: 0 10px; text-decoration: none;">شروط الاستخدام</a>
+        <a href="about.html" style="color: var(--text-muted); margin: 0 10px; text-decoration: none;">من نحن</a>
     </div>
 
     <div id="status" style="display:none; color:var(--primary); font-weight:bold; margin-top:30px; font-size: 1.1rem;"></div>

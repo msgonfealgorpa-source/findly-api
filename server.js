@@ -239,6 +239,14 @@ app.get('/watchlist/:uid', async (req, res) => {
   }
 });
 
+
+app.get('/go', (req, res) => {
+  const url = req.query.url;
+  if (!url) {
+    return res.status(400).send('Missing url');
+  }
+  res.redirect(url);
+});
 /* ================= START ================= */
 app.listen(PORT, () => {
   console.log(`🚀 Findly Server running on port ${PORT}`);

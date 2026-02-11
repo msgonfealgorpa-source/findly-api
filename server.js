@@ -130,7 +130,7 @@ app.get('/search', async (req, res) => {
 
       // 🧠 SageCore (KEYS ONLY)
       const intelligence = SageCore(
-        product,
+         product,
         rawResults,
         serperContext,
         {},
@@ -138,6 +138,7 @@ app.get('/search', async (req, res) => {
         null
       ) || {};
 
+       console.log("FINAL VERDICT:", intelligence.finalVerdict);
       return {
         ...product,
         intelligence

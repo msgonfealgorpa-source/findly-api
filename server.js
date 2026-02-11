@@ -252,11 +252,12 @@ app.get('/go', (req, res) => {
   try {
     const decodedUrl = decodeURIComponent(url);
 
-    if (!decodedUrl.startsWith('http')) {
+    if (!/^https?:\/\//i.test(decodedUrl)) {
       return res.status(400).send("Invalid URL");
     }
 
     return res.redirect(decodedUrl);
+
   } catch (err) {
     return res.status(500).send("Redirect error");
   }

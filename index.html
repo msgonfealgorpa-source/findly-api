@@ -812,26 +812,38 @@
         }
     });
 
-    window.loginWithGoogle = async () => {
-        try { await signInWithPopup(auth, provider); } catch (error) { alert("Error: " + error.message); }
-    };
-
     window.handleEmailAuth = async () => {
-        const email = document.getElementById('auth-email').value;
-        const password = document.getElementById('auth-password').value;
-        if (!email || !password) return alert("أدخل البيانات");
+    const email = document.getElementById('auth-email').value.trim();
+    const password = document.getElementById('auth-password').value.trim();
 
-        try {
-            await signInWithEmailAndPassword(auth, email, password);
-        } catch (error) {
-            if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
-                createUserWithEmailAndPassword(auth, email, password).catch(e => alert(e.message));
-            } else {
-                alert(error.message);
+    if (!email || !password) {
+        alert("أدخل البريد وكلمة المرور");
+        return;
+    }
+
+    try {
+        // نحاول تسجيل الدخول
+        await signInWithEmailAndPassword(auth, email, password);
+        alert("تم تسجيل الدخول");
+    } catch (error) {
+
+        if (
+            error.code === "auth/user-not-found" ||
+            error.code === "auth/invalid-credential"
+        ) {
+            try {
+                await createUserWithEmailAndPassword(auth, email, password);
+                alert("تم إنشاء الحساب بنجاح");
+            } catch (createError) {
+                alert(createError.message);
             }
+        } else {
+            alert(error.message);
         }
-    };
 
+    }
+};
+    
     window.logoutUser = () => {
         if (confirm("هل تريد تسجيل الخروج؟")) {
             signOut(auth).then(() => {
@@ -840,6 +852,8 @@
             });
         }
     };
+
+
 </script>
 
 <script>

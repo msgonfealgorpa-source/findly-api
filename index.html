@@ -581,7 +581,45 @@
             line-height: 1.6;
             text-align: center;
             width: 100%;
-        }
+     }
+ 
+    .layout-wrapper {
+    display: flex;
+    gap: 20px;
+}
+
+#results {
+    flex: 3;
+}
+
+.affiliate-card {
+    flex: 1;
+    background: #111;
+    color: white;
+    padding: 15px;
+    border-radius: 12px;
+    position: sticky;
+    top: 20px;
+}
+
+.affiliate-card img {
+    width: 100%;
+    border-radius: 8px;
+}
+
+.affiliate-btn {
+    display: block;
+    background: #ff4747;
+    text-align: center;
+    padding: 10px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: white;
+    margin-top: 10px;
+}
+    
+    
+    
     </style>
 </head>
 <body>
@@ -691,7 +729,23 @@
     </div>
 
     <div id="status" style="display:none; color:var(--primary); font-weight:bold; margin-top:30px; font-size: 1.1rem;"></div>
-    <div id="results"></div>
+
+
+
+<div class="layout-wrapper">
+
+  <!-- نتائج البحث -->
+  <div id="results"></div>
+
+  <!-- بطاقة الافليت الجانبية -->
+  <div id="affiliateCard" class="affiliate-card" style="display:none;">
+      <img id="affImage" src="" />
+      <h3 id="affTitle"></h3>
+      <p>🔥 عرض مميز مرتبط ببحثك</p>
+      <a id="affBtn" target="_blank" class="affiliate-btn">
+          🛒 شراء الآن
+      </a>
+  </div>
 </main>
 
 <div class="modal" id="w-modal">
@@ -1018,6 +1072,18 @@
                 return;
             }
 
+
+            if (data.results && data.results.length > 0) {
+    const firstProduct = data.results[0];
+
+    updateAffiliateCard({
+        image: firstProduct.thumbnail,
+        title: firstProduct.title,
+        url: firstProduct.link
+    });
+}
+
+    
             data.results.forEach(p => {
                 const intel = p.intelligence || {};
                 const verdict = intel.finalVerdict || {};
@@ -1054,6 +1120,9 @@ console.log(
     ? p.link
     : null;
                 
+              
+                
+            
                 const card = document.createElement('div');
                 card.className = `product-card ${budgetClass}`;
 
@@ -1324,6 +1393,23 @@ console.log(
         document.getElementById('main-html').dir = (lang === 'ar') ? 'rtl' : 'ltr';
     }
 
+
+    
+function updateAffiliateCard(product) {
+
+    const affiliateBase = "https://s.click.aliexpress.com/e/_c3Ol2SAb";
+
+    document.getElementById("affImage").src = product.image;
+    document.getElementById("affTitle").innerText = product.title;
+
+    const affiliateLink =
+        affiliateBase + "?redirect=" + encodeURIComponent(product.url);
+
+    document.getElementById("affBtn").href = affiliateLink;
+
+    document.getElementById("affiliateCard").style.display = "block";
+}
+    
     function startVoice() {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SpeechRecognition) {

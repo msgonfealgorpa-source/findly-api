@@ -268,6 +268,9 @@ const finalVerdict = {
   /* ===============================
      FINAL OUTPUT (متوافق 100%)
   =============================== */
+  /* ===============================
+     FINAL OUTPUT (متوافق 100%)
+  =============================== */
   return {
     priceIntel: {
       current: price,
@@ -301,9 +304,8 @@ const finalVerdict = {
         premium: 'يهتم بالجودة أكثر من السعر',
         neutral: 'سلوك متوازن'
       }[personality]
+    },
 
-      finalVerdict  // ← أضف هذا السطر فقط
-
-    }
+    finalVerdict
   };
 };

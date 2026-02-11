@@ -241,6 +241,27 @@ app.post(
   }
 );
 
+app.get('/go', (req, res) => {
+  const { url } = req.query;
+
+  if (!url) {
+    return res.status(400).send("No URL provided");
+  }
+
+  try {
+    const decodedUrl = decodeURIComponent(url);
+
+    if (!decodedUrl.startsWith('http')) {
+      return res.status(400).send("Invalid URL");
+    }
+
+    return res.redirect(decodedUrl);
+  } catch (err) {
+    return res.status(500).send("Redirect error");
+  }
+});
+
+
 /* ================= START ================= */
 app.listen(PORT, () =>
   console.log(`🚀 Findly Server running on ${PORT}`)

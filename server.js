@@ -242,6 +242,7 @@ app.post(
   }
 );
 
+
 app.get('/go', (req, res) => {
   const { url } = req.query;
 
@@ -262,7 +263,6 @@ app.get('/go', (req, res) => {
     return res.status(500).send("Redirect error");
   }
 });
-
 
 /* ================= START ================= */
 app.listen(PORT, () =>

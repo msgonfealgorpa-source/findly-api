@@ -1128,6 +1128,17 @@ console.log(
                     ${trust.warnings && trust.warnings.length ? `<ul>${trust.warnings.map(w => `<li>${w}</li>`).join('')}</ul>` : `<p>✅ ${T.no_risks}</p>`}
                 </div>
 
+
+
+<button class="action-btn watch"
+    onclick="addToWatch(
+        '${p.title.replace(/'/g,"\\'")}',
+        '${numericPrice}',
+        '${safeLink || ""}'
+    )"
+    style="width:100%; margin-top:10px; background:#f59e0b; color:white;">
+    🔔 ${lang === 'ar' ? 'مراقبة السعر' : 'Watch Price'}
+</button>
         
                 ${safeLink ? `
 <a class="action-btn buy"

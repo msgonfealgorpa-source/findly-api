@@ -1076,12 +1076,9 @@
             if (data.results && data.results.length > 0) {
     const firstProduct = data.results[0];
 
-    updateAffiliateCard({
-        image: firstProduct.thumbnail,
-        title: firstProduct.title,
-        url: firstProduct.link
-    });
+    updateAffiliateCard(firstProduct);
 }
+
 
     
             data.results.forEach(p => {
@@ -1092,7 +1089,16 @@
                 const forecast = intel.forecastIntel || {};
                 const trust = intel.trustIntel || {};
 
+const bestLink =
+    p.intelligence?.finalVerdict?.bestLink ||
+    p.link;
 
+const safeLink =
+    typeof bestLink === "string" && bestLink.startsWith("http")
+        ? bestLink
+        : null;
+
+                
                 console.log(
   'DECISION KEY:',
   p.intelligence?.priceIntel?.decision
@@ -1110,17 +1116,9 @@ console.log(
                 if (userBudget > 0 && priceVal > userBudget) {
                     budgetClass = 'over-budget';
                     budgetBadge = `<div class="budget-alert">⚠️ ${UI.over || 'Over Budget!'}</div>`;
-                }
-
-
-
-
-                const safeLink =
-  typeof p.link === 'string' && p.link.startsWith('http')
-    ? p.link
-    : null;
                 
-              
+                
+                    }
                 
             
                 const card = document.createElement('div');
@@ -1394,21 +1392,28 @@ console.log(
     }
 
 
-    
-function updateAffiliateCard(product) {
+    function updateAffiliateCard(product) {
 
     const affiliateBase = "https://s.click.aliexpress.com/e/_c3Ol2SAb";
 
-    document.getElementById("affImage").src = product.image;
-    document.getElementById("affTitle").innerText = product.title;
+    const safeLink =
+        product.intelligence?.finalVerdict?.bestLink ||
+        product.link;
+
+    document.getElementById("affImage").src =
+        product.thumbnail || product.image;
+
+    document.getElementById("affTitle").innerText =
+        product.title;
 
     const affiliateLink =
-        affiliateBase + "?redirect=" + encodeURIComponent(product.url);
+        affiliateBase + "?redirect=" + encodeURIComponent(safeLink);
 
     document.getElementById("affBtn").href = affiliateLink;
 
     document.getElementById("affiliateCard").style.display = "block";
 }
+
     
     function startVoice() {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;

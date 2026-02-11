@@ -188,6 +188,84 @@ module.exports = function SageCore(
   }
 
   /* ===============================
+   6️⃣ Strategic Final Verdict (NEW)
+================================ */
+
+// حساب أفضل متجر (الأرخص)
+let bestStore = null;
+let bestPrice = price;
+let bestLink = product.link || null;
+
+if (marketProducts.length > 0) {
+  const cheapest = marketProducts.reduce((min, item) => {
+    const p = cleanPrice(item.product_price || item.price);
+    if (!p) return min;
+
+    if (!min || p < min.price) {
+      return {
+        price: p,
+        store: item.source || item.store || 'Unknown',
+        link: item.link || item.product_link || null
+      };
+    }
+    return min;
+  }, null);
+
+  if (cheapest) {
+    bestStore = cheapest.store;
+    bestPrice = cheapest.price;
+    bestLink = cheapest.link;
+  }
+}
+
+// نسبة التوفير
+let savingPercent = 0;
+if (marketAverage && price > 0) {
+  savingPercent = Math.round(
+    ((marketAverage - price) / marketAverage) * 100
+  );
+}
+
+// قرار استراتيجي أعلى مستوى
+let strategicDecision = 'WAIT';
+let strategicReason = 'السعر ضمن النطاق الطبيعي';
+
+if (savingPercent >= 15 && riskScore < 30) {
+  strategicDecision = 'BUY_NOW';
+  strategicReason = `توفر ${savingPercent}% عن متوسط السوق`;
+}
+else if (savingPercent <= -10) {
+  strategicDecision = 'OVERPRICED';
+  strategicReason = 'السعر أعلى من السوق بشكل واضح';
+}
+else if (forecast.trend === 'down') {
+  strategicDecision = 'WAIT_PRICE_DROP';
+  strategicReason = 'متوقع انخفاض قريب';
+}
+
+const confidenceScore = Math.max(
+  0,
+  Math.min(
+    100,
+    Math.round(
+      (dealScore * 0.5) +
+      ((100 - riskScore) * 0.3) +
+      (forecast.confidence * 100 * 0.2)
+    )
+  )
+);
+
+const finalVerdict = {
+  decision: strategicDecision,
+  confidence: confidenceScore,
+  savingPercent,
+  bestStore,
+  bestPrice,
+  bestLink,
+  reason: strategicReason
+};
+ 
+  /* ===============================
      FINAL OUTPUT (متوافق 100%)
   =============================== */
   return {
@@ -223,6 +301,9 @@ module.exports = function SageCore(
         premium: 'يهتم بالجودة أكثر من السعر',
         neutral: 'سلوك متوازن'
       }[personality]
+
+      finalVerdict  // ← أضف هذا السطر فقط
+
     }
   };
 };

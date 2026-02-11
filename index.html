@@ -812,6 +812,7 @@
         }
     });
 
+
     window.handleEmailAuth = async () => {
     const email = document.getElementById('auth-email').value.trim();
     const password = document.getElementById('auth-password').value.trim();
@@ -822,14 +823,14 @@
     }
 
     try {
-        // نحاول تسجيل الدخول
         await signInWithEmailAndPassword(auth, email, password);
         alert("تم تسجيل الدخول");
     } catch (error) {
 
         if (
             error.code === "auth/user-not-found" ||
-            error.code === "auth/invalid-credential"
+            error.code === "auth/invalid-credential" ||
+            error.code === "auth/invalid-login-credentials"
         ) {
             try {
                 await createUserWithEmailAndPassword(auth, email, password);

@@ -367,13 +367,13 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         .auth-overlay {
+    display: none;   /* مهم جداً */
     position: fixed;
     inset: 0;
     width: 100vw;
     height: 100vh;
     background: radial-gradient(circle at center, #1e1b4b 0%, #020617 100%);
     z-index: 2147483647;
-    display: flex;
     justify-content: center;
     align-items: center;
     backdrop-filter: blur(15px);
@@ -806,19 +806,20 @@
 
     onAuthStateChanged(auth, (user) => {
         const overlay = document.getElementById('auth-overlay');
-        if (user) {
-            overlay.style.setProperty('display', 'none', 'important');
-            document.body.style.overflow = 'auto';
-            localStorage.setItem('findly_uid', user.uid);
-            
-            if (!sessionStorage.getItem('welcome_shown')) {
-                sessionStorage.setItem('welcome_shown', 'true');
-            }
-        } else {
-            overlay.style.setProperty('display', 'flex', 'important');
-            document.body.style.overflow = 'hidden';
-        }
-    });
+
+if (user) {
+    if (overlay) overlay.style.display = "none";
+    document.body.style.overflow = "auto";
+    localStorage.setItem('findly_uid', user.uid);
+
+    if (!sessionStorage.getItem('welcome_shown')) {
+        sessionStorage.setItem('welcome_shown', 'true');
+    }
+
+} else {
+    if (overlay) overlay.style.display = "flex";
+    document.body.style.overflow = "hidden";
+}
 
 
 

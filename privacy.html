@@ -1,49 +1,79 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Privacy Policy - Findly</title>
-    <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #f0f0f0; background-color: #0f172a; padding: 40px 20px; max-width: 800px; margin: auto; }
-        h1 { color: #38bdf8; border-bottom: 2px solid #1e293b; padding-bottom: 10px; }
-        h2 { color: #7dd3fc; margin-top: 30px; }
-        p { margin-bottom: 15px; }
-        .back-link { display: inline-block; margin-top: 40px; color: #38bdf8; text-decoration: none; font-weight: bold; }
-        .back-link:hover { text-decoration: underline; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Policy - Findly</title>
+<style>
+body { font-family: Arial; background:#0f172a; color:#f1f5f9; padding:40px; max-width:900px; margin:auto; line-height:1.7;}
+h1,h2{color:#22d3ee}
+</style>
 </head>
 <body>
-    <h1>Privacy Policy</h1>
-    <p>Last Updated: January 30, 2026</p>
 
-    <p>Welcome to <strong>Findly</strong>. We value your privacy and are committed to protecting your personal data. This policy outlines how we handle information when you use our shopping assistant.</p>
+<div data-lang="en">
+<h1>Privacy Policy</h1>
+<p>Last Updated: February 12, 2026</p>
 
-    <h2>1. Information We Collect</h2>
-    <p>We collect minimal data to provide our services, including:</p>
-    <ul>
-        <li><strong>Account Information:</strong> If you sign up, we store your email and user ID via Firebase Authentication.</li>
-        <li><strong>Search Data:</strong> We may process your search queries to fetch results from third-party APIs like Alibaba.</li>
-    </ul>
+<h2>1. Information We Collect</h2>
+<p>We collect minimal information necessary to operate the Service, including:</p>
+<ul>
+<li>User ID</li>
+<li>Search queries</li>
+<li>Subscription status</li>
+<li>Basic technical logs</li>
+</ul>
 
-    <h2>2. How We Use Data</h2>
-    <p>Your data is used solely to:</p>
-    <ul>
-        <li>Provide personalized search results and watchlists.</li>
-        <li>Ensure account security through Firebase.</li>
-        <li>Improve the performance of our AI shopping assistant.</li>
-    </ul>
+<h2>2. How We Use Data</h2>
+<p>Data is used solely to provide search functionality, improve performance, and manage subscriptions.</p>
 
-    <h2>3. Third-Party Services</h2>
-    <p>We integrate with trusted partners:</p>
-    <ul>
-        <li><strong>Google Firebase:</strong> For user authentication and database security.</li>
-        <li><strong>Alibaba Open Platform:</strong> To provide real-time product data and pricing.</li>
-    </ul>
+<h2>3. Data Retention</h2>
+<p>Search logs may be stored temporarily for performance optimization and fraud prevention.</p>
 
-    <h2>4. Data Security</h2>
-    <p>We implement industry-standard security rules (Cloud Firestore Security Rules) to ensure that only you can access your private data.</p>
+<h2>4. Payments</h2>
+<p>Cryptocurrency payments are processed by third-party providers. We do not store wallet keys.</p>
 
-    <a href="index.html" class="back-link">← Back to Findly Home</a>
+<h2>5. Security</h2>
+<p>We implement industry-standard security practices to protect user data.</p>
+
+<h2>6. Your Rights</h2>
+<p>You may request deletion of your account data at any time.</p>
+</div>
+
+<div data-lang="ar" dir="rtl">
+<h1>سياسة الخصوصية</h1>
+<p>آخر تحديث: 12 فبراير 2026</p>
+
+<h2>1. البيانات التي نجمعها</h2>
+<p>نجمع الحد الأدنى من البيانات اللازمة لتشغيل الخدمة مثل:</p>
+<ul>
+<li>معرف المستخدم</li>
+<li>عمليات البحث</li>
+<li>حالة الاشتراك</li>
+</ul>
+
+<h2>2. استخدام البيانات</h2>
+<p>تستخدم البيانات لتقديم نتائج البحث وتحسين الأداء وإدارة الاشتراكات.</p>
+
+<h2>3. الاحتفاظ بالبيانات</h2>
+<p>قد يتم الاحتفاظ بسجلات مؤقتة لأغراض الأداء والأمان.</p>
+
+<h2>4. المدفوعات</h2>
+<p>تتم معالجة المدفوعات عبر مزودين خارجيين ولا نقوم بتخزين مفاتيح المحافظ.</p>
+
+<h2>5. الأمان</h2>
+<p>نطبق معايير أمان مناسبة لحماية بيانات المستخدمين.</p>
+
+<h2>6. حقوقك</h2>
+<p>يمكنك طلب حذف بيانات حسابك في أي وقت.</p>
+</div>
+
+<script>
+const userLang = navigator.language.startsWith("ar") ? "ar" : "en";
+document.querySelectorAll("[data-lang]").forEach(el=>{
+  el.style.display = el.getAttribute("data-lang") === userLang ? "block":"none";
+});
+</script>
+
 </body>
 </html>

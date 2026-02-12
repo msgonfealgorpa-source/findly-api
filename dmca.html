@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>DMCA Policy - Findly</title>
+<style>
+body { font-family: Arial; background:#0f172a; color:#f1f5f9; padding:40px; max-width:900px; margin:auto;}
+h1{color:#ef4444}
+</style>
+</head>
+<body>
+
+<div data-lang="en">
+<h1>DMCA Policy</h1>
+
+<p>Findly respects intellectual property rights.</p>
+
+<p>If you believe that content accessible through Findly infringes your copyright, you may submit a takedown request including:</p>
+<ul>
+<li>Your contact information</li>
+<li>Description of copyrighted work</li>
+<li>URL of infringing material</li>
+<li>Statement of good faith belief</li>
+</ul>
+
+<p>Requests can be sent to: legal@findly.app</p>
+</div>
+
+<div data-lang="ar" dir="rtl">
+<h1>سياسة حقوق النشر (DMCA)</h1>
+
+<p>تحترم Findly حقوق الملكية الفكرية.</p>
+
+<p>في حال وجود انتهاك، يمكن إرسال طلب إزالة يتضمن:</p>
+<ul>
+<li>بيانات التواصل</li>
+<li>وصف العمل المحمي</li>
+<li>رابط المحتوى</li>
+<li>إقرار بحسن النية</li>
+</ul>
+
+<p>يتم إرسال الطلبات إلى: legal@findly.app</p>
+</div>
+
+<script>
+const userLang = navigator.language.startsWith("ar") ? "ar" : "en";
+document.querySelectorAll("[data-lang]").forEach(el=>{
+  el.style.display = el.getAttribute("data-lang") === userLang ? "block":"none";
+});
+</script>
+
+</body>
+</html>

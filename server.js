@@ -182,8 +182,8 @@ app.post('/create-payment', async (req, res) => {
     const response = await axios.post(
       'https://api.nowpayments.io/v1/invoice',
       {
-        price_amount: 7,
-price_currency: 'usd',
+        price_amount: 7.2,
+price_currency: 'usdttrc20',
 pay_currency: 'usdttrc20',
         order_id: uid,
         order_description: 'Findly Pro Subscription',

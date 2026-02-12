@@ -671,8 +671,8 @@
             <span id="watch-count" style="position:absolute; top:-5px; right:-5px; background:#ef4444; color:white; font-size:0.6rem; padding:2px 6px; border-radius:50%; display:none; border: 2px solid var(--bg-dark);">0</span>
         </button>
         <button class="tool-btn" onclick="openProfile()"><i class="fa-solid fa-user-gear"></i></button>
-        <button class="tool-btn" onclick="logoutUser()" title="تسجيل الخروج">
-            <i class="fa-solid fa-right-from-bracket"></i>
+        <button class="tool-btn" id="logout-btn" title="تسجيل الخروج">
+    <i class="fa-solid fa-right-from-bracket"></i>
         </button>
     </div>
 </header>
@@ -860,7 +860,6 @@ if (user) {
     }
     
     
-
 window.logoutUser = () => {
     if (confirm("هل تريد تسجيل الخروج؟")) {
         signOut(auth)
@@ -874,7 +873,14 @@ window.logoutUser = () => {
             });
     }
 };
-        
+
+document.addEventListener("DOMContentLoaded", () => {
+    const logoutBtn = document.getElementById("logout-btn");
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", window.logoutUser);
+    }
+});
+
 
     window.loginUser = loginUser;
 window.registerUser = registerUser;

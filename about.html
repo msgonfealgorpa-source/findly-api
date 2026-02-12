@@ -1,69 +1,44 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>من نحن - Findly Sage</title>
-    <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@400;600&display=swap" rel="stylesheet">
-    <style>
-        body {
-            background: radial-gradient(circle at center, #1e1b4b 0%, #020617 100%);
-            color: #f8fafc;
-            font-family: 'Readex Pro', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-        .container {
-            background: rgba(30, 41, 59, 0.6);
-            padding: 40px;
-            border-radius: 30px;
-            border: 1px solid rgba(139, 92, 246, 0.4);
-            max-width: 600px;
-            text-align: center;
-            backdrop-filter: blur(15px);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-        }
-        h1 { 
-            color: #fff; 
-            font-size: 2.5rem;
-            margin-bottom: 20px; 
-        }
-        h1 span { color: #a78bfa; }
-        p { 
-            line-height: 1.9; 
-            color: #cbd5e1; 
-            font-size: 1.1rem;
-            margin-bottom: 30px;
-        }
-        .back-btn {
-            display: inline-block;
-            color: #fff;
-            text-decoration: none;
-            background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
-            padding: 12px 30px;
-            border-radius: 15px;
-            font-weight: 600;
-            transition: 0.3s;
-            box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3);
-        }
-        .back-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 25px rgba(139, 92, 246, 0.4);
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About - Findly</title>
+<style>
+body { font-family: Arial; background:#020617; color:#f8fafc; padding:40px; max-width:800px; margin:auto; line-height:1.8;}
+h1{color:#a78bfa}
+</style>
 </head>
 <body>
-    <div class="container">
-        <h1>Findly <span>Sage</span></h1>
-        <p>
-            نحن نؤمن بأن التسوق الذكي هو حق للجميع. <b>Findly Sage</b> هو محرك بحث وتحليل عالمي مدعوم بالذكاء الاصطناعي، صُمم لفك تشفير بيانات المنتجات المعقدة وتقديم رؤى صادقة وشفافة للمستهلكين في كل مكان. هدفنا هو تحويل تجربة البحث التقليدية إلى رحلة معرفية تساعدك على اختيار الأفضل دائماً.
-        </p>
-        <a href="index.html" class="back-btn">العودة للمنصة</a>
-    </div>
+
+<div data-lang="en">
+<h1>About Findly</h1>
+<p>Findly is an advanced AI-powered product intelligence platform designed to help users make smarter purchasing decisions.</p>
+
+<p>Our mission is to transform traditional product search into an intelligent, data-driven experience.</p>
+
+<p>We combine real-time product data with AI analysis to deliver clarity, transparency, and insight.</p>
+
+<p>Findly operates as a neutral technology platform and does not sell products directly.</p>
+</div>
+
+<div data-lang="ar" dir="rtl">
+<h1>من نحن</h1>
+<p>Findly هي منصة ذكاء اصطناعي متقدمة لتحليل المنتجات ومساعدة المستخدمين على اتخاذ قرارات شراء أكثر ذكاءً.</p>
+
+<p>هدفنا هو تحويل البحث التقليدي إلى تجربة تحليلية قائمة على البيانات.</p>
+
+<p>نجمع بين بيانات المنتجات الفورية وتحليل الذكاء الاصطناعي لتقديم رؤية واضحة وشفافة.</p>
+
+<p>Findly تعمل كمنصة تقنية مستقلة ولا تقوم ببيع المنتجات مباشرة.</p>
+</div>
+
+<script>
+const userLang = navigator.language.startsWith("ar") ? "ar" : "en";
+document.querySelectorAll("[data-lang]").forEach(el=>{
+  el.style.display = el.getAttribute("data-lang") === userLang ? "block":"none";
+});
+</script>
+
 </body>
 </html>

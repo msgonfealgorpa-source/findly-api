@@ -1200,7 +1200,9 @@
 
             stopAnalysisLoader(loaderInterval);
             if (data.error === 'ENERGY_EMPTY') {
-  const currentLang = localStorage.getItem('findly_lang') || 'ar';
+
+                stopAnalysisLoader(loaderInterval);
+                const currentLang = localStorage.getItem('findly_lang') || 'ar';
   const t = i18n[currentLang] || i18n.ar;
 
   status.style.display = 'block';
@@ -1225,11 +1227,13 @@
   return; // ⬅️ مهم جداً
 }
             if (!data.results) {
-                status.style.display = 'block';
-                status.innerText = lang === 'ar' ? 'لا توجد نتائج' : 'No results found';
-                return;
-            }
 
+    stopAnalysisLoader(loaderInterval); // ✅ أضف هذا
+
+    status.style.display = 'block';
+    status.innerText = lang === 'ar' ? 'لا توجد نتائج' : 'No results found';
+    return;
+}
 
             if (data.results && data.results.length > 0) {
     const firstProduct = data.results[0];
@@ -1446,10 +1450,13 @@ ${verdict.decision ? `
             });
 
         } catch (e) {
-            console.error(e);
-            status.style.display = 'block';
-            status.innerText = '❌ Error fetching results';
-        }
+
+    stopAnalysisLoader(loaderInterval); // ✅ أضف هذا
+
+    console.error(e);
+    status.style.display = 'block';
+    status.innerText = '❌ Error fetching results';
+}
     }
 
     async function addToWatch(name, price, link) {

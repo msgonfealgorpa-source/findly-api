@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Transparency - Findly</title>
+<style>
+body { font-family: Arial; background:#0f172a; color:#f1f5f9; padding:40px; max-width:900px; margin:auto; line-height:1.7;}
+h1,h2{color:#f97316}
+</style>
+</head>
+<body>
+
+<div data-lang="en">
+<h1>AI Transparency Statement</h1>
+
+<p>Findly uses artificial intelligence to analyze product listings and generate insights.</p>
+
+<h2>How AI Works</h2>
+<p>Our system processes product data, pricing trends, and contextual signals to generate analysis and verdicts.</p>
+
+<h2>Limitations</h2>
+<p>AI-generated insights may contain inaccuracies. Users should independently verify information before making purchase decisions.</p>
+
+<h2>No Human Review Guarantee</h2>
+<p>AI outputs are not individually reviewed unless explicitly stated.</p>
+</div>
+
+<div data-lang="ar" dir="rtl">
+<h1>بيان شفافية الذكاء الاصطناعي</h1>
+
+<p>تستخدم Findly تقنيات الذكاء الاصطناعي لتحليل بيانات المنتجات وتوليد التوصيات.</p>
+
+<h2>آلية العمل</h2>
+<p>يقوم النظام بمعالجة بيانات الأسعار والمحتوى لإنتاج تحليل ذكي.</p>
+
+<h2>القيود</h2>
+<p>قد تحتوي النتائج على أخطاء محتملة ويجب التحقق منها قبل اتخاذ قرار الشراء.</p>
+
+<h2>المراجعة البشرية</h2>
+<p>لا يتم مراجعة جميع مخرجات الذكاء الاصطناعي يدويًا.</p>
+</div>
+
+<script>
+const userLang = navigator.language.startsWith("ar") ? "ar" : "en";
+document.querySelectorAll("[data-lang]").forEach(el=>{
+  el.style.display = el.getAttribute("data-lang") === userLang ? "block":"none";
+});
+</script>
+
+</body>
+</html>

@@ -179,33 +179,10 @@ app.post('/create-payment', async (req, res) => {
       return res.status(400).json({ error: 'UID_REQUIRED' });
     }
 
-    const baseAmount = 5; // سعر الاشتراك الحقيقي
-
-    // 🔥 1️⃣ نجلب الحد الأدنى من NOWPayments
-    const minRes = await axios.get(
-      'https://api.nowpayments.io/v1/min-amount',
-      {
-        params: {
-          currency_from: 'usd',
-          currency_to: 'usdttrc20',
-          amount: baseAmount
-        },
-        headers: {
-          'x-api-key': NOWPAYMENTS_API_KEY
-        }
-      }
-    );
-
-    const minAmount = minRes.data.min_amount;
-
-    // 🔥 2️⃣ نختار الأكبر بين السعر والحد الأدنى
-    const finalAmount = Math.max(baseAmount, minAmount);
-
-    // 🔥 3️⃣ إنشاء الفاتورة بالمبلغ الصحيح
     const response = await axios.post(
       'https://api.nowpayments.io/v1/invoice',
       {
-        price_amount: finalAmount,
+        price_amount: 6, // غيرناها فقط من 5 إلى 6
         price_currency: 'usd',
         pay_currency: 'usdttrc20',
         order_id: uid,
@@ -215,7 +192,7 @@ app.post('/create-payment', async (req, res) => {
       },
       {
         headers: {
-          'x-api-key': NOWPAYMENTS_API_KEY,
+          'x-api-key': process.env.NOWPAYMENTS_API_KEY,
           'Content-Type': 'application/json'
         }
       }

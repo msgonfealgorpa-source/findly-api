@@ -150,6 +150,18 @@ footer a{
 footer a:hover{
     color:var(--text);
 }
+
+/* ===== Premium Fade Animation ===== */
+.fade-in {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s ease;
+}
+
+.fade-in.show {
+  opacity: 1;
+  transform: translateY(0);
+}
 </style>
 </head>
 
@@ -166,15 +178,15 @@ footer a:hover{
 </header>
 </div>
 
-<section class="hero">
+<section class="hero fade-in">
 <h1>Intelligence Before Purchase</h1>
 <p>
 Findly is an AI-powered product intelligence platform that analyzes price trends,
 seller behavior, and market signals — helping you make smarter, safer buying decisions.
 </p>
 <a href="app.html" class="btn">Start Analyzing</a>
-
-<section class="section">
+</section>
+<section class="features fade-in">
 <div class="container">
 <h2>How Findly Works</h2>
 <p>
@@ -201,7 +213,7 @@ We transform complex product data into clear, data-driven insights within second
 </div>
 </section>
 
-<section class="cta">
+<section class="hero fade-in">
 <h2>Make Smarter Decisions Today</h2>
 <p style="color:#cbd5e1;">Clarity. Transparency. Intelligence.</p>
 <a href="app.html" class="btn">Get Started</a>
@@ -214,6 +226,18 @@ We transform complex product data into clear, data-driven insights within second
 <a href="privacy.html">Privacy</a> |
 <a href="terms.html">Terms</a>
 </footer>
+<script>
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if(entry.isIntersecting){
+      entry.target.classList.add('show');
+    }
+  });
+});
 
+document.querySelectorAll('.fade-in').forEach(el => {
+  observer.observe(el);
+});
+</script>
 </body>
 </html>

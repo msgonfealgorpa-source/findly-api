@@ -366,110 +366,129 @@
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
+      
         .auth-overlay {
-    display: none;   /* مهم جداً */
     position: fixed;
     inset: 0;
     width: 100vw;
     height: 100vh;
     background: radial-gradient(circle at center, #1e1b4b 0%, #020617 100%);
-    z-index: 2147483647;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+/* عند التفعيل */
+.auth-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+    display: flex;
     justify-content: center;
     align-items: center;
     backdrop-filter: blur(15px);
     overflow: hidden;
     touch-action: none;
 }
+
+/* الكارت */
+.auth-card {
+    background: rgba(30, 41, 59, 0.7);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    padding: 40px;
+    border-radius: 28px;
+    width: 90%;
+    max-width: 420px;
+    text-align: center;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(139, 92, 246, 0.2);
+    animation: fadeInScale 0.4s ease-out;
+}
+
+.auth-header h1 {
+    font-size: 2.2rem;
+    color: #fff;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.auth-header span {
+    color: #a78bfa;
+    text-shadow: 0 0 15px rgba(167, 139, 250, 0.5);
+}
+
+.s-input {
+    width: 100%;
+    background: rgba(15, 23, 42, 0.6) !important;
+    border: 1px solid rgba(139, 92, 246, 0.2) !important;
+    color: white !important;
+    padding: 14px 20px !important;
+    border-radius: 14px !important;
+    margin-bottom: 15px;
+    transition: 0.3s;
+}
+
+.s-input:focus {
+    border-color: #8b5cf6 !important;
+    box-shadow: 0 0 10px rgba(139, 92, 246, 0.3) !important;
+}
+
+.action-btn.buy-now {
+    background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%) !important;
+    color: white !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.5px;
+    border: none !important;
+    padding: 15px !important;
+    box-shadow: 0 10px 20px -5px rgba(139, 92, 246, 0.5) !important;
+}
+
+.google-btn {
+    background: white;
+    color: #1e293b;
+    width: 100%;
+    padding: 12px;
+    border-radius: 14px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.google-btn:hover {
+    background: #f8fafc;
+    transform: translateY(-2px);
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 20px 0;
+    color: #94a3b8;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.divider span {
+    padding: 0 10px;
+    font-size: 0.8rem;
+}
+
+@keyframes fadeInScale {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
         
-
-        /* الكارت الاحترافي */
-        .auth-card {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(139, 92, 246, 0.3);
-            padding: 40px;
-            border-radius: 28px;
-            width: 90%;
-            max-width: 420px;
-            text-align: center;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(139, 92, 246, 0.2);
-            animation: fadeInScale 0.4s ease-out;
-        }
-
-
-        /* شعار Findly Sage داخل الكارت */
-        .auth-header h1 {
-            font-size: 2.2rem;
-            color: #fff;
-            margin-bottom: 10px;
-            font-weight: 700;
-        }
-
-        .auth-header span {
-            color: #a78bfa;
-            text-shadow: 0 0 15px rgba(167, 139, 250, 0.5);
-        }
-
-        /* تحسين المدخلات */
-        .s-input {
-            width: 100%;
-            background: rgba(15, 23, 42, 0.6) !important;
-            border: 1px solid rgba(139, 92, 246, 0.2) !important;
-            color: white !important;
-            padding: 14px 20px !important;
-            border-radius: 14px !important;
-            margin-bottom: 15px;
-            transition: 0.3s;
-        }
-
-        .s-input:focus {
-            border-color: #8b5cf6 !important;
-            box-shadow: 0 0 10px rgba(139, 92, 246, 0.3) !important;
-        }
-
-        /* زر الدخول البنفسجي */
-        .action-btn.buy-now {
-            background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%) !important;
-            color: white !important;
-            font-weight: 600 !important;
-            letter-spacing: 0.5px;
-            border: none !important;
-            padding: 15px !important;
-            box-shadow: 0 10px 20px -5px rgba(139, 92, 246, 0.5) !important;
-        }
-
-        /* زر جوجل الاحترافي */
-        .google-btn {
-            background: white;
-            color: #1e293b;
-            width: 100%;
-            padding: 12px;
-            border-radius: 14px;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .google-btn:hover {
-            background: #f8fafc;
-            transform: translateY(-2px);
-        }
-
-        .divider { display: flex; align-items: center; text-align: center; margin: 20px 0; color: #94a3b8; }
-        .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .divider span { padding: 0 10px; font-size: 0.8rem; }
-
-        /* أنيميشن الدخول */
-        @keyframes fadeInScale {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
         .old-price {
             text-decoration: line-through;
             opacity: 0.6;

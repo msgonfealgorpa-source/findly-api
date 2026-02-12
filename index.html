@@ -622,35 +622,34 @@
     </style>
 </head>
 <body>
-
 <div id="auth-overlay" class="auth-overlay">
     <div class="auth-card">
+
         <div class="auth-header">
-            <h1 class="logo-text">Findly <span>Sage</span></h1>
-            <p id="auth-title">سجل دخولك لتبدأ البحث الذكي</p>
+            <h1>Findly <span>Sage</span></h1>
+            <p>سجل دخولك لبدء البحث الذكي</p>
         </div>
 
-        <div id="auth-inputs">
-    <input type="email" id="auth-email" placeholder="البريد الإلكتروني" class="s-input">
-    <input type="password" id="auth-password" placeholder="كلمة المرور" class="s-input">
+        <input type="email" id="auth-email" placeholder="البريد الإلكتروني" class="s-input">
+        <input type="password" id="auth-password" placeholder="كلمة المرور" class="s-input">
 
-    <button onclick="loginUser()" 
-        class="action-btn buy-now" 
-        style="width:100%; margin-top:10px;">
-        تسجيل دخول
-    </button>
+        <button onclick="loginUser()" class="action-btn buy-now" style="width:100%; margin-top:10px;">
+            تسجيل دخول
+        </button>
 
-<button onclick="registerUser()" 
-  class="action-btn"
-  style="width:100%; margin-top:10px; background:#2c2c2c; color:white;">
-  إنشاء حساب جديد
-</button>
-        
-       <div class="divider"><span>أو</span></div>
+        <button onclick="registerUser()" class="action-btn" style="width:100%; margin-top:10px; background:#444;">
+            إنشاء حساب جديد
+        </button>
 
-<button onclick="loginWithGoogle()" class="google-btn">
-  متابعة باستخدام جوجل
-</button>
+        <div class="divider"><span>أو</span></div>
+
+        <button onclick="loginWithGoogle()" class="google-btn">
+            المتابعة باستخدام جوجل
+        </button>
+
+    </div>
+</div>
+
         
         <div style="margin-top: 20px; font-size: 0.8rem; display:flex; gap:10px; justify-content:center;">
             <a href="privacy.html" style="color:#aaa;">سياسة الخصوصية</a>

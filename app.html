@@ -619,10 +619,54 @@
     margin-top: 10px;
 }
     
+    
+    .analysis-loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg,#0f0c29,#1a1443);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.loader-box {
+  text-align: center;
+  width: 80%;
+  max-width: 400px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 20px;
+  margin-top: 20px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg,#7b5cff,#9f7bff);
+  transition: width 0.3s ease;
+}
     </style>
 </head>
 <body>
 
+<div id="analysisLoader" class="analysis-loader">
+  <div class="loader-box">
+    <h2 id="analysisText">🔍 جاري تحليل المنتج</h2>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+  </div>
+</div>
+    
 <div id="auth-overlay" class="auth-overlay">
     <div class="auth-card">
         <div class="auth-header">
@@ -1080,8 +1124,58 @@
         return best;
     }
 
+
+    function startAnalysisLoader() {
+  const loader = document.getElementById("analysisLoader");
+  const text = document.getElementById("analysisText");
+  const progress = document.getElementById("progressFill");
+
+  loader.style.display = "flex";
+
+  const steps = [
+    "🔍 تحليل البيانات...",
+    "📊 فحص الأسعار...",
+    "🧠 تقييم المخاطر...",
+    "📈 قراءة سلوك البائع..."
+  ];
+
+  let step = 0;
+  let percent = 10;
+
+  progress.style.width = percent + "%";
+  text.innerText = steps[0];
+
+  const interval = setInterval(() => {
+    if (percent < 90) {
+      percent += 10;
+      progress.style.width = percent + "%";
+      text.innerText = steps[step % steps.length];
+      step++;
+    }
+  }, 800);
+
+  return interval; // مهم جداً
+}
+    
+
+
+    function stopAnalysisLoader(interval) {
+  const loader = document.getElementById("analysisLoader");
+  const progress = document.getElementById("progressFill");
+  const text = document.getElementById("analysisText");
+
+  clearInterval(interval);
+  progress.style.width = "100%";
+  text.innerText = "✅ اكتمل التحليل";
+
+  setTimeout(() => {
+    loader.style.display = "none";
+  }, 700);
+}
+    
     // --- Main Search Function ---
     async function runSearch() {
+        const loaderInterval = startAnalysisLoader();
         const q = document.getElementById('s-input').value.trim();
         const status = document.getElementById('status');
         const resultsBox = document.getElementById('results');
@@ -1104,6 +1198,7 @@
             const data = await res.json();
             status.style.display = 'none';
 
+            stopAnalysisLoader(loaderInterval);
             if (data.error === 'ENERGY_EMPTY') {
   const currentLang = localStorage.getItem('findly_lang') || 'ar';
   const t = i18n[currentLang] || i18n.ar;
@@ -1446,6 +1541,9 @@ ${verdict.decision ? `
         }
     }
 
+
+
+    
     function saveSet() {
         localStorage.setItem('fn', document.getElementById('in-name').value);
         localStorage.setItem('user_budget', document.getElementById('in-budget').value);

@@ -204,7 +204,13 @@ if (marketProducts.length > 0) {
     if (!min || p < min.price) {
       return {
         price: p,
-        store: item.source || item.store || 'Unknown',
+        store:
+  item.source ||
+  item.store ||
+  item.merchant ||
+  item.seller ||
+  item.domain ||
+  'Unknown',
         link: item.link || item.product_link || null
       };
     }

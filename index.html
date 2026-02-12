@@ -815,95 +815,102 @@
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
-    onAuthStateChanged(auth, (user) => {
-        const overlay = document.getElementById('auth-overlay');
-
-if (user) {
-    if (overlay) overlay.style.display = "none";
-    document.body.style.overflow = "auto";
-    localStorage.setItem('findly_uid', user.uid);
-
-    if (!sessionStorage.getItem('welcome_shown')) {
-        sessionStorage.setItem('welcome_shown', 'true');
-    }
-
-} else {
-    if (overlay) overlay.style.display = "flex";
-    document.body.style.overflow = "hidden";
-}
-
-
-
-    async function loginUser() {
-  const email = document.getElementById("auth-email").value;
-  const password = document.getElementById("auth-password").value;
-
-  if (!email || !password) {
-    alert("يرجى إدخال البريد وكلمة المرور");
-    return;
-  }
-
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
-  } catch (error) {
-    alert("خطأ في تسجيل الدخول: " + error.message);
-  }
-    }
     
+/* ================= AUTH STATE ================= */
 
+onAuthStateChanged(auth, (user) => {
+    const overlay = document.getElementById("auth-overlay");
 
+    if (!overlay) return;
 
-    async function registerUser() {
-  const email = document.getElementById("auth-email").value;
-  const password = document.getElementById("auth-password").value;
+    if (user) {
+        overlay.style.display = "none";
+        document.body.style.overflow = "auto";
+        localStorage.setItem("findly_uid", user.uid);
 
-  if (!email || !password) {
-    alert("يرجى إدخال البريد وكلمة المرور");
-    return;
-  }
+        if (!sessionStorage.getItem("welcome_shown")) {
+            sessionStorage.setItem("welcome_shown", "true");
+        }
 
-  try {
-    await createUserWithEmailAndPassword(auth, email, password);
-  } catch (error) {
-    alert("خطأ في إنشاء الحساب: " + error.message);
-  }
-}
-    
-  
-    async function loginWithGoogle() {
-  try {
-    await signInWithPopup(auth, provider);
-  } catch (error) {
-    alert("خطأ في تسجيل الدخول بجوجل: " + error.message);
-  }
-    }
-    
-    
-window.logoutUser = () => {
-    if (confirm("هل تريد تسجيل الخروج؟")) {
-        signOut(auth)
-            .then(() => {
-                localStorage.removeItem("findly_uid");
-                sessionStorage.removeItem("welcome_shown");
-                location.reload();
-            })
-            .catch((error) => {
-                alert(error.message);
-            });
-    }
-};
-
-document.addEventListener("DOMContentLoaded", () => {
-    const logoutBtn = document.getElementById("logout-btn");
-    if (logoutBtn) {
-        logoutBtn.addEventListener("click", window.logoutUser);
+    } else {
+        overlay.style.display = "flex";
+        document.body.style.overflow = "hidden";
     }
 });
 
 
-    window.loginUser = loginUser;
+/* ================= LOGIN ================= */
+
+async function loginUser() {
+    const email = document.getElementById("auth-email")?.value;
+    const password = document.getElementById("auth-password")?.value;
+
+    if (!email || !password) {
+        alert("يرجى إدخال البريد وكلمة المرور");
+        return;
+    }
+
+    try {
+        await signInWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+        alert("خطأ في تسجيل الدخول: " + error.message);
+    }
+}
+
+
+/* ================= REGISTER ================= */
+
+async function registerUser() {
+    const email = document.getElementById("auth-email")?.value;
+    const password = document.getElementById("auth-password")?.value;
+
+    if (!email || !password) {
+        alert("يرجى إدخال البريد وكلمة المرور");
+        return;
+    }
+
+    try {
+        await createUserWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+        alert("خطأ في إنشاء الحساب: " + error.message);
+    }
+}
+
+
+/* ================= GOOGLE LOGIN ================= */
+
+async function loginWithGoogle() {
+    try {
+        await signInWithPopup(auth, provider);
+    } catch (error) {
+        alert("خطأ في تسجيل الدخول بجوجل: " + error.message);
+    }
+}
+
+
+/* ================= LOGOUT ================= */
+
+function logoutUser() {
+    if (!confirm("هل تريد تسجيل الخروج؟")) return;
+
+    signOut(auth)
+        .then(() => {
+            localStorage.removeItem("findly_uid");
+            sessionStorage.removeItem("welcome_shown");
+        })
+        .catch((error) => {
+            alert("خطأ أثناء تسجيل الخروج: " + error.message);
+        });
+}
+
+
+/* ================= EXPORT TO WINDOW ================= */
+
+window.loginUser = loginUser;
 window.registerUser = registerUser;
 window.loginWithGoogle = loginWithGoogle;
+window.logoutUser = logoutUser;
+
 
 </script>
 

@@ -641,12 +641,17 @@
         تسجيل دخول
     </button>
 
-    <button onclick="registerUser()" 
-        class="action-btn" 
-        style="width:100%; margin-top:10px; background:#444;">
-        إنشاء حساب جديد
-    </button>
-</div>
+<button onclick="registerUser()" 
+  class="action-btn"
+  style="width:100%; margin-top:10px; background:#2c2c2c; color:white;">
+  إنشاء حساب جديد
+</button>
+        
+       <div class="divider"><span>أو</span></div>
+
+<button onclick="loginWithGoogle()" class="google-btn">
+  متابعة باستخدام جوجل
+</button>
         
         <div style="margin-top: 20px; font-size: 0.8rem; display:flex; gap:10px; justify-content:center;">
             <a href="privacy.html" style="color:#aaa;">سياسة الخصوصية</a>
@@ -828,7 +833,7 @@
   }
 
   try {
-    await firebase.auth().signInWithEmailAndPassword(email, password);
+    await signInWithEmailAndPassword(auth, email, password);
   } catch (error) {
     alert("خطأ في تسجيل الدخول: " + error.message);
   }
@@ -847,11 +852,21 @@
   }
 
   try {
-    await firebase.auth().createUserWithEmailAndPassword(email, password);
+    await createUserWithEmailAndPassword(auth, email, password);
   } catch (error) {
     alert("خطأ في إنشاء الحساب: " + error.message);
   }
 }
+    
+  
+    async function loginWithGoogle() {
+  try {
+    await signInWithPopup(auth, provider);
+  } catch (error) {
+    alert("خطأ في تسجيل الدخول بجوجل: " + error.message);
+  }
+    }
+    
     
     window.logoutUser = () => {
         if (confirm("هل تريد تسجيل الخروج؟")) {
@@ -862,6 +877,10 @@
         }
     };
 
+
+    window.loginUser = loginUser;
+window.registerUser = registerUser;
+window.loginWithGoogle = loginWithGoogle;
 
 </script>
 

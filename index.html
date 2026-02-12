@@ -649,13 +649,6 @@
 
     </div>
 </div>
-
-        
-        <div style="margin-top: 20px; font-size: 0.8rem; display:flex; gap:10px; justify-content:center;">
-            <a href="privacy.html" style="color:#aaa;">سياسة الخصوصية</a>
-            <a href="terms.html" style="color:#aaa;">شروط الاستخدام</a>
-        </div>
-    </div>
 </div>
 
 <header>
@@ -867,15 +860,21 @@ if (user) {
     }
     
     
-    window.logoutUser = () => {
-        if (confirm("هل تريد تسجيل الخروج؟")) {
-            signOut(auth).then(() => {
-                sessionStorage.removeItem('welcome_shown');
-                location.reload();
-            });
-        }
-    };
 
+window.logoutUser = () => {
+    if (confirm("هل تريد تسجيل الخروج؟")) {
+        signOut(auth)
+            .then(() => {
+                localStorage.removeItem("findly_uid");
+                sessionStorage.removeItem("welcome_shown");
+                location.reload();
+            })
+            .catch((error) => {
+                alert(error.message);
+            });
+    }
+};
+        
 
     window.loginUser = loginUser;
 window.registerUser = registerUser;

@@ -562,13 +562,15 @@
                 <div class="lang-item" onclick="setLang('tr')">Türkçe</div>
             </div>
         </div>
+      
+      
         <button class="tool-btn" onclick="toggleWatchList()">
             <i class="fa-solid fa-bell"></i>
             <span id="watch-count" style="position:absolute; top:-5px; right:-5px; background:#ef4444; color:white; font-size:0.6rem; padding:2px 6px; border-radius:50%; display:none; border: 2px solid var(--bg-dark);">0</span>
         </button>
         <button class="tool-btn" onclick="openProfile()"><i class="fa-solid fa-user-gear"></i></button>
-        <button class="tool-btn" onclick="logoutUser()" title="تسجيل الخروج">
-            <i class="fa-solid fa-right-from-bracket"></i>
+        <button class="tool-btn" id="logout-btn" onclick="logoutUser()" title="تسجيل الخروج">
+    <i class="fa-solid fa-right-from-bracket"></i>
         </button>
     </div>
 </header>
@@ -596,6 +598,13 @@
         <button class="send-btn" onclick="runSearch()"><i class="fa-solid fa-magnifying-glass"></i></button>
     </div>
 
+    <div class="invite-card" onclick="copyInvite()">
+        <div class="invite-icon">🚀</div>
+        <div class="invite-text" id="inviteText">
+            ادعُ أصدقاءك الآن ✨ — ميزات ومكافآت قادمة قريبًا 🎁 — كن من الأوائل 🚀
+        </div>
+    </div>
+    
     <div class="ai-options">
         <div class="ai-tag" onclick="quickFilter('cheap')"><i class="fa-solid fa-sack-dollar"></i> <span id="tag-cheap"></span></div>
         <div class="ai-tag" onclick="quickFilter('top')"><i class="fa-solid fa-star"></i> <span id="tag-top"></span></div>
@@ -611,8 +620,30 @@
         <div class="cat-card" onclick="quickSearch('ساعات')"><i class="fa-solid fa-stopwatch"></i><span id="cat-c4"></span></div>
     </div>
 
+    <div style="margin-top: 30px; font-size: 0.85rem;">
+        <a href="privacy.html" style="color:var(--text-muted); margin:0 5px;">سياسة الخصوصية</a>
+        <a href="terms.html" style="color:var(--text-muted); margin:0 5px;">شروط الاستخدام</a>
+        <a href="about.html" style="color:var(--text-muted); margin:0 5px;">من نحن</a>
+    </div>
+
     <div id="status" style="display:none; color:var(--primary); font-weight:bold; margin-top:30px; font-size: 1.1rem;"></div>
-    <div id="results"></div>
+
+
+
+<div class="layout-wrapper">
+
+  <!-- نتائج البحث -->
+  <div id="results"></div>
+
+  <!-- بطاقة الافليت الجانبية -->
+  <div id="affiliateCard" class="affiliate-card" style="display:none;">
+      <img id="affImage" src="" />
+      <h3 id="affTitle"></h3>
+      <p>🔥 عرض مميز مرتبط ببحثك</p>
+      <a id="affBtn" target="_blank" class="affiliate-btn">
+          🛒 شراء الآن
+      </a>
+  </div>
 </main>
 
 <div class="modal" id="w-modal">
@@ -642,7 +673,6 @@
         <button class="action-btn buy-now" style="margin-top:15px; width:100%" onclick="document.getElementById('analysis-modal').style.display='none'">إغلاق</button>
     </div>
 </div>
-
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-analytics.js";
@@ -663,46 +693,80 @@
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
+    // مراقبة حالة المستخدم (هل هو مسجل دخول أم لا)
     onAuthStateChanged(auth, (user) => {
         const overlay = document.getElementById('auth-overlay');
         if (user) {
+            // المستخدم مسجل دخول -> إخفاء شاشة القفل
             overlay.style.setProperty('display', 'none', 'important');
             document.body.style.overflow = 'auto';
             localStorage.setItem('findly_uid', user.uid);
             
             if (!sessionStorage.getItem('welcome_shown')) {
                 const name = user.displayName || 'أيها الباحث الحكيم';
-                // alert(`مرحباً بك في Findly Sage، ${name}! ✨`);
                 sessionStorage.setItem('welcome_shown', 'true');
             }
         } else {
+            // المستخدم غير مسجل -> إظهار شاشة القفل
             overlay.style.setProperty('display', 'flex', 'important');
             document.body.style.overflow = 'hidden';
         }
     });
 
+    // دالة الدخول عبر جوجل
     window.loginWithGoogle = async () => {
         try { await signInWithPopup(auth, provider); } catch (error) { alert("Error: " + error.message); }
     };
 
-    window.handleEmailAuth = async () => {
+    // --- دالة تسجيل الدخول (جديدة) ---
+    window.handleLogin = async () => {
         const email = document.getElementById('auth-email').value;
         const password = document.getElementById('auth-password').value;
-        if (!email || !password) return alert("أدخل البيانات");
+        
+        if (!email || !password) return alert("الرجاء إدخال البريد الإلكتروني وكلمة المرور");
 
         try {
             await signInWithEmailAndPassword(auth, email, password);
+            // لا نحتاج لرسالة نجاح لأن onAuthStateChanged سيقوم بإدخال المستخدم تلقائياً
         } catch (error) {
-            if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
-                createUserWithEmailAndPassword(auth, email, password).catch(e => alert(e.message));
-            } else {
-                alert(error.message);
-            }
+            let msg = "فشل تسجيل الدخول: ";
+            if (error.code === 'auth/user-not-found') msg = "هذا الحساب غير موجود، يرجى إنشاء حساب جديد.";
+            else if (error.code === 'auth/wrong-password') msg = "كلمة المرور غير صحيحة.";
+            else if (error.code === 'auth/invalid-email') msg = "صيغة البريد الإلكتروني غير صحيحة.";
+            else if (error.code === 'auth/invalid-credential') msg = "بيانات الاعتماد غير صالحة.";
+            else msg += error.message;
+            
+            alert(msg);
         }
     };
 
+    // --- دالة إنشاء حساب جديد (جديدة) ---
+    window.handleRegister = async () => {
+        const email = document.getElementById('auth-email').value;
+        const password = document.getElementById('auth-password').value;
+
+        if (!email || !password) return alert("الرجاء إدخال البريد الإلكتروني وكلمة المرور");
+        if (password.length < 6) return alert("كلمة المرور يجب أن تكون 6 أحرف على الأقل");
+
+        try {
+            await createUserWithEmailAndPassword(auth, email, password);
+            alert("تم إنشاء الحساب بنجاح! جاري الدخول...");
+        } catch (error) {
+            let msg = "فشل إنشاء الحساب: ";
+            if (error.code === 'auth/email-already-in-use') msg = "هذا البريد مسجل بالفعل، حاول تسجيل الدخول.";
+            else if (error.code === 'auth/weak-password') msg = "كلمة المرور ضعيفة جداً.";
+            else if (error.code === 'auth/invalid-email') msg = "صيغة البريد الإلكتروني غير صحيحة.";
+            else msg += error.message;
+            
+            alert(msg);
+        }
+    };
+
+    // دالة تسجيل الخروج
     window.logoutUser = () => {
-        if (confirm(lang === 'ar' ? "هل تريد تسجيل الخروج؟" : "Logout?")) {
+        // التحقق من المتغير lang لضمان عدم حدوث خطأ إذا لم يكن معرفاً
+        const currentLang = localStorage.getItem('findly_lang') || 'ar';
+        if (confirm(currentLang === 'ar' ? "هل تريد تسجيل الخروج؟" : "Logout?")) {
             signOut(auth).then(() => {
                 sessionStorage.removeItem('welcome_shown');
                 location.reload();

@@ -694,7 +694,7 @@
 @media (max-width: 768px) {
     .cat-grid { grid-template-columns: repeat(3, 1fr); }
     .layout-wrapper { flex-direction: column; }
-    .affiliate-card { display: none; }
+    
 }
     </style>
 </head>
@@ -1486,10 +1486,9 @@
     }
 
     function getInviteLink() {
-        const uid = localStorage.getItem('findly_uid') || 'guest';
-        const basePath = location.origin + location.pathname.replace(/\/$/, '');
-        return `${basePath}/?ref=${uid}`;
-    }
+    const uid = localStorage.getItem('findly_uid') || 'guest';
+    return `${location.origin}${location.pathname}?ref=${uid}`;
+}
 
     function copyInvite() {
         const link = getInviteLink();

@@ -1687,16 +1687,19 @@ function showUpgradeSuccess() {
   alert("تم تفعيل الاشتراك بنجاح.");
 }
 
-window.onload = () => {
-  update(); // الميزات القديمة
 
-  if (location.href.includes("upgrade-success")) {
-    showUpgradeSuccess(); // هنا يتم تفعيل PRO
+window.onload = () => {
+
+  if (typeof update === "function") {
+    update();
   }
 
-  handleUpgradeButton(); // إظهار أو إخفاء زر الترقية
-};
+  if (location.href.includes("upgrade-success")) {
+    showUpgradeSuccess();
+  }
 
+  handleUpgradeButton();
+};
     
 </script>
 

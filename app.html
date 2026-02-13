@@ -1361,6 +1361,7 @@ ${T.no_link || 'الرابط غير متوفر'}
         status.innerText = '❌ Error fetching results';  
     }  
 }
+   
     async function addToWatch(name, price, link) {
         const userEmail = prompt(lang === 'ar' ? "أدخل إيميلك للتنبيه عند انخفاض السعر:" : "Enter email for price alerts:");
         if (!userEmail || !userEmail.includes("@")) return;

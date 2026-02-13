@@ -691,26 +691,29 @@
     border: 1px dashed #10b981;
 }
 
-
-        @media (max-width: 768px) {
+@media (max-width: 768px) {
 
     .cat-grid {
         grid-template-columns: repeat(3, 1fr);
     }
 
     .layout-wrapper {
-        flex-direction: column;
+        flex-direction: row;   /* 🔥 لا نجعلها عمودية */
+    }
+
+    #results {
+        flex: 2;
     }
 
     .affiliate-card {
-        display: block !important;
-        width: 100%;
+        flex: 1;
         position: relative;
         top: auto;
-        margin-top: 20px;
+        max-width: 140px;   /* 🔥 حجم صغير جانبي */
     }
 
-        }
+}
+        
     </style>
 </head>
 <body>

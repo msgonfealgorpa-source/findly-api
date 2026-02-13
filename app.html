@@ -1111,8 +1111,6 @@ if (!q) return;
         );  
         const data = await res.json();  
         status.style.display = 'none';  
-
-        stopAnalysisLoader(loaderInterval);  
         if (data.error === 'ENERGY_EMPTY') {
 
 const currentLang = localStorage.getItem('findly_lang') || 'ar';

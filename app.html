@@ -490,6 +490,7 @@
 </head>
 <body>
 
+
 <div id="auth-overlay" class="auth-overlay">
     <div class="auth-card">
         <div class="auth-header">
@@ -497,27 +498,44 @@
             <p id="auth-title">سجل دخولك لتبدأ البحث الذكي</p>
         </div>
 
+     
+        
         <div id="auth-inputs">
-            <input type="email" id="auth-email" placeholder="البريد الإلكتروني" class="s-input">
-            <input type="password" id="auth-password" placeholder="كلمة المرور" class="s-input">
-            <button onclick="handleEmailAuth()" class="action-btn buy-now" style="width: 100%; margin-top: 10px;">دخول / إنشاء حساب</button>
-        </div>
-
+    <input type="email" id="auth-email" placeholder="البريد الإلكتروني" class="s-input">
+    <input type="password" id="auth-password" placeholder="كلمة المرور" class="s-input">
+    
+    <div style="display: flex; gap: 10px; margin-top: 10px;">
+        <button onclick="handleLogin()" class="action-btn buy-now" style="flex: 1;">
+            تسجيل دخول
+        </button>
+        
+        <button onclick="handleRegister()" class="action-btn ghost" style="flex: 1; border: 1px solid var(--primary);">
+            إنشاء حساب
+        </button>
+    </div>
+</div>
+        
+        
+        
         <div class="divider"><span>أو</span></div>
 
+        
         <button onclick="loginWithGoogle()" class="google-btn">
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
             متابعة باستخدام جوجل
         </button>
 
-        <div class="auth-footer-links" style="margin-top:20px; font-size:0.8rem;">
-            <a href="terms.html" target="_blank" style="color:#a78bfa;">شروط الاستخدام</a>
-            <span class="dot" style="color:white; margin:0 5px;">•</span>
-            <a href="privacy.html" target="_blank" style="color:#a78bfa;">سياسة الخصوصية</a>
-        </div>
+            <div style="margin-top: 30px; font-size: 0.85rem;">
+        <a href="privacy.html" style="color:var(--text-muted); margin:0 5px;">سياسة الخصوصية</a>
+        <a href="terms.html" style="color:var(--text-muted); margin:0 5px;">شروط الاستخدام</a>
+        <a href="about.html" style="color:var(--text-muted); margin:0 5px;">من نحن</a>
+    </div>
+
+<div id="auth-status" style="display:none; color:var(--primary); font-weight:bold; margin-top:30px; font-size: 1.1rem;"></div>
     </div>
 </div>
-
+    
+    
 <header>
 
 

@@ -103,47 +103,38 @@ app.get('/search', async (req, res) => {
       }
     );
 
-    const rawResults = apiRes.data?.shopping_results || [];
+    const results = (filteredResults.length ? filteredResults : rawResults).map(item => {
 
-    let serperContext = [];
-    if (rawResults.length < 3) {
-      const serperRes = await axios.post(
-        'https://google.serper.dev/search',
-        { q, gl: 'us', hl: lang },
-        { headers: { 'X-API-KEY': SERPER_API_KEY } }
-      );
-      serperContext = serperRes.data?.organic || [];
-    }
+  const price = cleanPrice(item.price || item.extracted_price);
 
-    /* ===== ANALYSIS ===== */
-    const results = rawResults.map(item => {
-      const price = cleanPrice(item.price || item.extracted_price);
+  const product = {
+    title: item.title,
+    price: item.price,
+    numericPrice: price,
+    link: finalizeUrl(item.product_link || item.link),
+    thumbnail: item.thumbnail || item.product_image,
+    source: 'Google Shopping'
+  };
 
-      const product = {
-        title: item.title,
-        price: item.price,
-        numericPrice: price,
-        link: finalizeUrl(item.product_link || item.link),
-        thumbnail: item.thumbnail || item.product_image,
-        source: 'Google Shopping'
-      };
+  const intelligence = SageCore(
+    product,
+    (filteredResults.length ? filteredResults : rawResults),
+    serperContext,
+    {},
+    uid,
+    null
+  ) || {};
 
-      // 🧠 SageCore (KEYS ONLY)
-      const intelligence = SageCore(
-         product,
-        rawResults,
-        serperContext,
-        {},
-        uid,
-        null
-      ) || {};
+  console.log("FINAL VERDICT:", intelligence.finalVerdict);
 
-       console.log("FINAL VERDICT:", intelligence.finalVerdict);
-      return {
-        ...product,
-        intelligence
-      };
-    });
+  return {
+    ...product,
+    intelligence
+  };
+
+});
+
+       
 
     if (!energy.hasFreePass) {
       energy.searchesUsed += 1;

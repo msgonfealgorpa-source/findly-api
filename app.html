@@ -691,11 +691,26 @@
     border: 1px dashed #10b981;
 }
 
-@media (max-width: 768px) {
-    .cat-grid { grid-template-columns: repeat(3, 1fr); }
-    .layout-wrapper { flex-direction: column; }
-    
-}
+
+        @media (max-width: 768px) {
+
+    .cat-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .layout-wrapper {
+        flex-direction: column;
+    }
+
+    .affiliate-card {
+        display: block !important;
+        width: 100%;
+        position: relative;
+        top: auto;
+        margin-top: 20px;
+    }
+
+        }
     </style>
 </head>
 <body>

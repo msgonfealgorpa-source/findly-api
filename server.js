@@ -103,7 +103,15 @@ app.get('/search', async (req, res) => {
       }
     );
 
-    const results = (filteredResults.length ? filteredResults : rawResults).map(item => {
+   const rawResults = apiRes.data?.shopping_results || [];
+
+const filteredResults = rawResults.filter(item =>
+  item.title?.toLowerCase().includes(q.toLowerCase())
+);
+
+const serperContext = [];
+     
+     const results = (filteredResults.length ? filteredResults : rawResults).map(item => {
 
   const price = cleanPrice(item.price || item.extracted_price);
 

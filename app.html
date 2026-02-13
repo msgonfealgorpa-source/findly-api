@@ -470,6 +470,22 @@
             to { opacity: 1; transform: scale(1); }
         }
 
+
+
+.logo-area {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.tagline {
+    font-size: 14px;
+    opacity: 0.7;
+    letter-spacing: 1px;
+}
+
+        
+        
     </style>
 </head>
 <body>
@@ -503,8 +519,19 @@
 </div>
 
 <header>
-    <div class="logo">Findly <i class="fa-solid fa-wand-magic-sparkles"></i></div>
-    <div class="header-tools">
+
+
+<div class="logo-area">
+    <div class="logo">
+        Findly <i class="fa-solid fa-wand-magic-sparkles"></i>
+    </div>
+
+    <p class="tagline">
+        Intelligence Before Purchase
+    </p>
+</div>
+
+    
         <button class="tool-btn" onclick="toggleMode()"><i class="fa-solid fa-circle-half-stroke"></i></button>
         <div style="position: relative;">
             <button class="tool-btn" onclick="toggleLMenu()"><i class="fa-solid fa-language"></i></button>

@@ -1109,196 +1109,378 @@ try {
         });
         return best;
     }
-    
-    async function runSearch() {
-  const q = document.getElementById('s-input').value.trim();
-  const status = document.getElementById('status');
-  const resultsBox = document.getElementById('results');
 
-  if (!q) return;
 
-  const T = dict[lang]?.search || dict.en.search;
-  const UI = dict[lang]?.ui || dict.en.ui; // للحصول على نص التحذير
 
-  status.style.display = 'block';
-  status.innerText = '🔍 ...';
-  resultsBox.innerHTML = '';
 
-  // جلب الميزانية المحفوظة
-  const userBudget = parseFloat(localStorage.getItem('user_budget')) || 0;
+async function runSearch() {
+const q = document.getElementById('s-input').value.trim();
+const status = document.getElementById('status');
+const resultsBox = document.getElementById('results');
 
-  try {
-    const res = await fetch(
-      `${API}/search?q=${encodeURIComponent(q)}&lang=${lang}&uid=${localStorage.getItem('findly_uid')}`
-    );
+if (!q) return;  
 
-    const data = await res.json();
-    status.style.display = 'none';
+    const T = dict[lang]?.search || dict.en.search;  
+    const UI = dict[lang]?.ui || dict.en.ui;  
 
-    if (!data.results || !data.results.length) {
-      status.style.display = 'block';
-      status.innerText = '❌';
-      return;
-    }
-
-    data.results.forEach(p => {
-      const intel = p.intelligence || {};
-      const verdict = intel.finalVerdict || {};
-      const priceIntel = intel.priceIntel || {};
-      const valueIntel = intel.valueIntel || {};
-      const forecast = intel.forecastIntel || {};
-      const trust = intel.trustIntel || {};
-
-      // --- منطق الميزانية (الذي كان مفقوداً) ---
-      let budgetClass = '';
-      let budgetBadge = '';
+    status.style.display = 'block';  
+    status.innerText = '🔍 ...';  
+    resultsBox.innerHTML = '';  
       
-      // استخراج الرقم من سعر المنتج
-      const priceVal = parseFloat(String(p.price).replace(/[^\d.]/g, '')) || 0;
+    const userBudget = parseFloat(localStorage.getItem('user_budget')) || 0;  
 
-      if (userBudget > 0 && priceVal > userBudget) {
-        budgetClass = 'over-budget';
-        budgetBadge = `<div class="budget-alert">⚠️ ${UI.over || 'Over Budget!'}</div>`;
-      }
-      // ----------------------------------------
+    try {  
+        const res = await fetch(  
+            `${API}/search?q=${encodeURIComponent(q)}&lang=${lang}&uid=${localStorage.getItem('findly_uid')}`  
+        );  
+        const data = await res.json();  
+        status.style.display = 'none';  
 
-      const card = document.createElement('div');
-      card.className = `product-card ${budgetClass}`; // إضافة كلاس التنبيه
+        if (data.error === 'ENERGY_EMPTY') {
 
-      card.innerHTML = `
-${budgetBadge} 
-<img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/200'">
+const currentLang = localStorage.getItem('findly_lang') || 'ar';
+const t = i18n[currentLang] || i18n.ar;
 
-<h3>${p.title || '—'}</h3>
-<div class="price">${p.price || '—'}</div>
+status.style.display = 'block';
 
-<div class="analysis-engine">
-  <span class="analysis-label">
-    ${verdict.emoji || '🤖'} ${verdict.title || ''}
-  </span>
-  <div>${verdict.reason || ''}</div>
+status.innerHTML = `
+<div style="background:#1b1b2f; border:1px solid #ff4d4d; padding:12px; border-radius:8px">
+<h3 style="color:#ff4d4d; margin-bottom:8px">${t.title}</h3>
+<p style="font-size:0.95rem; opacity:0.9">${t.message}</p>
+
+<button  
+    id="upgradeBtn"  
+    class="upgrade-btn"  
+    onclick="openUpgrade()"  
+    style="margin-top:10px"  
+  >  
+    ${t.upgrade}  
+  </button>  
 </div>
 
-<div class="intel-section">
-  <h4>📊 ${T.market}</h4>
-  <p>${T.avg_price}: <strong>${priceIntel.average ? `$${priceIntel.average}` : '—'}</strong></p>
-  <p>${T.competitors}: <strong>${valueIntel.competitors || 0}</strong></p>
-</div>
-
-<div class="intel-section">
-  <h4>💎 ${T.value}</h4>
-  <p>${T.deal_score}: <strong>${valueIntel.score || 0}%</strong></p>
-  <p>
-    ${valueIntel.learningBoost > 0
-      ? T.learning_on
-      : T.learning_later}
-  </p>
-</div>
-
-<div class="intel-section">
-  <h4>🔮 ${T.forecast}</h4>
-  <p>${T.trend[forecast.trend] || T.trend.stable}</p>
-  <p>${T.expected_price}: <strong>$${forecast.expectedPrice || '—'}</strong></p>
-  <p>${T.confidence}: <strong>${Math.round((forecast.confidence || 0) * 100)}%</strong></p>
-</div>
-
-<div class="intel-section">
-  <h4>⚠️ ${T.trust}</h4>
-  ${
-    trust.warnings && trust.warnings.length
-      ? `<ul>${trust.warnings.map(w => `<li>${w}</li>`).join('')}</ul>`
-      : `<p>✅ ${T.no_risks}</p>`
-  }
-</div>
-
-<div class="btn-group">
-  <a href="${p.link}" target="_blank" class="action-btn buy-now">
-    ${T.buy}
-  </a>
-
-  <button class="action-btn analyze-btn"
-    onclick="openAnalysisModal('${encodeURIComponent(JSON.stringify({
-      title: verdict.title,
-      reason: verdict.reason,
-      average: priceIntel.average,
-      score: valueIntel.score
-    }))}')">
-    ${T.analyze}
-  </button>
-
-  <button class="action-btn watch-btn"
-    onclick="addToWatch(
-      '${(p.title || '').replace(/'/g, '')}',
-      '${p.price}',
-      '${p.link}'
-    )">
-    ${T.watch}
-  </button>
-</div>
 `;
 
-      resultsBox.appendChild(card);
-    });
-
-  } catch (e) {
-    console.error(e);
-    status.style.display = 'block';
-    status.innerText = '❌';
-  }
+handleUpgradeButton();
+return; // ⬅️ مهم جداً
+}
+if (!data.results) {
+status.style.display = 'block';
+status.innerText = lang === 'ar' ? 'لا توجد نتائج' : 'No results found';
+return;
 }
 
-    // 2. دالة إضافة التنبيهات (المراقبة)
+if (data.results && data.results.length > 0) {  
+const firstProduct = data.results[0];  
+
+updateAffiliateCard(firstProduct);
+
+}
+
+data.results.forEach(p => {  
+            const intel = p.intelligence || {};  
+            const verdict = intel.finalVerdict || {};  
+            const priceIntel = intel.priceIntel || {};  
+            const valueIntel = intel.valueIntel || {};  
+            const forecast = intel.forecastIntel || {};  
+            const trust = intel.trustIntel || {};
+
+
+    // Strategic Mapping (NEW – DO NOT REMOVE ANYTHING ABOVE)
+let strategicBadge = '';
+let strategicColor = '#3b82f6';
+
+if (verdict.decision === 'BUY_NOW') {
+    strategicBadge = '🟢 قرار ذكي: اشترِ الآن';
+    strategicColor = '#10b981';
+}
+else if (verdict.decision === 'WAIT') {
+    strategicBadge = '⏳ يفضل الانتظار';
+    strategicColor = '#f59e0b';
+}
+else if (verdict.decision === 'WAIT_PRICE_DROP') {
+    strategicBadge = '📉 انتظر انخفاض السعر';
+    strategicColor = '#6366f1';
+}
+else if (verdict.decision === 'OVERPRICED') {
+    strategicBadge = '🔴 السعر مرتفع';
+    strategicColor = '#ef4444';
+}
+const bestLink =
+p.intelligence?.finalVerdict?.bestLink ||
+p.link;
+
+const safeLink =
+typeof bestLink === "string" && bestLink.startsWith("http")
+? bestLink
+: null;
+
+console.log(
+
+'DECISION KEY:',
+p.intelligence?.priceIntel?.decision
+);
+
+console.log(
+'PERSONALITY KEY:',
+p.intelligence?.personalityIntel?.type
+);
+// Budget Logic
+let budgetClass = '';
+let budgetBadge = '';
+const priceVal = parseFloat(String(p.price).replace(/[^\d.]/g, '')) || 0;
+
+if (userBudget > 0 && priceVal > userBudget) {  
+                budgetClass = 'over-budget';  
+                budgetBadge = `<div class="budget-alert">⚠️ ${UI.over || 'Over Budget!'}</div>`;  
+              
+              
+                }  
+              
+          
+            const card = document.createElement('div');  
+            card.className = `product-card ${budgetClass}`;  
+
+            // Coupon Logic  
+            const coupons = p.coupons || [];  
+            const numericPrice = priceVal;  
+            const bestCoupon = (numericPrice && coupons.length) ? pickBestCoupon(numericPrice, coupons) : null;  
+            const discountedPrice = (numericPrice && bestCoupon) ? applyCoupon(numericPrice, bestCoupon) : null;  
+
+            card.innerHTML = `  
+            ${budgetBadge}   
+            <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/200'">  
+            <h3>${p.title || '—'}</h3>  
+
+            <div class="price">  
+                ${bestCoupon && discountedPrice  
+                    ? `<span class="old-price">$${numericPrice}</span><span class="new-price">$${discountedPrice}</span>`  
+                    : `$${numericPrice || '-'}`  
+                }  
+            </div>  
+
+            <div class="sage-quick-brains">  
+                <div class="brain-item good">  
+                    💰 السعر <span>${priceIntel.score >= 70 ? 'ممتاز' : priceIntel.score >= 50 ? 'جيد' : 'ضعيف'}</span>  
+                </div>  
+                <div class="brain-item ${forecast.trend === 'down' ? 'wait' : forecast.trend === 'up' ? 'buy' : 'neutral'}">  
+                    📈 التوقيت <span>${forecast.trend === 'down' ? 'انتظر' : forecast.trend === 'up' ? 'قد يرتفع' : 'مستقر'}</span>  
+                </div>  
+                <div class="brain-item ${trust.riskScore > 50 ? 'risk' : 'safe'}">  
+                    🛡️ الثقة <span>${trust.riskScore > 50 ? 'مخاطرة' : 'آمن'}</span>  
+                </div>  
+                <div class="brain-item learn">  
+                    🧠 السلوك <span>${valueIntel.learningBoost > 0 ? 'مناسب لك' : 'عام'}</span>  
+                </div>  
+            </div>  
+
+            <div class="analysis-engine">  
+                <span class="analysis-label">${verdict.emoji || '🤖'} ${verdict.title || ''}</span>  
+                <div>${verdict.reason || ''}</div>  
+            </div>  
+
+
+${verdict.decision ? `
+<div style="
+    margin-top:10px;
+    padding:10px;
+    border-radius:10px;
+    background:rgba(255,255,255,0.05);
+    border:1px solid ${strategicColor};
+">
+    <div style="font-weight:bold; color:${strategicColor}; margin-bottom:6px;">
+        ${strategicBadge}
+    </div>
+
+    <div style="font-size:0.9rem; opacity:0.9;">
+        ${verdict.reason || ''}
+    </div>
+
+    ${verdict.savingPercent ? `
+    <div style="margin-top:5px;">
+        💰 التوفير: <strong>${verdict.savingPercent}%</strong>
+    </div>` : ''}
+
+    ${verdict.bestStore ? `
+    <div style="margin-top:5px;">
+        🏪 أفضل متجر: <strong>${verdict.bestStore}</strong>
+        ${verdict.bestPrice ? ` - $${verdict.bestPrice}` : ''}
+    </div>` : ''}
+
+    <div style="margin-top:5px;">
+        🎯 الثقة: <strong>${verdict.confidence || 0}%</strong>
+    </div>
+</div>
+` : ''}
+
+            ${bestCoupon ? `  
+            <div class="coupon-box" style="margin:10px 0; padding:10px; background:rgba(16,185,129,0.1); border-radius:10px; border:1px dashed #10b981;">  
+                🎟️ <strong>${bestCoupon.code}</strong> (${bestCoupon.type === 'percent' ? `-${bestCoupon.discount}%` : `-$${bestCoupon.discount}`})  
+                <div class="discounted-price" style="font-size:0.9rem; margin-top:5px;">  
+                    ${T.after_discount}: <strong>$${discountedPrice}</strong>  
+                </div>  
+                <button class="action-btn" onclick="navigator.clipboard.writeText('${bestCoupon.code}')" style="background:#10b981; color:white; padding:5px 10px; font-size:0.8rem; margin-top:5px;">${T.copy_coupon}</button>  
+            </div>` : ''}  
+
+            <div class="intel-section">  
+                <h4>📊 ${T.market}</h4>  
+                <p>${T.avg_price}: <strong>${priceIntel.average ? `$${priceIntel.average}` : '—'}</strong></p>  
+                <p>${T.competitors}: <strong>${valueIntel.competitors || 0}</strong></p>  
+            </div>  
+
+            <div class="intel-section">  
+                <h4>💎 ${T.value}</h4>  
+                <p>${T.deal_score}: <strong>${valueIntel.score || 0}%</strong></p>  
+                <p>${valueIntel.learningBoost > 0 ? T.learning_on : T.learning_later}</p>  
+            </div>  
+
+            <div class="intel-section">  
+                <h4>🔮 ${T.forecast}</h4>  
+                <p>${T.trend[forecast.trend] || T.trend.stable}</p>  
+                <p>${T.expected_price}: <strong>$${forecast.expectedPrice || '—'}</strong></p>  
+                <p>${T.confidence}: <strong>${Math.round((forecast.confidence || 0) * 100)}%</strong></p>  
+            </div>  
+
+            <div class="intel-section">  
+                <h4>⚠️ ${T.trust}</h4>  
+                ${trust.warnings && trust.warnings.length ? `<ul>${trust.warnings.map(w => `<li>${w}</li>`).join('')}</ul>` : `<p>✅ ${T.no_risks}</p>`}  
+            </div>
+
+<button class="action-btn watch"
+onclick="addToWatch(
+'${p.title.replace(/'/g,"\'")}',
+'${numericPrice}',
+'${safeLink || ""}'
+)"
+style="width:100%; margin-top:10px; background:#f59e0b; color:white;">
+🔔 ${lang === 'ar' ? 'مراقبة السعر' : 'Watch Price'}
+</button>
+
+${safeLink ? `
+
+<a class="action-btn buy"  
+href="https://findly-api.onrender.com/go?url=${encodeURIComponent(safeLink)}"  
+target="_blank"  
+rel="noopener noreferrer">
+${T.buy}
+</a>
+:
+<button class="action-btn buy disabled" disabled>
+${T.no_link || 'الرابط غير متوفر'}
+</button>
+`}
+
+<button class="action-btn analyze-btn" style="width:100%; margin-top:10px;"  
+                data-verdict="${encodeURIComponent(JSON.stringify(verdict))}"  
+                data-price="${encodeURIComponent(JSON.stringify(priceIntel))}"  
+                data-value="${encodeURIComponent(JSON.stringify(valueIntel))}"  
+                data-forecast="${encodeURIComponent(JSON.stringify(forecast))}"  
+                data-trust="${encodeURIComponent(JSON.stringify(trust))}"  
+                onclick="openAnalysisFromBtn(this)">  
+                ${T.analyze}  
+            </button>  
+            `;  
+            resultsBox.appendChild(card);  
+        });  
+
+    } catch (e) {  
+        console.error(e);  
+        status.style.display = 'block';  
+        status.innerText = '❌ Error fetching results';  
+    }  
+}
+
     async function addToWatch(name, price, link) {
         const userEmail = prompt(lang === 'ar' ? "أدخل إيميلك للتنبيه عند انخفاض السعر:" : "Enter email for price alerts:");
         if (!userEmail || !userEmail.includes("@")) return;
 
-        let uid = localStorage.getItem('findly_uid') || 'guest';  
-        // تنظيف السعر من العملة
+        let uid = localStorage.getItem('findly_uid') || 'guest';
         let numericPrice = parseFloat(String(price).replace(/[^\d.]/g, '')) || 0;
-        let targetPrice = numericPrice * 0.9;  
+        let targetPrice = numericPrice * 0.9;
 
-        try {  
-            const response = await fetch(`${API}/alerts`, {  
-                method: 'POST',  
-                headers: { 'Content-Type': 'application/json' },  
-                body: JSON.stringify({  
-                    email: userEmail,  
-                    productName: name,  
+        try {
+            const response = await fetch(`${API}/alerts`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: userEmail,
+                    productName: name,
                     targetPrice: targetPrice,
-                    currentPrice: numericPrice,  
-                    productLink: link,  
-                    lang: lang,  
-                    uid: uid  
-                })  
-            });  
-
-            if (response.ok) {  
-                alert(lang === 'ar' ? "✅ تم تفعيل التنبيه بنجاح!" : "✅ Alert activated!");  
-            } else {  
-                alert("❌ Server Error: " + response.status);  
-            }  
-        } catch (error) {  
-            alert("❌ Connection failed");  
+                    currentPrice: numericPrice,
+                    productLink: link,
+                    lang: lang,
+                    uid: uid
+                })
+            });
+            if (response.ok) {
+                alert(lang === 'ar' ? "✅ تم تفعيل التنبيه بنجاح!" : "✅ Alert activated!");
+            } else {
+                alert("❌ Server Error: " + response.status);
+            }
+        } catch (error) {
+            alert("❌ Connection failed");
         }
     }
 
-   function openAnalysisModal(encoded) {
-    const data = JSON.parse(decodeURIComponent(encoded));
-    const modal = document.getElementById('analysis-modal');
-    const body = document.getElementById('analysis-content-body');
+    function getInviteLink() {
+        const uid = localStorage.getItem('findly_uid') || 'guest';
+        const basePath = location.origin + location.pathname.replace(/\/$/, '');
+        return `${basePath}/?ref=${uid}`;
+    }
 
-    body.innerHTML = `
-      <p><b>التقييم:</b> ${data.title || '—'}</p>
-      <p style="opacity:.8">${data.reason || '—'}</p>
-      <hr>
-      <p><b>متوسط السوق:</b> ${data.average}</p>
-      <p><b>كفاءة الصفقة:</b> ${data.score}%</p>
-    `;
+    function copyInvite() {
+        const link = getInviteLink();
+        navigator.clipboard.writeText(link).then(() => {
+            alert('تم نسخ رابط الدعوة ✨');
+        }).catch(() => {
+            alert('لم يتم نسخ الرابط، انسخه يدويًا:\n' + link);
+        });
+    }
 
-    modal.style.display = 'flex';
-}
+    function openAnalysisFromBtn(btn) {
+        try {
+            const data = {
+                verdict: JSON.parse(decodeURIComponent(btn.dataset.verdict)),
+                priceIntel: JSON.parse(decodeURIComponent(btn.dataset.price)),
+                valueIntel: JSON.parse(decodeURIComponent(btn.dataset.value)),
+                forecastIntel: JSON.parse(decodeURIComponent(btn.dataset.forecast)),
+                trustIntel: JSON.parse(decodeURIComponent(btn.dataset.trust))
+            };
+
+            const modal = document.getElementById('analysis-modal');
+            const body = document.getElementById('analysis-content-body');
+
+            body.innerHTML = `
+            <h3>🧠 تحليل Sage الذكي</h3>
+            <hr>
+            <p><strong>📊 السوق</strong></p>
+            <ul>
+                <li>متوسط السعر: $${data.priceIntel.average ?? '—'}</li>
+                <li>عدد المنافسين: ${data.valueIntel.competitors ?? 0}</li>
+            </ul>
+            <p><strong>💎 الصفقة</strong></p>
+            <ul>
+                <li>درجة الصفقة: ${data.valueIntel.score ?? 0}%</li>
+                <li>${data.priceIntel.label ?? ''}</li>
+            </ul>
+            <p><strong>🔮 التوقع</strong></p>
+            <ul>
+                <li>الاتجاه: ${data.forecastIntel.trend}</li>
+                <li>سعر متوقع: $${data.forecastIntel.expectedPrice}</li>
+                <li>ثقة: ${Math.round(data.forecastIntel.confidence * 100)}%</li>
+            </ul>
+            <p><strong>⚠️ الثقة والمخاطر</strong></p>
+            ${data.trustIntel.warnings.length ? `<ul>${data.trustIntel.warnings.map(w => `<li>${w}</li>`).join('')}</ul>` : `<p>لا توجد مخاطر واضحة</p>`}
+            `;
+
+            modal.style.display = 'flex';
+        } catch (e) {
+            console.error("Error parsing analysis data", e);
+        }
+    }
+
+
+
     
-    // 3. دوال التحكم في الواجهة واللغة
     function saveSet() {
         localStorage.setItem('fn', document.getElementById('in-name').value);
         localStorage.setItem('user_budget', document.getElementById('in-budget').value);
@@ -1312,15 +1494,13 @@ ${budgetBadge}
         m.style.display = (m.style.display === 'block') ? 'none' : 'block';
     }
     function setLang(l) { lang = l; localStorage.setItem('findly_lang', l); toggleLMenu(); update(); }
-    
-    // تحديث دالة فتح البروفايل لاسترجاع البيانات القديمة
-    function openProfile() { 
+
+    function openProfile() {
         document.getElementById('p-modal').style.display = 'flex';
-        // استرجاع البيانات المحفوظة وعرضها في الحقول
         document.getElementById('in-name').value = localStorage.getItem('fn') || '';
         document.getElementById('in-budget').value = localStorage.getItem('user_budget') || '';
     }
-    
+
     function quickSearch(q) { document.getElementById('s-input').value = q; runSearch(); }
     function quickFilter(type) { document.getElementById('s-input').value += " " + type; }
 
@@ -1330,85 +1510,171 @@ ${budgetBadge}
     }
 
     function update() {
-        const d = dict[lang] || dict['ar'];
-        const userName = localStorage.getItem('fn') || (lang === 'ar' ? 'أيها الباحث' : 'Seeker');
+        // Ensure dict exists and has the language, fallback to english if missing
+        const d = dict[lang] || dict['en'] || dict['ar']; 
+        if (!d) return; // Safety check
 
-        document.getElementById('txt-energy').innerText = d.ui.energy;  
-        document.getElementById('greeting').innerText = d.ui.welcome + " " + userName;  
-        document.getElementById('txt-title').innerText = d.ui.title;  
-        document.getElementById('txt-sub').innerText = d.ui.sub;  
-        document.getElementById('txt-deep').innerText = d.ui.deep;  
-        document.getElementById('tag-cheap').innerText = d.ui.cheap;  
-        document.getElementById('tag-top').innerText = d.ui.top;  
-        document.getElementById('tag-new').innerText = d.ui.new;  
+        const userName = localStorage.getItem('fn') || (lang === 'ar' ? 'أيها الباحث' : 'Seeker');
         
-        // تحديث نصوص المودال
+        // Update Invitation Text
+        updateInviteText(lang);
+
+        document.getElementById('txt-energy').innerText = d.ui.energy;
+        document.getElementById('greeting').innerText = d.ui.welcome + " " + userName;
+        document.getElementById('txt-title').innerText = d.ui.title;
+        document.getElementById('txt-sub').innerText = d.ui.sub;
+        document.getElementById('txt-deep').innerText = d.ui.deep;
+        document.getElementById('tag-cheap').innerText = d.ui.cheap;
+        document.getElementById('tag-top').innerText = d.ui.top;
+        document.getElementById('tag-new').innerText = d.ui.new;
+
         document.getElementById('p-head').innerText = d.ui.p_head;
         document.getElementById('lbl-name').innerText = d.ui.lbl_name || "اسم المستخدم";
         document.getElementById('lbl-budget').innerText = d.ui.lbl_budget || "الميزانية ($)";
 
-        document.getElementById('cat-game').innerText = d.ui.game;  
-        document.getElementById('cat-beauty').innerText = d.ui.beauty;  
-        document.getElementById('cat-home').innerText = d.ui.home;  
-        document.getElementById('cat-c1').innerText = d.ui.c1;  
-        document.getElementById('cat-c2').innerText = d.ui.c2;  
-        document.getElementById('cat-c4').innerText = d.ui.c4;  
+        document.getElementById('cat-game').innerText = d.ui.game;
+        document.getElementById('cat-beauty').innerText = d.ui.beauty;
+        document.getElementById('cat-home').innerText = d.ui.home;
+        document.getElementById('cat-c1').innerText = d.ui.c1;
+        document.getElementById('cat-c2').innerText = d.ui.c2;
+        document.getElementById('cat-c4').innerText = d.ui.c4;
 
-        document.getElementById('main-html').lang = lang;  
+        document.getElementById('main-html').lang = lang;
         document.getElementById('main-html').dir = (lang === 'ar') ? 'rtl' : 'ltr';
     }
 
-    // دالة البحث الصوتي
+
+    function updateAffiliateCard(product) {
+
+    const affiliateBase = "https://s.click.aliexpress.com/e/_c3Ol2SAb";
+
+    const safeLink =
+        product.intelligence?.finalVerdict?.bestLink ||
+        product.link;
+
+    document.getElementById("affImage").src =
+        product.thumbnail || product.image;
+
+    document.getElementById("affTitle").innerText =
+        product.title;
+
+    const affiliateLink =
+        affiliateBase + "?redirect=" + encodeURIComponent(safeLink);
+
+    document.getElementById("affBtn").href = affiliateLink;
+
+    document.getElementById("affiliateCard").style.display = "block";
+}
+
+    
     function startVoice() {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            alert(lang === 'ar' ? "متصفحك لا يدعم البحث الصوتي" : "Speech recognition not supported in this browser");
+            return;
+        }
+        const recognition = new SpeechRecognition();
+        const micBtn = document.getElementById('mic-btn');
+        const input = document.getElementById('s-input');
 
-        if (!SpeechRecognition) {  
-            alert(lang === 'ar' ? "متصفحك لا يدعم البحث الصوتي" : "Speech recognition not supported in this browser");  
-            return;  
-        }  
+        recognition.lang = lang === 'ar' ? 'ar-SA' : 'en-US';
+        recognition.interimResults = false;
 
-        const recognition = new SpeechRecognition();  
-        const micBtn = document.getElementById('mic-btn');  
-        const input = document.getElementById('s-input');  
-
-        recognition.lang = lang === 'ar' ? 'ar-SA' : 'en-US';  
-        recognition.interimResults = false;  
-
-        recognition.onstart = () => {  
-            micBtn.classList.add('mic-active');  
-            micBtn.className = "fa-solid fa-microphone-lines mic-icon mic-active";  
-        };  
-
-        recognition.onresult = (event) => {  
-            const transcript = event.results[0][0].transcript;  
-            input.value = transcript;  
-            micBtn.classList.remove('mic-active');  
-            micBtn.className = "fa-solid fa-microphone-lines mic-icon";  
-            runSearch();  
-        };  
-
-        recognition.onerror = () => {  
-            micBtn.classList.remove('mic-active');  
-            micBtn.className = "fa-solid fa-microphone-lines mic-icon";  
-        };  
-
-        recognition.onend = () => {  
-            micBtn.classList.remove('mic-active');  
-            micBtn.className = "fa-solid fa-microphone-lines mic-icon";  
-        };  
-
+        recognition.onstart = () => { micBtn.classList.add('mic-active'); };
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            input.value = transcript;
+            micBtn.classList.remove('mic-active');
+            runSearch();
+        };
+        recognition.onerror = () => { micBtn.classList.remove('mic-active'); };
+        recognition.onend = () => { micBtn.classList.remove('mic-active'); };
         recognition.start();
     }
 
-    // إغلاق المودال عند النقر في الخارج
     window.onclick = function(event) {
         if (event.target.classList.contains('modal') || event.target.classList.contains('analysis-modal')) {
             event.target.style.display = "none";
         }
     }
 
-    // تشغيل التحديث عند تحميل الصفحة
-    window.onload = update;
+   function showUpgradeSuccess() {
+ localStorage.setItem("findly_pro", "true");
+       
+const lang = localStorage.getItem("findly_lang") || "ar";
+  const T = UPGRADE_SUCCESS_TEXT[lang] || UPGRADE_SUCCESS_TEXT.ar;
+
+  const overlay = document.createElement("div");
+  overlay.style = `
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.6);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:9999;
+  `;
+
+  overlay.innerHTML = `
+    <div style="
+      background:#111;
+      color:#fff;
+      max-width:420px;
+      width:90%;
+      padding:24px;
+      border-radius:14px;
+      text-align:center;
+      box-shadow:0 0 30px rgba(0,0,0,.4);
+    ">
+      <h2 style="margin-bottom:12px;">${T.title}</h2>
+      <p style="opacity:.9; line-height:1.6;">${T.message}</p>
+      <p style="margin-top:10px; opacity:.7;">${T.thanks}</p>
+      <button
+        style="
+          margin-top:18px;
+          padding:12px 20px;
+          border:none;
+          border-radius:8px;
+          background:#4f46e5;
+          color:#fff;
+          cursor:pointer;
+          font-size:15px;
+        "
+        onclick="location.href='/'"
+      >
+        ${T.button}
+      </button>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+}
+
+
+function handleUpgradeButton() {
+  const isPro = localStorage.getItem("findly_pro") === "true";
+
+  const upgradeBtn = document.getElementById("upgradeBtn");
+  if (!upgradeBtn) return;
+
+  upgradeBtn.style.display = isPro ? "none" : "inline-block";
+}
+    
+    window.onload = () => {
+  update(); // الميزات القديمة
+
+  if (location.href.includes("upgrade-success")) {
+    showUpgradeSuccess(); // هنا يتم تفعيل PRO
+  }
+
+  handleUpgradeButton(); // 🔒 الآن سيختفي زر Upgrade مباشرة
+};
+
+
+    
 </script>
+
 </body>
 </html>
+
+        

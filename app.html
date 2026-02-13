@@ -1083,6 +1083,7 @@
     
     // --- Main Search Function ---
     
+هذا هو أسمعني جيدا احذر وركز اياك ان تحذف لي شي او تختصر الكود فقط اضف المطلوب
 
 async function runSearch() {
 const q = document.getElementById('s-input').value.trim();
@@ -1153,29 +1154,7 @@ data.results.forEach(p => {
             const priceIntel = intel.priceIntel || {};  
             const valueIntel = intel.valueIntel || {};  
             const forecast = intel.forecastIntel || {};  
-             
-const trust = intel.trustIntel || {};  
-            // ===== STRATEGIC VERDICT (NEW ADDITION) =====
-
-let strategicBadge = '';
-let strategicColor = '#3b82f6';
-
-if (verdict.decision === 'BUY_NOW') {
-strategicBadge = '🟢 قرار ذكي: اشترِ الآن';
-strategicColor = '#10b981';
-}
-else if (verdict.decision === 'WAIT') {
-strategicBadge = '⏳ يفضل الانتظار';
-strategicColor = '#f59e0b';
-}
-else if (verdict.decision === 'WAIT_PRICE_DROP') {
-strategicBadge = '📉 انتظر انخفاض السعر';
-strategicColor = '#6366f1';
-}
-else if (verdict.decision === 'OVERPRICED') {
-strategicBadge = '🔴 السعر مرتفع';
-strategicColor = '#ef4444';
-}
+            const trust = intel.trustIntel || {};
 
 const bestLink =
 p.intelligence?.finalVerdict?.bestLink ||
@@ -1248,40 +1227,9 @@ if (userBudget > 0 && priceVal > userBudget) {
             <div class="analysis-engine">  
                 <span class="analysis-label">${verdict.emoji || '🤖'} ${verdict.title || ''}</span>  
                 <div>${verdict.reason || ''}</div>  
-            </div>
+            </div>  
 
-${verdict.decision ? `
-
-<div style="  
-    margin-top:10px;  
-    padding:10px;  
-    border-radius:10px;  
-    background:rgba(255,255,255,0.05);  
-    border:1px solid ${strategicColor};  
-">  
-    <div style="font-weight:bold; color:${strategicColor}; margin-bottom:6px;">  
-        ${strategicBadge}  
-    </div>  <div style="font-size:0.9rem; opacity:0.9;">  
-    ${verdict.reason || ''}  
-</div>  
-
-${verdict.savingPercent ? `  
-<div style="margin-top:5px;">  
-    💰 التوفير: <strong>${verdict.savingPercent}%</strong>  
-</div>` : ''}  
-
-${verdict.bestStore ? `  
-<div style="margin-top:5px;">  
-    🏪 أفضل متجر: <strong>${verdict.bestStore}</strong>  
-    ${verdict.bestPrice ? ` - $${verdict.bestPrice}` : ''}  
-</div>` : ''}  
-
-<div style="margin-top:5px;">  
-    🎯 الثقة: <strong>${verdict.confidence || 0}%</strong>  
-</div>
-
-</div>  
-` : ''}  ${bestCoupon ? `  
+            ${bestCoupon ? `  
             <div class="coupon-box" style="margin:10px 0; padding:10px; background:rgba(16,185,129,0.1); border-radius:10px; border:1px dashed #10b981;">  
                 🎟️ <strong>${bestCoupon.code}</strong> (${bestCoupon.type === 'percent' ? `-${bestCoupon.discount}%` : `-$${bestCoupon.discount}`})  
                 <div class="discounted-price" style="font-size:0.9rem; margin-top:5px;">  

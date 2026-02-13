@@ -51,35 +51,92 @@ module.exports = function SageCore(
   /* ===============================
      1️⃣ Market Intelligence
   =============================== */
-  const prices = marketProducts
-    .map(p => cleanPrice(p.product_price || p.price))
-    .filter(p => p > 0);
 
-  const marketAverage =
-    prices.length > 0
-      ? prices.reduce((a, b) => a + b, 0) / prices.length
-      : null;
+// تنظيف الأسعار
+const rawPrices = marketProducts
+  .map(p => cleanPrice(p.product_price || p.price))
+  .filter(p => p > 0);
 
-  let dealScore = 50;
-  let decision = 'سعر عادل';
-  let label = 'قريب من متوسط السوق';
-  let color = '#3b82f6';
-
-  if (marketAverage && price > 0) {
-    const diffPercent = ((marketAverage - price) / marketAverage) * 100;
-    dealScore = Math.round(Math.max(0, Math.min(100, diffPercent + 50)));
-
-    if (price < marketAverage * 0.85) {
-      decision = 'اشتري الآن';
-      label = 'أقل بكثير من السوق';
-      color = '#10b981';
-    } else if (price > marketAverage * 1.15) {
-      decision = 'انتظر';
-      label = 'أعلى من السوق';
-      color = '#ef4444';
+// لو لا يوجد سوق
+if (rawPrices.length < 3) {
+  return {
+    priceIntel: {
+      current: price,
+      average: null,
+      score: 50,
+      decision: 'بيانات غير كافية',
+      label: 'عدد عروض قليل',
+      color: '#6b7280'
+    },
+    finalVerdict: {
+      decision: 'INSUFFICIENT_DATA',
+      confidence: 40,
+      savingPercent: 0,
+      bestStore: null,
+      bestPrice: null,
+      bestLink: null,
+      reason: 'عدد عروض السوق غير كافٍ للتحليل'
     }
-  }
+  };
+}
 
+// ترتيب الأسعار
+const sorted = [...rawPrices].sort((a, b) => a - b);
+
+// حساب Median (أقوى من Average)
+const mid = Math.floor(sorted.length / 2);
+const marketMedian =
+  sorted.length % 2 !== 0
+    ? sorted[mid]
+    : (sorted[mid - 1] + sorted[mid]) / 2;
+
+// إزالة القيم الشاذة (IQR Method)
+const q1 = sorted[Math.floor(sorted.length * 0.25)];
+const q3 = sorted[Math.floor(sorted.length * 0.75)];
+const iqr = q3 - q1;
+
+const filteredPrices = sorted.filter(
+  p => p >= q1 - 1.5 * iqr && p <= q3 + 1.5 * iqr
+);
+
+const refinedMedian =
+  filteredPrices.length > 0
+    ? filteredPrices[Math.floor(filteredPrices.length / 2)]
+    : marketMedian;
+
+// نسبة الفرق
+const diffPercent = ((refinedMedian - price) / refinedMedian) * 100;
+
+let decision = 'سعر عادل';
+let label = 'ضمن نطاق السوق';
+let color = '#3b82f6';
+let dealScore = 50;
+
+if (price < refinedMedian * 0.9) {
+  decision = 'اشتري الآن';
+  label = 'أقل من 90% من السوق';
+  color = '#10b981';
+  dealScore = 80;
+}
+else if (price > refinedMedian * 1.1) {
+  decision = 'انتظر';
+  label = 'أعلى من 110% من السوق';
+  color = '#ef4444';
+  dealScore = 30;
+}
+else {
+  dealScore = 60;
+}
+  
+  const priceIntel = {
+  current: price,
+  average: Math.round(refinedMedian),
+  score: dealScore,
+  decision,
+  label,
+  color
+};
+  
   /* ===============================
      2️⃣ User Learning Intelligence
   =============================== */

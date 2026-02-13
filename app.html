@@ -924,13 +924,12 @@
         }
     };
 
-window.onerror = function(message, source, lineno, colno, error) {
+    window.onerror = function(message, source, lineno, colno, error) {
   alert("JS Error: " + message + " at line: " + lineno);
 };
-</script>
-
-    <script>
-    const API = "https://findly-api.onrender.com";
+    
+   
+const API = "https://findly-api.onrender.com";
 
     // --- Definitions moved to TOP to prevent initialization errors ---
     const INVITE_TEXT = {

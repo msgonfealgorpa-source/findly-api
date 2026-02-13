@@ -1379,14 +1379,13 @@ style="width:100%; margin-top:10px; background:#f59e0b; color:white;">
 </button>
 
 ${safeLink ? `
-
 <a class="action-btn buy"  
 href="https://findly-api.onrender.com/go?url=${encodeURIComponent(safeLink)}"  
 target="_blank"  
 rel="noopener noreferrer">
 ${T.buy}
 </a>
-:
+` : `
 <button class="action-btn buy disabled" disabled>
 ${T.no_link || 'الرابط غير متوفر'}
 </button>

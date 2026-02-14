@@ -44,8 +44,14 @@ module.exports = function SageCore(
   serperContext = [],
   userEvents = {},
   userId = 'guest',
-  userOutcome = null
-)
+  userOutcome = null,
+  lang = 'en'   // ✅ إضافة اللغة
+) 
+
+{
+  
+  const shortLang = (lang || 'en').split('-')[0];
+const t = TEXTS[shortLang] || TEXTS.en;
   const price = cleanPrice(product.price);
 
   /* ===============================
@@ -64,8 +70,8 @@ if (rawPrices.length < 3) {
       current: price,
       average: null,
       score: 50,
-      decision: 'بيانات غير كافية',
-      label: 'عدد عروض قليل',
+      decision: t.insufficientData,
+      label: t.fewOffers,
       color: '#6b7280'
     },
     finalVerdict: {
@@ -75,11 +81,10 @@ if (rawPrices.length < 3) {
       bestStore: null,
       bestPrice: null,
       bestLink: null,
-      reason: 'عدد عروض السوق غير كافٍ للتحليل'
+      reason: t.insufficientReason
     }
   };
 }
-
 // ترتيب الأسعار
 const sorted = [...rawPrices].sort((a, b) => a - b);
 

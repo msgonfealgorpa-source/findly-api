@@ -65,6 +65,14 @@ const finalizeUrl = u => {
   return u;
 };
 
+
+const normalizeQuery = (q) =>
+  q
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, ' ');
+
+const pendingSearches = new Map();
 /* ================= SEARCH ================= */
 app.get('/search', async (req, res) => {
   const { q, lang = 'ar', uid = 'guest' } = req.query;
@@ -79,7 +87,7 @@ app.get('/search', async (req, res) => {
   }
 
   /* ===== CACHE ===== */
-  const cacheKey = `${q}`;
+  const cacheKey = normalizeQuery(q);
   const cached = getCache(cacheKey);
   if (cached) {
     cached.energy.left = energy.hasFreePass
@@ -89,21 +97,36 @@ app.get('/search', async (req, res) => {
   }
 
   try {
-    /* ===== SEARCH API ===== */
-    const apiRes = await axios.get(
-      'https://www.searchapi.io/api/v1/search',
-      {
-        params: {
-          api_key: SEARCHAPI_KEY,
-          engine: 'google_shopping',
-          q,
-          hl: lang === 'ar' ? 'ar' : 'en',
-          gl: 'us'
-        }
+    
+     if (pendingSearches.has(cacheKey)) {
+  const data = await pendingSearches.get(cacheKey);
+  return res.json(data);
+     }
+     /* ===== SEARCH API ===== */
+    
+   const searchPromise = (async () => {
+  const apiRes = await axios.get(
+    'https://www.searchapi.io/api/v1/search',
+    {
+      params: {
+        api_key: SEARCHAPI_KEY,
+        engine: 'google_shopping',
+        q,
+        hl: lang === 'ar' ? 'ar' : 'en',
+        gl: 'us'
       }
-    );
+    }
+  );
 
-   const rawResults = apiRes.data?.shopping_results || [];
+  return apiRes;
+})();
+
+pendingSearches.set(cacheKey, searchPromise);
+
+const apiRes = await searchPromise;
+const rawResults =
+  apiRes.data?.shopping_results?.slice(0, 5) || [];
+pendingSearches.delete(cacheKey);
 
 const filteredResults = rawResults.filter(item =>
   item.title?.toLowerCase().includes(q.toLowerCase())
@@ -111,9 +134,9 @@ const filteredResults = rawResults.filter(item =>
 
 const serperContext = [];
      
-     const results = (filteredResults.length ? filteredResults : rawResults).map(item => {
+     const baseResults = filteredResults.length ? filteredResults : rawResults;
 
-  const price = cleanPrice(item.price || item.extracted_price);
+const results = baseResults.map((item, index) => {
 
   const product = {
     title: item.title,
@@ -124,9 +147,12 @@ const serperContext = [];
     source: 'Google Shopping'
   };
 
-  const intelligence = SageCore(
+let intelligence = {};
+
+if (index === 0) {
+  intelligence = SageCore(
     product,
-    (filteredResults.length ? filteredResults : rawResults),
+    baseResults,
     serperContext,
     {},
     uid,
@@ -134,13 +160,16 @@ const serperContext = [];
   ) || {};
 
   console.log("FINAL VERDICT:", intelligence.finalVerdict);
-
+}
   return {
     ...product,
     intelligence
   };
 
 });
+
+}
+  
 
        
 

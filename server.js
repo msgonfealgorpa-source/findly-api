@@ -196,7 +196,10 @@ setCache(cacheKey, responseData);
 res.json(responseData);
 
 } catch (e) {
-console.error('❌ SEARCH ERROR', e.message);
+console.error(
+  '❌ SEARCH ERROR FULL:',
+  e.response?.data || e.message
+);
 res.json({ error: 'SEARCH_FAILED', results: [] });
 }
 });

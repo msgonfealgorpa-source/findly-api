@@ -114,7 +114,6 @@ api_key: SEARCHAPI_KEY,
 engine: 'google_shopping',
 q,
 hl: lang === 'ar' ? 'ar' : 'en',
-gl: 'us'
 }
 }
 );
@@ -124,11 +123,17 @@ return apiRes;
 
 pendingSearches.set(cacheKey, searchPromise);
 
-const apiRes = await searchPromise;
+
+let apiRes;
+
+try {
+  apiRes = await searchPromise;
+} finally {
+  pendingSearches.delete(cacheKey);
+}
+
 const rawResults =
 apiRes.data?.shopping_results?.slice(0, 5) || [];
-pendingSearches.delete(cacheKey);
-
 const filteredResults = rawResults.filter(item =>
 item.title?.toLowerCase().includes(q.toLowerCase())
 );

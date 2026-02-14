@@ -42,10 +42,10 @@ module.exports = function SageCore(
   product,
   marketProducts = [],
   serperContext = [],
-  userEvents = {},     // { viewed, clickedAnalysis, bought }
+  userEvents = {},
   userId = 'guest',
   userOutcome = null
-) {
+)
   const price = cleanPrice(product.price);
 
   /* ===============================

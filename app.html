@@ -1751,6 +1751,42 @@
     
 </script>
 
+
+<script>
+let deferredPrompt;
+const installBtn = document.createElement("button");
+
+installBtn.innerText = "📲 تثبيت التطبيق";
+installBtn.style.position = "fixed";
+installBtn.style.bottom = "20px";
+installBtn.style.left = "50%";
+installBtn.style.transform = "translateX(-50%)";
+installBtn.style.padding = "12px 24px";
+installBtn.style.borderRadius = "30px";
+installBtn.style.background = "#8b5cf6";
+installBtn.style.color = "white";
+installBtn.style.border = "none";
+installBtn.style.display = "none";
+installBtn.style.zIndex = "9999";
+
+document.body.appendChild(installBtn);
+
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  installBtn.style.display = "block";
+});
+
+installBtn.addEventListener("click", async () => {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    const result = await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    installBtn.style.display = "none";
+  }
+});
+</script>
+    
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -1760,35 +1796,6 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
-    
- <script>
-let deferredPrompt;
-
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-
-  const btn = document.createElement('button');
-  btn.innerText = "📲 Install App";
-  btn.style.position = "fixed";
-  btn.style.bottom = "20px";
-  btn.style.left = "50%";
-  btn.style.transform = "translateX(-50%)";
-  btn.style.padding = "10px 20px";
-  btn.style.borderRadius = "30px";
-  btn.style.background = "#8b5cf6";
-  btn.style.color = "white";
-  btn.style.border = "none";
-  btn.style.zIndex = "9999";
-
-  document.body.appendChild(btn);
-
-  btn.addEventListener('click', async () => {
-    deferredPrompt.prompt();
-    deferredPrompt = null;
-    btn.remove();
-  });
-});
  </script>
 </body>
 </html>

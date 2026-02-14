@@ -1751,30 +1751,15 @@
     
 </script>
 
-
 <script>
-let deferredPrompt;
+let deferredPrompt = null;
+
 const installBtn = document.createElement("button");
-
 installBtn.innerText = "📲 تثبيت التطبيق";
-installBtn.style.position = "fixed";
-installBtn.style.bottom = "20px";
-installBtn.style.left = "50%";
-installBtn.style.transform = "translateX(-50%)";
-installBtn.style.padding = "12px 24px";
-installBtn.style.borderRadius = "30px";
-installBtn.style.background = "#8b5cf6";
-installBtn.style.color = "white";
-installBtn.style.border = "none";
+installBtn.className = "install-btn";
 installBtn.style.display = "none";
-installBtn.style.zIndex = "9999";
-
 document.body.appendChild(installBtn);
 
-window.addEventListener("beforeinstallprompt", () => {
-  alert("EVENT WORKING");
-});
-    
 window.addEventListener("beforeinstallprompt", (e) => {
   e.preventDefault();
   deferredPrompt = e;
@@ -1784,17 +1769,20 @@ window.addEventListener("beforeinstallprompt", (e) => {
 installBtn.addEventListener("click", async () => {
   if (deferredPrompt) {
     deferredPrompt.prompt();
-    const result = await deferredPrompt.userChoice;
+    await deferredPrompt.userChoice;
     deferredPrompt = null;
     installBtn.style.display = "none";
+  } else {
+    alert("اضغط من قائمة المتصفح ثم 'Add to Home Screen'");
   }
 });
 </script>
+
     
 <script>
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js')
-    .then(() => console.log("SW Registered"))
+  navigator.serviceWorker.register('./sw.js', { scope: './' })
+    .then(reg => console.log("SW Registered:", reg.scope))
     .catch(err => console.log("SW Error:", err));
 }
 

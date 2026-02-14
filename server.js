@@ -87,7 +87,7 @@ app.get('/search', async (req, res) => {
   }
 
   /* ===== CACHE ===== */
-  const cacheKey = normalizeQuery(q);
+  const cacheKey = normalizeQuery(q) + "_" + lang;
   const cached = getCache(cacheKey);
   if (cached) {
     cached.energy.left = energy.hasFreePass
@@ -138,7 +138,8 @@ const serperContext = [];
 
 const results = baseResults.map((item, index) => {
 
-  const product = {
+  const price = cleanPrice(item.price || item.extracted_price);
+   const product = {
     title: item.title,
     price: item.price,
     numericPrice: price,
@@ -168,7 +169,6 @@ if (index === 0) {
 
 });
 
-}
   
 
        

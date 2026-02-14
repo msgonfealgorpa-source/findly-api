@@ -7,7 +7,137 @@
  * - Fake Deal Detection
  * - User Personality Engine (NEW)
  */
+/* ================= TRANSLATIONS ================= */
 
+const SAGE_TRANSLATIONS = {
+
+  ar: {
+    buy_now: "اشتري الآن",
+    wait: "انتظر",
+    overpriced: "السعر مرتفع",
+    fair_price: "سعر عادل",
+    excellent_deal: "صفقة ممتازة",
+    good_deal: "صفقة جيدة",
+    bad_deal: "صفقة ضعيفة",
+    high_risk: "مخاطرة عالية",
+    medium_risk: "مخاطرة متوسطة",
+    low_risk: "مخاطرة منخفضة",
+    strong_signal: "إشارة قوية",
+    weak_signal: "إشارة ضعيفة",
+    insufficient_data: "بيانات غير كافية للتحليل",
+    market_stable: "السوق مستقر",
+    market_rising: "السوق في ارتفاع",
+    market_falling: "السوق في انخفاض",
+    analysis_learning: "التحليل قيد التعلم",
+    fake_offer: "قد يكون العرض غير منطقي مقارنة بالسوق"
+  },
+
+  en: {
+    buy_now: "Buy Now",
+    wait: "Wait",
+    overpriced: "Overpriced",
+    fair_price: "Fair Price",
+    excellent_deal: "Excellent Deal",
+    good_deal: "Good Deal",
+    bad_deal: "Weak Deal",
+    high_risk: "High Risk",
+    medium_risk: "Medium Risk",
+    low_risk: "Low Risk",
+    strong_signal: "Strong Signal",
+    weak_signal: "Weak Signal",
+    insufficient_data: "Not enough data for analysis",
+    market_stable: "Market Stable",
+    market_rising: "Market Rising",
+    market_falling: "Market Falling",
+    analysis_learning: "Analysis in progress",
+    fake_offer: "Offer may be unrealistic compared to market"
+  },
+
+  fr: {
+    buy_now: "Acheter maintenant",
+    wait: "Attendre",
+    overpriced: "Prix élevé",
+    fair_price: "Prix correct",
+    excellent_deal: "Excellente offre",
+    good_deal: "Bonne offre",
+    bad_deal: "Offre faible",
+    high_risk: "Risque élevé",
+    medium_risk: "Risque moyen",
+    low_risk: "Risque faible",
+    strong_signal: "Signal fort",
+    weak_signal: "Signal faible",
+    insufficient_data: "Données insuffisantes",
+    market_stable: "Marché stable",
+    market_rising: "Marché en hausse",
+    market_falling: "Marché en baisse",
+    analysis_learning: "Analyse en cours",
+    fake_offer: "Offre potentiellement irréaliste"
+  },
+
+  de: {
+    buy_now: "Jetzt kaufen",
+    wait: "Warten",
+    overpriced: "Überteuert",
+    fair_price: "Fairer Preis",
+    excellent_deal: "Ausgezeichnetes Angebot",
+    good_deal: "Gutes Angebot",
+    bad_deal: "Schwaches Angebot",
+    high_risk: "Hohes Risiko",
+    medium_risk: "Mittleres Risiko",
+    low_risk: "Niedriges Risiko",
+    strong_signal: "Starkes Signal",
+    weak_signal: "Schwaches Signal",
+    insufficient_data: "Nicht genügend Daten",
+    market_stable: "Markt stabil",
+    market_rising: "Markt steigt",
+    market_falling: "Markt fällt",
+    analysis_learning: "Analyse läuft",
+    fake_offer: "Angebot könnte unrealistisch sein"
+  },
+
+  es: {
+    buy_now: "Comprar ahora",
+    wait: "Esperar",
+    overpriced: "Precio alto",
+    fair_price: "Precio justo",
+    excellent_deal: "Oferta excelente",
+    good_deal: "Buena oferta",
+    bad_deal: "Oferta débil",
+    high_risk: "Alto riesgo",
+    medium_risk: "Riesgo medio",
+    low_risk: "Bajo riesgo",
+    strong_signal: "Señal fuerte",
+    weak_signal: "Señal débil",
+    insufficient_data: "Datos insuficientes",
+    market_stable: "Mercado estable",
+    market_rising: "Mercado en alza",
+    market_falling: "Mercado en baja",
+    analysis_learning: "Análisis en curso",
+    fake_offer: "La oferta puede ser irreal"
+  },
+
+  tr: {
+    buy_now: "Şimdi Satın Al",
+    wait: "Bekle",
+    overpriced: "Fiyat yüksek",
+    fair_price: "Adil fiyat",
+    excellent_deal: "Mükemmel fırsat",
+    good_deal: "İyi fırsat",
+    bad_deal: "Zayıf fırsat",
+    high_risk: "Yüksek risk",
+    medium_risk: "Orta risk",
+    low_risk: "Düşük risk",
+    strong_signal: "Güçlü sinyal",
+    weak_signal: "Zayıf sinyal",
+    insufficient_data: "Yetersiz veri",
+    market_stable: "Piyasa stabil",
+    market_rising: "Piyasa yükseliyor",
+    market_falling: "Piyasa düşüyor",
+    analysis_learning: "Analiz sürüyor",
+    fake_offer: "Teklif gerçekçi olmayabilir"
+  }
+
+};
 function cleanPrice(p) {
   if (!p) return 0;
   return parseFloat(p.toString().replace(/[^0-9.]/g, '')) || 0;
@@ -37,7 +167,12 @@ function detectPersonality(userEvents, price, marketAverage) {
 
   return 'neutral';
 }
-
+function t(lang, key) {
+  const shortLang = (lang || "en").split("-")[0];
+  return SAGE_TRANSLATIONS[shortLang]?.[key]
+      || SAGE_TRANSLATIONS["en"][key]
+      || key;
+}
 module.exports = function SageCore(
   product,
   marketProducts = [],
@@ -50,8 +185,6 @@ module.exports = function SageCore(
 
 {
   
-  const shortLang = (lang || 'en').split('-')[0];
-const t = TEXTS[shortLang] || TEXTS.en;
   const price = cleanPrice(product.price);
 
   /* ===============================

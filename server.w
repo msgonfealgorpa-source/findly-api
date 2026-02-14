@@ -1,5 +1,5 @@
 /* =========================================
-FINDLY SERVER - CLEAN (KEYS ONLY)
+   FINDLY SERVER - PRODUCTION CLEAN VERSION
 ========================================= */
 
 const express = require('express');
@@ -7,313 +7,333 @@ const cors = require('cors');
 const axios = require('axios');
 const mongoose = require('mongoose');
 const crypto = require('crypto');
-const SageCore = require('./sage-core');
 const rateLimit = require('express-rate-limit');
+const SageCore = require('./sage-core');
+
 const app = express();
 app.set('trust proxy', 1);
-/* ================= BASIC ================= /
-app.use(cors({ origin: '', methods: ['GET', 'POST'] }));
+
+/* ================= BASIC ================= */
+
+app.use(cors({ origin: '*', methods: ['GET', 'POST'] }));
 app.use(express.json());
- 
+
 /* ================= ENV ================= */
-/* ================= RATE LIMIT ================= */
 
 const PORT = process.env.PORT || 10000;
 const MONGO_URI = process.env.MONGO_URI;
 const DATAFORSEO_LOGIN = process.env.DATAFORSEO_LOGIN;
 const DATAFORSEO_PASSWORD = process.env.DATAFORSEO_PASSWORD;
-const SERPER_API_KEY = process.env.SERPER_API_KEY;
 const NOWPAYMENTS_IPN_SECRET = process.env.NOWPAYMENTS_IPN_SECRET;
 const NOWPAYMENTS_API_KEY = process.env.NOWPAYMENTS_API_KEY;
 
+const DAILY_LIMIT = 100; // عدل حسب ميزانيتك
+
 /* ================= CACHE (48H) ================= */
+
 const searchCache = new Map();
-const CACHE_TTL = 1000 * 60 * 60 * 24 * 2;
+const CACHE_TTL = 1000 * 60 * 60 * 48;
 
 const getCache = key => {
-const c = searchCache.get(key);
-if (!c) return null;
-if (Date.now() - c.time > CACHE_TTL) {
-searchCache.delete(key);
-return null;
-}
-return c.data;
+  const c = searchCache.get(key);
+  if (!c) return null;
+  if (Date.now() - c.time > CACHE_TTL) {
+    searchCache.delete(key);
+    return null;
+  }
+  return c.data;
 };
 
 const setCache = (key, data) =>
-searchCache.set(key, { time: Date.now(), data });
+  searchCache.set(key, { time: Date.now(), data });
 
 /* ================= DB ================= */
+
 mongoose.connect(MONGO_URI)
-.then(() => console.log('✅ DB Connected'))
-.catch(e => console.log('❌ DB Error', e.message));
+  .then(() => console.log('✅ DB Connected'))
+  .catch(e => console.log('❌ DB Error', e.message));
 
 const Energy = mongoose.model(
-'Energy',
-new mongoose.Schema({
-uid: { type: String, unique: true },
-searchesUsed: { type: Number, default: 0 },
-hasFreePass: { type: Boolean, default: false }
-})
+  'Energy',
+  new mongoose.Schema({
+    uid: { type: String, unique: true },
+    searchesUsed: { type: Number, default: 0 },
+    hasFreePass: { type: Boolean, default: false }
+  })
 );
 
 /* ================= HELPERS ================= */
+
 const cleanPrice = p =>
-parseFloat(String(p || '').replace(/[^0-9.]/g, '')) || 0;
+  parseFloat(String(p || '').replace(/[^0-9.]/g, '')) || 0;
 
 const finalizeUrl = u => {
-if (!u) return '#';
-if (u.startsWith('//')) return 'https:' + u;
-if (!u.startsWith('http')) return 'https://' + u;
-return u;
+  if (!u) return '#';
+  if (u.startsWith('//')) return 'https:' + u;
+  if (!u.startsWith('http')) return 'https://' + u;
+  return u;
 };
 
-const normalizeQuery = (q) =>
-q
-.trim()
-.toLowerCase()
-.replace(/\s+/g, ' ');
+const normalizeQuery = q =>
+  q.trim().toLowerCase().replace(/\s+/g, ' ');
 
-const pendingSearches = new Map();
+/* ================= RATE LIMIT ================= */
+
 const searchLimiter = rateLimit({
-  windowMs: 60 * 1000, // دقيقة
-  max: 15, // 15 طلب في الدقيقة لكل IP
+  windowMs: 60 * 1000,
+  max: 15,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: "Too many requests, slow down." }
 });
+
 /* ================= SEARCH ================= */
+
+const pendingSearches = new Map();
+
 app.get('/search', searchLimiter, async (req, res) => {
-const { q, lang = 'ar', uid = 'guest' } = req.query;
-if (!q) return res.json({ results: [] });
 
-/* ===== ENERGY ===== */
-let energy = await Energy.findOne({ uid });
-if (!energy) energy = await Energy.create({ uid });
+  const { q, lang = 'ar', uid = 'guest' } = req.query;
+  if (!q) return res.json({ results: [] });
 
-if (!energy.hasFreePass && energy.searchesUsed >= 3) {
-return res.status(429).json({ error: 'ENERGY_EMPTY' });
-}
-/* ===== DAILY BUDGET PROTECTION ===== */
-const today = new Date().toISOString().slice(0, 10);
+  /* ===== ENERGY ===== */
 
-if (!global.dailyUsage) global.dailyUsage = {};
-if (!global.dailyUsage[today]) global.dailyUsage[today] = 0;
+  let energy = await Energy.findOne({ uid });
+  if (!energy) energy = await Energy.create({ uid });
 
-if (global.dailyUsage[today] >= DAILY_LIMIT) {
-  return res.status(503).json({ error: "DAILY_LIMIT_REACHED" });
-}
-/* ===== CACHE ===== */
-const cacheKey = normalizeQuery(q) + "_" + lang;
-const cached = getCache(cacheKey);
-if (cached) {
-cached.energy.left = energy.hasFreePass
-? '∞'
-: Math.max(0, 3 - energy.searchesUsed);
-return res.json(cached);
-}
+  if (!energy.hasFreePass && energy.searchesUsed >= 3) {
+    return res.status(429).json({ error: 'ENERGY_EMPTY' });
+  }
 
-try {
+  /* ===== DAILY BUDGET PROTECTION ===== */
 
-if (pendingSearches.has(cacheKey)) {
+  const today = new Date().toISOString().slice(0, 10);
+  if (!global.dailyUsage) global.dailyUsage = {};
+  if (!global.dailyUsage[today]) global.dailyUsage[today] = 0;
 
-const data = await pendingSearches.get(cacheKey);
-return res.json(data);
-}
-/* ===== SEARCH API (DataForSEO) ===== */
+  if (global.dailyUsage[today] >= DAILY_LIMIT) {
+    return res.status(503).json({ error: "DAILY_LIMIT_REACHED" });
+  }
 
-const searchPromise = (async () => {
-const auth = Buffer.from(${DATAFORSEO_LOGIN}:${DATAFORSEO_PASSWORD}).toString('base64');
+  /* ===== CACHE ===== */
 
-const apiRes = await axios.post(
-'https://api.dataforseo.com/v3/serp/google/shopping/live/advanced',
-[{
-keyword: q,
-language_code: lang === 'ar' ? 'ar' : 'en',
-location_code: 2840,
-parse: true
-}],
-{
-headers: {
-'Authorization': Basic ${auth},
-'Content-Type': 'application/json'
-}
-}
-);
+  const cacheKey = normalizeQuery(q) + "_" + lang;
+  const cached = getCache(cacheKey);
 
-return apiRes;
-})();
+  if (cached) {
+    cached.energy.left = energy.hasFreePass
+      ? '∞'
+      : Math.max(0, 3 - energy.searchesUsed);
+    return res.json(cached);
+  }
 
-pendingSearches.set(cacheKey, searchPromise);
+  try {
 
-const apiRes = await searchPromise;
-const rawResults =
-apiRes.data?.tasks?.[0]?.result?.[0]?.items?.slice(0, 5) || [];
-pendingSearches.delete(cacheKey);
+    if (pendingSearches.has(cacheKey)) {
+      const data = await pendingSearches.get(cacheKey);
+      return res.json(data);
+    }
 
-const filteredResults = rawResults.filter(item =>
-item.title?.toLowerCase().includes(q.toLowerCase())
-);
+    /* ===== DATAFORSEO ===== */
 
-const serperContext = [];
+    const searchPromise = (async () => {
 
-const baseResults = filteredResults.length ? filteredResults : rawResults;
+      const auth = Buffer.from(
+        `${DATAFORSEO_LOGIN}:${DATAFORSEO_PASSWORD}`
+      ).toString('base64');
 
-const results = baseResults.map((item, index) => {
+      const apiRes = await axios.post(
+        'https://api.dataforseo.com/v3/serp/google/shopping/live/advanced',
+        [{
+          keyword: q,
+          language_code: lang === 'ar' ? 'ar' : 'en',
+          location_code: 2840,
+          parse: true
+        }],
+        {
+          headers: {
+            'Authorization': `Basic ${auth}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
 
-const price = cleanPrice(item.price || item.extracted_price);
-const product = {
-title: item.title,
-price: item.price,
-numericPrice: price,
-link: finalizeUrl(item.url || item.link),
-thumbnail: item.image_url || item.thumbnail,
-source: 'Google Shopping'
-};
+      return apiRes;
 
-let intelligence = {};
+    })();
 
-if (index === 0) {
-intelligence = SageCore(
-product,
-baseResults,
-serperContext,
-{},
-uid,
-null
-) || {};
+    pendingSearches.set(cacheKey, searchPromise);
 
-console.log("FINAL VERDICT:", intelligence.finalVerdict);
-}
-return {
-...product,
-intelligence
-};
+    const apiRes = await searchPromise;
 
-});
+    // ✅ زيادة العداد بعد نجاح الطلب فقط
+    global.dailyUsage[today]++;
 
-if (!energy.hasFreePass) {
-energy.searchesUsed += 1;
-await energy.save();
-}
+    const rawResults =
+      apiRes.data?.tasks?.[0]?.result?.[0]?.items?.slice(0, 5) || [];
 
-const responseData = {
-query: q,
-results,
-energy: {
-used: energy.searchesUsed,
-limit: energy.hasFreePass ? '∞' : 3,
-left: energy.hasFreePass
-? '∞'
-: Math.max(0, 3 - energy.searchesUsed)
-}
-};
+    pendingSearches.delete(cacheKey);
 
-setCache(cacheKey, responseData);
-res.json(responseData);
+    const results = rawResults.map((item, index) => {
 
-} catch (e) {
-console.error('❌ SEARCH ERROR', e.message);
-res.json({ error: 'SEARCH_FAILED', results: [] });
-}
+      const price = cleanPrice(item.price || item.extracted_price);
+
+      const product = {
+        title: item.title,
+        price: item.price,
+        numericPrice: price,
+        link: finalizeUrl(item.url || item.link),
+        thumbnail: item.image_url || item.thumbnail,
+        source: 'Google Shopping'
+      };
+
+      let intelligence = {};
+
+      if (index === 0) {
+        intelligence = SageCore(
+          product,
+          rawResults,
+          [],
+          {},
+          uid,
+          null
+        ) || {};
+      }
+
+      return { ...product, intelligence };
+    });
+
+    if (!energy.hasFreePass) {
+      energy.searchesUsed += 1;
+      await energy.save();
+    }
+
+    const responseData = {
+      query: q,
+      results,
+      energy: {
+        used: energy.searchesUsed,
+        limit: energy.hasFreePass ? '∞' : 3,
+        left: energy.hasFreePass
+          ? '∞'
+          : Math.max(0, 3 - energy.searchesUsed)
+      }
+    };
+
+    setCache(cacheKey, responseData);
+    res.json(responseData);
+
+  } catch (e) {
+
+    console.error('❌ SEARCH ERROR', e.message);
+    res.status(500).json({ error: 'SEARCH_FAILED' });
+
+  }
+
 });
 
 /* ================= CREATE PAYMENT ================= */
+
 app.post('/create-payment', async (req, res) => {
-try {
-const { uid } = req.body;
-if (!uid) {
-return res.status(400).json({ error: 'UID_REQUIRED' });
-}
 
-const response = await axios.post(
-'https://api.nowpayments.io/v1/invoice',
-{
-price_amount: 10,
-price_currency: 'usd',
-pay_currency: 'usdttrc20',
-order_id: uid,
-order_description: 'Findly Pro Subscription',
-success_url: 'https://findly.source.github.io/?upgrade=success',
-cancel_url: 'https://findly.source.github.io/?upgrade=cancel'
-},
-{
-headers: {
-'x-api-key': process.env.NOWPAYMENTS_API_KEY,
-'Content-Type': 'application/json'
-}
-}
-);
-global.dailyUsage[today]++;
-return res.json({
-url: response.data.invoice_url
+  try {
+
+    const { uid } = req.body;
+    if (!uid)
+      return res.status(400).json({ error: 'UID_REQUIRED' });
+
+    const response = await axios.post(
+      'https://api.nowpayments.io/v1/invoice',
+      {
+        price_amount: 10,
+        price_currency: 'usd',
+        pay_currency: 'usdttrc20',
+        order_id: uid,
+        order_description: 'Findly Pro Subscription',
+        success_url: 'https://findly.source.github.io/?upgrade=success',
+        cancel_url: 'https://findly.source.github.io/?upgrade=cancel'
+      },
+      {
+        headers: {
+          'x-api-key': NOWPAYMENTS_API_KEY,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    res.json({ url: response.data.invoice_url });
+
+  } catch (err) {
+
+    console.error('❌ PAYMENT ERROR', err.response?.data || err.message);
+    res.status(500).json({ error: 'PAYMENT_FAILED' });
+
+  }
+
 });
 
-} catch (err) {
-console.error(
-'❌ NOWPayments create-payment error:',
-err.response?.data || err.message
-);
-return res.status(500).json({ error: 'PAYMENT_FAILED' });
-}
-});
+/* ================= WEBHOOK ================= */
 
-/* ================= PAYMENTS WEBHOOK ================= */
 app.post(
-'/nowpayments/webhook',
-express.raw({ type: 'application/json' }),
-async (req, res) => {
-const sig = req.headers['x-nowpayments-sig'];
-const payload = req.body.toString();
+  '/nowpayments/webhook',
+  express.raw({ type: 'application/json' }),
+  async (req, res) => {
 
-const expected =
-crypto
-.createHmac('sha512', NOWPAYMENTS_IPN_SECRET)
-.update(payload)
-.digest('hex');
+    const sig = req.headers['x-nowpayments-sig'];
+    const payload = req.body.toString();
 
-if (sig !== expected) {
-return res.status(403).json({ error: 'INVALID_SIGNATURE' });
-}
+    const expected = crypto
+      .createHmac('sha512', NOWPAYMENTS_IPN_SECRET)
+      .update(payload)
+      .digest('hex');
 
-const data = JSON.parse(payload);
-if (data.payment_status === 'finished') {
-const uid = data.order_id;
-let energy = await Energy.findOne({ uid });
-if (!energy) energy = await Energy.create({ uid });
-energy.hasFreePass = true;
-energy.searchesUsed = 0;
-await energy.save();
-}
+    if (sig !== expected)
+      return res.status(403).json({ error: 'INVALID_SIGNATURE' });
 
-res.json({ success: true });
+    const data = JSON.parse(payload);
 
-}
+    if (data.payment_status === 'finished') {
+
+      const uid = data.order_id;
+
+      let energy = await Energy.findOne({ uid });
+      if (!energy) energy = await Energy.create({ uid });
+
+      energy.hasFreePass = true;
+      energy.searchesUsed = 0;
+      await energy.save();
+    }
+
+    res.json({ success: true });
+
+  }
 );
 
 /* ================= REDIRECT ================= */
+
 app.get('/go', (req, res) => {
-const { url } = req.query;
 
-if (!url) {
-return res.status(400).send("No URL provided");
-}
+  const { url } = req.query;
+  if (!url)
+    return res.status(400).send("No URL provided");
 
-try {
-const decodedUrl = decodeURIComponent(url);
+  try {
 
-if (!/^https?:///i.test(decodedUrl)) {
-return res.status(400).send("Invalid URL");
-}
+    const decodedUrl = decodeURIComponent(url);
 
-return res.redirect(decodedUrl);
+    if (!/^https?:\/\//i.test(decodedUrl))
+      return res.status(400).send("Invalid URL");
 
-} catch (err) {
-return res.status(500).send("Redirect error");
-}
+    return res.redirect(decodedUrl);
+
+  } catch {
+    return res.status(500).send("Redirect error");
+  }
+
 });
 
 /* ================= START ================= */
+
 app.listen(PORT, () =>
-console.log(🚀 Findly Server running on ${PORT})
+  console.log(`🚀 Findly Server running on ${PORT}`)
 );

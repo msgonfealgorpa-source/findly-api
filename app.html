@@ -1771,6 +1771,10 @@ installBtn.style.zIndex = "9999";
 
 document.body.appendChild(installBtn);
 
+window.addEventListener("beforeinstallprompt", () => {
+  alert("EVENT WORKING");
+});
+    
 window.addEventListener("beforeinstallprompt", (e) => {
   e.preventDefault();
   deferredPrompt = e;
@@ -1789,7 +1793,7 @@ installBtn.addEventListener("click", async () => {
     
 <script>
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/findly-api/sw.js')
+  navigator.serviceWorker.register('./sw.js')
     .then(() => console.log("SW Registered"))
     .catch(err => console.log("SW Error:", err));
 }

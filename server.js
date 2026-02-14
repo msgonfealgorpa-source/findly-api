@@ -158,13 +158,14 @@ let intelligence = {};
 
 if (index === 0) {
 intelligence = SageCore(
-product,
-baseResults,
-serperContext,
-{},
-uid,
-null
-) || {};
+  product,
+  rawResults,
+  [],
+  {},
+  uid,
+  null,
+  lang   // ✅ نمرر اللغة
+);
 
 console.log("FINAL VERDICT:", intelligence.finalVerdict);
 }

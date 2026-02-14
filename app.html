@@ -1288,8 +1288,8 @@
                 const verdict = intel.finalVerdict || {};  
                 const priceIntel = intel.priceIntel || {};  
                 const valueIntel = intel.valueIntel || {};  
-                const forecast = intel.forecastIntel || {};  
-                const trust = intel.trustIntel || {};  
+                const forecast = intel.forecast || {};
+const trust = intel.trust || {};
 
                 // ===== STRATEGIC VERDICT =====
                 let strategicBadge = '';
@@ -1378,6 +1378,8 @@
                         : `$${numericPrice || '-'}`  
                     }  
                 ${analysisBlock}
+                
+              </div>
                 ${bestCoupon ? `  
                 <div class="coupon-box">  
                     🎟️ <strong>${bestCoupon.code}</strong> (${bestCoupon.type === 'percent' ? `-${bestCoupon.discount}%` : `-$${bestCoupon.discount}`})  

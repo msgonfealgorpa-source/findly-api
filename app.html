@@ -1283,7 +1283,7 @@
                 updateAffiliateCard(firstProduct);
             }
 
-            data.results.forEach(p => {  
+            data.results.forEach((p, index) => {
                 const intel = p.intelligence || {};  
                 const verdict = intel.finalVerdict || {};  
                 const priceIntel = intel.priceIntel || {};  
@@ -1334,6 +1334,39 @@
                 const bestCoupon = (numericPrice && coupons.length) ? pickBestCoupon(numericPrice, coupons) : null;  
                 const discountedPrice = (numericPrice && bestCoupon) ? applyCoupon(numericPrice, bestCoupon) : null;  
 
+               let analysisBlock = "";
+                
+                if (index === 0 && verdict.decision) {
+  analysisBlock = `
+    <div class="sage-quick-brains">
+      <div class="brain-item good">
+        💰 ${lang === 'ar' ? 'السعر' : 'Price'}
+        <span>${priceIntel.score || 0}%</span>
+      </div>
+
+      <div class="brain-item">
+        📈 ${lang === 'ar' ? 'التوقيت' : 'Timing'}
+        <span>${forecast.trend || '-'}</span>
+      </div>
+
+      <div class="brain-item">
+        🛡 ${lang === 'ar' ? 'الثقة' : 'Trust'}
+        <span>${trust.riskScore || 0}%</span>
+      </div>
+    </div>
+
+    <div class="analysis-engine">
+      <div style="margin-top:10px; padding:10px; border-radius:10px; background:rgba(255,255,255,0.05); border:1px solid ${strategicColor};">
+        <div style="font-weight:bold; color:${strategicColor}; margin-bottom:5px;">
+          ${strategicBadge}
+        </div>
+        <div style="font-size:0.9rem; opacity:0.9;">
+          ${verdict.reason || ''}
+        </div>
+      </div>
+    </div>
+  `;
+}
                 card.innerHTML = `  
                 ${budgetBadge}   
                 <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/200'">  
@@ -1344,62 +1377,7 @@
                         ? `<span class="old-price">$${numericPrice}</span><span class="new-price">$${discountedPrice}</span>`  
                         : `$${numericPrice || '-'}`  
                     }  
-                </div>  
-
-                <div class="sage-quick-brains">  
-                    <div class="brain-item good">  
-                        💰 ${lang === 'ar' ? 'السعر' : 'Price'} <span>${priceIntel.score >= 70 ? (lang === 'ar' ? 'ممتاز' : 'Excellent') : priceIntel.score >= 50 ? (lang === 'ar' ? 'جيد' : 'Good') : (lang === 'ar' ? 'ضعيف' : 'Weak')}</span>  
-                    </div>  
-                    <div class="brain-item ${forecast.trend === 'down' ? 'wait' : forecast.trend === 'up' ? 'buy' : 'neutral'}">  
-                        📈 ${lang === 'ar' ? 'التوقيت' : 'Timing'} <span>${forecast.trend === 'down' ? (lang === 'ar' ? 'انتظر' : 'Wait') : forecast.trend === 'up' ? (lang === 'ar' ? 'قد يرتفع' : 'May rise') : (lang === 'ar' ? 'مستقر' : 'Stable')}</span>  
-                    </div>  
-                    <div class="brain-item ${(trust.riskScore || 0) > 50 ? 'risk' : 'safe'}">  
-                        🛡️ ${lang === 'ar' ? 'الثقة' : 'Trust'} <span>${(trust.riskScore || 0) > 50 ? (lang === 'ar' ? 'مخاطرة' : 'Risk') : (lang === 'ar' ? 'آمن' : 'Safe')}</span>  
-                    </div>  
-                    <div class="brain-item learn">  
-                        🧠 ${lang === 'ar' ? 'السلوك' : 'Behavior'} <span>${(valueIntel.learningBoost || 0) > 0 ? (lang === 'ar' ? 'مناسب لك' : 'Suitable') : (lang === 'ar' ? 'عام' : 'General')}</span>  
-                    </div>  
-                </div>  
-
-                <div class="analysis-engine">  
-                    <span class="analysis-label">${verdict.emoji || '🤖'} ${verdict.title || ''}</span>  
-                    <div>${verdict.reason || ''}</div>  
-                </div>
-
-                ${verdict.decision ? `
-
-                <div style="  
-                    margin-top:10px;  
-                    padding:10px;  
-                    border-radius:10px;  
-                    background:rgba(255,255,255,0.05);  
-                    border:1px solid ${strategicColor};  
-                ">  
-                    <div style="font-weight:bold; color:${strategicColor}; margin-bottom:6px;">  
-                        ${strategicBadge}  
-                    </div>  
-                    <div style="font-size:0.9rem; opacity:0.9;">  
-                        ${verdict.reason || ''}  
-                    </div>  
-
-                    ${verdict.savingPercent ? `  
-                    <div style="margin-top:5px;">  
-                        💰 ${lang === 'ar' ? 'التوفير' : 'Saving'}: <strong>${verdict.savingPercent}%</strong>  
-                    </div>` : ''}  
-
-                    ${verdict.bestStore ? `  
-                    <div style="margin-top:5px;">  
-                        🏪 ${lang === 'ar' ? 'أفضل متجر' : 'Best store'}: <strong>${verdict.bestStore}</strong>  
-                        ${verdict.bestPrice ? ` - $${verdict.bestPrice}` : ''}  
-                    </div>` : ''}  
-
-                    <div style="margin-top:5px;">  
-                        🎯 ${lang === 'ar' ? 'الثقة' : 'Confidence'}: <strong>${verdict.confidence || 0}%</strong>  
-                    </div>
-
-                </div>  
-                ` : ''}  
-                
+                ${analysisBlock}
                 ${bestCoupon ? `  
                 <div class="coupon-box">  
                     🎟️ <strong>${bestCoupon.code}</strong> (${bestCoupon.type === 'percent' ? `-${bestCoupon.discount}%` : `-$${bestCoupon.discount}`})  

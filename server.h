@@ -191,14 +191,14 @@ app.get('/search', searchLimiter, async (req, res) => {
 
       if (index === 0) {
         intelligence = SageCore(
-          product,
-          rawResults,
-          [],
-          {},
-          uid,
-          null
-        ) || {};
-      }
+  product,
+  rawResults,
+  [],
+  {},
+  uid,
+  null,
+  lang   // ✅ نمرر اللغة
+);
 
       return { ...product, intelligence };
     });

@@ -136,7 +136,7 @@ else {
   label,
   color
 };
-  
+  const marketAverage = refinedMedian;
   /* ===============================
      2️⃣ User Learning Intelligence
   =============================== */
@@ -236,8 +236,8 @@ else {
     riskScore += 40;
   }
 
-  if (prices.length >= 5) {
-    const min = Math.min(...prices);
+  if (rawPrices.length >= 5) {
+  const min = Math.min(...rawPrices);
     if (price > min * 1.3) {
       warnings.push('عرض قد يكون وهميًا مقارنة بالمنافسين');
       riskScore += 30;
@@ -346,7 +346,7 @@ const finalVerdict = {
 
     valueIntel: {
       score: dealScore,
-      competitors: prices.length,
+      competitors: rawPrices.length,
       learningBoost,
       learningReason
     },

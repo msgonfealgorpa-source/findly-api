@@ -1378,13 +1378,14 @@ const trust = intel.trust || {};
     <h3>${p.title || '—'}</h3>
 
     <div class="price">
-        ${bestCoupon && discountedPrice
-            ? `<span class="old-price">$${numericPrice}</span>
-               <span class="new-price">$${discountedPrice}</span>`
-            : `$${numericPrice || '-'}`
-        }
-    </div>
-
+        
+${bestCoupon ? `
+    <div class="coupon-box">
+        ...
+        (${bestCoupon.type === 'percent'
+            ? `-${bestCoupon.discount}%`
+            : `-$${bestCoupon.discount}`
+        })
     ${analysisBlock}
 
     ${bestCoupon ? `

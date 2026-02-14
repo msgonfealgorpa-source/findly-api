@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Findly | Intelligence Before Purchase</title>
-
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#8b5cf6">
 <style>
 :root{
     --primary:#8b5cf6;
@@ -239,5 +240,12 @@ document.querySelectorAll('.fade-in').forEach(el => {
   observer.observe(el);
 });
 </script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js');
+}
+</script>
+    
 </body>
 </html>

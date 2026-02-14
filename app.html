@@ -1367,27 +1367,49 @@ const trust = intel.trust || {};
     </div>
   `;
 }
-                card.innerHTML = `  
-                ${budgetBadge}   
-                <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/200'">  
-                <h3>${p.title || '—'}</h3>  
 
-                <div class="price">  
-                    ${bestCoupon && discountedPrice  
-                        ? `<span class="old-price">$${numericPrice}</span><span class="new-price">$${discountedPrice}</span>`  
-                        : `$${numericPrice || '-'}`  
-                    }  
-                ${analysisBlock}
-                
-              </div>
-                ${bestCoupon ? `  
-                <div class="coupon-box">  
-                    🎟️ <strong>${bestCoupon.code}</strong> (${bestCoupon.type === 'percent' ? `-${bestCoupon.discount}%` : `-$${bestCoupon.discount}`})  
-                    <div class="discounted-price" style="font-size:0.9rem; margin-top:5px;">  
-                        ${T.after_discount}: <strong>$${discountedPrice}</strong>  
-                    </div>  
-                    <button class="action-btn" onclick="navigator.clipboard.writeText('${bestCoupon.code}')" style="background:#10b981; color:white; padding:5px 10px; font-size:0.8rem; margin-top:5px;">${T.copy_coupon}</button>  
-                </div>` : ''}  
+
+                    card.innerHTML = `
+    ${budgetBadge}
+
+    <img src="${p.thumbnail || ''}" 
+         onerror="this.src='https://via.placeholder.com/200'">
+
+    <h3>${p.title || '—'}</h3>
+
+    <div class="price">
+        ${bestCoupon && discountedPrice
+            ? `<span class="old-price">$${numericPrice}</span>
+               <span class="new-price">$${discountedPrice}</span>`
+            : `$${numericPrice || '-'}`
+        }
+    </div>
+
+    ${analysisBlock}
+
+    ${bestCoupon ? `
+        <div class="coupon-box">
+            🎟️ <strong>${bestCoupon.code}</strong>
+            (${bestCoupon.type === 'percent'
+                ? `-${bestCoupon.discount}%`
+                : `-$${bestCoupon.discount}`
+            })
+
+            <div class="discounted-price"
+                 style="font-size:0.9rem; margin-top:5px;">
+                ${T.after_discount}:
+                <strong>$${discountedPrice}</strong>
+            </div>
+
+            <button class="action-btn"
+                onclick="navigator.clipboard.writeText('${bestCoupon.code}')"
+                style="background:#10b981; color:white; padding:5px 10px; font-size:0.8rem; margin-top:5px;">
+                ${T.copy_coupon}
+            </button>
+        </div>
+    ` : ''}
+`;
+                    
 
                 <div class="intel-section">  
                     <h4>📊 ${T.market}</h4>  

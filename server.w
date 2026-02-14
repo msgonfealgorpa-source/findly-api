@@ -15,8 +15,9 @@ app.set('trust proxy', 1);
 app.use(cors({ origin: '', methods: ['GET', 'POST'] }));
 app.use(express.json());
  
-const searchLimiter = rateLimit({ windowMs: 60 * 1000, // دقيقة max: 15, // 15 طلب في الدقيقة لكل IP standardHeaders: true, legacyHeaders: false, message: { error: "Too many requests, slow down." } });
 /* ================= ENV ================= */
+/* ================= RATE LIMIT ================= */
+
 const PORT = process.env.PORT || 10000;
 const MONGO_URI = process.env.MONGO_URI;
 const DATAFORSEO_LOGIN = process.env.DATAFORSEO_LOGIN;

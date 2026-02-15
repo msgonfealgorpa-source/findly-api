@@ -336,7 +336,7 @@ app.post("/chat", async (req, res) => {
     }
 
     const result = await processChatMessage(message, userId);
-
+console.log("CHAT RESULT:", result);
     res.json({ reply: result.reply });
 
   } catch (error) {

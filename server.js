@@ -9,13 +9,14 @@ const mongoose = require('mongoose');
 const crypto = require('crypto');
 const SageCore = require('./sage-core');
 const { processChatMessage, supportedLanguages } = require('./chat.engine');
+
 const app = express();
 
 /* ================= BASIC ================= */
 app.use(cors({
-  origin: "*",
-  methods: ["GET", "POST", "OPTIONS"],
-  allowedHeaders: ["Content-Type"]
+    origin: "*",
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type"]
 }));
 app.options("*", cors());
 app.use(express.json());
@@ -75,33 +76,44 @@ const normalizeQuery = (q) =>
 const pendingSearches = new Map();
 
 /* ================= CHAT ENDPOINT ================= */
-app.post('/chat', (req, res) => {
+/**
+ * نقطة نهاية الدردشة - تم تصحيحها
+ * POST /chat
+ * Body: { message: string, userId?: string }
+ */
+app.post('/chat', async (req, res) => {
     try {
         const { message, userId } = req.body;
         
-        if (!message || typeof message !== 'string') {
+        console.log('📩 Chat Request:', { message: message?.substring(0, 50), userId });
+        
+        // التحقق من وجود الرسالة
+        if (!message || typeof message !== 'string' || message.trim() === '') {
             return res.json({
-                reply: '👋',
+                reply: '👋 مرحباً! كيف يمكنني مساعدتك؟',
                 error: 'empty_message'
             });
         }
         
-        // معالجة الرسالة
-        const result = processChatMessage(message, userId || 'guest');
+        // معالجة الرسالة عبر محرك الدردشة
+        const result = processChatMessage(message.trim(), userId || 'guest');
         
-        console.log(`💬 Chat: "${message.substring(0, 30)}..." -> Intent: ${result.intent}`);
+        console.log(`💬 Chat [${userId || 'guest'}]: "${message.substring(0, 30)}..." -> Intent: ${result.intent}`);
         
+        // إرجاع الرد مع الخاصية reply (وليس response)
         res.json({
-            reply: result.reply,
-            lang: result.lang,
+            reply: result.response || result.reply || '🤔 عذراً، لم أفهم سؤالك.',
             intent: result.intent,
-            sentiment: result.sentiment
+            sentiment: result.sentiment,
+            language: result.language,
+            entities: result.entities
         });
         
     } catch (error) {
-        console.error('Chat Error:', error);
+        console.error('❌ Chat Error:', error.message);
+        console.error('Stack:', error.stack);
         res.json({
-            reply: '🔄 عذراً، حدث خطأ. حاول مرة أخرى.',
+            reply: '🔄 عذراً، حدث خطأ في معالجة رسالتك. حاول مرة أخرى.',
             error: 'internal_error'
         });
     }
@@ -327,31 +339,6 @@ app.get('/go', (req, res) => {
     }
 });
 
-app.post("/chat", async (req, res) => {
-  try {
-    const { message, userId } = req.body;
-
-    if (!message) {
-      return res.status(400).json({ reply: "لا توجد رسالة" });
-    }
-
-    let result;
-
-try {
-  result = await processChatMessage(message, userId);
-} catch (err) {
-  console.error("PROCESS CHAT CRASH:", err);
-  return res.status(500).json({ reply: "❌ خطأ داخل processChatMessage" });
-}
-console.log("CHAT RESULT:", result);
-    res.json({ reply: result.reply });
-
-  } catch (error) {
-    console.error("CHAT ERROR:", error);
-    res.status(500).json({ reply: "⚠️ خطأ داخلي في الشات" });
-  }
-});
-
 /* ================= HEALTH CHECK ================= */
 app.get('/health', (req, res) => {
     res.json({
@@ -365,5 +352,6 @@ app.get('/health', (req, res) => {
 const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, () => {
-  console.log(`🚀 Findly Server running on ${PORT}`);
+    console.log(`🚀 Findly Server running on ${PORT}`);
+    console.log(`💬 Chat Engine Ready with ${Object.keys(supportedLanguages).length} languages`);
 });

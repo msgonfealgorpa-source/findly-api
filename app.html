@@ -715,21 +715,6 @@ window.logoutUser = () => {
 <script>
 const API = "https://findly-api.onrender.com";
 
-// ============================================
-// دالة فتح/إغلاق نافذة الدردشة
-// ============================================
-function toggleChatWindow() {
-    const chatWindow = document.getElementById('findly-chat-window');
-    if (chatWindow.style.display === 'flex') {
-        chatWindow.style.display = 'none';
-    } else {
-        chatWindow.style.display = 'flex';
-    }
-}
-
-// ============================================
-// دالة إرسال رسالة للدردشة
-// ============================================
 async function sendMessage() {
 
   const input = document.getElementById("chat-input");
@@ -739,54 +724,59 @@ async function sendMessage() {
 
   // عرض رسالة المستخدم
   addMessage("user-msg", message);
-
   input.value = "";
 
+  try {
 
-try {
-  const response = await fetch(`${API}/chat`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      message: message,
-      userId: "guest"
-    })
-  });
+    const response = await fetch(`${API}/chat`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        message: message,
+        userId: "guest"
+      })
+    });
 
-  const data = await response.json();
-
-  if (data.reply) {
-    addBotMessage(data.reply);
-  } else {
-    addBotMessage("⚠️ رد غير صالح من السيرفر");
-  }
-
-} catch (error) {
-  console.error("CHAT ERROR:", error);
-  addBotMessage("⚠️ حدث خطأ في الاتصال بالسيرفر");
-}
-// ============================================
-// دالة إضافة رسالة للمحادثة
-// ============================================
-function addMessage(className, text) {
-    const container = document.getElementById('chat-content');
-    const div = document.createElement('div');
-    div.className = `message ${className}`;
-    div.innerText = text;
-    container.appendChild(div);
-    container.scrollTop = container.scrollHeight;
-}
-
-// ============================================
-// دالة Enter للإرسال
-// ============================================
-function checkEnter(event) {
-    if (event.key === 'Enter') {
-        sendMessage();
+    if (!response.ok) {
+      throw new Error("Server error");
     }
+
+    const data = await response.json();
+
+    addMessage("bot-msg", data.reply || "⚠️ لا يوجد رد");
+
+  } catch (error) {
+    console.error("CHAT ERROR:", error);
+    addMessage("bot-msg", "⚠️ حدث خطأ في الاتصال بالسيرفر");
+  }
 }
+
+
+// دالة عرض الرسائل (موحدة للمستخدم والبوت)
+function addMessage(className, text) {
+
+  const container = document.getElementById("chat-content");
+  if (!container) return;
+
+  const div = document.createElement("div");
+  div.className = `message ${className}`;
+  div.innerText = text;
+
+  container.appendChild(div);
+
+  // سكرول لأسفل
+  container.scrollTop = container.scrollHeight;
+}
+
+
+// ارسال عند الضغط Enter
+document.getElementById("chat-input").addEventListener("keypress", function(e) {
+  if (e.key === "Enter") {
+    sendMessage();
+  }
+});
 
 const dict = {
     ar: {

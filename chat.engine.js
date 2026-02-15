@@ -1096,7 +1096,6 @@ function detectIntentAdvanced(tokens, bigrams, trigrams, entities, context, lang
         if (token === keyword) score += 3;
         else if (token.includes(keyword) || keyword.includes(token)) score += 2;
       });
-    });
 
     // مطابقة الأنماط
     if (intent.patterns) {
@@ -1104,7 +1103,6 @@ function detectIntentAdvanced(tokens, bigrams, trigrams, entities, context, lang
       intent.patterns.forEach(pattern => {
         if (pattern.test(originalText)) score += 5;
       });
-    }
 
     // مكافأة السياق
     if (context.recentIntents.includes(intent.name)) {
@@ -1301,7 +1299,6 @@ function generateContextualFallback(context, lang) {
     success: true, 
     message: messages[lang] || messages.en 
   });
-});
 
 const suggestionSets = {
 ar: {
@@ -1358,8 +1355,6 @@ app.get("/chat/profile", (req, res) => {
     preferredLanguage: context.detectedLanguage,
     lastVisit: context.userProfile.lastVisit
   });
-});
-
 module.exports = {
   memory,
   intents,

@@ -1,4 +1,5 @@
-// ================= SMART CHAT ENGINE v4.0 - MULTILINGUAL ULTRA =================
+const express = require('express');
+const router = express.Router();// ================= SMART CHAT ENGINE v4.0 - MULTILINGUAL ULTRA =================
 
 const NaturalLanguageUnderstanding = {
   // قاموس المشاعر الموسع - 15 لغة
@@ -1271,7 +1272,7 @@ function generateContextualFallback(context, lang) {
 
 // ================= API Endpoint الرئيسي =================
 
-app.post("/chat", async (req, res) => {
+router.post("/chat", async (req, res) => {
   try {
     const message = req.body.message || "";
     const userId = req.body.userId || "guest";
@@ -1344,7 +1345,7 @@ app.post("/chat", async (req, res) => {
 // ================= ENDPOINTS إضافية =================
 
 // قائمة اللغات المدعومة
-app.get("/chat/languages", (req, res) => {
+router.get("/chat/languages", (req, res) => {
   res.json({
     supported: supportedLanguages,
     total: Object.keys(supportedLanguages).length
@@ -1352,12 +1353,12 @@ app.get("/chat/languages", (req, res) => {
 });
 
 // سياق المحادثة
-app.get("/chat/context", (req, res) => {
+router.get("/chat/context", (req, res) => {
   res.json(memory.getContext());
 });
 
 // إعادة تعيين المحادثة
-app.post("/chat/reset", (req, res) => {
+router.post("/chat/reset", (req, res) => {
   memory.shortTerm = {
     lastIntents: [],
     lastMood: "neutral",
@@ -1394,7 +1395,7 @@ app.post("/chat/reset", (req, res) => {
 });
 
 // الاقتراحات الذكية
-app.get("/chat/suggestions", (req, res) => {
+router.get("/chat/suggestions", (req, res) => {
   const context = memory.getContext();
   const lang = context.detectedLanguage || 'en';
   const suggestions = [];
@@ -1446,7 +1447,7 @@ app.get("/chat/suggestions", (req, res) => {
 });
 
 // معلومات المستخدم
-app.get("/chat/profile", (req, res) => {
+router.get("/chat/profile", (req, res) => {
   const context = memory.getContext();
   res.json({
     interactionCount: context.userProfile.interactionCount,
@@ -1456,7 +1457,7 @@ app.get("/chat/profile", (req, res) => {
   });
 });
 
-module.exports = { 
+module.exports = router;
   chatEngine: { 
     memory, 
     intents, 

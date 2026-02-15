@@ -356,6 +356,8 @@ app.get('/health', (req, res) => {
 });
 
 /* ================= START ================= */
-app.listen(PORT, () =>
-    console.log(`🚀 Findly Server running on ${PORT}`)
-);
+const PORT = process.env.PORT || 8080;
+
+app.listen(PORT, () => {
+  console.log(`🚀 Findly Server running on ${PORT}`);
+});

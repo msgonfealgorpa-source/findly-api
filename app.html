@@ -434,7 +434,6 @@
             .affiliate-card { flex: 1; position: relative; top: auto; max-width: 140px; }
         }
 
-
 :root { --primary-color: #2563eb; }
 
 #findly-chat-bubble {
@@ -481,7 +480,7 @@
             <div class="status-dot"></div>
             <span>Findly AI Assistant</span>
         </div>
-        <button onclick="toggleChatWindow()" class="close-btn">&times;</button>
+        <button onclick="toggleChatWindow()" class="close-btn" style="background:none;border:none;color:white;font-size:20px;cursor:pointer;">&times;</button>
     </div>
     <div id="chat-content" class="chat-content">
         <div class="message bot-msg">مرحباً! كيف يمكنني مساعدتك اليوم في العثور على أفضل المنتجات؟</div>
@@ -715,6 +714,91 @@ window.logoutUser = () => {
 </script>
 <script>
 const API = "https://findly-api.onrender.com";
+
+// ============================================
+// دالة فتح/إغلاق نافذة الدردشة
+// ============================================
+function toggleChatWindow() {
+    const chatWindow = document.getElementById('findly-chat-window');
+    if (chatWindow.style.display === 'flex') {
+        chatWindow.style.display = 'none';
+    } else {
+        chatWindow.style.display = 'flex';
+    }
+}
+
+// ============================================
+// دالة إرسال رسالة للدردشة
+// ============================================
+async function sendMessage() {
+    const input = document.getElementById('chat-input');
+    const message = input.value.trim();
+    
+    if (!message) return;
+    
+    // إضافة رسالة المستخدم
+    addMessage('user-msg', message);
+    input.value = '';
+    
+    // إظهار رسالة تحميل
+    const loadingDiv = document.createElement('div');
+    loadingDiv.className = 'message bot-msg';
+    loadingDiv.id = 'loading-msg';
+    loadingDiv.innerText = '...';
+    document.getElementById('chat-content').appendChild(loadingDiv);
+    
+    try {
+        const response = await fetch(`${API}/chat`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                message: message,
+                userId: localStorage.getItem('findly_uid') || 'guest'
+            })
+        });
+        
+        const data = await response.json();
+        
+        // حذف رسالة التحميل
+        document.getElementById('loading-msg')?.remove();
+        
+        // إضافة رد البوت
+        if (data.reply) {
+            addMessage('bot-msg', data.reply);
+        } else {
+            addMessage('bot-msg', 'عذراً، لم أتمكن من فهم ذلك.');
+        }
+        
+    } catch (error) {
+        document.getElementById('loading-msg')?.remove();
+        addMessage('bot-msg', '❌ فشل الاتصال بالسيرفر.');
+        console.error('Chat Error:', error);
+    }
+}
+
+// ============================================
+// دالة إضافة رسالة للمحادثة
+// ============================================
+function addMessage(className, text) {
+    const container = document.getElementById('chat-content');
+    const div = document.createElement('div');
+    div.className = `message ${className}`;
+    div.innerText = text;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+}
+
+// ============================================
+// دالة Enter للإرسال
+// ============================================
+function checkEnter(event) {
+    if (event.key === 'Enter') {
+        sendMessage();
+    }
+}
+
 const dict = {
     ar: {
         ui: {
@@ -1832,104 +1916,5 @@ if ('serviceWorker' in navigator) {
         .catch(err => console.log("SW Error:", err));
 }
 </script>
-<!-- Chat Button -->
-<button id="openChat" style="
-position: fixed;
-bottom: 20px;
-right: 20px;
-background: #4CAF50;
-color: white;
-border: none;
-padding: 15px;
-border-radius: 50%;
-cursor: pointer;
-font-size: 18px;
-">💬</button>
-
-<!-- Chat Box -->
-<div id="chatContainer" style="
-display: none;
-position: fixed;
-bottom: 80px;
-right: 20px;
-width: 300px;
-height: 400px;
-background: #1e1e1e;
-border-radius: 10px;
-padding: 10px;
-flex-direction: column;
-">
-
-<div id="chatMessages" style="
-flex: 1;
-overflow-y: auto;
-color: white;
-margin-bottom: 10px;
-"></div>
-
-<input id="messageInput" placeholder="اكتب..." style="width: 100%; padding: 8px;" />
-<button id="sendBtn" style="width: 100%; margin-top: 5px;">إرسال</button>
-
-</div>
-
-<script>
-// رابط السيرفر على Render
-const API_URL = "https://findly-api.onrender.com/chat";
-
-function toggleChatWindow() {
-    const window = document.getElementById('findly-chat-window');
-    window.style.display = (window.style.display === 'flex') ? 'none' : 'flex';
-}
-
-function checkEnter(event) {
-    if (event.key === 'Enter') sendMessage();
-}
-
-async function sendMessage() {
-    const input = document.getElementById('chat-input');
-    const text = input.value.trim();
-
-    if (!text) return;
-
-    // إضافة رسالة المستخدم
-    appendMessage('user-msg', text);
-    input.value = '';
-
-    // رسالة تحميل مؤقتة
-    const loadingId = 'loading-' + Date.now();
-    appendMessage('bot-msg', '...', loadingId);
-
-    try {
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ message: text })
-        });
-
-        const data = await response.json();
-
-        document.getElementById(loadingId).innerText =
-            data.reply || "لم أستطع فهم ذلك، جرب مرة أخرى.";
-
-    } catch (error) {
-        document.getElementById(loadingId).innerText =
-            "❌ فشل الاتصال بالسيرفر. تأكد أن السيرفر يعمل.";
-        console.error("Error:", error);
-    }
-}
-
-function appendMessage(className, text, id = null) {
-    const container = document.getElementById('chat-content');
-    const div = document.createElement('div');
-    div.className = `message ${className}`;
-    if (id) div.id = id;
-    div.innerText = text;
-    container.appendChild(div);
-    container.scrollTop = container.scrollHeight;
-}
-</script>
-
 </body>
 </html>

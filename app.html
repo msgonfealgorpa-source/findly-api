@@ -1873,7 +1873,7 @@ margin-bottom: 10px;
 </div>
 
 <script>
-// ✅ تم تحديث الرابط ليتصل بسيرفرك على Render مباشرة
+// رابط السيرفر على Render
 const API_URL = "https://findly-api.onrender.com/chat";
 
 function toggleChatWindow() {
@@ -1887,33 +1887,35 @@ function checkEnter(event) {
 
 async function sendMessage() {
     const input = document.getElementById('chat-input');
-    const content = document.getElementById('chat-content');
     const text = input.value.trim();
 
     if (!text) return;
 
-    // إضافة رسالة المستخدم للواجهة
+    // إضافة رسالة المستخدم
     appendMessage('user-msg', text);
     input.value = '';
 
-    // إظهار علامة التحميل البسيطة
+    // رسالة تحميل مؤقتة
     const loadingId = 'loading-' + Date.now();
     appendMessage('bot-msg', '...', loadingId);
 
     try {
         const response = await fetch(API_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify({ message: text })
         });
 
         const data = await response.json();
-        
-        // إزالة علامة التحميل ووضع الرد الحقيقي
-        document.getElementById(loadingId).innerText = data.reply || "لم أستطع فهم ذلك، جرب مرة أخرى.";
+
+        document.getElementById(loadingId).innerText =
+            data.reply || "لم أستطع فهم ذلك، جرب مرة أخرى.";
 
     } catch (error) {
-        document.getElementById(loadingId).innerText = "❌ فشل الاتصال بالسيرفر. تأكد أن السيرفر يعمل.";
+        document.getElementById(loadingId).innerText =
+            "❌ فشل الاتصال بالسيرفر. تأكد أن السيرفر يعمل.";
         console.error("Error:", error);
     }
 }
@@ -1925,7 +1927,7 @@ function appendMessage(className, text, id = null) {
     if (id) div.id = id;
     div.innerText = text;
     container.appendChild(div);
-    container.scrollTop = container.scrollHeight; // النزول لآخر رسالة
+    container.scrollTop = container.scrollHeight;
 }
 </script>
 

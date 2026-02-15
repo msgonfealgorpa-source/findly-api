@@ -1013,6 +1013,165 @@
         }
     };
 
+
+    const TEXTS = {
+
+  
+        
+        en: {
+    priceAnalysis: "Price Analysis",
+    finalDecision: "Final Decision",
+    confidence: "Confidence",
+    bestPrice: "Best Price",
+    marketAverage: "Market Average",
+    saving: "Potential Saving",
+    insufficientData: "Insufficient market data",
+    fewOffers: "Few offers available",
+    buyNow: "Buy Now",
+    wait: "Wait",
+    avoid: "Avoid",
+    close: "Close",
+    searching: "Searching...",
+    noResults: "No results found"
+  },
+
+
+        
+    ar: {
+    priceAnalysis: "تحليل السعر",
+    finalDecision: "القرار النهائي",
+    confidence: "مستوى الثقة",
+    bestPrice: "أفضل سعر",
+    marketAverage: "متوسط السوق",
+    saving: "التوفير المحتمل",
+    insufficientData: "بيانات السوق غير كافية",
+    fewOffers: "عدد عروض قليل",
+    buyNow: "اشتري الآن",
+    wait: "انتظر",
+    avoid: "تجنب الشراء",
+    close: "إغلاق",
+    searching: "جاري البحث...",
+    noResults: "لا توجد نتائج"
+  },
+
+ 
+        
+    fr: {
+    priceAnalysis: "Analyse du prix",
+    finalDecision: "Décision finale",
+    confidence: "Niveau de confiance",
+    bestPrice: "Meilleur prix",
+    marketAverage: "Moyenne du marché",
+    saving: "Économie potentielle",
+    insufficientData: "Données du marché insuffisantes",
+    fewOffers: "Peu d'offres disponibles",
+    buyNow: "Acheter",
+    wait: "Attendre",
+    avoid: "Éviter",
+    close: "Fermer",
+    searching: "Recherche en cours...",
+    noResults: "Aucun résultat"
+  },
+
+  de: {
+    priceAnalysis: "Preisanalyse",
+    finalDecision: "Endgültige Entscheidung",
+    confidence: "Vertrauensniveau",
+    bestPrice: "Bester Preis",
+    marketAverage: "Marktdurchschnitt",
+    saving: "Mögliche Ersparnis",
+    insufficientData: "Unzureichende Marktdaten",
+    fewOffers: "Wenige Angebote verfügbar",
+    buyNow: "Jetzt kaufen",
+    wait: "Warten",
+    avoid: "Vermeiden",
+    close: "Schließen",
+    searching: "Suche läuft...",
+    noResults: "Keine Ergebnisse gefunden"
+  },
+
+  es: {
+    priceAnalysis: "Análisis de precio",
+    finalDecision: "Decisión final",
+    confidence: "Nivel de confianza",
+    bestPrice: "Mejor precio",
+    marketAverage: "Promedio del mercado",
+    saving: "Ahorro potencial",
+    insufficientData: "Datos de mercado insuficientes",
+    fewOffers: "Pocas ofertas disponibles",
+    buyNow: "Comprar ahora",
+    wait: "Esperar",
+    avoid: "Evitar",
+    close: "Cerrar",
+    searching: "Buscando...",
+    noResults: "Sin resultados"
+  },
+
+  tr: {
+    priceAnalysis: "Fiyat Analizi",
+    finalDecision: "Son Karar",
+    confidence: "Güven Seviyesi",
+    bestPrice: "En İyi Fiyat",
+    marketAverage: "Piyasa Ortalaması",
+    saving: "Olası Tasarruf",
+    insufficientData: "Yetersiz piyasa verisi",
+    fewOffers: "Az sayıda teklif",
+    buyNow: "Şimdi Satın Al",
+    wait: "Bekle",
+    avoid: "Kaçın",
+    close: "Kapat",
+    searching: "Aranıyor...",
+    noResults: "Sonuç bulunamadı"
+  }
+
+};
+    
+
+    const TEXTS = {
+
+  en: {
+    decision: {
+      BUY_NOW: "Buy Now",
+      WAIT: "Wait",
+      WAIT_PRICE_DROP: "Wait for Price Drop",
+      OVERPRICED: "Overpriced"
+    },
+
+    priceAnalysis: "Price Analysis",
+    finalDecision: "Final Decision",
+    confidence: "Confidence",
+    ...
+  },
+
+  ar: {
+    decision: {
+      BUY_NOW: "شراء الآن",
+      WAIT: "انتظار",
+      WAIT_PRICE_DROP: "انتظر انخفاض السعر",
+      OVERPRICED: "السعر مرتفع"
+    },
+
+    priceAnalysis: "تحليل السعر",
+    finalDecision: "القرار النهائي",
+    confidence: "مستوى الثقة",
+    ...
+  },
+
+  fr: {
+    decision: {
+      BUY_NOW: "Acheter maintenant",
+      WAIT: "Attendre",
+      WAIT_PRICE_DROP: "Attendre une baisse de prix",
+      OVERPRICED: "Trop cher"
+    },
+
+    priceAnalysis: "Analyse du prix",
+    finalDecision: "Décision finale",
+    ...
+  }
+
+};
+    
     const dict = {
       
         ar: {
@@ -1230,6 +1389,36 @@
         return best;
     }
 
+function applyTranslations(lang) {
+  const shortLang = (lang || "en").split("-")[0];
+
+  const t1 = TEXTS[shortLang] || TEXTS.en;
+  const t2 = dict[shortLang]?.ui || dict.en.ui;
+
+  // عناصر TEXTS
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    const key = el.getAttribute("data-i18n");
+    if (t1[key]) {
+      el.textContent = t1[key];
+    }
+  });
+
+  // عناصر dict ui
+  document.querySelectorAll("[data-ui]").forEach(el => {
+    const key = el.getAttribute("data-ui");
+    if (t2[key]) {
+      el.textContent = t2[key];
+    }
+  });
+}
+    
+let currentLang = localStorage.getItem("findly_lang") || "en";
+
+document.addEventListener("DOMContentLoaded", () => {
+  applyTranslations(currentLang);
+});
+
+    
     // --- Main Search Function ---
     async function runSearch() {
         const q = document.getElementById('s-input').value.trim();
@@ -1238,8 +1427,11 @@
 
         if (!q) return;  
 
-        const T = dict[lang]?.search || dict.en.search;  
-        const UI = dict[lang]?.ui || dict.en.ui;  
+        const T = dict[currentLang]?.search || dict.en.search;
+
+        const UI = dict[currentLang]?.ui || dict.en.ui;
+
+        
 
         status.style.display = 'block';  
         status.innerText = '🔍 ...';  
@@ -1249,14 +1441,14 @@
 
         try {  
             const res = await fetch(  
-                `${API}/search?q=${encodeURIComponent(q)}&lang=${lang}&uid=${localStorage.getItem('findly_uid')}`  
+                `${API}/search?q=${encodeURIComponent(q)}&lang=${currentLang}&uid=${localStorage.getItem("uid") || "guest"}`
             );  
             const data = await res.json();  
             status.style.display = 'none';  
             
             if (data.error === 'ENERGY_EMPTY') {
-                const currentLang = localStorage.getItem('findly_lang') || 'ar';
-                const t = i18n[currentLang] || i18n.ar;
+                const t = i18n[currentLang] || i18n.en;
+                
 
                 status.style.display = 'block';
 
@@ -1274,7 +1466,7 @@
             
             if (!data.results) {
                 status.style.display = 'block';
-                status.innerText = lang === 'ar' ? 'لا توجد نتائج' : 'No results found';
+                status.innerText = TEXTS[currentLang]?.noResults || TEXTS.en.noResults;
                 return;
             }
 
@@ -1284,33 +1476,34 @@
             }
 
             data.results.forEach(p => {  
-                const intel = p.intelligence || {};  
-                const verdict = intel.finalVerdict || {};  
-                const priceIntel = intel.priceIntel || {};  
-                const valueIntel = intel.valueIntel || {};  
-                const forecast = intel.forecastIntel || {};  
-                const trust = intel.trustIntel || {};  
+                const intel = p.intelligence || {};
+const verdict = intel.finalVerdict || {};
+const priceIntel = intel.priceIntel || {};
+const valueIntel = intel.valueIntel || {};
+const forecast = intel.forecastIntel || {};
+const trust = intel.trustIntel || {};
 
-                // ===== STRATEGIC VERDICT =====
-                let strategicBadge = '';
-                let strategicColor = '#3b82f6';
+const decisionTexts = TEXTS[currentLang]?.decision || TEXTS.en.decision;
 
-                if (verdict.decision === 'BUY_NOW') {
-                    strategicBadge = '🟢 قرار ذكي: اشترِ الآن';
-                    strategicColor = '#10b981';
-                }
-                else if (verdict.decision === 'WAIT') {
-                    strategicBadge = '⏳ يفضل الانتظار';
-                    strategicColor = '#f59e0b';
-                }
-                else if (verdict.decision === 'WAIT_PRICE_DROP') {
-                    strategicBadge = '📉 انتظر انخفاض السعر';
-                    strategicColor = '#6366f1';
-                }
-                else if (verdict.decision === 'OVERPRICED') {
-                    strategicBadge = '🔴 السعر مرتفع';
-                    strategicColor = '#ef4444';
-                }
+let strategicBadge = '';
+let strategicColor = '#3b82f6';
+
+if (verdict.decision === 'BUY_NOW') {
+    strategicBadge = '🟢 ' + decisionTexts.BUY_NOW;
+    strategicColor = '#10b981';
+}
+else if (verdict.decision === 'WAIT') {
+    strategicBadge = '⏳ ' + decisionTexts.WAIT;
+    strategicColor = '#f59e0b';
+}
+else if (verdict.decision === 'WAIT_PRICE_DROP') {
+    strategicBadge = '📉 ' + decisionTexts.WAIT_PRICE_DROP;
+    strategicColor = '#6366f1';
+}
+else if (verdict.decision === 'OVERPRICED') {
+    strategicBadge = '🔴 ' + decisionTexts.OVERPRICED;
+    strategicColor = '#ef4444';
+}
 
                 const bestLink = p.intelligence?.finalVerdict?.bestLink || p.link;
                 const safeLink = typeof bestLink === "string" && bestLink.startsWith("http") ? bestLink : null;
@@ -1613,6 +1806,7 @@
         
         updateInviteText(lang);
 
+        applyTranslations(currentLang);
         document.getElementById('txt-energy').innerText = d.ui.energy;
         document.getElementById('greeting').innerText = d.ui.welcome + " " + userName;
         document.getElementById('txt-title').innerText = d.ui.title;

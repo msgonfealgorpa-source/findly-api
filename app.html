@@ -732,15 +732,18 @@ function toggleChatWindow() {
 // ============================================
 async function sendMessage() {
 
-  const input = document.getElementById('chat-input');
+  const input = document.getElementById("chat-input");
   const message = input.value.trim();
 
   if (!message) return;
 
-  addMessage('user-msg', message);
-  input.value = '';
+  // عرض رسالة المستخدم
+  addMessage("user-msg", message);
+
+  input.value = "";
 
   try {
+
     const response = await fetch("https://findly-api.onrender.com/chat", {
       method: "POST",
       headers: {
@@ -748,37 +751,21 @@ async function sendMessage() {
       },
       body: JSON.stringify({
         message: message,
-        userId: localStorage.getItem('findly_uid') || "guest"
+        userId: "user_1"
       })
     });
 
     const data = await response.json();
 
-    addMessage('bot-msg', data.reply || "⚠️ لا يوجد رد");
+    // عرض رد البوت
+    addMessage("bot-msg", data.reply || "⚠️ لا يوجد رد من السيرفر");
 
   } catch (error) {
+
     console.error("Chat Error:", error);
-    addMessage('bot-msg', "⚠️ حدث خطأ في الاتصال بالسيرفر");
+    addMessage("bot-msg", "⚠️ حدث خطأ في الاتصال بالسيرفر");
+
   }
-}
-        
-        const data = await response.json();
-        
-        // حذف رسالة التحميل
-        document.getElementById('loading-msg')?.remove();
-        
-        // إضافة رد البوت
-        if (data.reply) {
-            addMessage('bot-msg', data.reply);
-        } else {
-            addMessage('bot-msg', 'عذراً، لم أتمكن من فهم ذلك.');
-        }
-        
-    } catch (error) {
-        document.getElementById('loading-msg')?.remove();
-        addMessage('bot-msg', '❌ فشل الاتصال بالسيرفر.');
-        console.error('Chat Error:', error);
-    }
 }
 
 // ============================================

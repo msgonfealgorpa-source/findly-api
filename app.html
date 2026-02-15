@@ -1,0 +1,1792 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" id="main-html">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Findly Sage Ultimate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* --- Core Variables & Reset --- */
+        :root {
+            --primary: #8b5cf6;
+            --primary-glow: rgba(139, 92, 246, 0.5);
+            --secondary: #6366f1;
+            --bg-dark: #020617;
+            --bg-card: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --gradient: linear-gradient(135deg, #6366F1, #A855F7);
+        }
+        .light-mode {
+            --bg-dark: #f8fafc;
+            --bg-card: rgba(255, 255, 255, 0.9);
+            --glass-border: rgba(0, 0, 0, 0.05);
+            --text: #1e293b;
+            --text-muted: #64748b;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at 50% 0%, #1e1b4b 0%, transparent 50%);
+            color: var(--text);
+            font-family: 'Readex Pro', sans-serif;
+            margin: 0;
+            transition: background 0.4s ease, color 0.4s ease;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* --- Header Styles --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 5%;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--glass-border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+            text-shadow: 0 0 20px rgba(168, 85, 247, 0.2);
+        }
+
+        .tagline {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .header-tools { display: flex; gap: 10px; }
+
+        .tool-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            color: var(--text);
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .tool-btn:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        /* --- Dropdown Menu --- */
+        .lang-menu {
+            display: none;
+            position: absolute;
+            top: 50px;
+            left: 0;
+            background: #1e293b;
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            width: 140px;
+            z-index: 2000;
+            box-shadow: 0 20px 40px -5px rgba(0,0,0,0.4);
+            overflow: hidden;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .lang-item {
+            padding: 12px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            color: #e2e8f0;
+            text-align: center;
+            transition: 0.2s;
+        }
+
+        .lang-item:hover { background: var(--primary); color: white; }
+
+        /* --- Main Search Area --- */
+        .search-area {
+            padding: 40px 5%;
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .energy-box {
+            background: rgba(168, 85, 247, 0.08);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            padding: 8px 20px;
+            border-radius: 50px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.1);
+        }
+
+        h1#txt-title {
+            background: linear-gradient(to right, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 10px 0;
+            font-size: 2.5rem;
+            letter-spacing: -1px;
+        }
+
+        .light-mode h1#txt-title {
+            background: linear-gradient(to right, #1e293b, #475569);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .ai-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            color: var(--primary);
+            margin-bottom: 25px;
+            justify-content: center;
+            font-weight: 600;
+            background: rgba(139, 92, 246, 0.05);
+            padding: 8px 16px;
+            border-radius: 12px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .ai-toggle input { width: 20px; height: 20px; accent-color: var(--primary); cursor: pointer; }
+
+        /* --- Search Input Styling --- */
+        .search-wrapper { position: relative; max-width: 600px; margin: 0 auto 20px; }
+
+        .search-input {
+            width: 100%;
+            padding: 18px 60px;
+            border-radius: 24px;
+            border: 2px solid var(--glass-border);
+            background: var(--bg-card);
+            color: var(--text);
+            font-size: 1.1rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
+        }
+
+        .mic-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--secondary);
+            cursor: pointer;
+            font-size: 1.4rem;
+            transition: 0.3s;
+            z-index: 10;
+        }
+
+        .mic-active { color: #ef4444; text-shadow: 0 0 10px #ef4444; animation: pulse 1s infinite; }
+
+        .send-btn {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--gradient);
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 18px;
+            color: #fff;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .send-btn:hover { transform: translateY(-50%) scale(1.05); box-shadow: 0 0 15px var(--primary-glow); }
+
+        /* --- Tags & Categories --- */
+        .ai-options { display: flex; justify-content: center; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+
+        .ai-tag {
+            font-size: 0.8rem; padding: 8px 16px; border-radius: 20px;
+            background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border);
+            cursor: pointer; color: var(--text-muted); display: flex; align-items: center; gap: 8px;
+            transition: 0.3s;
+        }
+
+        .ai-tag:hover { background: var(--bg-card); color: var(--primary); border-color: var(--primary); }
+
+        .cat-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+            max-width: 600px; margin: 30px auto;
+        }
+
+        .cat-card {
+            background: var(--bg-card); border: 1px solid var(--glass-border);
+            padding: 15px 10px; border-radius: 20px; cursor: pointer;
+            transition: 0.3s; display: flex; flex-direction: column; align-items: center; gap: 8px;
+        }
+
+        .cat-card:hover { transform: translateY(-5px); background: rgba(255,255,255,0.05); border-color: var(--primary); }
+        .cat-card i { font-size: 1.5rem; color: var(--secondary); }
+        .cat-card span { font-size: 0.75rem; font-weight: 600; }
+
+        /* --- Product Cards (Results) --- */
+        .product-card {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 20px;
+            margin-top: 25px;
+            text-align: right;
+            max-width: 600px;
+            margin-left: auto; margin-right: auto;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+            animation: slideUp 0.5s ease;
+        }
+
+        .product-card img {
+            width: 100%; height: 200px; object-fit: contain;
+            background: #fff; border-radius: 16px; margin-bottom: 15px;
+            padding: 10px;
+        }
+
+        .product-card h3 { margin: 0 0 10px 0; font-size: 1.1rem; line-height: 1.5; color: var(--text); }
+        .product-card .price { font-size: 1.4rem; font-weight: 800; color: #10b981; margin-bottom: 10px; }
+
+        .analysis-engine {
+            background: rgba(99, 102, 241, 0.08);
+            border-right: 3px solid var(--primary);
+            padding: 12px; border-radius: 12px; margin: 15px 0;
+            font-size: 0.85rem; line-height: 1.6; color: var(--text-muted);
+        }
+
+        .analysis-label { font-weight: 700; color: var(--primary); display: block; margin-bottom: 5px; }
+
+        .btn-group { display: flex; gap: 12px; margin-top: 15px; flex-wrap: wrap; }
+
+        .action-btn {
+            flex: 1; padding: 12px; border-radius: 14px; font-weight: 700;
+            text-align: center; border: none; font-size: 0.9rem; cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .buy-now { background: var(--gradient); color: #fff; text-decoration: none; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3); display: flex; justify-content: center; align-items: center;}
+        .buy-now:hover { filter: brightness(1.1); }
+
+        .analyze-btn {
+            background: rgba(30, 41, 59, 0.7); border: 1px solid var(--primary); color: var(--primary);
+        }
+        .analyze-btn:hover { background: var(--primary); color: white; }
+
+        .watch-btn {
+            background: transparent; border: 1px solid var(--text-muted); color: var(--text);
+        }
+        .watch-btn:hover { background: rgba(139, 92, 246, 0.1); border-color: var(--primary); }
+
+
+        .budget-error {
+            background: rgba(239, 68, 68, 0.15); color: #ef4444;
+            padding: 8px 12px; border-radius: 12px; font-size: 0.8rem;
+            margin-bottom: 10px; font-weight: bold; border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        /* --- Modals --- */
+        .modal {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.8); z-index: 3000;
+            align-items: center; justify-content: center;
+            backdrop-filter: blur(12px);
+        }
+
+        .modal-box {
+            background: #0f172a; padding: 30px; border-radius: 30px;
+            width: 85%; max-width: 400px;
+            border: 1px solid var(--glass-border);
+            text-align: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-box input {
+            width: 100%; padding: 14px; margin: 10px 0; border-radius: 14px;
+            background: #1e293b; color: #fff; border: 1px solid var(--glass-border);
+            text-align: center; font-family: inherit;
+        }
+
+        .modal-box input:focus { border-color: var(--primary); }
+
+        /* نافذة التحليل المنبثقة */
+        .analysis-modal {
+            display: none; position: fixed; z-index: 10000;
+            left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
+            align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background: #0f172a; margin: auto; padding: 25px;
+            width: 85%; max-width: 450px; border-radius: 20px; text-align: right;
+            border: 1px solid var(--primary);
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.2);
+            color: white;
+            position: relative;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        /* كلاسات تجاوز الميزانية - مهمة جداً */
+        .over-budget { border: 2px solid #ff4d4d !important; background-color: rgba(255, 77, 77, 0.05) !important; }
+        .budget-alert { background: #ff4d4d; color: white; padding: 4px 10px; border-radius: 8px; font-size: 0.8rem; margin-bottom: 10px; display: inline-block; font-weight: bold; }
+
+        /* --- Animations --- */
+        @keyframes pulse { 0% { opacity: 1; transform:translateY(-50%) scale(1); } 50% { opacity: 0.5; transform:translateY(-50%) scale(1.1); } 100% { opacity: 1; transform:translateY(-50%) scale(1); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+      
+        .auth-overlay {
+            display: none !important; /* سيتم تفعيله عبر JS */
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            background: radial-gradient(circle at center, #1e1b4b 0%, #020617 100%) !important;
+            z-index: 2147483647 !important;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(15px);
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        /* الكارت الاحترافي */
+        .auth-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            padding: 40px;
+            border-radius: 28px;
+            width: 90%;
+            max-width: 420px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(139, 92, 246, 0.2);
+            animation: fadeInScale 0.4s ease-out;
+        }
+
+        /* شعار Findly Sage داخل الكارت */
+        .auth-header h1 {
+            font-size: 2.2rem;
+            color: #fff;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .auth-header span {
+            color: #a78bfa;
+            text-shadow: 0 0 15px rgba(167, 139, 250, 0.5);
+        }
+
+        /* تحسين المدخلات */
+        .s-input {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.6) !important;
+            border: 1px solid rgba(139, 92, 246, 0.2) !important;
+            color: white !important;
+            padding: 14px 20px !important;
+            border-radius: 14px !important;
+            margin-bottom: 15px;
+            transition: 0.3s;
+        }
+
+        .s-input:focus {
+            border-color: #8b5cf6 !important;
+            box-shadow: 0 0 10px rgba(139, 92, 246, 0.3) !important;
+        }
+
+        /* زر الدخول البنفسجي */
+        .action-btn.buy-now {
+            background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%) !important;
+            color: white !important;
+            font-weight: 600 !important;
+            letter-spacing: 0.5px;
+            border: none !important;
+            padding: 15px !important;
+            box-shadow: 0 10px 20px -5px rgba(139, 92, 246, 0.5) !important;
+        }
+
+        /* زر جوجل الاحترافي */
+        .google-btn {
+            background: white;
+            color: #1e293b;
+            width: 100%;
+            padding: 12px;
+            border-radius: 14px;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .google-btn:hover {
+            background: #f8fafc;
+            transform: translateY(-2px);
+        }
+
+        .divider { display: flex; align-items: center; text-align: center; margin: 20px 0; color: #94a3b8; }
+        .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .divider span { padding: 0 10px; font-size: 0.8rem; }
+
+        /* أنيميشن الدخول */
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        
+        .old-price {
+            text-decoration: line-through;
+            opacity: 0.6;
+            margin-right: 6px;
+        }
+
+        .new-price {
+            color: #2ecc71;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .action-btn {
+            flex: 1;
+            height: 48px;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        /* زر الشراء */
+        .action-btn.buy {
+            background: linear-gradient(135deg, #7b61ff, #9b7bff);
+            color: #fff;
+        }
+
+        /* الأزرار الثانوية */
+        .action-btn.ghost {
+            background: rgba(255,255,255,0.06);
+            color: #cfc7ff;
+            border: 1px solid rgba(255,255,255,0.12);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-1px);
+            opacity: 0.95;
+        }
+
+        .sage-quick-brains {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 12px 0;
+        }
+
+        .brain-item {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 8px 10px;
+            font-size: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .brain-item span { opacity: 0.85; }
+        .brain-item.good { border-color: #10b981; }
+        .brain-item.buy { border-color: #22c55e; }
+        .brain-item.wait { border-color: #f59e0b; }
+        .brain-item.safe { border-color: #3b82f6; }
+        .brain-item.risk { border-color: #ef4444; }
+        .brain-item.learn { border-color: #8b5cf6; } 
+      
+        .invite-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: linear-gradient(135deg, rgba(40, 32, 90, 0.85), rgba(28, 22, 60, 0.9));
+            border: 1px solid rgba(138, 99, 255, 0.35);
+            border-radius: 16px;
+            padding: 14px 16px;
+            margin-top: 14px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            justify-content: center;
+        }
+
+        .invite-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 22px rgba(138, 99, 255, 0.25), inset 0 0 0 1px rgba(138, 99, 255, 0.15);
+        }
+
+        .invite-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+            background: radial-gradient(circle at top left, #9f8cff, #6f5cff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .invite-text {
+            font-size: 14.5px;
+            color: #e1dbff;
+            line-height: 1.6;
+            text-align: center;
+            width: 100%;
+     }
+ 
+    .layout-wrapper {
+    display: flex;
+    gap: 20px;
+}
+
+#results {
+    flex: 3;
+}
+
+.affiliate-card {
+    flex: 1;
+    background: #111;
+    color: white;
+    padding: 15px;
+    border-radius: 12px;
+    position: sticky;
+    top: 20px;
+}
+
+.affiliate-card img {
+    width: 100%;
+    border-radius: 8px;
+}
+
+.affiliate-btn {
+    display: block;
+    background: #ff4747;
+    text-align: center;
+    padding: 10px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: white;
+    margin-top: 10px;
+}
+
+.intel-section {
+    background: rgba(255,255,255,0.03);
+    padding: 12px;
+    border-radius: 12px;
+    margin: 10px 0;
+    text-align: right;
+}
+
+.intel-section h4 {
+    margin: 0 0 8px 0;
+    font-size: 0.9rem;
+    color: var(--primary);
+}
+
+.intel-section p {
+    margin: 4px 0;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.intel-section ul {
+    margin: 5px 0;
+    padding-right: 20px;
+    font-size: 0.85rem;
+}
+
+.upgrade-section {
+    background: #1b1b2f;
+    border: 1px solid #ff4d4d;
+    padding: 12px;
+    border-radius: 8px;
+    margin: 20px auto;
+    max-width: 600px;
+}
+
+.upgrade-section h3 {
+    color: #ff4d4d;
+    margin-bottom: 8px;
+}
+
+.upgrade-btn {
+    background: linear-gradient(135deg, #8b5cf6, #6366f1);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 14px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    margin-top: 10px;
+    transition: 0.3s;
+}
+
+.upgrade-btn:hover {
+    filter: brightness(1.1);
+    transform: translateY(-2px);
+}
+
+.coupon-box {
+    margin: 10px 0;
+    padding: 10px;
+    background: rgba(16,185,129,0.1);
+    border-radius: 10px;
+    border: 1px dashed #10b981;
+}
+
+@media (max-width: 768px) {
+
+    .cat-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .layout-wrapper {
+        flex-direction: row;   /* 🔥 لا نجعلها عمودية */
+    }
+
+    #results {
+        flex: 2;
+    }
+
+    .affiliate-card {
+        flex: 1;
+        position: relative;
+        top: auto;
+        max-width: 140px;   /* 🔥 حجم صغير جانبي */
+    }
+
+}
+        
+    </style>
+</head>
+<body>
+    
+<div id="auth-overlay" class="auth-overlay">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1 class="logo-text">Findly <span>Sage</span></h1>
+            <p id="auth-title">سجل دخولك لتبدأ البحث الذكي</p>
+        </div>
+
+        <div id="auth-inputs">
+            <input type="email" id="auth-email" placeholder="البريد الإلكتروني" class="s-input">
+            <input type="password" id="auth-password" placeholder="كلمة المرور" class="s-input">
+            
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button onclick="handleLogin()" class="action-btn buy-now" style="flex: 1;">
+                    تسجيل دخول
+                </button>
+                
+                <button onclick="handleRegister()" class="action-btn ghost" style="flex: 1; border: 1px solid var(--primary);">
+                    إنشاء حساب
+                </button>
+            </div>
+        </div>
+        
+        <div class="divider"><span>أو</span></div>
+
+        <button onclick="loginWithGoogle()" class="google-btn">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+            متابعة باستخدام جوجل
+        </button>
+
+        <div style="margin-top: 30px; font-size: 0.85rem;">
+            <a href="privacy.html" style="color:var(--text-muted); margin:0 5px;">سياسة الخصوصية</a>
+            <a href="terms.html" style="color:var(--text-muted); margin:0 5px;">شروط الاستخدام</a>
+            <a href="about.html" style="color:var(--text-muted); margin:0 5px;">من نحن</a>
+        </div>
+
+        <div id="status-auth" style="display:none; color:var(--primary); font-weight:bold; margin-top:30px; font-size: 1.1rem;"></div>
+    </div>
+</div>
+    
+<header>
+    <div class="logo-area">
+        <div class="logo">
+            Findly <i class="fa-solid fa-wand-magic-sparkles"></i>
+        </div>
+        
+    <div id="hero-tagline" class="hero-tagline"></div>
+
+
+        <link rel="manifest" href="./manifest.json">
+        
+    <div class="header-tools">
+        <button class="tool-btn" onclick="toggleMode()"><i class="fa-solid fa-circle-half-stroke"></i></button>
+        <div style="position: relative;">
+            <button class="tool-btn" onclick="toggleLMenu()"><i class="fa-solid fa-language"></i></button>
+            <div id="l-menu" class="lang-menu">
+                <div class="lang-item" onclick="setLang('ar')">العربية</div>
+                <div class="lang-item" onclick="setLang('en')">English</div>
+                <div class="lang-item" onclick="setLang('fr')">Français</div>
+                <div class="lang-item" onclick="setLang('de')">Deutsch</div>
+                <div class="lang-item" onclick="setLang('es')">Español</div>
+                <div class="lang-item" onclick="setLang('tr')">Türkçe</div>
+            </div>
+        </div>
+        <button class="tool-btn" onclick="toggleWatchList()">
+            <i class="fa-solid fa-bell"></i>
+            <span id="watch-count" style="position:absolute; top:-5px; right:-5px; background:#ef4444; color:white; font-size:0.6rem; padding:2px 6px; border-radius:50%; display:none; border: 2px solid var(--bg-dark);">0</span>
+        </button>
+        <button class="tool-btn" onclick="openProfile()"><i class="fa-solid fa-user-gear"></i></button>
+        <button class="tool-btn" id="logout-btn" onclick="logoutUser()" title="تسجيل الخروج">
+            <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+    </div>
+</header>
+
+<main class="search-area">
+    <div class="energy-box">
+        <span id="txt-energy"></span>
+        <span id="r-count" style="background:var(--primary); color:#fff; padding:3px 12px; border-radius:20px; font-weight:900; font-size: 0.9rem;">3</span>
+        <i class="fa-solid fa-bolt" style="color:#FFD700;"></i>
+    </div>
+
+    <h2 id="greeting" style="color: var(--primary); font-size: 1.1rem; margin-bottom: 5px; font-weight: 600;"></h2>
+    <h1 id="txt-title"></h1>
+    <p id="txt-sub" style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 30px;"></p>
+
+    <div class="ai-toggle">
+        <i class="fa-solid fa-brain"></i>
+        <span id="txt-deep"></span>
+        <input type="checkbox" id="ai-deep-mode">
+    </div>
+
+    <div class="search-wrapper">
+        <input type="text" id="s-input" class="search-input" placeholder="ابحث عن منتج...">
+        <i id="mic-btn" class="fa-solid fa-microphone-lines mic-icon" onclick="startVoice()"></i>
+        <button class="send-btn" onclick="runSearch()"><i class="fa-solid fa-magnifying-glass"></i></button>
+    </div>
+
+    <div class="invite-card" onclick="copyInvite()">
+        <div class="invite-icon">🚀</div>
+        <div class="invite-text" id="inviteText">
+            ادعُ أصدقاءك الآن ✨ — ميزات ومكافآت قادمة قريبًا 🎁 — كن من الأوائل 🚀
+        </div>
+    </div>
+    
+    <div class="ai-options">
+        <div class="ai-tag" onclick="quickFilter('cheap')"><i class="fa-solid fa-sack-dollar"></i> <span id="tag-cheap"></span></div>
+        <div class="ai-tag" onclick="quickFilter('top')"><i class="fa-solid fa-star"></i> <span id="tag-top"></span></div>
+        <div class="ai-tag" onclick="quickFilter('new')"><i class="fa-solid fa-fire"></i> <span id="tag-new"></span></div>
+    </div>
+
+    <div class="cat-grid">
+        <div class="cat-card" onclick="quickSearch('ألعاب')"><i class="fa-solid fa-gamepad"></i><span id="cat-game"></span></div>
+        <div class="cat-card" onclick="quickSearch('جمال')"><i class="fa-solid fa-sparkles"></i><span id="cat-beauty"></span></div>
+        <div class="cat-card" onclick="quickSearch('منزل ذكي')"><i class="fa-solid fa-house-laptop"></i><span id="cat-home"></span></div>
+        <div class="cat-card" onclick="quickSearch('هواتف')"><i class="fa-solid fa-mobile-screen-button"></i><span id="cat-c1"></span></div>
+        <div class="cat-card" onclick="quickSearch('لابتوب')"><i class="fa-solid fa-laptop"></i><span id="cat-c2"></span></div>
+        <div class="cat-card" onclick="quickSearch('ساعات')"><i class="fa-solid fa-stopwatch"></i><span id="cat-c4"></span></div>
+    </div>
+
+    <div id="status" style="display:none; color:var(--primary); font-weight:bold; margin-top:30px; font-size: 1.1rem; text-align: center;"></div>
+
+    <div class="layout-wrapper">
+        <div id="results"></div>
+        <div id="affiliateCard" class="affiliate-card" style="display:none;">
+            <img id="affImage" src="" />
+            <h3 id="affTitle"></h3>
+            <p>🔥 عرض مميز مرتبط ببحثك</p>
+            <a id="affBtn" target="_blank" class="affiliate-btn">
+                🛒 شراء الآن
+            </a>
+        </div>
+    </div>
+
+    <div style="margin-top: 30px; font-size: 0.85rem; text-align: center;">
+        <a href="privacy.html" style="color:var(--text-muted); margin:0 5px;">سياسة الخصوصية</a>
+        <a href="terms.html" style="color:var(--text-muted); margin:0 5px;">شروط الاستخدام</a>
+        <a href="about.html" style="color:var(--text-muted); margin:0 5px;">من نحن</a>
+    </div>
+</main>
+
+<div class="modal" id="w-modal">
+    <div class="modal-box">
+        <h3 style="color:var(--primary); margin-top:0;"><i class="fa-solid fa-bell"></i> <span id="txt-watch-title"></span></h3>
+        <div id="watch-list-content"></div>
+        <button onclick="toggleWatchList()" style="background:none; color:var(--text-muted); border:none; margin-top:20px; cursor:pointer; font-size:0.9rem;">إغلاق</button>
+    </div>
+</div>
+
+<div class="modal" id="p-modal">
+    <div class="modal-box">
+        <h3 id="p-head" style="margin-top:0;"></h3>
+        <label id="lbl-name" style="font-size:0.85rem; display:block; margin-bottom:5px; opacity:0.7;">اسم المستخدم</label>
+        <input type="text" id="in-name" placeholder="أدخل اسمك هنا...">
+        <label id="lbl-budget" style="font-size:0.85rem; display:block; margin-top:15px; margin-bottom:5px; opacity:0.7;">الميزانية ($)</label>
+        <input type="number" id="in-budget" placeholder="أقصى ميزانية لديك...">
+        <button class="action-btn buy-now" onclick="saveSet()" style="width:100%; margin-top:20px;">حفظ التغييرات ✅</button>
+        <button onclick="openProfile()" style="background:none; color:var(--text-muted); border:none; margin-top:15px; cursor:pointer; font-size:0.9rem;">إغلاق</button>
+    </div>
+</div>
+
+<div id="analysis-modal" class="analysis-modal">
+    <div class="modal-content">
+        <h3>📊 تحليل السعر</h3>
+        <div id="analysis-content-body"></div>
+        <button class="action-btn buy-now" style="margin-top:15px; width:100%" onclick="document.getElementById('analysis-modal').style.display='none'">إغلاق</button>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-analytics.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCI_q5lkgRY4133ua4RlG5TeiCqJ5N5KTU",
+        authDomain: "findly-ede17.firebaseapp.com",
+        projectId: "findly-ede17",
+        storageBucket: "findly-ede17.firebasestorage.app",
+        messagingSenderId: "503212830017",
+        appId: "1:503212830017:web:9afb64c19822bbe7f645c0",
+        measurementId: "G-X1Q3WDP50N"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    // مراقبة حالة المستخدم (هل هو مسجل دخول أم لا)
+    onAuthStateChanged(auth, (user) => {
+        const overlay = document.getElementById('auth-overlay');
+        if (user) {
+            // المستخدم مسجل دخول -> إخفاء شاشة القفل
+            overlay.style.setProperty('display', 'none', 'important');
+            document.body.style.overflow = 'auto';
+            localStorage.setItem('findly_uid', user.uid);
+            
+            if (!sessionStorage.getItem('welcome_shown')) {
+                const name = user.displayName || 'أيها الباحث الحكيم';
+                sessionStorage.setItem('welcome_shown', 'true');
+            }
+        } else {
+            // المستخدم غير مسجل -> إظهار شاشة القفل
+            overlay.style.setProperty('display', 'flex', 'important');
+            document.body.style.overflow = 'hidden';
+        }
+    });
+
+    // دالة الدخول عبر جوجل
+    window.loginWithGoogle = async () => {
+        try { await signInWithPopup(auth, provider); } catch (error) { alert("Error: " + error.message); }
+    };
+
+    // --- دالة تسجيل الدخول ---
+    window.handleLogin = async () => {
+        const email = document.getElementById('auth-email').value;
+        const password = document.getElementById('auth-password').value;
+        
+        if (!email || !password) return alert("الرجاء إدخال البريد الإلكتروني وكلمة المرور");
+
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+        } catch (error) {
+            let msg = "فشل تسجيل الدخول: ";
+            if (error.code === 'auth/user-not-found') msg = "هذا الحساب غير موجود، يرجى إنشاء حساب جديد.";
+            else if (error.code === 'auth/wrong-password') msg = "كلمة المرور غير صحيحة.";
+            else if (error.code === 'auth/invalid-email') msg = "صيغة البريد الإلكتروني غير صحيحة.";
+            else if (error.code === 'auth/invalid-credential') msg = "بيانات الاعتماد غير صالحة.";
+            else msg += error.message;
+            
+            alert(msg);
+        }
+    };
+
+    // --- دالة إنشاء حساب جديد ---
+    window.handleRegister = async () => {
+        const email = document.getElementById('auth-email').value;
+        const password = document.getElementById('auth-password').value;
+
+        if (!email || !password) return alert("الرجاء إدخال البريد الإلكتروني وكلمة المرور");
+        if (password.length < 6) return alert("كلمة المرور يجب أن تكون 6 أحرف على الأقل");
+
+        try {
+            await createUserWithEmailAndPassword(auth, email, password);
+            alert("تم إنشاء الحساب بنجاح! جاري الدخول...");
+        } catch (error) {
+            let msg = "فشل إنشاء الحساب: ";
+            if (error.code === 'auth/email-already-in-use') msg = "هذا البريد مسجل بالفعل، حاول تسجيل الدخول.";
+            else if (error.code === 'auth/weak-password') msg = "كلمة المرور ضعيفة جداً.";
+            else if (error.code === 'auth/invalid-email') msg = "صيغة البريد الإلكتروني غير صحيحة.";
+            else msg += error.message;
+            
+            alert(msg);
+        }
+    };
+
+    // دالة تسجيل الخروج
+    window.logoutUser = () => {
+        const currentLang = localStorage.getItem('findly_lang') || 'ar';
+        if (confirm(currentLang === 'ar' ? "هل تريد تسجيل الخروج؟" : "Logout?")) {
+            signOut(auth).then(() => {
+                sessionStorage.removeItem('welcome_shown');
+                location.reload();
+            });
+        }
+    };
+</script>
+
+<script>
+    const API = "https://findly-api.onrender.com";
+
+    // --- Definitions moved to TOP to prevent initialization errors ---
+    const INVITE_TEXT = {
+        ar: "ادعُ أصدقاءك الآن ✨ — ميزات ومكافآت قادمة قريبًا 🎁 — كن من الأوائل 🚀",
+        en: "Invite your friends now ✨ — features & rewards coming soon 🎁 — be among the first 🚀",
+        fr: "Invitez vos amis maintenant ✨ — fonctionnalités et récompenses bientôt 🎁 — soyez parmi les premiers 🚀",
+        de: "Lade jetzt deine Freunde ein ✨ — neue Funktionen & Belohnungen bald 🎁 — sei unter den Ersten 🚀",
+        es: "Invita a tus amigos ahora ✨ — funciones y recompensas próximamente 🎁 — sé de los primeros 🚀",
+        tr: "Arkadaşlarını şimdi davet et ✨ — yakında özellikler ve ödüller 🎁 — ilklerden ol 🚀"
+    };
+
+       
+    const i18n = {
+        ar: {
+            title: 'انتهت المحاولات المجانية',
+            message: 'لقد استهلكت جميع عمليات البحث المجانية. يرجى تفعيل الاشتراك للمتابعة بدون حدود.',
+            upgrade: 'ترقية الآن'
+        },
+        en: {
+            title: 'Free searches exhausted',
+            message: 'You have used all your free searches. Please upgrade your plan to continue.',
+            upgrade: 'Upgrade now'
+        }
+    };
+
+    const dict = {
+      
+        ar: {
+            ui: {
+                
+                hero_tagline: "قرارات شراء أذكى تبدأ من هنا",
+                title: "مستشارك الحكيم", sub: "دليلك الذكي للتسوق المثالي", energy: "طاقة العقل", welcome: "مرحباً،",
+                game: "ألعاب", beauty: "جمال", home: "منزل ذكي", c1: "هواتف", c2: "لابتوب", c4: "ساعات",
+                p_head: "الملف الشخصي", lbl_name: "اسم المستخدم", lbl_budget: "الميزانية ($)",
+                buy: "شراء الآن 🛒", watch: "راقب السعر 🔔", over: "يتجاوز ميزانيتك",
+                cheap: "اقتصادي", top: "الأعلى تقييماً", new: "حديث جداً", deep: "وضع التحليل الذكي",
+                watchTitle: "قائمة المراقبة", why: "لماذا اخترنا هذا؟", slow: "السيرفر يستيقظ.. انتظر ثوانٍ",
+                noAttempts: "⚠️ استنفدت محاولاتك!", analyze: "📊 تحليل السعر"
+            },
+            search: {
+                market: "السوق", avg_price: "متوسط السعر", competitors: "عدد المنافسين", value: "قيمة الصفقة",
+                deal_score: "تقييم الصفقة", learning_on: "سيتحسن التحليل مع الاستخدام", learning_later: "التحليل قيد التعلم",
+                forecast: "التوقع السعري", trend: { up: "قد يرتفع قريبًا", down: "قد ينخفض", stable: "مستقر" },
+                expected_price: "السعر المتوقع", confidence: "الثقة", trust: "الثقة والمخاطر", no_risks: "لا توجد مخاطر واضحة",
+                buy: "اشترِ", analyze: "تحليل", watch: "راقب", after_discount: "بعد الخصم", copy_coupon: "نسخ الكوبون"
+            }
+        },
+       
+        en: {
+            ui: {
+               hero_tagline: "Smarter buying decisions start here",
+               title: "Sage Advisor", sub: "Your smart shopping guide", energy: "Sage Energy", welcome: "Welcome,",
+                game: "Gaming", beauty: "Beauty", home: "Smart Home", c1: "Phones", c2: "Laptops", c4: "Watches",
+                p_head: "Profile", lbl_name: "Username", lbl_budget: "Budget ($)",
+                buy: "Buy Now 🛒", watch: "Watch Price 🔔", over: "Over Budget!",
+                cheap: "Budget", top: "Top Rated", new: "Newest", deep: "AI Deep Mode",
+                watchTitle: "Watch List", why: "Why this choice?", slow: "Server waking up.. wait",
+                noAttempts: "⚠️ No attempts left!", analyze: "📊 Analysis"
+            },
+            search: {
+                market: "Market", avg_price: "Average price", competitors: "Competitors", value: "Deal value",
+                deal_score: "Deal score", learning_on: "Analysis improves with usage", learning_later: "Analysis is learning",
+                forecast: "Price forecast", trend: { up: "Likely to rise", down: "Likely to drop", stable: "Stable" },
+                expected_price: "Expected price", confidence: "Confidence", trust: "Trust & risks", no_risks: "No clear risks",
+                buy: "Buy", analyze: "Analyze", watch: "Watch", after_discount: "After discount", copy_coupon: "Copy coupon"
+            }
+        },
+        fr: {
+            ui: {
+                title: "Conseiller Sage", sub: "Votre guide d'achat intelligent", energy: "Énergie Sage", welcome: "Bienvenue,",
+                game: "Jeux", beauty: "Beauté", home: "Maison Intelligente", c1: "Téléphones", c2: "Ordinateurs", c4: "Montres",
+                p_head: "Profil", lbl_name: "Nom d'utilisateur", lbl_budget: "Budget ($)",
+                buy: "Acheter 🛒", watch: "Surveiller 🔔", over: "Hors budget!",
+                cheap: "Économique", top: "Mieux notés", new: "Nouveautés", deep: "Mode IA Profonde",
+                watchTitle: "Liste de surveillance", why: "Pourquoi ce choix?", slow: "Le serveur se réveille..",
+                noAttempts: "⚠️ Plus d'essais!", analyze: "📊 Analyse"
+            },
+            search: {
+                market: "Marché", avg_price: "Prix moyen", competitors: "Concurrents", value: "Valeur de l'offre",
+                deal_score: "Score de l'offre", learning_on: "L'analyse s'améliore", learning_later: "Analyse en cours",
+                forecast: "Prévision de prix", trend: { up: "Probablement hausse", down: "Probablement baisse", stable: "Stable" },
+                expected_price: "Prix attendu", confidence: "Confiance", trust: "Confiance et risques", no_risks: "Aucun risque clair",
+                buy: "Acheter", analyze: "Analyser", watch: "Surveiller", after_discount: "Après remise", copy_coupon: "Copier le coupon"
+            }
+        },
+        de: {
+            ui: {
+                title: "Weiser Berater", sub: "Ihr intelligenter Einkaufsführer", energy: "Sage Energie", welcome: "Willkommen,",
+                game: "Spiele", beauty: "Schönheit", home: "Smart Home", c1: "Handys", c2: "Laptops", c4: "Uhren",
+                p_head: "Profil", lbl_name: "Benutzername", lbl_budget: "Budget ($)",
+                buy: "Jetzt kaufen 🛒", watch: "Preis beobachten 🔔", over: "Über Budget!",
+                cheap: "Budget", top: "Top bewertet", new: "Neueste", deep: "KI Tiefenmodus",
+                watchTitle: "Beobachtungsliste", why: "Warum diese Wahl?", slow: "Server startet..",
+                noAttempts: "⚠️ Keine Versuche mehr!", analyze: "📊 Analyse"
+            },
+            search: {
+                market: "Markt", avg_price: "Durchschnittspreis", competitors: "Wettbewerber", value: "Angebotswert",
+                deal_score: "Angebotsbewertung", learning_on: "Analyse verbessert sich", learning_later: "Analyse lernt",
+                forecast: "Preisprognose", trend: { up: "Wahrscheinlich steigend", down: "Wahrscheinlich fallend", stable: "Stabil" },
+                expected_price: "Erwarteter Preis", confidence: "Vertrauen", trust: "Vertrauen & Risiken", no_risks: "Keine klaren Risiken",
+                buy: "Kaufen", analyze: "Analysieren", watch: "Beobachten", after_discount: "Nach Rabatt", copy_coupon: "Gutschein kopieren"
+            }
+        },
+        es: {
+            ui: {
+                title: "Consejero Sabio", sub: "Tu guía de compras inteligente", energy: "Energía Sage", welcome: "Bienvenido,",
+                game: "Juegos", beauty: "Belleza", home: "Hogar Inteligente", c1: "Teléfonos", c2: "Laptops", c4: "Relojes",
+                p_head: "Perfil", lbl_name: "Nombre de usuario", lbl_budget: "Presupuesto ($)",
+                buy: "Comprar ahora 🛒", watch: "Vigilar precio 🔔", over: "¡Fuera de presupuesto!",
+                cheap: "Económico", top: "Mejor valorados", new: "Más nuevos", deep: "Modo IA Profundo",
+                watchTitle: "Lista de seguimiento", why: "¿Por qué esta elección?", slow: "El servidor se está despertando..",
+                noAttempts: "⚠️ ¡No quedan intentos!", analyze: "📊 Análisis"
+            },
+            search: {
+                market: "Mercado", avg_price: "Precio promedio", competitors: "Competidores", value: "Valor de oferta",
+                deal_score: "Puntuación de oferta", learning_on: "El análisis mejora con el uso", learning_later: "Análisis aprendiendo",
+                forecast: "Pronóstico de precios", trend: { up: "Probable subida", down: "Probable bajada", stable: "Estable" },
+                expected_price: "Precio esperado", confidence: "Confianza", trust: "Confianza y riesgos", no_risks: "Sin riesgos claros",
+                buy: "Comprar", analyze: "Analizar", watch: "Vigilar", after_discount: "Después del descuento", copy_coupon: "Copiar cupón"
+            }
+        },
+        tr: {
+            ui: {
+                title: "Bilge Danışman", sub: "Akıllı alışveriş rehberiniz", energy: "Sage Enerjisi", welcome: "Hoş geldiniz,",
+                game: "Oyunlar", beauty: "Güzellik", home: "Akıllı Ev", c1: "Telefonlar", c2: "Laptoplar", c4: "Saatler",
+                p_head: "Profil", lbl_name: "Kullanıcı adı", lbl_budget: "Bütçe ($)",
+                buy: "Şimdi al 🛒", watch: "Fiyatı izle 🔔", over: "Bütçeyi aşıyor!",
+                cheap: "Ekonomik", top: "En çok oylanan", new: "En yeniler", deep: "YA Derin Modu",
+                watchTitle: "İzleme listesi", why: "Neden bu seçim?", slow: "Sunucu uyanıyor..",
+                noAttempts: "⚠️ Deneme hakkı kalmadı!", analyze: "📊 Analiz"
+            },
+            search: {
+                market: "Pazar", avg_price: "Ortalama fiyat", competitors: "Rakipler", value: "Teklif değeri",
+                deal_score: "Teklif puanı", learning_on: "Analiz kullanımla gelişir", learning_later: "Analiz öğreniyor",
+                forecast: "Fiyat tahmini", trend: { up: "Muhtemelen artacak", down: "Muhtemelen düşecek", stable: "Kararlı" },
+                expected_price: "Beklenen fiyat", confidence: "Güven", trust: "Güven ve riskler", no_risks: "Açık risk yok",
+                buy: "Satın al", analyze: "Analiz et", watch: "İzle", after_discount: "İndirim sonrası", copy_coupon: "Kuponu kopyala"
+            }
+        }
+    };
+
+    const UPGRADE_SUCCESS_TEXT = {
+        ar: {
+            title: "🎉 تم تفعيل اشتراكك بنجاح!",
+            message: "تم تفعيل اشتراك Findly Pro بنجاح. يمكنك الآن الوصول إلى جميع الميزات المتقدمة والتحليلات الاحترافية بدون قيود.",
+            thanks: "شكرًا لدعمك 🤍",
+            button: "الانتقال إلى لوحة التحكم"
+        },
+        en: {
+            title: "🎉 Subscription Activated!",
+            message: "Your Findly Pro subscription is now active. You have full access to all premium features and advanced analysis.",
+            thanks: "Thank you for supporting Findly 💙",
+            button: "Go to Dashboard"
+        },
+        fr: {
+            title: "🎉 Abonnement activé !",
+            message: "Votre abonnement Findly Pro est maintenant actif.",
+            thanks: "Merci pour votre soutien 💙",
+            button: "Aller au tableau de bord"
+        },
+        de: {
+            title: "🎉 Abonnement aktiviert!",
+            message: "Ihr Findly Pro-Abonnement ist jetzt aktiv.",
+            thanks: "Danke für Ihre Unterstützung 💙",
+            button: "Zum Dashboard"
+        },
+        es: {
+            title: "🎉 Suscripción activada!",
+            message: "Tu suscripción Findly Pro ya está activa.",
+            thanks: "Gracias por tu apoyo 💙",
+            button: "Ir al panel"
+        },
+        tr: {
+            title: "🎉 Abonelik etkinleştirildi!",
+            message: "Findly Pro aboneliğiniz artık aktif.",
+            thanks: "Desteğiniz için teşekkürler 💙",
+            button: "Kontrol paneline git"
+        }
+    };
+    
+    // --- State Initialization ---
+    let lang = localStorage.getItem('findly_lang') || 'ar';  
+    let savedAttempts = localStorage.getItem('findly_attempts');  
+    let attempts = (savedAttempts !== null) ? parseInt(savedAttempts) : 3;  
+    if (savedAttempts === null) localStorage.setItem('findly_attempts', 3);  
+    let watchList = JSON.parse(localStorage.getItem('findly_watch')) || [];  
+
+    // Helper Functions
+    function updateInviteText(lang) {
+        const el = document.getElementById("inviteText");
+        if (!el) return;
+        el.textContent = INVITE_TEXT[lang] || INVITE_TEXT.ar;
+    }
+
+    async function openUpgrade() {
+        const uid = localStorage.getItem("findly_uid") || ("guest_" + Date.now());
+
+        try {
+            const res = await fetch("https://findly-api.onrender.com/create-payment", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ uid })
+            });
+
+            const data = await res.json();
+
+            if (data.url) {
+                window.open(data.url, "_blank");
+            } else {
+                alert("⚠️ Payment unavailable, try again later");
+            }
+        } catch (e) {
+            alert("❌ Payment service error");
+        }
+    }
+
+    function applyCoupon(price, coupon) {
+        if (!price || !coupon) return price;
+        let final = price;
+        if (coupon.type === 'percent') {
+            final = price - (price * coupon.discount / 100);
+        }
+        if (coupon.type === 'fixed') {
+            final = price - coupon.discount;
+        }
+        return Math.max(final, 0).toFixed(2);
+    }
+
+    function pickBestCoupon(price, coupons = []) {
+        if (!price || !coupons.length) return null;
+        let best = null;
+        let bestPrice = price;
+        coupons.forEach(c => {
+            const discounted = parseFloat(applyCoupon(price, c));
+            if (discounted < bestPrice) {
+                bestPrice = discounted;
+                best = c;
+            }
+        });
+        return best;
+    }
+
+    // --- Main Search Function ---
+    async function runSearch() {
+        const q = document.getElementById('s-input').value.trim();
+        const status = document.getElementById('status');
+        const resultsBox = document.getElementById('results');
+
+        if (!q) return;  
+
+        const T = dict[lang]?.search || dict.en.search;  
+        const UI = dict[lang]?.ui || dict.en.ui;  
+
+        status.style.display = 'block';  
+        status.innerText = '🔍 ...';  
+        resultsBox.innerHTML = '';  
+        
+        const userBudget = parseFloat(localStorage.getItem('user_budget')) || 0;  
+
+        try {  
+            const res = await fetch(  
+                `${API}/search?q=${encodeURIComponent(q)}&lang=${lang}&uid=${localStorage.getItem('findly_uid')}`  
+            );  
+            const data = await res.json();  
+            status.style.display = 'none';  
+            
+            if (data.error === 'ENERGY_EMPTY') {
+                const currentLang = localStorage.getItem('findly_lang') || 'ar';
+                const t = i18n[currentLang] || i18n.ar;
+
+                status.style.display = 'block';
+
+                status.innerHTML = `
+                <div class="upgrade-section">
+                    <h3>${t.title}</h3>
+                    <p style="font-size:0.95rem; opacity:0.9">${t.message}</p>
+                    <button class="upgrade-btn" onclick="openUpgrade()">  
+                        ${t.upgrade}  
+                    </button>  
+                </div>
+                `;
+                return;
+            }
+            
+            if (!data.results) {
+                status.style.display = 'block';
+                status.innerText = lang === 'ar' ? 'لا توجد نتائج' : 'No results found';
+                return;
+            }
+
+            if (data.results && data.results.length > 0) {  
+                const firstProduct = data.results[0];  
+                updateAffiliateCard(firstProduct);
+            }
+
+            data.results.forEach(p => {  
+                const intel = p.intelligence || {};  
+                const verdict = intel.finalVerdict || {};  
+                const priceIntel = intel.priceIntel || {};  
+                const valueIntel = intel.valueIntel || {};  
+                const forecast = intel.forecastIntel || {};  
+                const trust = intel.trustIntel || {};  
+
+                // ===== STRATEGIC VERDICT =====
+                let strategicBadge = '';
+                let strategicColor = '#3b82f6';
+
+                if (verdict.decision === 'BUY_NOW') {
+                    strategicBadge = '🟢 قرار ذكي: اشترِ الآن';
+                    strategicColor = '#10b981';
+                }
+                else if (verdict.decision === 'WAIT') {
+                    strategicBadge = '⏳ يفضل الانتظار';
+                    strategicColor = '#f59e0b';
+                }
+                else if (verdict.decision === 'WAIT_PRICE_DROP') {
+                    strategicBadge = '📉 انتظر انخفاض السعر';
+                    strategicColor = '#6366f1';
+                }
+                else if (verdict.decision === 'OVERPRICED') {
+                    strategicBadge = '🔴 السعر مرتفع';
+                    strategicColor = '#ef4444';
+                }
+
+                const bestLink = p.intelligence?.finalVerdict?.bestLink || p.link;
+                const safeLink = typeof bestLink === "string" && bestLink.startsWith("http") ? bestLink : null;
+
+                // Budget Logic
+                let budgetClass = '';
+                let budgetBadge = '';
+                const priceVal = parseFloat(String(p.price).replace(/[^\d.]/g, '')) || 0;
+
+                if (userBudget > 0 && priceVal > userBudget) {  
+                    budgetClass = 'over-budget';  
+                    budgetBadge = `<div class="budget-alert">⚠️ ${UI.over || 'Over Budget!'}</div>`;  
+                }  
+
+                const card = document.createElement('div');  
+                card.className = `product-card ${budgetClass}`;  
+
+                // Coupon Logic  
+                const coupons = p.coupons || [];  
+                const numericPrice = priceVal;  
+                const bestCoupon = (numericPrice && coupons.length) ? pickBestCoupon(numericPrice, coupons) : null;  
+                const discountedPrice = (numericPrice && bestCoupon) ? applyCoupon(numericPrice, bestCoupon) : null;  
+
+                card.innerHTML = `  
+                ${budgetBadge}   
+                <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/200'">  
+                <h3>${p.title || '—'}</h3>  
+
+                <div class="price">  
+                    ${bestCoupon && discountedPrice  
+                        ? `<span class="old-price">$${numericPrice}</span><span class="new-price">$${discountedPrice}</span>`  
+                        : `$${numericPrice || '-'}`  
+                    }  
+                </div>  
+
+                <div class="sage-quick-brains">  
+                    <div class="brain-item good">  
+                        💰 ${lang === 'ar' ? 'السعر' : 'Price'} <span>${priceIntel.score >= 70 ? (lang === 'ar' ? 'ممتاز' : 'Excellent') : priceIntel.score >= 50 ? (lang === 'ar' ? 'جيد' : 'Good') : (lang === 'ar' ? 'ضعيف' : 'Weak')}</span>  
+                    </div>  
+                    <div class="brain-item ${forecast.trend === 'down' ? 'wait' : forecast.trend === 'up' ? 'buy' : 'neutral'}">  
+                        📈 ${lang === 'ar' ? 'التوقيت' : 'Timing'} <span>${forecast.trend === 'down' ? (lang === 'ar' ? 'انتظر' : 'Wait') : forecast.trend === 'up' ? (lang === 'ar' ? 'قد يرتفع' : 'May rise') : (lang === 'ar' ? 'مستقر' : 'Stable')}</span>  
+                    </div>  
+                    <div class="brain-item ${(trust.riskScore || 0) > 50 ? 'risk' : 'safe'}">  
+                        🛡️ ${lang === 'ar' ? 'الثقة' : 'Trust'} <span>${(trust.riskScore || 0) > 50 ? (lang === 'ar' ? 'مخاطرة' : 'Risk') : (lang === 'ar' ? 'آمن' : 'Safe')}</span>  
+                    </div>  
+                    <div class="brain-item learn">  
+                        🧠 ${lang === 'ar' ? 'السلوك' : 'Behavior'} <span>${(valueIntel.learningBoost || 0) > 0 ? (lang === 'ar' ? 'مناسب لك' : 'Suitable') : (lang === 'ar' ? 'عام' : 'General')}</span>  
+                    </div>  
+                </div>  
+
+                <div class="analysis-engine">  
+                    <span class="analysis-label">${verdict.emoji || '🤖'} ${verdict.title || ''}</span>  
+                    <div>${verdict.reason || ''}</div>  
+                </div>
+
+                ${verdict.decision ? `
+
+                <div style="  
+                    margin-top:10px;  
+                    padding:10px;  
+                    border-radius:10px;  
+                    background:rgba(255,255,255,0.05);  
+                    border:1px solid ${strategicColor};  
+                ">  
+                    <div style="font-weight:bold; color:${strategicColor}; margin-bottom:6px;">  
+                        ${strategicBadge}  
+                    </div>  
+                    <div style="font-size:0.9rem; opacity:0.9;">  
+                        ${verdict.reason || ''}  
+                    </div>  
+
+                    ${verdict.savingPercent ? `  
+                    <div style="margin-top:5px;">  
+                        💰 ${lang === 'ar' ? 'التوفير' : 'Saving'}: <strong>${verdict.savingPercent}%</strong>  
+                    </div>` : ''}  
+
+                    ${verdict.bestStore ? `  
+                    <div style="margin-top:5px;">  
+                        🏪 ${lang === 'ar' ? 'أفضل متجر' : 'Best store'}: <strong>${verdict.bestStore}</strong>  
+                        ${verdict.bestPrice ? ` - $${verdict.bestPrice}` : ''}  
+                    </div>` : ''}  
+
+                    <div style="margin-top:5px;">  
+                        🎯 ${lang === 'ar' ? 'الثقة' : 'Confidence'}: <strong>${verdict.confidence || 0}%</strong>  
+                    </div>
+
+                </div>  
+                ` : ''}  
+                
+                ${bestCoupon ? `  
+                <div class="coupon-box">  
+                    🎟️ <strong>${bestCoupon.code}</strong> (${bestCoupon.type === 'percent' ? `-${bestCoupon.discount}%` : `-$${bestCoupon.discount}`})  
+                    <div class="discounted-price" style="font-size:0.9rem; margin-top:5px;">  
+                        ${T.after_discount}: <strong>$${discountedPrice}</strong>  
+                    </div>  
+                    <button class="action-btn" onclick="navigator.clipboard.writeText('${bestCoupon.code}')" style="background:#10b981; color:white; padding:5px 10px; font-size:0.8rem; margin-top:5px;">${T.copy_coupon}</button>  
+                </div>` : ''}  
+
+                <div class="intel-section">  
+                    <h4>📊 ${T.market}</h4>  
+                    <p>${T.avg_price}: <strong>${priceIntel.average ? `$${priceIntel.average}` : '—'}</strong></p>  
+                    <p>${T.competitors}: <strong>${valueIntel.competitors || 0}</strong></p>  
+                </div>  
+
+                <div class="intel-section">  
+                    <h4>💎 ${T.value}</h4>  
+                    <p>${T.deal_score}: <strong>${valueIntel.score || 0}%</strong></p>  
+                    <p>${valueIntel.learningBoost > 0 ? T.learning_on : T.learning_later}</p>  
+                </div>  
+
+                <div class="intel-section">  
+                    <h4>🔮 ${T.forecast}</h4>  
+                    <p>${T.trend[forecast.trend] || T.trend.stable}</p>  
+                    <p>${T.expected_price}: <strong>$${forecast.expectedPrice || '—'}</strong></p>  
+                    <p>${T.confidence}: <strong>${Math.round((forecast.confidence || 0) * 100)}%</strong></p>  
+                </div>  
+
+                <div class="intel-section">  
+                    <h4>⚠️ ${T.trust}</h4>  
+                    ${trust.warnings && trust.warnings.length ? `<ul>${trust.warnings.map(w => `<li>${w}</li>`).join('')}</ul>` : `<p>✅ ${T.no_risks}</p>`}  
+                </div>
+
+                <button class="action-btn watch"
+                onclick="addToWatch(
+                '${p.title.replace(/'/g,"\\'")}',
+                '${numericPrice}',
+                '${safeLink || ""}'
+                )"
+                style="width:100%; margin-top:10px; background:#f59e0b; color:white;">
+                🔔 ${lang === 'ar' ? 'مراقبة السعر' : 'Watch Price'}
+                </button>
+
+                ${safeLink ? `
+                <a class="action-btn buy-now"  
+                href="https://findly-api.onrender.com/go?url=${encodeURIComponent(safeLink)}"  
+                target="_blank"  
+                rel="noopener noreferrer"
+                style="display:flex; margin-top:10px;">
+                ${T.buy}
+                </a>
+                ` : `
+                <button class="action-btn buy-now disabled" disabled style="margin-top:10px;">
+                ${lang === 'ar' ? 'الرابط غير متوفر' : 'Link unavailable'}
+                </button>
+                `}
+
+                <button class="action-btn analyze-btn" style="width:100%; margin-top:10px;"  
+                data-verdict="${encodeURIComponent(JSON.stringify(verdict))}"  
+                data-price="${encodeURIComponent(JSON.stringify(priceIntel))}"  
+                data-value="${encodeURIComponent(JSON.stringify(valueIntel))}"  
+                data-forecast="${encodeURIComponent(JSON.stringify(forecast))}"  
+                data-trust="${encodeURIComponent(JSON.stringify(trust))}"  
+                onclick="openAnalysisFromBtn(this)">  
+                ${T.analyze}  
+                </button>  
+                `;  
+                resultsBox.appendChild(card);  
+            });  
+
+        } catch (e) {  
+            console.error(e);  
+            status.style.display = 'block';  
+            status.innerText = '❌ Error fetching results';  
+        }  
+    }
+   
+    async function addToWatch(name, price, link) {
+        const userEmail = prompt(lang === 'ar' ? "أدخل إيميلك للتنبيه عند انخفاض السعر:" : "Enter email for price alerts:");
+        if (!userEmail || !userEmail.includes("@")) return;
+
+        let uid = localStorage.getItem('findly_uid') || 'guest';
+        let numericPrice = parseFloat(String(price).replace(/[^\d.]/g, '')) || 0;
+        let targetPrice = numericPrice * 0.9;
+
+        try {
+            const response = await fetch(`${API}/alerts`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: userEmail,
+                    productName: name,
+                    targetPrice: targetPrice,
+                    currentPrice: numericPrice,
+                    productLink: link,
+                    lang: lang,
+                    uid: uid
+                })
+            });
+            if (response.ok) {
+                alert(lang === 'ar' ? "✅ تم تفعيل التنبيه بنجاح!" : "✅ Alert activated!");
+            } else {
+                alert("❌ Server Error: " + response.status);
+            }
+        } catch (error) {
+            alert("❌ Connection failed");
+        }
+    }
+
+    function getInviteLink() {
+    const uid = localStorage.getItem('findly_uid') || 'guest';
+    return `${location.origin}${location.pathname}?ref=${uid}`;
+}
+
+    function copyInvite() {
+        const link = getInviteLink();
+        navigator.clipboard.writeText(link).then(() => {
+            alert(lang === 'ar' ? 'تم نسخ رابط الدعوة ✨' : 'Invite link copied ✨');
+        }).catch(() => {
+            alert(lang === 'ar' ? 'لم يتم نسخ الرابط، انسخه يدويًا:\n' : 'Copy this link:\n' + link);
+        });
+    }
+
+    function openAnalysisFromBtn(btn) {
+        try {
+            const data = {
+                verdict: JSON.parse(decodeURIComponent(btn.dataset.verdict)),
+                priceIntel: JSON.parse(decodeURIComponent(btn.dataset.price)),
+                valueIntel: JSON.parse(decodeURIComponent(btn.dataset.value)),
+                forecastIntel: JSON.parse(decodeURIComponent(btn.dataset.forecast)),
+                trustIntel: JSON.parse(decodeURIComponent(btn.dataset.trust))
+            };
+
+            const modal = document.getElementById('analysis-modal');
+            const body = document.getElementById('analysis-content-body');
+
+            body.innerHTML = `
+            <h3>🧠 تحليل Sage الذكي</h3>
+            <hr>
+            <p><strong>📊 ${lang === 'ar' ? 'السوق' : 'Market'}</strong></p>
+            <ul>
+                <li>${lang === 'ar' ? 'متوسط السعر' : 'Average price'}: $${data.priceIntel.average ?? '—'}</li>
+                <li>${lang === 'ar' ? 'عدد المنافسين' : 'Competitors'}: ${data.valueIntel.competitors ?? 0}</li>
+            </ul>
+            <p><strong>💎 ${lang === 'ar' ? 'الصفقة' : 'Deal'}</strong></p>
+            <ul>
+                <li>${lang === 'ar' ? 'درجة الصفقة' : 'Deal score'}: ${data.valueIntel.score ?? 0}%</li>
+            </ul>
+            <p><strong>🔮 ${lang === 'ar' ? 'التوقع' : 'Forecast'}</strong></p>
+            <ul>
+                <li>${lang === 'ar' ? 'الاتجاه' : 'Trend'}: ${data.forecastIntel.trend}</li>
+                <li>${lang === 'ar' ? 'سعر متوقع' : 'Expected price'}: $${data.forecastIntel.expectedPrice}</li>
+                <li>${lang === 'ar' ? 'ثقة' : 'Confidence'}: ${Math.round(data.forecastIntel.confidence * 100)}%</li>
+            </ul>
+            <p><strong>⚠️ ${lang === 'ar' ? 'الثقة والمخاطر' : 'Trust & Risks'}</strong></p>
+            ${data.trustIntel.warnings.length ? `<ul>${data.trustIntel.warnings.map(w => `<li>${w}</li>`).join('')}</ul>` : `<p>${lang === 'ar' ? 'لا توجد مخاطر واضحة' : 'No clear risks'}</p>`}
+            `;
+
+            modal.style.display = 'flex';
+        } catch (e) {
+            console.error("Error parsing analysis data", e);
+        }
+    }
+
+    function saveSet() {
+        localStorage.setItem('fn', document.getElementById('in-name').value);
+        localStorage.setItem('user_budget', document.getElementById('in-budget').value);
+        document.getElementById('p-modal').style.display = 'none';
+        update();
+    }
+
+    function toggleMode() { document.body.classList.toggle('light-mode'); }
+    
+    function toggleLMenu() {
+        const m = document.getElementById('l-menu');
+        m.style.display = (m.style.display === 'block') ? 'none' : 'block';
+    }
+    
+    function setLang(l) { 
+        lang = l; 
+        localStorage.setItem('findly_lang', l); 
+        toggleLMenu(); 
+        update(); 
+    }
+
+    function openProfile() {
+        document.getElementById('p-modal').style.display = 'flex';
+        document.getElementById('in-name').value = localStorage.getItem('fn') || '';
+        document.getElementById('in-budget').value = localStorage.getItem('user_budget') || '';
+    }
+
+    function quickSearch(q) { 
+        document.getElementById('s-input').value = q; 
+        runSearch(); 
+    }
+    
+    function quickFilter(type) { 
+        document.getElementById('s-input').value += " " + type; 
+    }
+
+    function toggleWatchList() {
+        const m = document.getElementById('w-modal');
+        m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
+    }
+
+    function update() {
+        const d = dict[lang] || dict['en'] || dict['ar']; 
+        if (!d) return;
+
+        const userName = localStorage.getItem('fn') || (lang === 'ar' ? 'أيها الباحث' : 'Seeker');
+        
+        updateInviteText(lang);
+
+        document.getElementById('txt-energy').innerText = d.ui.energy;
+        document.getElementById('greeting').innerText = d.ui.welcome + " " + userName;
+        document.getElementById('txt-title').innerText = d.ui.title;
+        document.getElementById('txt-sub').innerText = d.ui.sub;
+        document.getElementById('hero-tagline').innerText = d.ui.hero_tagline;
+        document.getElementById('txt-deep').innerText = d.ui.deep;
+        document.getElementById('tag-cheap').innerText = d.ui.cheap;
+        document.getElementById('tag-top').innerText = d.ui.top;
+        document.getElementById('tag-new').innerText = d.ui.new;
+
+        document.getElementById('p-head').innerText = d.ui.p_head;
+        document.getElementById('lbl-name').innerText = d.ui.lbl_name || "اسم المستخدم";
+        document.getElementById('lbl-budget').innerText = d.ui.lbl_budget || "الميزانية ($)";
+
+        document.getElementById('cat-game').innerText = d.ui.game;
+        document.getElementById('cat-beauty').innerText = d.ui.beauty;
+        document.getElementById('cat-home').innerText = d.ui.home;
+        document.getElementById('cat-c1').innerText = d.ui.c1;
+        document.getElementById('cat-c2').innerText = d.ui.c2;
+        document.getElementById('cat-c4').innerText = d.ui.c4;
+
+        document.getElementById('txt-watch-title').innerText = d.ui.watchTitle;
+
+        document.getElementById('main-html').lang = lang;
+        document.getElementById('main-html').dir = (lang === 'ar') ? 'rtl' : 'ltr';
+    }
+
+    function updateAffiliateCard(product) {
+        const affiliateBase = "https://s.click.aliexpress.com/e/_c3Ol2SAb";
+        const safeLink = product.intelligence?.finalVerdict?.bestLink || product.link;
+
+        document.getElementById("affImage").src = product.thumbnail || product.image;
+        document.getElementById("affTitle").innerText = product.title;
+        document.getElementById("affBtn").href = affiliateBase + "?redirect=" + encodeURIComponent(safeLink);
+        document.getElementById("affiliateCard").style.display = "block";
+    }
+
+    function startVoice() {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            alert(lang === 'ar' ? "متصفحك لا يدعم البحث الصوتي" : "Speech recognition not supported in this browser");
+            return;
+        }
+        const recognition = new SpeechRecognition();
+        const micBtn = document.getElementById('mic-btn');
+        const input = document.getElementById('s-input');
+
+        recognition.lang = lang === 'ar' ? 'ar-SA' : 'en-US';
+        recognition.interimResults = false;
+
+        recognition.onstart = () => { micBtn.classList.add('mic-active'); };
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            input.value = transcript;
+            micBtn.classList.remove('mic-active');
+            runSearch();
+        };
+        recognition.onerror = () => { micBtn.classList.remove('mic-active'); };
+        recognition.onend = () => { micBtn.classList.remove('mic-active'); };
+        recognition.start();
+    }
+
+    window.onclick = function(event) {
+        if (event.target.classList.contains('modal') || event.target.classList.contains('analysis-modal')) {
+            event.target.style.display = "none";
+        }
+    }
+
+    function showUpgradeSuccess() {
+        localStorage.setItem("findly_pro", "true");
+        const lang = localStorage.getItem("findly_lang") || "ar";
+        const T = UPGRADE_SUCCESS_TEXT[lang] || UPGRADE_SUCCESS_TEXT.ar;
+
+        const overlay = document.createElement("div");
+        overlay.style = `
+            position:fixed;
+            inset:0;
+            background:rgba(0,0,0,.6);
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            z-index:9999;
+        `;
+
+        overlay.innerHTML = `
+            <div style="
+            background:#111;
+            color:#fff;
+            max-width:420px;
+            width:90%;
+            padding:24px;
+            border-radius:14px;
+            text-align:center;
+            box-shadow:0 0 30px rgba(0,0,0,.4);
+            ">
+            <h2 style="margin-bottom:12px;">${T.title}</h2>
+            <p style="opacity:.9; line-height:1.6;">${T.message}</p>
+            <p style="margin-top:10px; opacity:.7;">${T.thanks}</p>
+            <button
+                style="
+                margin-top:18px;
+                padding:12px 20px;
+                border:none;
+                border-radius:8px;
+                background:#4f46e5;
+                color:#fff;
+                cursor:pointer;
+                font-size:15px;
+                "
+                onclick="location.href='/'"
+            >
+                ${T.button}
+            </button>
+            </div>
+        `;
+
+        document.body.appendChild(overlay);
+    }
+
+    function handleUpgradeButton() {
+        const isPro = localStorage.getItem("findly_pro") === "true";
+        const upgradeBtn = document.getElementById("upgradeBtn");
+        if (!upgradeBtn) return;
+        upgradeBtn.style.display = isPro ? "none" : "inline-block";
+    }
+    
+    window.onload = () => {
+        update();
+
+        if (location.href.includes("upgrade-success")) {
+            showUpgradeSuccess();
+        }
+
+        handleUpgradeButton();
+    };
+    
+</script>
+
+<script>
+let deferredPrompt = null;
+
+const installBtn = document.createElement("button");
+installBtn.innerText = "📲 تثبيت التطبيق";
+installBtn.className = "install-btn";
+installBtn.style.display = "none";
+document.body.appendChild(installBtn);
+
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  installBtn.style.display = "block";
+});
+
+installBtn.addEventListener("click", async () => {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    installBtn.style.display = "none";
+  } else {
+    alert("اضغط من قائمة المتصفح ثم 'Add to Home Screen'");
+  }
+});
+</script>
+
+    
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js', { scope: './' })
+    .then(reg => console.log("SW Registered:", reg.scope))
+    .catch(err => console.log("SW Error:", err));
+}
+
+</script>
+ </script>
+</body>
+</html>

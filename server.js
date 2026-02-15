@@ -12,7 +12,12 @@ const { processChatMessage, supportedLanguages } = require('./chat.engine');
 const app = express();
 
 /* ================= BASIC ================= */
-app.use(cors({ origin: '*', methods: ['GET', 'POST', 'DELETE'] }));
+app.use(cors({
+  origin: "*",
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type"]
+}));
+app.options("*", cors());
 app.use(express.json());
 
 /* ================= ENV ================= */

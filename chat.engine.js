@@ -1,15 +1,16 @@
 // ================= SMART CHAT ENGINE v4.0 - MULTILINGUAL ULTRA =================
+// تم إعادة كتابة الكود بالطريقة الصحيحة
 
 const NaturalLanguageUnderstanding = {
   // قاموس المشاعر الموسع - 15 لغة
   sentimentLexicon: {
     positive: {
       ar: ["ممتاز", "رائع", "جميل", "حلو", "مذهل", "افضل", "احسنت", "شكرا", "سعيد", "محبوب", "نجاح", "ممتازة", "مبارك", "تهانينا", "سررت", "اعجبني", "واقعي", "صادق", "امين", "كويس", "حلوة", "عجبني", "روعة", "سلس", "مفيد", "رهيب"],
-      en: ["awesome", "great", "love", "amazing", "excellent", "good", "nice", "perfect", "wonderful", "fantastic", "brilliant", "superb", "happy", "thanks", "thank", "best", "cool", "love it", "awesome", "super", "incredible"],
-      fr: ["excellent", "superbe", "magnifique", "génial", "merci", "parfait", "incroyable", "merveilleux", "fantastique", "super", "génial", "j'aime", "brillant"],
+      en: ["awesome", "great", "love", "amazing", "excellent", "good", "nice", "perfect", "wonderful", "fantastic", "brilliant", "superb", "happy", "thanks", "thank", "best", "cool", "love it", "super", "incredible"],
+      fr: ["excellent", "superbe", "magnifique", "génial", "merci", "parfait", "incroyable", "merveilleux", "fantastique", "super", "j'aime", "brillant"],
       de: ["ausgezeichnet", "wunderbar", "großartig", "perfekt", "danke", "toll", "fantastisch", "brilliant", "super", "herrlich", "prima", "spitze"],
       es: ["excelente", "maravilloso", "genial", "perfecto", "gracias", "increíble", "fantástico", "brillante", "super", "magnífico", "buenísimo"],
-      tr: ["mükemmel", "harika", "süper", "mükemmel", "teşekkürler", "inanılmaz", "fantastik", "brilliant", "çok güzel", "pekala", "muhteşem"],
+      tr: ["mükemmel", "harika", "süper", "teşekkürler", "inanılmaz", "fantastik", "çok güzel", "pekala", "muhteşem"],
       it: ["eccellente", "meraviglioso", "fantastico", "perfetto", "grazie", "incredibile", "brillante", "super", "bellissimo", "ottimo"],
       pt: ["excelente", "maravilhoso", "fantástico", "perfeito", "obrigado", "incrível", "brilhante", "super", "lindo", "ótimo"],
       ru: ["отлично", "прекрасно", "замечательно", "идеально", "спасибо", "потрясающе", "блестяще", "супер", "великолепно"],
@@ -17,7 +18,7 @@ const NaturalLanguageUnderstanding = {
       ja: ["素晴らしい", "完璧", "ありがとう", "最高", "優秀", "素敵"],
       ko: ["훌륭한", "완벽한", "감사합니다", "놀라운", "최고", "멋진"],
       hi: ["बहुत अच्छा", "शानदार", "परफेक्ट", "धन्यवाद", "कमाल", "उत्कृष्ट"],
-      fa: ["عالی", "عالی", "مرسی", "فوق‌العاده", "بی‌نظیر", "محشر"]
+      fa: ["عالی", "مرسی", "فوق‌العاده", "بی‌نظیر", "محشر"]
     },
     negative: {
       ar: ["سيء", "مشكله", "غلط", "غبي", "احبط", "فشل", "خسارة", "مخيف", "محبط", "كره", "لا", "لايعجبني", "سيئة", "صعبة", "معقد", "مربك", "خاطئ", "ضعيف", "سخيف", "مقرف"],
@@ -55,8 +56,8 @@ const NaturalLanguageUnderstanding = {
 
   // كيانات قابلة للاكتشاف
   entityPatterns: {
-    price: /\b(\d+[\.,]?\d*)\s*(دولار|ريال|درهم|يورو|ليرة|دينار|جنيه|ر\.س|ر\.ق|د\.ج|د\.ت|د\.إ|\$|USD|EUR|SAR|AED|TL|EGP|\$|€|£|¥)\b/gi,
-    product: /\b(ايفون|آيفون|iphone|سامسونج|samsung|لابتوب|laptop|هاتف|phone|ساعة|watch|سماعات|headphones|كاميرا|camera|جوال|موبايل|mobile|tablet|ipad|شاشة|monitor|تلفزيون|tv|كمبيوتر|computer|سماعات|earbuds|airpods|شاحن|charger|كيبورد|keyboard|ماوس|mouse)\b/gi,
+    price: /\b(\d+[\.,]?\d*)\s*(دولار|ريال|درهم|يورو|ليرة|دينار|جنيه|ر\.س|ر\.ق|د\.ج|د\.ت|د\.إ|\$|USD|EUR|SAR|AED|TL|EGP|€|£|¥)\b/gi,
+    product: /\b(ايفون|آيفون|iphone|سامسونج|samsung|لابتوب|laptop|هاتف|phone|ساعة|watch|سماعات|headphones|كاميرا|camera|جوال|موبايل|mobile|tablet|ipad|شاشة|monitor|تلفزيون|tv|كمبيوتر|computer|earbuds|airpods|شاحن|charger|كيبورد|keyboard|ماوس|mouse)\b/gi,
     brand: /\b(apple|سوني|sony|lg|شاومي|xiaomi|هواوي|huawei|ابل|nike|نايك|adidas|اديديس|zara|زارا|samsung|سامسونج|google|جوجل|microsoft|مايكروسوفت|amazon|أمازون|lenovo|لينوفو|hp|asus|ديل|dell)\b/gi,
     number: /\b\d+\.?\d*\b/g,
     url: /https?:\/\/[^\s]+/gi,
@@ -67,7 +68,8 @@ const NaturalLanguageUnderstanding = {
   }
 };
 
-// نظام الذاكرة المتقدم
+// ================= نظام الذاكرة المتقدم =================
+
 class ConversationMemory {
   constructor() {
     this.shortTerm = {
@@ -158,6 +160,19 @@ class ConversationMemory {
 
     return patterns[lastTwo] || null;
   }
+
+  reset() {
+    this.shortTerm = {
+      lastIntents: [],
+      lastMood: "neutral",
+      lastEntities: {},
+      conversationFlow: [],
+      userPreferences: {},
+      mentionedProducts: [],
+      askedQuestions: [],
+      detectedLanguage: null
+    };
+  }
 }
 
 const memory = new ConversationMemory();
@@ -209,39 +224,25 @@ function tokenizeAdvanced(text) {
 }
 
 function detectLanguage(text) {
-  // العربية
   if (/[\u0600-\u06FF]/.test(text)) {
-    if (/چ|گ|پ|ژ/.test(text)) return 'fa'; // الفارسية
+    if (/چ|گ|پ|ژ/.test(text)) return 'fa';
     return 'ar';
   }
-  // الصينية
   if (/[\u4E00-\u9FFF]/.test(text)) return 'zh';
-  // اليابانية
   if (/[\u3040-\u309F\u30A0-\u30FF]/.test(text)) return 'ja';
-  // الكورية
   if (/[\uAC00-\uD7AF]/.test(text)) return 'ko';
-  // الروسية
   if (/[\u0400-\u04FF]/.test(text)) return 'ru';
-  // الهندية
   if (/[\u0900-\u097F]/.test(text)) return 'hi';
   
-  // اللغات اللاتينية
   const latinText = text.toLowerCase();
   
-  // الفرنسية
   if (/\b(le|la|les|un|une|des|et|est|sont|je|tu|il|elle|nous|vous|ils|elles|merci|bonjour|salut)\b/i.test(latinText)) return 'fr';
-  // الألمانية
   if (/\b(der|die|das|und|ist|sind|ich|du|er|sie|wir|ihr|danke|hallo|tschüss)\b/i.test(latinText)) return 'de';
-  // الإسبانية
   if (/\b(el|la|los|las|un|una|y|es|son|yo|tú|él|ella|nosotros|gracias|hola|adiós)\b/i.test(latinText)) return 'es';
-  // التركية
   if (/\b(ve|bir|bu|şu|o|var|yok|için|ile|ama|çünkü|teşekkürler|merhaba|güle)\b/i.test(latinText)) return 'tr';
-  // الإيطالية
   if (/\b(il|lo|la|i|gli|le|un|una|e|è|sono|io|tu|lui|lei|grazie|ciao|arrivederci)\b/i.test(latinText)) return 'it';
-  // البرتغالية
   if (/\b(o|a|os|as|um|uma|e|é|são|eu|você|ele|ela|obrigado|olá|tchau)\b/i.test(latinText)) return 'pt';
   
-  // الإنجليزية افتراضياً
   return 'en';
 }
 
@@ -264,7 +265,6 @@ function analyzeSentiment(tokens, originalText, lang) {
     if (urgentWords.some(w => token.includes(w) || w.includes(token))) urgentScore++;
   });
 
-  // تحليل علامات الترقيم والإيموجي
   const exclamations = (originalText.match(/!|！|！/g) || []).length;
   const questions = (originalText.match(/\?|？|؟/g) || []).length;
   const caps = (originalText.match(/[A-ZА-ЯЁ\u0600-\u06FF]{3,}/g) || []).length;
@@ -1087,7 +1087,6 @@ function detectIntentAdvanced(tokens, bigrams, trigrams, entities, context, lang
   intents.forEach(intent => {
     let score = 0;
     
-    // جمع الكلمات المفتاحية من جميع اللغات مع الأولوية للغة الحالية
     const currentLangKeywords = intent.keywords?.[lang] || [];
     const allKeywords = [...currentLangKeywords, ...(intent.keywords?.en || [])];
 
@@ -1096,20 +1095,19 @@ function detectIntentAdvanced(tokens, bigrams, trigrams, entities, context, lang
         if (token === keyword) score += 3;
         else if (token.includes(keyword) || keyword.includes(token)) score += 2;
       });
+    });
 
-    // مطابقة الأنماط
     if (intent.patterns) {
       const originalText = tokens.join(' ');
       intent.patterns.forEach(pattern => {
         if (pattern.test(originalText)) score += 5;
       });
+    }
 
-    // مكافأة السياق
     if (context.recentIntents.includes(intent.name)) {
       score += 1;
     }
 
-    // أولوية النية
     if (intent.priority) {
       score += intent.priority;
     }
@@ -1134,7 +1132,6 @@ function buildSmartResponse(intent, sentiment, entities, context, originalMessag
   const moodResponses = responses[sentiment.mood] || responses.neutral;
   let baseResponse = moodResponses[Math.floor(Math.random() * moodResponses.length)];
 
-  // إضافة معلومات الكيانات
   let entityInfo = "";
   
   if (entities.prices.length > 0) {
@@ -1147,7 +1144,6 @@ function buildSmartResponse(intent, sentiment, entities, context, originalMessag
     entityInfo += lang === 'ar' ? ` 📦 ${products}` : ` 📦 ${products}`;
   }
 
-  // إضافة معلومات السياق
   let contextInfo = "";
   
   if (sentiment.isUrgent) {
@@ -1158,7 +1154,6 @@ function buildSmartResponse(intent, sentiment, entities, context, originalMessag
     contextInfo += " 😊";
   }
 
-  // إضافة سؤال متابعة
   let followUp = "";
   if (intent.followUp && intent.followUp[lang]) {
     const followUps = intent.followUp[lang];
@@ -1267,94 +1262,37 @@ function generateContextualFallback(context, lang) {
   return langFallbacks.default;
 }
 
-// ================= API Endpoint الرئيسي =================
+// ================= دالة معالجة الرسائل الرئيسية =================
 
-
-// ================= ENDPOINTS إضافية =================
-
-// قائمة اللغات المدعومة
-
-// سياق المحادثة
-
-  
-  const lang = req.body.lang || 'en';
-  const messages = {
-    ar: "تم إعادة تعيين المحادثة بنجاح ✅",
-    en: "Conversation reset successfully ✅",
-    fr: "Conversation réinitialisée avec succès ✅",
-    de: "Gespräch erfolgreich zurückgesetzt ✅",
-    es: "Conversación restablecida con éxito ✅",
-    tr: "Sohbet başarıyla sıfırlandı ✅",
-    it: "Conversazione ripristinata con successo ✅",
-    pt: "Conversa reiniciada com sucesso ✅",
-    ru: "Разговор успешно сброшен ✅",
-    zh: "对话已成功重置 ✅",
-    ja: "会話が正常にリセットされました ✅",
-    ko: "대화가 성공적으로 초기화되었습니다 ✅",
-    hi: "वार्तालाप सफलतापूर्वक रीसेट किया गया ✅",
-    fa: "مکالمه با موفقیت بازنشانی شد ✅"
-  };
-  
-  res.json({ 
-    success: true, 
-    message: messages[lang] || messages.en 
-  });
-
-const suggestionSets = {
-ar: {
-      after_price: ["مقارنة بين منتجين", "أفضل العروض الحالية", "منتجات اقتصادية"],
-      after_recommendation: ["مواصفات المنتج", "تقييمات المستخدمين", "مقارنة الأسعار"],
-      default: ["أفضل المنتجات", "العروض والخصومات", "مقارنة أسعار", "توصيات ذكية"]
-    },
-    en: {
-      after_price: ["Compare two products", "Best current deals", "Budget products"],
-      after_recommendation: ["Product specifications", "User reviews", "Price comparison"],
-      default: ["Best products", "Deals and discounts", "Price comparison", "Smart recommendations"]
-    },
-    fr: {
-      after_price: ["Comparer deux produits", "Meilleures offres actuelles", "Produits économiques"],
-      after_recommendation: ["Spécifications du produit", "Avis des utilisateurs", "Comparaison des prix"],
-      default: ["Meilleurs produits", "Offres et remises", "Comparaison de prix", "Recommandations intelligentes"]
-    },
-    de: {
-      after_price: ["Zwei Produkte vergleichen", "Beste aktuelle Angebote", "Budget-Produkte"],
-      after_recommendation: ["Produktspezifikationen", "Benutzerbewertungen", "Preisvergleich"],
-      default: ["Beste Produkte", "Angebote und Rabatte", "Preisvergleich", "Smarte Empfehlungen"]
-    },
-    es: {
-      after_price: ["Comparar dos productos", "Mejores ofertas actuales", "Productos económicos"],
-      after_recommendation: ["Especificaciones del producto", "Reseñas de usuarios", "Comparación de precios"],
-      default: ["Mejores productos", "Ofertas y descuentos", "Comparación de precios", "Recomendaciones inteligentes"]
-    },
-    tr: {
-      after_price: ["İki ürünü karşılaştır", "En iyi güncel fırsatlar", "Bütçe ürünleri"],
-      after_recommendation: ["Ürün özellikleri", "Kullanıcı yorumları", "Fiyat karşılaştırması"],
-      default: ["En iyi ürünler", "Fırsatlar ve indirimler", "Fiyat karşılaştırması", "Akıllı öneriler"]
-    }
-  };
-  
-  const sets = suggestionSets[lang] || suggestionSets.en;
-  
-  if (context.recentIntents.includes("price_inquiry")) {
-    suggestions.push(...sets.after_price);
-  } else if (context.recentIntents.includes("product_recommendation")) {
-    suggestions.push(...sets.after_recommendation);
-  } else {
-    suggestions.push(...sets.default);
-  }
-  
-  res.json({ suggestions: suggestions.slice(0, 4) });
-});
-
-// معلومات المستخدم
-app.get("/chat/profile", (req, res) => {
+function processChatMessage(message) {
+  const lang = detectLanguage(message);
+  const { tokens, bigrams, trigrams } = tokenizeAdvanced(message);
+  const sentiment = analyzeSentiment(tokens, message, lang);
+  const entities = extractEntities(message);
   const context = memory.getContext();
-  res.json({
-    interactionCount: context.userProfile.interactionCount,
-    mentionedProducts: context.mentionedProducts,
-    preferredLanguage: context.detectedLanguage,
-    lastVisit: context.userProfile.lastVisit
-  });
+  const intent = detectIntentAdvanced(tokens, bigrams, trigrams, entities, context, lang);
+  
+  memory.addInteraction(intent, entities, sentiment.mood, message, lang);
+  
+  const response = buildSmartResponse(intent, sentiment, entities, context, message, lang);
+  
+  return {
+    response,
+    intent: intent.name,
+    sentiment: sentiment.mood,
+    language: lang,
+    entities: {
+      prices: entities.prices,
+      products: entities.products,
+      brands: entities.brands
+    },
+    isUrgent: sentiment.isUrgent,
+    confidence: sentiment.confidence
+  };
+}
+
+// ================= تصدير الوحدات =================
+
 module.exports = {
   memory,
   intents,
@@ -1362,5 +1300,12 @@ module.exports = {
   extractEntities,
   detectLanguage,
   supportedLanguages,
-  processChatMessage
+  processChatMessage,
+  ConversationMemory,
+  NaturalLanguageUnderstanding,
+  normalizeText,
+  tokenizeAdvanced,
+  detectIntentAdvanced,
+  buildSmartResponse,
+  generateContextualFallback
 };

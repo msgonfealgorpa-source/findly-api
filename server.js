@@ -8,13 +8,17 @@ const axios = require('axios');
 const mongoose = require('mongoose');
 const crypto = require('crypto');
 const SageCore = require('./sage-core');
-
+const { generateReply } = require("./chat.engine");
 const app = express();
 
 /* ================= BASIC ================= */
 app.use(cors({ origin: '*', methods: ['GET', 'POST'] }));
 app.use(express.json());
-
+app.post("/chat", (req, res) => {
+  const message = req.body.message || "";
+  const reply = generateReply(message);
+  res.json({ reply });
+});
 /* ================= ENV ================= */
 const PORT = process.env.PORT || 10000;
 const MONGO_URI = process.env.MONGO_URI;

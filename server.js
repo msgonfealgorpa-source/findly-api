@@ -8,9 +8,7 @@ const axios = require('axios');
 const mongoose = require('mongoose');
 const crypto = require('crypto');
 const SageCore = require('./sage-core');
-const chatEngine = require('./chat.engine');
 const { processChatMessage, supportedLanguages } = require('./chat.engine');
-
 const app = express();
 
 /* ================= BASIC ================= */
@@ -325,42 +323,24 @@ app.get('/go', (req, res) => {
     }
 });
 
-
 app.post("/chat", async (req, res) => {
-
   try {
-
     const { message, userId } = req.body;
 
     if (!message) {
       return res.status(400).json({ reply: "لا توجد رسالة" });
     }
 
-    const lang = chatEngine.detectLanguage(message);
-    const tokens = chatEngine.tokenizeAdvanced(message);
-    const sentiment = chatEngine.analyzeSentiment(tokens);
-    const entities = chatEngine.extractEntities(message);
-    const intent = chatEngine.detectIntentAdvanced(message, tokens);
+    const result = await processChatMessage(message, userId);
 
-    const reply = chatEngine.buildSmartResponse({
-      message,
-      lang,
-      sentiment,
-      intent,
-      entities,
-      userId
-    });
-
-    res.json({ reply });
+    res.json({ reply: result.reply });
 
   } catch (error) {
-
     console.error("CHAT ERROR:", error);
     res.status(500).json({ reply: "⚠️ خطأ داخلي في الشات" });
-
   }
-
 });
+
 /* ================= HEALTH CHECK ================= */
 app.get('/health', (req, res) => {
     res.json({

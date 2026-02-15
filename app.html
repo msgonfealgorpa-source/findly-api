@@ -741,16 +741,19 @@ async function sendMessage() {
   try {
 
     const response = await fetch(`${API}/chat`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        message: message,
-        userId: "guest"
-      })
-    });
-    const data = await response.json();
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    message: message
+  })
+});
+
+console.log("STATUS:", response.status);
+
+const text = await response.text();
+console.log("RAW RESPONSE:", text);
+
+const data = JSON.parse(text);
 
     addMessage("bot-msg", data.reply || "⚠️ لا يوجد رد");
 

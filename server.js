@@ -1,5 +1,5 @@
 /* =========================================
-FINDLY SERVER - COMPLETE WITH AI CHAT
+FINDLY SERVER - COMPLETE WITH GEMINI AI
 ========================================= */
 
 const express = require('express');
@@ -8,7 +8,7 @@ const axios = require('axios');
 const mongoose = require('mongoose');
 const crypto = require('crypto');
 const SageCore = require('./sage-core');
-const { processChatMessage, supportedLanguages, initZAI } = require('./chat.engine');
+const { processChatMessage, supportedLanguages } = require('./chat.engine');
 
 const app = express();
 
@@ -28,6 +28,9 @@ const SERPER_API_KEY = process.env.SERPER_API_KEY;
 const NOWPAYMENTS_IPN_SECRET = process.env.NOWPAYMENTS_IPN_SECRET;
 const NOWPAYMENTS_API_KEY = process.env.NOWPAYMENTS_API_KEY;
 
+console.log('🚀 Findly Server Starting...');
+console.log('🔑 GEMINI_API_KEY:', process.env.GEMINI_API_KEY ? '✅ Set' : '❌ Not Set');
+
 /* ================= CACHE ================= */
 const searchCache = new Map();
 const CACHE_TTL = 1000 * 60 * 60 * 24 * 2;
@@ -46,9 +49,13 @@ const setCache = (key, data) =>
     searchCache.set(key, { time: Date.now(), data });
 
 /* ================= DB ================= */
-mongoose.connect(MONGO_URI)
-    .then(() => console.log('✅ DB Connected'))
-    .catch(e => console.log('❌ DB Error', e.message));
+if (MONGO_URI) {
+    mongoose.connect(MONGO_URI)
+        .then(() => console.log('✅ DB Connected'))
+        .catch(e => console.log('❌ DB Error', e.message));
+} else {
+    console.log('⚠️ No MONGO_URI - running without DB');
+}
 
 const Energy = mongoose.model(
     'Energy',
@@ -75,12 +82,15 @@ const normalizeQuery = (q) =>
 
 const pendingSearches = new Map();
 
-/* ================= CHAT ENDPOINT - AI POWERED ================= */
+/* ================= CHAT ENDPOINT ================= */
 app.post('/chat', async (req, res) => {
     try {
         const { message, userId } = req.body;
         
-        console.log('📩 Chat Request:', { message: message?.substring(0, 50), userId });
+        console.log('📩 Chat Request:', { 
+            message: message?.substring(0, 50), 
+            userId: userId || 'guest' 
+        });
         
         if (!message || typeof message !== 'string' || message.trim() === '') {
             return res.json({
@@ -89,10 +99,9 @@ app.post('/chat', async (req, res) => {
             });
         }
         
-        // معالجة الرسالة بالذكاء الاصطناعي
         const result = await processChatMessage(message.trim(), userId || 'guest');
         
-        console.log(`💬 Chat Response: Intent=${result.intent}, Lang=${result.language}`);
+        console.log(`💬 Response: Intent=${result.intent}, Lang=${result.language}`);
         
         res.json({
             reply: result.reply || result.response,
@@ -123,11 +132,14 @@ app.get('/search', async (req, res) => {
     const { q, lang = 'ar', uid = 'guest' } = req.query;
     if (!q) return res.json({ results: [] });
 
-    let energy = await Energy.findOne({ uid });
-    if (!energy) energy = await Energy.create({ uid });
-
-    if (!energy.hasFreePass && energy.searchesUsed >= 3) {
-        return res.status(429).json({ error: 'ENERGY_EMPTY' });
+    let energy = { searchesUsed: 0, hasFreePass: true };
+    
+    if (MONGO_URI) {
+        energy = await Energy.findOne({ uid });
+        if (!energy) energy = await Energy.create({ uid });
+        if (!energy.hasFreePass && energy.searchesUsed >= 3) {
+            return res.status(429).json({ error: 'ENERGY_EMPTY' });
+        }
     }
 
     const cacheKey = normalizeQuery(q) + "_" + lang;
@@ -181,14 +193,18 @@ app.get('/search', async (req, res) => {
             };
 
             let intelligence = {};
-            if (index === 0) {
-                intelligence = SageCore(product, rawResults, [], {}, uid, null, lang);
+            if (index === 0 && SageCore) {
+                try {
+                    intelligence = SageCore(product, rawResults, [], {}, uid, null, lang);
+                } catch (e) {
+                    console.log('SageCore error:', e.message);
+                }
             }
 
             return { ...product, intelligence };
         });
 
-        if (!energy.hasFreePass) {
+        if (MONGO_URI && !energy.hasFreePass) {
             energy.searchesUsed += 1;
             await energy.save();
         }
@@ -212,7 +228,7 @@ app.get('/search', async (req, res) => {
     }
 });
 
-/* ================= PAYMENT ================= */
+/* ================= CREATE PAYMENT ================= */
 app.post('/create-payment', async (req, res) => {
     try {
         const { uid } = req.body;
@@ -231,7 +247,7 @@ app.post('/create-payment', async (req, res) => {
             },
             {
                 headers: {
-                    'x-api-key': process.env.NOWPAYMENTS_API_KEY,
+                    'x-api-key': NOWPAYMENTS_API_KEY,
                     'Content-Type': 'application/json'
                 }
             }
@@ -257,7 +273,7 @@ app.post('/nowpayments/webhook', express.raw({ type: 'application/json' }), asyn
     }
 
     const data = JSON.parse(payload);
-    if (data.payment_status === 'finished') {
+    if (data.payment_status === 'finished' && MONGO_URI) {
         const uid = data.order_id;
         let energy = await Energy.findOne({ uid });
         if (!energy) energy = await Energy.create({ uid });
@@ -287,23 +303,28 @@ app.get('/health', (req, res) => {
     res.json({
         status: 'ok',
         timestamp: new Date().toISOString(),
+        gemini: process.env.GEMINI_API_KEY ? 'configured' : 'not_configured',
         chatLanguages: Object.keys(supportedLanguages).length
+    });
+});
+
+/* ================= ROOT ================= */
+app.get('/', (req, res) => {
+    res.json({
+        name: 'Findly API',
+        version: '5.0',
+        gemini: process.env.GEMINI_API_KEY ? '✅ Active' : '❌ Not configured',
+        endpoints: {
+            chat: 'POST /chat',
+            search: 'GET /search?q=product',
+            health: 'GET /health'
+        }
     });
 });
 
 /* ================= START ================= */
 const PORT = process.env.PORT || 8080;
 
-// تهيئة ZAI قبل بدء السيرفر
-initZAI().then(() => {
-    app.listen(PORT, () => {
-        console.log(`🚀 Findly Server running on ${PORT}`);
-        console.log(`💬 AI Chat Ready with ${Object.keys(supportedLanguages).length} languages`);
-    });
-}).catch(err => {
-    console.error('❌ Failed to initialize AI:', err.message);
-    // بدء السيرفر حتى لو فشل AI
-    app.listen(PORT, () => {
-        console.log(`🚀 Findly Server running on ${PORT} (AI fallback mode)`);
-    });
-});
+app.listen(PORT, () => {
+    console.log(`🚀 Findly Server running on ${PORT}`);
+    console.log(`💬 AI Chat: ${process.env.GEMINI_API_KEY ? '✅ Gemini

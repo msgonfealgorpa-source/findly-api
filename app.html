@@ -715,6 +715,18 @@ window.logoutUser = () => {
 <script>
 const API = "https://findly-api.onrender.com";
 
+
+function toggleChatWindow() {
+  const chatWindow = document.getElementById("findly-chat-window");
+  if (!chatWindow) return;
+
+  if (chatWindow.style.display === "flex") {
+    chatWindow.style.display = "none";
+  } else {
+    chatWindow.style.display = "flex";
+  }
+}
+    
 async function sendMessage() {
 
   const input = document.getElementById("chat-input");

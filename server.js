@@ -1,5 +1,5 @@
 /* =========================================
-FINDLY SERVER - COMPLETE WITH CHAT ENGINE
+FINDLY SERVER - COMPLETE WITH AI CHAT
 ========================================= */
 
 const express = require('express');
@@ -8,7 +8,7 @@ const axios = require('axios');
 const mongoose = require('mongoose');
 const crypto = require('crypto');
 const SageCore = require('./sage-core');
-const { processChatMessage, supportedLanguages } = require('./chat.engine');
+const { processChatMessage, supportedLanguages, initZAI } = require('./chat.engine');
 
 const app = express();
 
@@ -28,7 +28,7 @@ const SERPER_API_KEY = process.env.SERPER_API_KEY;
 const NOWPAYMENTS_IPN_SECRET = process.env.NOWPAYMENTS_IPN_SECRET;
 const NOWPAYMENTS_API_KEY = process.env.NOWPAYMENTS_API_KEY;
 
-/* ================= CACHE (48H) ================= */
+/* ================= CACHE ================= */
 const searchCache = new Map();
 const CACHE_TTL = 1000 * 60 * 60 * 24 * 2;
 
@@ -75,19 +75,13 @@ const normalizeQuery = (q) =>
 
 const pendingSearches = new Map();
 
-/* ================= CHAT ENDPOINT ================= */
-/**
- * نقطة نهاية الدردشة - تم تصحيحها
- * POST /chat
- * Body: { message: string, userId?: string }
- */
+/* ================= CHAT ENDPOINT - AI POWERED ================= */
 app.post('/chat', async (req, res) => {
     try {
         const { message, userId } = req.body;
         
         console.log('📩 Chat Request:', { message: message?.substring(0, 50), userId });
         
-        // التحقق من وجود الرسالة
         if (!message || typeof message !== 'string' || message.trim() === '') {
             return res.json({
                 reply: '👋 مرحباً! كيف يمكنني مساعدتك؟',
@@ -95,25 +89,22 @@ app.post('/chat', async (req, res) => {
             });
         }
         
-        // معالجة الرسالة عبر محرك الدردشة
-        const result = processChatMessage(message.trim(), userId || 'guest');
+        // معالجة الرسالة بالذكاء الاصطناعي
+        const result = await processChatMessage(message.trim(), userId || 'guest');
         
-        console.log(`💬 Chat [${userId || 'guest'}]: "${message.substring(0, 30)}..." -> Intent: ${result.intent}`);
+        console.log(`💬 Chat Response: Intent=${result.intent}, Lang=${result.language}`);
         
-        // إرجاع الرد مع الخاصية reply (وليس response)
         res.json({
-            reply: result.response || result.reply || '🤔 عذراً، لم أفهم سؤالك.',
+            reply: result.reply || result.response,
             intent: result.intent,
             sentiment: result.sentiment,
-            language: result.language,
-            entities: result.entities
+            language: result.language
         });
         
     } catch (error) {
         console.error('❌ Chat Error:', error.message);
-        console.error('Stack:', error.stack);
         res.json({
-            reply: '🔄 عذراً، حدث خطأ في معالجة رسالتك. حاول مرة أخرى.',
+            reply: '🤔 عذراً، حدث خطأ. حاول مرة أخرى!',
             error: 'internal_error'
         });
     }
@@ -132,7 +123,6 @@ app.get('/search', async (req, res) => {
     const { q, lang = 'ar', uid = 'guest' } = req.query;
     if (!q) return res.json({ results: [] });
 
-    /* ===== ENERGY ===== */
     let energy = await Energy.findOne({ uid });
     if (!energy) energy = await Energy.create({ uid });
 
@@ -140,13 +130,10 @@ app.get('/search', async (req, res) => {
         return res.status(429).json({ error: 'ENERGY_EMPTY' });
     }
 
-    /* ===== CACHE ===== */
     const cacheKey = normalizeQuery(q) + "_" + lang;
     const cached = getCache(cacheKey);
     if (cached) {
-        cached.energy.left = energy.hasFreePass
-            ? '∞'
-            : Math.max(0, 3 - energy.searchesUsed);
+        cached.energy.left = energy.hasFreePass ? '∞' : Math.max(0, 3 - energy.searchesUsed);
         return res.json(cached);
     }
 
@@ -156,20 +143,15 @@ app.get('/search', async (req, res) => {
             return res.json(data);
         }
 
-        /* ===== SEARCH API ===== */
         const searchPromise = (async () => {
-            const apiRes = await axios.get(
-                'https://www.searchapi.io/api/v1/search',
-                {
-                    params: {
-                        api_key: SEARCHAPI_KEY,
-                        engine: 'google_shopping',
-                        q,
-                        hl: lang === 'ar' ? 'ar' : 'en',
-                    }
+            return await axios.get('https://www.searchapi.io/api/v1/search', {
+                params: {
+                    api_key: SEARCHAPI_KEY,
+                    engine: 'google_shopping',
+                    q,
+                    hl: lang === 'ar' ? 'ar' : 'en',
                 }
-            );
-            return apiRes;
+            });
         })();
 
         pendingSearches.set(cacheKey, searchPromise);
@@ -185,7 +167,6 @@ app.get('/search', async (req, res) => {
         const filteredResults = rawResults.filter(item =>
             item.title?.toLowerCase().includes(q.toLowerCase())
         );
-
         const baseResults = filteredResults.length ? filteredResults : rawResults;
 
         const results = baseResults.map((item, index) => {
@@ -200,24 +181,11 @@ app.get('/search', async (req, res) => {
             };
 
             let intelligence = {};
-
             if (index === 0) {
-                intelligence = SageCore(
-                    product,
-                    rawResults,
-                    [],
-                    {},
-                    uid,
-                    null,
-                    lang
-                );
-                console.log("FINAL VERDICT:", intelligence.finalVerdict);
+                intelligence = SageCore(product, rawResults, [], {}, uid, null, lang);
             }
 
-            return {
-                ...product,
-                intelligence
-            };
+            return { ...product, intelligence };
         });
 
         if (!energy.hasFreePass) {
@@ -231,9 +199,7 @@ app.get('/search', async (req, res) => {
             energy: {
                 used: energy.searchesUsed,
                 limit: energy.hasFreePass ? '∞' : 3,
-                left: energy.hasFreePass
-                    ? '∞'
-                    : Math.max(0, 3 - energy.searchesUsed)
+                left: energy.hasFreePass ? '∞' : Math.max(0, 3 - energy.searchesUsed)
             }
         };
 
@@ -241,18 +207,16 @@ app.get('/search', async (req, res) => {
         res.json(responseData);
 
     } catch (e) {
-        console.error('❌ SEARCH ERROR FULL:', e.response?.data || e.message);
+        console.error('❌ SEARCH ERROR:', e.response?.data || e.message);
         res.json({ error: 'SEARCH_FAILED', results: [] });
     }
 });
 
-/* ================= CREATE PAYMENT ================= */
+/* ================= PAYMENT ================= */
 app.post('/create-payment', async (req, res) => {
     try {
         const { uid } = req.body;
-        if (!uid) {
-            return res.status(400).json({ error: 'UID_REQUIRED' });
-        }
+        if (!uid) return res.status(400).json({ error: 'UID_REQUIRED' });
 
         const response = await axios.post(
             'https://api.nowpayments.io/v1/invoice',
@@ -273,73 +237,52 @@ app.post('/create-payment', async (req, res) => {
             }
         );
 
-        return res.json({
-            url: response.data.invoice_url
-        });
+        return res.json({ url: response.data.invoice_url });
 
     } catch (err) {
-        console.error(
-            '❌ NOWPayments create-payment error:',
-            err.response?.data || err.message
-        );
+        console.error('❌ Payment Error:', err.response?.data || err.message);
         return res.status(500).json({ error: 'PAYMENT_FAILED' });
     }
 });
 
-/* ================= PAYMENTS WEBHOOK ================= */
-app.post(
-    '/nowpayments/webhook',
-    express.raw({ type: 'application/json' }),
-    async (req, res) => {
-        const sig = req.headers['x-nowpayments-sig'];
-        const payload = req.body.toString();
+/* ================= WEBHOOK ================= */
+app.post('/nowpayments/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+    const sig = req.headers['x-nowpayments-sig'];
+    const payload = req.body.toString();
 
-        const expected = crypto
-            .createHmac('sha512', NOWPAYMENTS_IPN_SECRET)
-            .update(payload)
-            .digest('hex');
+    const expected = crypto.createHmac('sha512', NOWPAYMENTS_IPN_SECRET).update(payload).digest('hex');
 
-        if (sig !== expected) {
-            return res.status(403).json({ error: 'INVALID_SIGNATURE' });
-        }
-
-        const data = JSON.parse(payload);
-        if (data.payment_status === 'finished') {
-            const uid = data.order_id;
-            let energy = await Energy.findOne({ uid });
-            if (!energy) energy = await Energy.create({ uid });
-            energy.hasFreePass = true;
-            energy.searchesUsed = 0;
-            await energy.save();
-        }
-
-        res.json({ success: true });
+    if (sig !== expected) {
+        return res.status(403).json({ error: 'INVALID_SIGNATURE' });
     }
-);
+
+    const data = JSON.parse(payload);
+    if (data.payment_status === 'finished') {
+        const uid = data.order_id;
+        let energy = await Energy.findOne({ uid });
+        if (!energy) energy = await Energy.create({ uid });
+        energy.hasFreePass = true;
+        energy.searchesUsed = 0;
+        await energy.save();
+    }
+
+    res.json({ success: true });
+});
 
 /* ================= REDIRECT ================= */
 app.get('/go', (req, res) => {
     const { url } = req.query;
-
-    if (!url) {
-        return res.status(400).send("No URL provided");
-    }
-
+    if (!url) return res.status(400).send("No URL provided");
     try {
         const decodedUrl = decodeURIComponent(url);
-
-        if (!/^https?:\/\//i.test(decodedUrl)) {
-            return res.status(400).send("Invalid URL");
-        }
-
+        if (!/^https?:\/\//i.test(decodedUrl)) return res.status(400).send("Invalid URL");
         return res.redirect(decodedUrl);
-
     } catch (err) {
         return res.status(500).send("Redirect error");
     }
 });
 
-/* ================= HEALTH CHECK ================= */
+/* ================= HEALTH ================= */
 app.get('/health', (req, res) => {
     res.json({
         status: 'ok',
@@ -351,7 +294,16 @@ app.get('/health', (req, res) => {
 /* ================= START ================= */
 const PORT = process.env.PORT || 8080;
 
-app.listen(PORT, () => {
-    console.log(`🚀 Findly Server running on ${PORT}`);
-    console.log(`💬 Chat Engine Ready with ${Object.keys(supportedLanguages).length} languages`);
+// تهيئة ZAI قبل بدء السيرفر
+initZAI().then(() => {
+    app.listen(PORT, () => {
+        console.log(`🚀 Findly Server running on ${PORT}`);
+        console.log(`💬 AI Chat Ready with ${Object.keys(supportedLanguages).length} languages`);
+    });
+}).catch(err => {
+    console.error('❌ Failed to initialize AI:', err.message);
+    // بدء السيرفر حتى لو فشل AI
+    app.listen(PORT, () => {
+        console.log(`🚀 Findly Server running on ${PORT} (AI fallback mode)`);
+    });
 });

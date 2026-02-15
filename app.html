@@ -498,7 +498,24 @@
 </style>
 </head>
 <body>
-<div id="auth-overlay" class="auth-overlay">
+
+    <div id="chat-widget-button" onclick="toggleChat()">
+    <span>💬</span>
+</div>
+
+<div id="chat-container">
+    <div id="chat-header">
+        <strong>Findly AI</strong>
+        <span onclick="toggleChat()" style="cursor:pointer">✖</span>
+    </div>
+    <div id="chat-messages"></div>
+    <div id="chat-input-area">
+        <input type="text" id="user-input" placeholder="اكتب رسالتك هنا..." onkeypress="handleKey(event)">
+        <button onclick="sendMessage()">إرسال</button>
+    </div>
+</div>
+    
+    <div id="auth-overlay" class="auth-overlay">
     <div class="auth-card">
         <div class="auth-header">
             <h1 class="logo-text">Findly <span>Sage</span></h1>
@@ -1877,34 +1894,44 @@ margin-bottom: 10px;
 </div>
 
 <script>
-const chatBtn = document.getElementById("openChat");
-const chatBox = document.getElementById("chatContainer");
-const sendBtn = document.getElementById("sendBtn");
-const chatMessages = document.getElementById("chatMessages");
+const SERVER_URL = "http://localhost:10000"; // تأكد من رقم البورت الخاص بك
 
-chatBtn.onclick = () => {
-  chatBox.style.display =
-    chatBox.style.display === "none" ? "flex" : "none";
-};
+function toggleChat() {
+    const chat = document.getElementById('chat-container');
+    chat.style.display = chat.style.display === 'flex' ? 'none' : 'flex';
+}
 
-sendBtn.onclick = async () => {
-  const input = document.getElementById("messageInput");
-  const message = input.value;
-  if (!message) return;
+async function sendMessage() {
+    const input = document.getElementById('user-input');
+    const message = input.value.trim();
+    if (!message) return;
 
-  chatMessages.innerHTML += "<div><b>أنت:</b> " + message + "</div>";
+    appendMessage('user', message);
+    input.value = '';
 
-  const response = await fetch("https://findly-api.onrender.com/chat", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message })
-  });
+    try {
+        const response = await fetch(`${SERVER_URL}/chat`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message })
+        });
+        
+        const data = await response.json();
+        appendMessage('bot', data.reply);
+    } catch (error) {
+        appendMessage('bot', "❌ عذراً، لا يمكنني الاتصال بالسيرفر حالياً.");
+    }
+}
 
-  const data = await response.json();
+function appendMessage(sender, text) {
+    const msgDiv = document.createElement('div');
+    msgDiv.className = `msg ${sender}`;
+    msgDiv.innerText = text;
+    document.getElementById('chat-messages').appendChild(msgDiv);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
 
-  chatMessages.innerHTML += "<div><b>البوت:</b> " + data.reply + "</div>";
-  input.value = "";
-};
+function handleKey(e) { if (e.key === 'Enter') sendMessage(); }
 </script>
 
 </body>

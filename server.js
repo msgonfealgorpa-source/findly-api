@@ -13,6 +13,7 @@ const app = express();
 
 /* ================= BASIC ================= */
 app.use(cors({ origin: '*', methods: ['GET', 'POST'] }));
+app.use(chatRouter);
 app.use(express.json());
 
 /* ================= ENV ================= */

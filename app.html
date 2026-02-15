@@ -750,11 +750,6 @@ async function sendMessage() {
         userId: "guest"
       })
     });
-
-    if (!response.ok) {
-      throw new Error("Server error");
-    }
-
     const data = await response.json();
 
     addMessage("bot-msg", data.reply || "⚠️ لا يوجد رد");

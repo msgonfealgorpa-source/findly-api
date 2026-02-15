@@ -1271,103 +1271,13 @@ function generateContextualFallback(context, lang) {
 
 // ================= API Endpoint الرئيسي =================
 
-app.post("/chat", async (req, res) => {
-  try {
-    const message = req.body.message || "";
-    const userId = req.body.userId || "guest";
-    
-    if (!message.trim()) {
-      return res.json({
-        reply: "👋",
-        error: "empty_message"
-      });
-    }
-
-    // اكتشاف اللغة
-    const lang = detectLanguage(message);
-    
-    // معالجة النص
-    const { tokens, bigrams, trigrams, original } = tokenizeAdvanced(message);
-    
-    // تحليل المشاعر
-    const sentiment = analyzeSentiment(tokens, message, lang);
-    
-    // استخراج الكيانات
-    const entities = extractEntities(message);
-    
-    // الحصول على السياق
-    const context = memory.getContext();
-    
-    // اكتشاف النية
-    const intent = detectIntentAdvanced(tokens, bigrams, trigrams, entities, context, lang);
-    
-    // تخزين التفاعل
-    memory.addInteraction(intent, entities, sentiment.mood, message, lang);
-    
-    // بناء الرد
-    const reply = buildSmartResponse(intent, sentiment, entities, context, message, lang);
-
-    // الاقتراحات
-    const suggestions = intent.followUp?.[lang]?.slice(0, 2) || [];
-
-    // الرد
-    res.json({
-      reply,
-      lang: {
-        detected: lang,
-        name: supportedLanguages[lang]?.name || lang,
-        flag: supportedLanguages[lang]?.flag || "🌐"
-      },
-      suggestions,
-      debug: process.env.NODE_ENV === 'development' ? {
-        intent: intent.name,
-        mood: sentiment.mood,
-        confidence: sentiment.confidence,
-        isUrgent: sentiment.isUrgent,
-        entities: {
-          prices: entities.prices.length,
-          products: entities.products.length,
-          brands: entities.brands.length
-        }
-      } : undefined
-    });
-
-  } catch (error) {
-    console.error("Chat Error:", error);
-    res.json({
-      reply: "🔄",
-      error: "internal_error"
-    });
-  }
-});
 
 // ================= ENDPOINTS إضافية =================
 
 // قائمة اللغات المدعومة
-app.get("/chat/languages", (req, res) => {
-  res.json({
-    supported: supportedLanguages,
-    total: Object.keys(supportedLanguages).length
-  });
-});
 
 // سياق المحادثة
-app.get("/chat/context", (req, res) => {
-  res.json(memory.getContext());
-});
 
-// إعادة تعيين المحادثة
-app.post("/chat/reset", (req, res) => {
-  memory.shortTerm = {
-    lastIntents: [],
-    lastMood: "neutral",
-    lastEntities: {},
-    conversationFlow: [],
-    userPreferences: {},
-    mentionedProducts: [],
-    askedQuestions: [],
-    detectedLanguage: null
-  };
   
   const lang = req.body.lang || 'en';
   const messages = {
@@ -1394,12 +1304,7 @@ app.post("/chat/reset", (req, res) => {
 });
 
 // الاقتراحات الذكية
-app.get("/chat/suggestions", (req, res) => {
-  const context = memory.getContext();
-  const lang = context.detectedLanguage || 'en';
-  const suggestions = [];
-  
-  const suggestionSets = {
+
     ar: {
       after_price: ["مقارنة بين منتجين", "أفضل العروض الحالية", "منتجات اقتصادية"],
       after_recommendation: ["مواصفات المنتج", "تقييمات المستخدمين", "مقارنة الأسعار"],

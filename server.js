@@ -325,66 +325,42 @@ app.get('/go', (req, res) => {
     }
 });
 
-app.post("/chat", async (req, res) => {
-  try {
-    const message = req.body.message || "";
-    const userId = req.body.userId || "guest";
 
-    if (!message.trim()) {
-      return res.json({ reply: "", error: "empty_message" });
+app.post("/chat", async (req, res) => {
+
+  try {
+
+    const { message, userId } = req.body;
+
+    if (!message) {
+      return res.status(400).json({ reply: "لا توجد رسالة" });
     }
 
     const lang = chatEngine.detectLanguage(message);
+    const tokens = chatEngine.tokenizeAdvanced(message);
+    const sentiment = chatEngine.analyzeSentiment(tokens);
+    const entities = chatEngine.extractEntities(message);
+    const intent = chatEngine.detectIntentAdvanced(message, tokens);
 
-    const { tokens, bigrams, trigrams } =
-      chatEngine.tokenizeAdvanced(message);
-
-    const sentiment =
-      chatEngine.analyzeSentiment(tokens, message, lang);
-
-    const entities =
-      chatEngine.extractEntities(message);
-
-    const context =
-      chatEngine.memory.getContext(userId);
-
-    const intent =
-      chatEngine.detectIntentAdvanced(
-        tokens,
-        bigrams,
-        trigrams,
-        entities,
-        context,
-        lang
-      );
-
-    chatEngine.memory.addInteraction(
-      userId,
+    const reply = chatEngine.buildSmartResponse({
+      message,
+      lang,
+      sentiment,
       intent,
       entities,
-      sentiment.mood,
-      message,
-      lang
-    );
-
-    const reply =
-      chatEngine.buildSmartResponse(
-        intent,
-        sentiment,
-        entities,
-        context,
-        message,
-        lang
-      );
+      userId
+    });
 
     res.json({ reply });
 
   } catch (error) {
-    console.error("Chat Error:", error);
-    res.json({ reply: "", error: "internal_error" });
-  }
-});
 
+    console.error("CHAT ERROR:", error);
+    res.status(500).json({ reply: "⚠️ خطأ داخلي في الشات" });
+
+  }
+
+});
 /* ================= HEALTH CHECK ================= */
 app.get('/health', (req, res) => {
     res.json({

@@ -1303,9 +1303,8 @@ function generateContextualFallback(context, lang) {
   });
 });
 
-// الاقتراحات الذكية
-
-    ar: {
+const suggestionSets = {
+ar: {
       after_price: ["مقارنة بين منتجين", "أفضل العروض الحالية", "منتجات اقتصادية"],
       after_recommendation: ["مواصفات المنتج", "تقييمات المستخدمين", "مقارنة الأسعار"],
       default: ["أفضل المنتجات", "العروض والخصومات", "مقارنة أسعار", "توصيات ذكية"]

@@ -13,9 +13,8 @@ const app = express();
 
 /* ================= BASIC ================= */
 app.use(cors({ origin: '*', methods: ['GET', 'POST'] }));
-app.use(chatRouter);
 app.use(express.json());
-
+app.use(chatRouter);
 /* ================= ENV ================= */
 const PORT = process.env.PORT || 10000;
 const MONGO_URI = process.env.MONGO_URI;

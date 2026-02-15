@@ -335,7 +335,14 @@ app.post("/chat", async (req, res) => {
       return res.status(400).json({ reply: "لا توجد رسالة" });
     }
 
-    const result = await processChatMessage(message, userId);
+    let result;
+
+try {
+  result = await processChatMessage(message, userId);
+} catch (err) {
+  console.error("PROCESS CHAT CRASH:", err);
+  return res.status(500).json({ reply: "❌ خطأ داخل processChatMessage" });
+}
 console.log("CHAT RESULT:", result);
     res.json({ reply: result.reply });
 

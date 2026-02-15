@@ -433,7 +433,69 @@
             #results { flex: 2; }
             .affiliate-card { flex: 1; position: relative; top: auto; max-width: 140px; }
         }
-    </style>
+
+        #chatContainer {
+  display: none;
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  width: 320px;
+  height: 420px;
+  background: #1e1e1e;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.4);
+  padding: 12px;
+  flex-direction: column;
+  font-family: Arial;
+}
+
+#chatMessages {
+  flex: 1;
+  overflow-y: auto;
+  color: white;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+#messageInput {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: none;
+  outline: none;
+}
+
+#sendBtn {
+  width: 100%;
+  margin-top: 6px;
+  padding: 8px;
+  border: none;
+  border-radius: 6px;
+  background: #4CAF50;
+  color: white;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+#sendBtn:hover {
+  background: #43a047;
+}
+
+#openChat {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  padding: 15px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.4);
+}
+    
+</style>
 </head>
 <body>
 <div id="auth-overlay" class="auth-overlay">
@@ -1832,7 +1894,7 @@ sendBtn.onclick = async () => {
 
   chatMessages.innerHTML += "<div><b>أنت:</b> " + message + "</div>";
 
-  const response = await fetch("https://your-domain.com/chat", {
+  const response = await fetch("https://findly-api.onrender.com/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ message })

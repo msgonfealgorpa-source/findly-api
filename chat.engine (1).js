@@ -1361,13 +1361,12 @@ app.get("/chat/profile", (req, res) => {
   });
 });
 
-module.exports = { 
-  chatEngine: { 
-    memory, 
-    intents, 
-    analyzeSentiment, 
-    extractEntities,
-    detectLanguage,
-    supportedLanguages
-  } 
+module.exports = {
+  memory,
+  intents,
+  analyzeSentiment,
+  extractEntities,
+  detectLanguage,
+  supportedLanguages,
+  processChatMessage
 };

@@ -8,6 +8,7 @@ const axios = require('axios');
 const mongoose = require('mongoose');
 const crypto = require('crypto');
 const SageCore = require('./sage-core');
+const chatEngine = require('./chat.engine');
 const { processChatMessage, supportedLanguages } = require('./chat.engine');
 
 const app = express();
@@ -324,7 +325,65 @@ app.get('/go', (req, res) => {
     }
 });
 
+app.post("/chat", async (req, res) => {
+  try {
+    const message = req.body.message || "";
+    const userId = req.body.userId || "guest";
 
+    if (!message.trim()) {
+      return res.json({ reply: "", error: "empty_message" });
+    }
+
+    const lang = chatEngine.detectLanguage(message);
+
+    const { tokens, bigrams, trigrams } =
+      chatEngine.tokenizeAdvanced(message);
+
+    const sentiment =
+      chatEngine.analyzeSentiment(tokens, message, lang);
+
+    const entities =
+      chatEngine.extractEntities(message);
+
+    const context =
+      chatEngine.memory.getContext(userId);
+
+    const intent =
+      chatEngine.detectIntentAdvanced(
+        tokens,
+        bigrams,
+        trigrams,
+        entities,
+        context,
+        lang
+      );
+
+    chatEngine.memory.addInteraction(
+      userId,
+      intent,
+      entities,
+      sentiment.mood,
+      message,
+      lang
+    );
+
+    const reply =
+      chatEngine.buildSmartResponse(
+        intent,
+        sentiment,
+        entities,
+        context,
+        message,
+        lang
+      );
+
+    res.json({ reply });
+
+  } catch (error) {
+    console.error("Chat Error:", error);
+    res.json({ reply: "", error: "internal_error" });
+  }
+});
 
 /* ================= HEALTH CHECK ================= */
 app.get('/health', (req, res) => {

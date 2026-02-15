@@ -8,7 +8,7 @@ const axios = require('axios');
 const mongoose = require('mongoose');
 const crypto = require('crypto');
 const SageCore = require('./sage-core');
-
+const chatRouter = require('./chat.engine');
 const app = express();
 
 /* ================= BASIC ================= */

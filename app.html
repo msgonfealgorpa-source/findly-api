@@ -434,47 +434,63 @@
             .affiliate-card { flex: 1; position: relative; top: auto; max-width: 140px; }
         }
 
-        #chat-widget-button {
+
+:root { --primary-color: #2563eb; }
+
+#findly-chat-bubble {
     position: fixed; bottom: 20px; right: 20px;
-    width: 60px; height: 60px; background: #007bff;
-    border-radius: 50%; display: flex; align-items: center;
-    justify-content: center; color: white; font-size: 30px;
-    cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    z-index: 1000; transition: transform 0.3s;
+    width: 60px; height: 60px; background: var(--primary-color);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    color: white; cursor: pointer; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+    z-index: 9999; transition: all 0.3s ease;
 }
 
-#chat-container {
+#findly-chat-bubble:hover { transform: scale(1.1); }
+
+#findly-chat-window {
     position: fixed; bottom: 90px; right: 20px;
-    width: 350px; height: 450px; background: white;
-    border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    display: none; flex-direction: column; overflow: hidden; z-index: 1000;
+    width: 350px; max-width: 90vw; height: 500px;
+    background: white; border-radius: 15px; display: none;
+    flex-direction: column; box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    z-index: 9999; overflow: hidden; font-family: sans-serif;
 }
 
-#chat-header { background: #007bff; color: white; padding: 15px; display: flex; justify-content: space-between; }
-#chat-messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #f9f9f9; }
-.msg { padding: 8px 12px; border-radius: 10px; max-width: 80%; font-size: 14px; }
-.user { align-self: flex-end; background: #007bff; color: white; }
-.bot { align-self: flex-start; background: #e9e9e9; color: #333; }
-#chat-input-area { display: flex; padding: 10px; border-top: 1px solid #eee; }
-#user-input { flex: 1; border: 1px solid #ddd; padding: 8px; border-radius: 5px; outline: none; }
-    
+.chat-header { background: var(--primary-color); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+.status-dot { width: 8px; height: 8px; background: #4ade80; border-radius: 50%; margin-right: 8px; display: inline-block; }
+
+.chat-content { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #f8fafc; }
+.message { padding: 10px 14px; border-radius: 12px; font-size: 14px; line-height: 1.4; max-width: 80%; }
+.bot-msg { background: white; border: 1px solid #e2e8f0; align-self: flex-start; }
+.user-msg { background: var(--primary-color); color: white; align-self: flex-end; }
+
+.chat-input-container { padding: 15px; display: flex; gap: 8px; border-top: 1px solid #e2e8f0; }
+#chat-input { flex: 1; border: 1px solid #e2e8f0; padding: 10px; border-radius: 8px; outline: none; }
+#send-btn { background: var(--primary-color); border: none; color: white; padding: 8px; border-radius: 8px; cursor: pointer; }
+        
 </style>
 </head>
 <body>
 
-    <div id="chat-widget-button" onclick="toggleChat()">
-    <span>💬</span>
+    <div id="findly-chat-bubble" onclick="toggleChatWindow()">
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
 </div>
 
-<div id="chat-container">
-    <div id="chat-header">
-        <strong>Findly AI</strong>
-        <span onclick="toggleChat()" style="cursor:pointer">✖</span>
+<div id="findly-chat-window">
+    <div class="chat-header">
+        <div class="bot-info">
+            <div class="status-dot"></div>
+            <span>Findly AI Assistant</span>
+        </div>
+        <button onclick="toggleChatWindow()" class="close-btn">&times;</button>
     </div>
-    <div id="chat-messages"></div>
-    <div id="chat-input-area">
-        <input type="text" id="user-input" placeholder="اكتب رسالتك هنا..." onkeypress="handleKey(event)">
-        <button onclick="sendMessage()">إرسال</button>
+    <div id="chat-content" class="chat-content">
+        <div class="message bot-msg">مرحباً! كيف يمكنني مساعدتك اليوم في العثور على أفضل المنتجات؟</div>
+    </div>
+    <div class="chat-input-container">
+        <input type="text" id="chat-input" placeholder="اكتب رسالتك..." onkeypress="checkEnter(event)">
+        <button onclick="sendMessage()" id="send-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+        </button>
     </div>
 </div>
     
@@ -1857,44 +1873,60 @@ margin-bottom: 10px;
 </div>
 
 <script>
-const SERVER_URL = "http://localhost:10000"; // تأكد من رقم البورت الخاص بك
+// ✅ تم تحديث الرابط ليتصل بسيرفرك على Render مباشرة
+const API_URL = "https://findly-api.onrender.com/chat";
 
-function toggleChat() {
-    const chat = document.getElementById('chat-container');
-    chat.style.display = chat.style.display === 'flex' ? 'none' : 'flex';
+function toggleChatWindow() {
+    const window = document.getElementById('findly-chat-window');
+    window.style.display = (window.style.display === 'flex') ? 'none' : 'flex';
+}
+
+function checkEnter(event) {
+    if (event.key === 'Enter') sendMessage();
 }
 
 async function sendMessage() {
-    const input = document.getElementById('user-input');
-    const message = input.value.trim();
-    if (!message) return;
+    const input = document.getElementById('chat-input');
+    const content = document.getElementById('chat-content');
+    const text = input.value.trim();
 
-    appendMessage('user', message);
+    if (!text) return;
+
+    // إضافة رسالة المستخدم للواجهة
+    appendMessage('user-msg', text);
     input.value = '';
 
+    // إظهار علامة التحميل البسيطة
+    const loadingId = 'loading-' + Date.now();
+    appendMessage('bot-msg', '...', loadingId);
+
     try {
-        const response = await fetch(`${SERVER_URL}/chat`, {
+        const response = await fetch(API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: message })
+            body: JSON.stringify({ message: text })
         });
-        
+
         const data = await response.json();
-        appendMessage('bot', data.reply);
+        
+        // إزالة علامة التحميل ووضع الرد الحقيقي
+        document.getElementById(loadingId).innerText = data.reply || "لم أستطع فهم ذلك، جرب مرة أخرى.";
+
     } catch (error) {
-        appendMessage('bot', "❌ عذراً، لا يمكنني الاتصال بالسيرفر حالياً.");
+        document.getElementById(loadingId).innerText = "❌ فشل الاتصال بالسيرفر. تأكد أن السيرفر يعمل.";
+        console.error("Error:", error);
     }
 }
 
-function appendMessage(sender, text) {
-    const msgDiv = document.createElement('div');
-    msgDiv.className = `msg ${sender}`;
-    msgDiv.innerText = text;
-    document.getElementById('chat-messages').appendChild(msgDiv);
-    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+function appendMessage(className, text, id = null) {
+    const container = document.getElementById('chat-content');
+    const div = document.createElement('div');
+    div.className = `message ${className}`;
+    if (id) div.id = id;
+    div.innerText = text;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight; // النزول لآخر رسالة
 }
-
-function handleKey(e) { if (e.key === 'Enter') sendMessage(); }
 </script>
 
 </body>

@@ -323,26 +323,8 @@ app.get('/go', (req, res) => {
         return res.status(500).send("Redirect error");
     }
 });
-/* ================= CHAT ENDPOINT (أضف هذا الجزء) ================= */
-app.post('/chat', async (req, res) => {
-    try {
-        const { message, uid } = req.body; // نستقبل الرسالة ومعرف المستخدم
 
-        if (!message) {
-            return res.status(400).json({ error: "Message is required" });
-        }
 
-        // استدعاء دالة المعالجة من ملف chat.engine.js
-        const response = processChatMessage(message, uid || 'guest');
-
-        // إرسال الرد إلى الواجهة الأمامية
-        res.json(response);
-
-    } catch (error) {
-        console.error("Chat Error:", error);
-        res.status(500).json({ reply: "حدث خطأ في الخادم، يرجى المحاولة لاحقاً." });
-    }
-});
 
 /* ================= HEALTH CHECK ================= */
 app.get('/health', (req, res) => {

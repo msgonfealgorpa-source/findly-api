@@ -1,16 +1,18 @@
-// ================= SMART CHAT ENGINE v5.0 - GEMINI AI FREE =================
-// محرك دردشة ذكي مدعوم بـ Google Gemini - مجاني للأبد
+/* =========================================
+SMART CHAT ENGINE v5.0 - GEMINI AI
+Intelligent Shopping Assistant
+========================================= */
 
 const axios = require('axios');
 
-// ================= إعدادات Gemini =================
+// ================= CONFIGURATION =================
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
-const GEMINI_MODEL = 'gemini-1.5-flash'; // مجاني وسريع
+const GEMINI_MODEL = 'gemini-1.5-flash';
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
-// ================= دعم اللغات =================
+// ================= SUPPORTED LANGUAGES =================
 const supportedLanguages = {
-    ar: { name: "العربية", native: "العربية", dir: "rtl", flag: "🇸🇦" },
+    ar: { name: "Arabic", native: "العربية", dir: "rtl", flag: "🇸🇦" },
     en: { name: "English", native: "English", dir: "ltr", flag: "🇺🇸" },
     fr: { name: "French", native: "Français", dir: "ltr", flag: "🇫🇷" },
     de: { name: "German", native: "Deutsch", dir: "ltr", flag: "🇩🇪" },
@@ -26,17 +28,19 @@ const supportedLanguages = {
     fa: { name: "Persian", native: "فارسی", dir: "rtl", flag: "🇮🇷" }
 };
 
-// ================= نظام ذاكرة المحادثات =================
+// ================= CONVERSATION MEMORY =================
 class ConversationMemory {
     constructor() {
         this.sessions = new Map();
+        this.maxMessages = 20;
     }
 
     getSession(sessionId) {
         if (!this.sessions.has(sessionId)) {
             this.sessions.set(sessionId, {
                 messages: [],
-                language: null
+                language: null,
+                createdAt: Date.now()
             });
         }
         return this.sessions.get(sessionId);
@@ -44,9 +48,15 @@ class ConversationMemory {
 
     addMessage(sessionId, role, content) {
         const session = this.getSession(sessionId);
-        session.messages.push({ role, content });
-        if (session.messages.length > 20) {
-            session.messages = session.messages.slice(-20);
+        session.messages.push({ 
+            role, 
+            content, 
+            timestamp: Date.now() 
+        });
+        
+        // Keep only last N messages
+        if (session.messages.length > this.maxMessages) {
+            session.messages = session.messages.slice(-this.maxMessages);
         }
     }
 
@@ -65,229 +75,175 @@ class ConversationMemory {
     clearSession(sessionId) {
         this.sessions.delete(sessionId);
     }
+
+    // Clean old sessions (run periodically)
+    cleanOldSessions(maxAge = 3600000) { // 1 hour
+        const now = Date.now();
+        for (const [id, session] of this.sessions) {
+            if (now - session.createdAt > maxAge) {
+                this.sessions.delete(id);
+            }
+        }
+    }
 }
 
 const memory = new ConversationMemory();
 
-// ================= كشف اللغة =================
+// Clean old sessions every 30 minutes
+setInterval(() => memory.cleanOldSessions(), 1800000);
+
+// ================= LANGUAGE DETECTION =================
 function detectLanguage(text) {
+    // Arabic
     if (/[\u0600-\u06FF]/.test(text)) {
-        if (/چ|گ|پ|ژ/.test(text)) return 'fa';
+        if (/چ|گ|پ|ژ/.test(text)) return 'fa'; // Persian
         return 'ar';
     }
+    // Chinese
     if (/[\u4E00-\u9FFF]/.test(text)) return 'zh';
+    // Japanese
     if (/[\u3040-\u309F\u30A0-\u30FF]/.test(text)) return 'ja';
+    // Korean
     if (/[\uAC00-\uD7AF]/.test(text)) return 'ko';
+    // Russian
     if (/[\u0400-\u04FF]/.test(text)) return 'ru';
+    // Hindi
     if (/[\u0900-\u097F]/.test(text)) return 'hi';
     
+    // European languages by keywords
     const lowerText = text.toLowerCase();
-    if (/\b(le|la|les|bonjour|merci|salut)\b/.test(lowerText)) return 'fr';
-    if (/\b(der|die|das|hallo|danke)\b/.test(lowerText)) return 'de';
-    if (/\b(hola|gracias|buenos)\b/.test(lowerText)) return 'es';
-    if (/\b(merhaba|teşekkür|nasıl)\b/.test(lowerText)) return 'tr';
-    if (/\b(ciao|grazie|come)\b/.test(lowerText)) return 'it';
-    if (/\b(olá|obrigado|como)\b/.test(lowerText)) return 'pt';
+    if (/\b(le|la|les|bonjour|merci|salut|comment|pourquoi)\b/.test(lowerText)) return 'fr';
+    if (/\b(der|die|das|hallo|danke|wie|warum|was)\b/.test(lowerText)) return 'de';
+    if (/\b(hola|gracias|buenos|como|por|que)\b/.test(lowerText)) return 'es';
+    if (/\b(merhaba|teşekkür|nasıl|neden)\b/.test(lowerText)) return 'tr';
+    if (/\b(ciao|grazie|come|perché)\b/.test(lowerText)) return 'it';
+    if (/\b(olá|obrigado|como|por|que)\b/.test(lowerText)) return 'pt';
     
     return 'en';
 }
 
-// ================= نظام الـ Prompts =================
+// ================= SYSTEM PROMPTS =================
 function getSystemPrompt(lang) {
     const prompts = {
-        ar: `أنت Findly Sage، مساعد ذكي للتسوق.
+        ar: `أنت Findly Sage، مساعد ذكي للتسوق والمتخصص في مساعدة المستخدمين.
 
-مهامك:
-- مساعدة المستخدمين في العثور على أفضل المنتجات والأسعار
-- تقديم نصائح شرائية ذكية ومفيدة
-- الإجابة على أسئلة المستخدمين بطريقة ودية
+🎯 مهامك الأساسية:
+• مساعدة المستخدمين في العثور على أفضل المنتجات بأسعار منافسة
+• تقديم نصائح شرائية ذكية ومفيدة ومخصصة
+• مقارنة المنتجات والأسعار من متاجر مختلفة
+• الرد على استفسارات التسوق بأسلوب احترافي
 
-قواعد الرد:
-- كن ودوداً ومحترفاً
-- قدم إجابات مفيدة ومختصرة (لا تتجاوز 100 كلمة)
-- استخدم الإيموجي بشكل معتدل
-- أجب باللغة العربية فقط`,
+📋 قواعد الرد:
+• كن ودوداً ومحترفاً في جميع الأوقات
+• قدم إجابات مفيدة ومختصرة (لا تتجاوز 150 كلمة)
+• استخدم الإيموجي بشكل معتدل ومناسب
+• أجب باللغة العربية فقط
+• إذا سُئلت عن شيء خارج التسوق، وجه المحادثة برفق للموضوع`,
 
-        en: `You are Findly Sage, a smart shopping assistant.
+        en: `You are Findly Sage, an intelligent shopping assistant.
 
-Your tasks:
-- Help users find the best products and prices
-- Provide smart shopping advice
-- Answer questions in a friendly way
+🎯 Your Main Tasks:
+• Help users find the best products at competitive prices
+• Provide smart and personalized shopping advice
+• Compare products and prices from different stores
+• Answer shopping queries professionally
 
-Response rules:
-- Be friendly and professional
-- Give useful and concise answers (max 100 words)
-- Use emojis moderately
-- Answer in English only`,
+📋 Response Rules:
+• Be friendly and professional at all times
+• Provide useful and concise answers (max 150 words)
+• Use emojis moderately and appropriately
+• Answer in English only
+• If asked about non-shopping topics, gently redirect`,
 
         fr: `Vous êtes Findly Sage, un assistant shopping intelligent.
 
-Vos tâches:
-- Aider les utilisateurs à trouver les meilleurs produits
-- Donner des conseils d'achat
+🎯 Vos tâches:
+• Aider les utilisateurs à trouver les meilleurs produits
+• Donner des conseils d'achat personnalisés
+• Comparer les produits et les prix
 
-Règles:
-- Soyez amical et professionnel
-- Réponses concises (max 100 mots)
-- Répondez en français uniquement`,
+📋 Règles:
+• Soyez amical et professionnel
+• Réponses concises (max 150 mots)
+• Utilisez des émojis modérément
+• Répondez en français uniquement`,
 
         de: `Sie sind Findly Sage, ein intelligenter Einkaufsassistent.
 
-Ihre Aufgaben:
-- Helfen Sie Benutzern, die besten Produkte zu finden
-- Geben Sie Einkaufstipps
+🎯 Ihre Aufgaben:
+• Helfen Sie Benutzern, die besten Produkte zu finden
+• Geben Sie personalisierte Einkaufstipps
 
-Regeln:
-- Seien Sie freundlich und professionell
-- Kurze Antworten (max 100 Wörter)
-- Antworten Sie auf Deutsch`,
+📋 Regeln:
+• Seien Sie freundlich und professionell
+• Kurze Antworten (max 150 Wörter)
+• Antworten Sie auf Deutsch`,
 
         es: `Eres Findly Sage, un asistente de compras inteligente.
 
-Tus tareas:
-- Ayudar a los usuarios a encontrar los mejores productos
-- Dar consejos de compra
+🎯 Tus tareas:
+• Ayudar a los usuarios a encontrar los mejores productos
+• Dar consejos de compra personalizados
 
-Reglas:
-- Sé amigable y profesional
-- Respuestas concisas (máx 100 palabras)
-- Responde solo en español`,
+📋 Reglas:
+• Sé amigable y profesional
+• Respuestas concisas (máx 150 palabras)
+• Responde solo en español`,
 
         tr: `Sen Findly Sage, akıllı bir alışveriş asistanısın.
 
-Görevlerin:
-- Kullanıcılara en iyi ürünleri bulmada yardımcı olmak
-- Alışveriş tavsiyeleri vermek
+🎯 Görevlerin:
+• Kullanıcılara en iyi ürünleri bulmada yardımcı olmak
+• Kişiselleştirilmiş alışveriş tavsiyeleri vermek
 
-Kurallar:
-- Dostane ve profesyonel ol
-- Kısa yanıtlar (maks 100 kelime)
-- Sadece Türkçe yanıt ver`,
-
-        it: `Sei Findly Sage, un assistente shopping intelligente.
-
-I tuoi compiti:
-- Aiutare gli utenti a trovare i migliori prodotti
-- Dare consigli di acquisto
-
-Regole:
-- Sii amichevole e professionale
-- Risposte concise (max 100 parole)
-- Rispondi solo in italiano`,
-
-        pt: `Você é Findly Sage, um assistente de compras inteligente.
-
-Suas tarefas:
-- Ajudar os usuários a encontrar os melhores produtos
-- Dar conselhos de compra
-
-Regras:
-- Seja amigável e profissional
-- Respostas concisas (máx 100 palavras)
-- Responda apenas em português`,
-
-        ru: `Вы — Findly Sage, умный помощник по покупкам.
-
-Ваши задачи:
-- Помогать пользователям находить лучшие товары
-- Давать советы по покупкам
-
-Правила:
-- Будьте дружелюбны и профессиональны
-- Краткие ответы (макс 100 слов)
-- Отвечайте только на русском`,
-
-        zh: `你是 Findly Sage，智能购物助手。
-
-你的任务：
-- 帮助用户找到最好的产品
-- 提供购物建议
-
-规则：
-- 友好专业
-- 简洁回答（最多100字）
-- 只用中文回答`,
-
-        ja: `あなたはFindly Sage、スマートショッピングアシスタントです。
-
-あなたのタスク：
-- ユーザーが最高の商品を見つけるのを助ける
-- 買い物のアドバイスを提供する
-
-ルール：
-- 友好的でプロフェッショナル
-- 簡潔な回答（最大100語）
-- 日本語でのみ回答`,
-
-        ko: `당신은 Findly Sage, 스마트 쇼핑 어시스턴트입니다.
-
-당신의 임무:
-- 사용자가 최고의 제품을 찾도록 도움
-- 쇼핑 조언 제공
-
-규칙:
-- 친근하고 전문적
-- 간결한 답변 (최대 100단어)
-- 한국어로만 답변`,
-
-        hi: `आप Findly Sage हैं, स्मार्ट शॉपिंग असिस्टेंट।
-
-आपके कार्य:
-- उपयोगकर्ताओं को सर्वश्रेष्ठ उत्पाद खोजने में मदद
-- खरीदारी सलाह देना
-
-नियम:
-- दोस्ताना और पेशेवर
-- संक्षिप्त उत्तर (अधिकतम 100 शब्द)
-- केवल हिंदी में जवाब`,
-
-        fa: `شما Findly Sage هستید، دستیار هوشمند خرید.
-
-وظایف شما:
-- کمک به کاربران برای پیدا کردن بهترین محصولات
-- ارائه مشاوره خرید
-
-قوانین:
-- دوستانه و حرفه‌ای
-- پاسخ‌های مختصر (حداکثر 100 کلمه)
-- فقط به فارسی پاسخ دهید`
+📋 Kurallar:
+• Dostane ve profesyonel ol
+• Kısa yanıtlar (maks 150 kelime)
+• Sadece Türkçe yanıt ver`
     };
     
     return prompts[lang] || prompts.en;
 }
 
-// ================= الردود الاحتياطية =================
+// ================= FALLBACK RESPONSES =================
 function getFallbackResponse(lang, intent) {
     const fallbacks = {
         greeting: {
-            ar: "مرحباً بك! 👋 كيف يمكنني مساعدتك اليوم؟",
-            en: "Hello! 👋 How can I help you today?",
-            fr: "Bonjour! 👋 Comment puis-je vous aider?",
-            de: "Hallo! 👋 Wie kann ich Ihnen helfen?",
-            es: "¡Hola! 👋 ¿Cómo puedo ayudarte?",
-            tr: "Merhaba! 👋 Nasıl yardımcı olabilirim?",
-            default: "Hello! 👋 How can I help you?"
+            ar: "مرحباً بك! 👋 أنا Findly Sage، مساعدك الذكي للتسوق. كيف يمكنني مساعدتك اليوم؟",
+            en: "Hello! 👋 I'm Findly Sage, your smart shopping assistant. How can I help you today?",
+            fr: "Bonjour! 👋 Je suis Findly Sage, votre assistant shopping. Comment puis-je vous aider?",
+            de: "Hallo! 👋 Ich bin Findly Sage, Ihr Einkaufsassistent. Wie kann ich helfen?",
+            es: "¡Hola! 👋 Soy Findly Sage, tu asistente de compras. ¿Cómo puedo ayudarte?",
+            tr: "Merhaba! 👋 Ben Findly Sage, akıllı alışveriş asistanınız. Nasıl yardımcı olabilirim?",
+            default: "Hello! 👋 How can I help you today?"
         },
         thanks: {
-            ar: "العفو! 😊 سعيد بمساعدتك!",
-            en: "You're welcome! 😊 Happy to help!",
+            ar: "العفو! 😊 سعيد بمساعدتك! لا تتردد في طلب أي شيء آخر.",
+            en: "You're welcome! 😊 Happy to help! Don't hesitate to ask anything else.",
+            fr: "De rien! 😊 Ravi de vous aider!",
+            de: "Gerne! 😊 Froh zu helfen!",
+            es: "¡De nada! 😊 ¡Feliz de ayudar!",
+            tr: "Rica ederim! 😊 Yardımcı olmak mutluluk verici!",
             default: "You're welcome! 😊"
         },
         goodbye: {
-            ar: "مع السلامة! 👋 نتمنى لك يوماً سعيداً!",
-            en: "Goodbye! 👋 Have a great day!",
+            ar: "مع السلامة! 👋 نتمنى لك يوماً سعيداً وتسوقاً ممتعاً!",
+            en: "Goodbye! 👋 Have a great day and happy shopping!",
+            fr: "Au revoir! 👋 Bonne journée!",
+            de: "Auf Wiedersehen! 👋 Einen schönen Tag!",
+            es: "¡Adiós! 👋 ¡Que tengas un gran día!",
+            tr: "Hoşça kal! 👋 İyi günler!",
             default: "Goodbye! 👋"
         },
         error: {
-            ar: "عذراً، حدث خطأ. حاول مرة أخرى! 🔄",
-            en: "Sorry, an error occurred. Please try again! 🔄",
+            ar: "عذراً، حدث خطأ بسيط. 🔄 حاول مرة أخرى من فضلك!",
+            en: "Sorry, a small error occurred. 🔄 Please try again!",
             default: "Sorry, an error occurred. 🔄"
         },
         noApiKey: {
-            ar: "⚠️ لم يتم تفعيل الذكاء الاصطناعي. أضف GEMINI_API_KEY في Railway.",
-            en: "⚠️ AI not activated. Add GEMINI_API_KEY in Railway.",
-            default: "⚠️ AI not activated. Add GEMINI_API_KEY."
+            ar: "⚠️ لم يتم تفعيل الذكاء الاصطناعي بالكامل. أضف GEMINI_API_KEY في Railway لتفعيل جميع الميزات.",
+            en: "⚠️ AI not fully activated. Add GEMINI_API_KEY in Railway to enable all features.",
+            default: "⚠️ AI not fully activated."
         }
     };
     
@@ -295,35 +251,42 @@ function getFallbackResponse(lang, intent) {
     return intentFallbacks[lang] || intentFallbacks.default;
 }
 
-// ================= كشف النية السريع =================
+// ================= QUICK INTENT DETECTION =================
 function detectQuickIntent(message) {
-    const lower = message.toLowerCase();
+    const lower = message.toLowerCase().trim();
     
-    if (/^(hi|hello|hey|مرحبا|اهلا|السلام|bonjour|hola|ciao|merhaba|olá|привет|你好|こんにちは|안녕)/i.test(lower)) {
+    // Greetings
+    if (/^(hi|hello|hey|مرحبا|اهلا|السلام عليكم|bonjour|hola|ciao|merhaba|olá|привет|你好|こんにちは|안녕)/i.test(lower)) {
         return 'greeting';
     }
-    if (/(thanks|thank|شكرا|merci|danke|gracias|teşekkür|grazie|obrigado|спасибо|谢谢|ありがとう|감사)/i.test(lower)) {
+    // Thanks
+    if (/(thanks|thank you|شكرا|merci|danke|gracias|teşekkür|grazie|obrigado|спасибо|谢谢|ありがとう|감사)/i.test(lower)) {
         return 'thanks';
     }
+    // Goodbye
     if (/(bye|goodbye|وداعا|مع السلامة|au revoir|adiós|hoşça kal|arrivederci|tchau|пока|再见|さようなら|안녕)/i.test(lower)) {
         return 'goodbye';
+    }
+    // Shopping intent
+    if (/(buy|purchase|shop|شراء|اشتري|بحث|find|search|أفضل|cheap|رخيص|سعر|price)/i.test(lower)) {
+        return 'shopping';
     }
     
     return null;
 }
 
-// ================= استدعاء Gemini API =================
+// ================= GEMINI API CALL =================
 async function callGeminiAPI(systemPrompt, userMessage, history = []) {
     if (!GEMINI_API_KEY) {
-        console.error('❌ GEMINI_API_KEY not set');
+        console.error('❌ GEMINI_API_KEY not configured');
         return null;
     }
     
     try {
-        // بناء المحتوى
+        // Build conversation contents
         const contents = [];
         
-        // إضافة التاريخ
+        // Add conversation history
         for (const msg of history) {
             contents.push({
                 role: msg.role === 'assistant' ? 'model' : 'user',
@@ -331,7 +294,7 @@ async function callGeminiAPI(systemPrompt, userMessage, history = []) {
             });
         }
         
-        // إضافة الرسالة الحالية
+        // Add current message
         contents.push({
             role: 'user',
             parts: [{ text: userMessage }]
@@ -347,12 +310,19 @@ async function callGeminiAPI(systemPrompt, userMessage, history = []) {
                 generationConfig: {
                     temperature: 0.7,
                     maxOutputTokens: 300,
-                    topP: 0.8
-                }
+                    topP: 0.8,
+                    topK: 40
+                },
+                safetySettings: [
+                    { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+                    { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
+                    { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
+                    { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
+                ]
             },
             {
                 headers: { 'Content-Type': 'application/json' },
-                timeout: 15000
+                timeout: 20000
             }
         );
         
@@ -365,10 +335,10 @@ async function callGeminiAPI(systemPrompt, userMessage, history = []) {
     }
 }
 
-// ================= دالة معالجة الرسائل =================
+// ================= MAIN MESSAGE PROCESSOR =================
 async function processChatMessage(message, userId = 'guest') {
     try {
-        // التحقق من الرسالة
+        // Validate input
         if (!message || typeof message !== 'string' || message.trim() === '') {
             return {
                 response: '👋 مرحباً! كيف يمكنني مساعدتك؟',
@@ -381,29 +351,29 @@ async function processChatMessage(message, userId = 'guest') {
 
         const cleanMessage = message.trim();
         
-        // كشف اللغة
+        // Detect language
         const lang = detectLanguage(cleanMessage);
         memory.setLanguage(userId, lang);
         
-        // كشف النية السريعة
+        // Quick intent detection
         const quickIntent = detectQuickIntent(cleanMessage);
         
-        // إضافة رسالة المستخدم للذاكرة
+        // Add user message to memory
         memory.addMessage(userId, 'user', cleanMessage);
         
-        // محاولة استدعاء Gemini
+        // Try AI response
         let aiResponse = null;
         
         if (GEMINI_API_KEY) {
             const systemPrompt = getSystemPrompt(lang);
-            const history = memory.getHistory(userId).slice(-8); // آخر 8 رسائل
+            const history = memory.getHistory(userId).slice(-10); // Last 10 messages
             
             aiResponse = await callGeminiAPI(systemPrompt, cleanMessage, history);
         } else {
-            console.warn('⚠️ No GEMINI_API_KEY - using fallback');
+            console.warn('⚠️ No GEMINI_API_KEY - using fallback responses');
         }
         
-        // تحديد الرد النهائي
+        // Determine final response
         let response;
         
         if (aiResponse) {
@@ -414,17 +384,21 @@ async function processChatMessage(message, userId = 'guest') {
             response = getFallbackResponse(lang, quickIntent);
         } else {
             const fallbacks = {
-                ar: 'أنا هنا لمساعدتك! 🤖 اسألني عن المنتجات والأسعار.',
-                en: "I'm here to help! 🤖 Ask me about products and prices.",
-                default: "I'm here to help! 🤖"
+                ar: 'أنا هنا لمساعدتك في التسوق! 🛒 اسألني عن أي منتج أو سعر.',
+                en: "I'm here to help with your shopping! 🛒 Ask me about any product or price.",
+                fr: "Je suis là pour vous aider! 🛒 Demandez-moi n'importe quel produit.",
+                de: "Ich bin hier um zu helfen! 🛒 Fragen Sie mich nach Produkten.",
+                es: "¡Estoy aquí para ayudarte! 🛒 Pregúntame sobre cualquier producto.",
+                tr: "Alışverişte yardımcı olmak için buradayım! 🛒",
+                default: "I'm here to help! 🛒"
             };
             response = fallbacks[lang] || fallbacks.default;
         }
         
-        // إضافة الرد للذاكرة
+        // Add response to memory
         memory.addMessage(userId, 'assistant', response);
         
-        console.log(`💬 Chat [${userId}]: "${cleanMessage.substring(0, 30)}..." -> Lang: ${lang}`);
+        console.log(`💬 Chat [${userId}]: "${cleanMessage.substring(0, 30)}..." -> Lang: ${lang}, Intent: ${quickIntent || 'general'}`);
         
         return {
             response: response,
@@ -450,10 +424,12 @@ async function processChatMessage(message, userId = 'guest') {
     }
 }
 
-// ================= تصدير =================
+// ================= EXPORTS =================
 module.exports = {
     processChatMessage,
     supportedLanguages,
     detectLanguage,
-    memory
+    memory,
+    getSystemPrompt,
+    getFallbackResponse
 };

@@ -21,7 +21,6 @@ app.options("*", cors());
 app.use(express.json());
 
 /* ================= ENV ================= */
-const PORT = process.env.PORT || 10000;
 const MONGO_URI = process.env.MONGO_URI;
 const SEARCHAPI_KEY = process.env.SEARCHAPI_KEY;
 const SERPER_API_KEY = process.env.SERPER_API_KEY;

@@ -1458,12 +1458,3 @@ router.get("/chat/profile", (req, res) => {
 });
 
 module.exports = router;
-  chatEngine: { 
-    memory, 
-    intents, 
-    analyzeSentiment, 
-    extractEntities,
-    detectLanguage,
-    supportedLanguages
-  } 
-};

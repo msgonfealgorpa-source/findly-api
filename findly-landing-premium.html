@@ -1,0 +1,1912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Findly | AI-Powered Product Intelligence Platform</title>
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#8b5cf6">
+<meta name="description" content="Findly is an AI-powered product intelligence platform that analyzes price trends, seller behavior, and market signals.">
+<meta name="keywords" content="AI, product analysis, price tracking, shopping intelligence, deal detection">
+
+<!-- Premium Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+    --primary:#8b5cf6;
+    --primary-light:#a78bfa;
+    --primary-dark:#7c3aed;
+    --bg:#020617;
+    --bg-secondary:#0a0f1a;
+    --card:rgba(15,23,42,0.8);
+    --card-border:rgba(139,92,246,0.2);
+    --text:#f8fafc;
+    --muted:#94a3b8;
+    --success:#10b981;
+    --warning:#f59e0b;
+    --gradient-1:linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+    --gradient-2:linear-gradient(135deg, #06b6d4 0%, #8b5cf6 100%);
+    --glass:rgba(255,255,255,0.05);
+    --glass-border:rgba(255,255,255,0.1);
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    font-family:'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    overflow-x:hidden;
+    line-height:1.6;
+}
+
+/* ===== Scrollbar ===== */
+::-webkit-scrollbar{
+    width:8px;
+}
+::-webkit-scrollbar-track{
+    background:var(--bg);
+}
+::-webkit-scrollbar-thumb{
+    background:var(--primary);
+    border-radius:4px;
+}
+
+/* ===== Particles Background ===== */
+#particles-canvas{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+    z-index:0;
+}
+
+/* ===== Progress Bar ===== */
+.progress-bar{
+    position:fixed;
+    top:0;
+    left:0;
+    height:3px;
+    background:var(--gradient-1);
+    z-index:9999;
+    transition:width 0.1s;
+}
+
+/* ===== Navigation ===== */
+.nav-wrapper{
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
+    z-index:1000;
+    padding:15px 0;
+    transition:all 0.3s ease;
+}
+
+.nav-wrapper.scrolled{
+    background:rgba(2,6,23,0.85);
+    backdrop-filter:blur(20px);
+    -webkit-backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--glass-border);
+    padding:12px 0;
+}
+
+.nav-container{
+    max-width:1300px;
+    margin:auto;
+    padding:0 30px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.logo{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    text-decoration:none;
+}
+
+.logo-icon{
+    width:42px;
+    height:42px;
+    background:var(--gradient-1);
+    border-radius:12px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:20px;
+    box-shadow:0 4px 15px rgba(139,92,246,0.4);
+}
+
+.logo-text{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:26px;
+    font-weight:700;
+    background:var(--gradient-1);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    background-clip:text;
+}
+
+.nav-links{
+    display:flex;
+    align-items:center;
+    gap:35px;
+}
+
+.nav-links a{
+    color:var(--muted);
+    text-decoration:none;
+    font-size:14px;
+    font-weight:500;
+    transition:color 0.3s;
+    position:relative;
+}
+
+.nav-links a::after{
+    content:'';
+    position:absolute;
+    bottom:-5px;
+    left:0;
+    width:0;
+    height:2px;
+    background:var(--primary);
+    transition:width 0.3s;
+}
+
+.nav-links a:hover{
+    color:var(--text);
+}
+
+.nav-links a:hover::after{
+    width:100%;
+}
+
+.nav-cta{
+    padding:12px 28px;
+    background:var(--gradient-1);
+    color:white;
+    text-decoration:none;
+    border-radius:10px;
+    font-weight:600;
+    font-size:14px;
+    transition:all 0.3s;
+    box-shadow:0 4px 20px rgba(139,92,246,0.3);
+}
+
+.nav-cta:hover{
+    transform:translateY(-2px);
+    box-shadow:0 8px 30px rgba(139,92,246,0.5);
+}
+
+.mobile-menu-btn{
+    display:none;
+    flex-direction:column;
+    gap:5px;
+    cursor:pointer;
+    padding:5px;
+}
+
+.mobile-menu-btn span{
+    width:25px;
+    height:2px;
+    background:var(--text);
+    transition:all 0.3s;
+}
+
+/* ===== Hero Section ===== */
+.hero{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:120px 20px 100px;
+    position:relative;
+    overflow:hidden;
+}
+
+.hero-bg{
+    position:absolute;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    background:radial-gradient(ellipse at top, rgba(139,92,246,0.2) 0%, transparent 50%),
+                radial-gradient(ellipse at bottom right, rgba(236,72,153,0.1) 0%, transparent 50%);
+    z-index:1;
+}
+
+.hero-glow{
+    position:absolute;
+    width:600px;
+    height:600px;
+    background:radial-gradient(circle, rgba(139,92,246,0.3) 0%, transparent 70%);
+    border-radius:50%;
+    top:50%;
+    left:50%;
+    transform:translate(-50%, -50%);
+    animation:pulse 4s ease-in-out infinite;
+    z-index:1;
+}
+
+@keyframes pulse{
+    0%, 100%{ transform:translate(-50%, -50%) scale(1); opacity:0.5; }
+    50%{ transform:translate(-50%, -50%) scale(1.1); opacity:0.3; }
+}
+
+.hero-content{
+    position:relative;
+    z-index:2;
+    max-width:900px;
+}
+
+.hero-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 18px;
+    background:var(--glass);
+    border:1px solid var(--glass-border);
+    border-radius:50px;
+    font-size:13px;
+    color:var(--primary-light);
+    margin-bottom:30px;
+    backdrop-filter:blur(10px);
+}
+
+.hero-badge-dot{
+    width:8px;
+    height:8px;
+    background:var(--success);
+    border-radius:50%;
+    animation:blink 2s infinite;
+}
+
+@keyframes blink{
+    0%, 100%{ opacity:1; }
+    50%{ opacity:0.3; }
+}
+
+.hero h1{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:clamp(40px, 8vw, 72px);
+    font-weight:800;
+    line-height:1.1;
+    margin-bottom:25px;
+    letter-spacing:-2px;
+}
+
+.hero h1 .gradient-text{
+    background:var(--gradient-1);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    background-clip:text;
+}
+
+.hero-description{
+    font-size:clamp(16px, 2.5vw, 20px);
+    color:var(--muted);
+    max-width:650px;
+    margin:0 auto 40px;
+    line-height:1.8;
+}
+
+.hero-buttons{
+    display:flex;
+    gap:20px;
+    justify-content:center;
+    flex-wrap:wrap;
+}
+
+.btn-primary{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding:16px 36px;
+    background:var(--gradient-1);
+    color:white;
+    text-decoration:none;
+    border-radius:12px;
+    font-weight:600;
+    font-size:16px;
+    transition:all 0.3s;
+    box-shadow:0 4px 25px rgba(139,92,246,0.4);
+    border:none;
+    cursor:pointer;
+}
+
+.btn-primary:hover{
+    transform:translateY(-3px);
+    box-shadow:0 10px 40px rgba(139,92,246,0.5);
+}
+
+.btn-secondary{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding:16px 36px;
+    background:var(--glass);
+    color:var(--text);
+    text-decoration:none;
+    border-radius:12px;
+    font-weight:600;
+    font-size:16px;
+    border:1px solid var(--glass-border);
+    transition:all 0.3s;
+    backdrop-filter:blur(10px);
+}
+
+.btn-secondary:hover{
+    background:rgba(255,255,255,0.1);
+    border-color:var(--primary);
+    transform:translateY(-3px);
+}
+
+.hero-stats{
+    display:flex;
+    justify-content:center;
+    gap:60px;
+    margin-top:80px;
+    flex-wrap:wrap;
+}
+
+.stat-item{
+    text-align:center;
+}
+
+.stat-number{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:42px;
+    font-weight:700;
+    background:var(--gradient-1);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    background-clip:text;
+}
+
+.stat-label{
+    font-size:14px;
+    color:var(--muted);
+    margin-top:5px;
+}
+
+/* ===== Trusted By Section ===== */
+.trusted-section{
+    padding:60px 20px;
+    background:var(--bg-secondary);
+    position:relative;
+    z-index:2;
+}
+
+.trusted-content{
+    max-width:1200px;
+    margin:auto;
+    text-align:center;
+}
+
+.trusted-title{
+    font-size:14px;
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:2px;
+    margin-bottom:30px;
+}
+
+.trusted-logos{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:50px;
+    flex-wrap:wrap;
+    opacity:0.6;
+    filter:grayscale(100%);
+    transition:all 0.3s;
+}
+
+.trusted-logos:hover{
+    opacity:1;
+    filter:grayscale(0%);
+}
+
+.trusted-logo{
+    font-size:24px;
+    font-weight:700;
+    color:var(--muted);
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+
+/* ===== Features Section ===== */
+.features-section{
+    padding:120px 20px;
+    position:relative;
+    z-index:2;
+}
+
+.section-header{
+    text-align:center;
+    max-width:700px;
+    margin:0 auto 80px;
+}
+
+.section-label{
+    display:inline-block;
+    padding:8px 16px;
+    background:rgba(139,92,246,0.1);
+    border:1px solid rgba(139,92,246,0.3);
+    border-radius:50px;
+    font-size:13px;
+    color:var(--primary-light);
+    margin-bottom:20px;
+}
+
+.section-title{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:clamp(32px, 5vw, 48px);
+    font-weight:700;
+    margin-bottom:20px;
+    letter-spacing:-1px;
+}
+
+.section-description{
+    color:var(--muted);
+    font-size:18px;
+    line-height:1.7;
+}
+
+.features-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(350px, 1fr));
+    gap:30px;
+    max-width:1200px;
+    margin:auto;
+}
+
+.feature-card{
+    background:var(--card);
+    border:1px solid var(--card-border);
+    border-radius:20px;
+    padding:40px;
+    transition:all 0.4s ease;
+    position:relative;
+    overflow:hidden;
+}
+
+.feature-card::before{
+    content:'';
+    position:absolute;
+    top:0;
+    left:0;
+    right:0;
+    height:3px;
+    background:var(--gradient-1);
+    opacity:0;
+    transition:opacity 0.3s;
+}
+
+.feature-card:hover{
+    transform:translateY(-8px);
+    border-color:var(--primary);
+    box-shadow:0 20px 60px rgba(139,92,246,0.15);
+}
+
+.feature-card:hover::before{
+    opacity:1;
+}
+
+.feature-icon{
+    width:60px;
+    height:60px;
+    background:var(--gradient-1);
+    border-radius:16px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:28px;
+    margin-bottom:25px;
+    box-shadow:0 8px 25px rgba(139,92,246,0.3);
+}
+
+.feature-card h3{
+    font-size:22px;
+    font-weight:600;
+    margin-bottom:15px;
+}
+
+.feature-card p{
+    color:var(--muted);
+    font-size:15px;
+    line-height:1.7;
+}
+
+.feature-tag{
+    display:inline-block;
+    padding:5px 12px;
+    background:rgba(16,185,129,0.1);
+    color:var(--success);
+    border-radius:50px;
+    font-size:12px;
+    margin-top:20px;
+}
+
+/* ===== How It Works Section ===== */
+.how-section{
+    padding:120px 20px;
+    background:var(--bg-secondary);
+    position:relative;
+    z-index:2;
+}
+
+.steps-container{
+    max-width:1100px;
+    margin:auto;
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));
+    gap:40px;
+    position:relative;
+}
+
+.step-card{
+    text-align:center;
+    padding:40px 30px;
+    position:relative;
+}
+
+.step-number{
+    width:70px;
+    height:70px;
+    background:var(--gradient-1);
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Space Grotesk', sans-serif;
+    font-size:28px;
+    font-weight:700;
+    margin:0 auto 25px;
+    box-shadow:0 8px 30px rgba(139,92,246,0.4);
+    position:relative;
+}
+
+.step-number::after{
+    content:'';
+    position:absolute;
+    width:90px;
+    height:90px;
+    border:2px dashed var(--glass-border);
+    border-radius:50%;
+    animation:rotate 20s linear infinite;
+}
+
+@keyframes rotate{
+    from{ transform:rotate(0deg); }
+    to{ transform:rotate(360deg); }
+}
+
+.step-card h3{
+    font-size:20px;
+    font-weight:600;
+    margin-bottom:15px;
+}
+
+.step-card p{
+    color:var(--muted);
+    font-size:15px;
+    line-height:1.7;
+}
+
+.step-connector{
+    position:absolute;
+    top:75px;
+    right:-60px;
+    width:80px;
+    height:2px;
+    background:linear-gradient(90deg, var(--primary), transparent);
+    display:none;
+}
+
+/* ===== Demo Preview Section ===== */
+.demo-section{
+    padding:120px 20px;
+    position:relative;
+    z-index:2;
+}
+
+.demo-container{
+    max-width:1100px;
+    margin:auto;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:80px;
+    align-items:center;
+}
+
+.demo-content h2{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:clamp(28px, 4vw, 40px);
+    font-weight:700;
+    margin-bottom:25px;
+    letter-spacing:-1px;
+}
+
+.demo-content p{
+    color:var(--muted);
+    font-size:17px;
+    line-height:1.8;
+    margin-bottom:30px;
+}
+
+.demo-features{
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+}
+
+.demo-feature{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    color:var(--text);
+    font-size:15px;
+}
+
+.demo-feature-icon{
+    width:24px;
+    height:24px;
+    background:rgba(16,185,129,0.2);
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--success);
+    font-size:12px;
+}
+
+.demo-preview{
+    background:var(--card);
+    border:1px solid var(--card-border);
+    border-radius:20px;
+    padding:30px;
+    box-shadow:0 25px 80px rgba(0,0,0,0.5);
+}
+
+.demo-header{
+    display:flex;
+    gap:8px;
+    margin-bottom:25px;
+}
+
+.demo-dot{
+    width:12px;
+    height:12px;
+    border-radius:50%;
+}
+
+.demo-dot.red{ background:#ff5f57; }
+.demo-dot.yellow{ background:#febc2e; }
+.demo-dot.green{ background:#28c840; }
+
+.demo-url{
+    background:rgba(255,255,255,0.05);
+    border-radius:10px;
+    padding:12px 16px;
+    margin-bottom:20px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.demo-url-icon{
+    color:var(--primary);
+}
+
+.demo-url span{
+    color:var(--muted);
+    font-size:14px;
+}
+
+.demo-result{
+    background:rgba(139,92,246,0.1);
+    border:1px solid rgba(139,92,246,0.3);
+    border-radius:12px;
+    padding:20px;
+}
+
+.demo-result-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:15px;
+}
+
+.demo-result-title{
+    font-weight:600;
+    font-size:16px;
+}
+
+.demo-score{
+    background:var(--success);
+    color:white;
+    padding:5px 15px;
+    border-radius:50px;
+    font-size:14px;
+    font-weight:600;
+}
+
+.demo-result-items{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.demo-result-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size:14px;
+    color:var(--muted);
+}
+
+.demo-result-value{
+    color:var(--text);
+    font-weight:500;
+}
+
+/* ===== Testimonials Section ===== */
+.testimonials-section{
+    padding:120px 20px;
+    background:var(--bg-secondary);
+    position:relative;
+    z-index:2;
+}
+
+.testimonials-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(350px, 1fr));
+    gap:30px;
+    max-width:1200px;
+    margin:auto;
+}
+
+.testimonial-card{
+    background:var(--card);
+    border:1px solid var(--card-border);
+    border-radius:20px;
+    padding:35px;
+    transition:all 0.3s;
+}
+
+.testimonial-card:hover{
+    transform:translateY(-5px);
+    border-color:var(--primary);
+}
+
+.testimonial-stars{
+    display:flex;
+    gap:4px;
+    margin-bottom:20px;
+    color:#fbbf24;
+    font-size:16px;
+}
+
+.testimonial-text{
+    font-size:16px;
+    line-height:1.8;
+    color:var(--text);
+    margin-bottom:25px;
+}
+
+.testimonial-author{
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+.testimonial-avatar{
+    width:50px;
+    height:50px;
+    background:var(--gradient-1);
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:700;
+    font-size:18px;
+}
+
+.testimonial-info h4{
+    font-size:15px;
+    font-weight:600;
+}
+
+.testimonial-info span{
+    font-size:13px;
+    color:var(--muted);
+}
+
+/* ===== FAQ Section ===== */
+.faq-section{
+    padding:120px 20px;
+    position:relative;
+    z-index:2;
+}
+
+.faq-container{
+    max-width:800px;
+    margin:auto;
+}
+
+.faq-item{
+    background:var(--card);
+    border:1px solid var(--card-border);
+    border-radius:16px;
+    margin-bottom:15px;
+    overflow:hidden;
+    transition:all 0.3s;
+}
+
+.faq-item:hover{
+    border-color:var(--primary);
+}
+
+.faq-question{
+    padding:25px 30px;
+    cursor:pointer;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-weight:600;
+    font-size:16px;
+}
+
+.faq-icon{
+    width:30px;
+    height:30px;
+    background:var(--glass);
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:transform 0.3s;
+}
+
+.faq-item.active .faq-icon{
+    transform:rotate(180deg);
+}
+
+.faq-answer{
+    max-height:0;
+    overflow:hidden;
+    transition:max-height 0.3s ease;
+}
+
+.faq-item.active .faq-answer{
+    max-height:300px;
+}
+
+.faq-answer-content{
+    padding:0 30px 25px;
+    color:var(--muted);
+    font-size:15px;
+    line-height:1.8;
+}
+
+/* ===== CTA Section ===== */
+.cta-section{
+    padding:120px 20px;
+    position:relative;
+    z-index:2;
+    text-align:center;
+}
+
+.cta-container{
+    max-width:800px;
+    margin:auto;
+    background:var(--card);
+    border:1px solid var(--card-border);
+    border-radius:30px;
+    padding:80px 60px;
+    position:relative;
+    overflow:hidden;
+}
+
+.cta-bg{
+    position:absolute;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    background:radial-gradient(circle at top right, rgba(139,92,246,0.2), transparent 60%);
+    z-index:0;
+}
+
+.cta-content{
+    position:relative;
+    z-index:1;
+}
+
+.cta-content h2{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:clamp(28px, 4vw, 42px);
+    font-weight:700;
+    margin-bottom:20px;
+}
+
+.cta-content p{
+    color:var(--muted);
+    font-size:18px;
+    margin-bottom:40px;
+}
+
+/* ===== Footer ===== */
+.footer{
+    padding:80px 20px 40px;
+    background:var(--bg-secondary);
+    border-top:1px solid var(--glass-border);
+    position:relative;
+    z-index:2;
+}
+
+.footer-container{
+    max-width:1200px;
+    margin:auto;
+    display:grid;
+    grid-template-columns:2fr 1fr 1fr 1fr;
+    gap:60px;
+}
+
+.footer-brand p{
+    color:var(--muted);
+    font-size:14px;
+    line-height:1.8;
+    margin-top:20px;
+    max-width:300px;
+}
+
+.footer-social{
+    display:flex;
+    gap:15px;
+    margin-top:25px;
+}
+
+.social-link{
+    width:40px;
+    height:40px;
+    background:var(--glass);
+    border:1px solid var(--glass-border);
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--muted);
+    text-decoration:none;
+    transition:all 0.3s;
+}
+
+.social-link:hover{
+    background:var(--primary);
+    color:white;
+    border-color:var(--primary);
+}
+
+.footer-column h4{
+    font-size:14px;
+    font-weight:600;
+    margin-bottom:20px;
+    color:var(--text);
+}
+
+.footer-column ul{
+    list-style:none;
+}
+
+.footer-column li{
+    margin-bottom:12px;
+}
+
+.footer-column a{
+    color:var(--muted);
+    text-decoration:none;
+    font-size:14px;
+    transition:color 0.3s;
+}
+
+.footer-column a:hover{
+    color:var(--primary);
+}
+
+.footer-bottom{
+    max-width:1200px;
+    margin:60px auto 0;
+    padding-top:30px;
+    border-top:1px solid var(--glass-border);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:20px;
+}
+
+.footer-bottom p{
+    color:var(--muted);
+    font-size:14px;
+}
+
+.footer-bottom-links{
+    display:flex;
+    gap:30px;
+}
+
+.footer-bottom-links a{
+    color:var(--muted);
+    text-decoration:none;
+    font-size:14px;
+    transition:color 0.3s;
+}
+
+.footer-bottom-links a:hover{
+    color:var(--primary);
+}
+
+/* ===== Back to Top ===== */
+.back-to-top{
+    position:fixed;
+    bottom:30px;
+    right:30px;
+    width:50px;
+    height:50px;
+    background:var(--gradient-1);
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-size:20px;
+    cursor:pointer;
+    opacity:0;
+    visibility:hidden;
+    transition:all 0.3s;
+    z-index:999;
+    box-shadow:0 4px 20px rgba(139,92,246,0.4);
+    border:none;
+}
+
+.back-to-top.show{
+    opacity:1;
+    visibility:visible;
+}
+
+.back-to-top:hover{
+    transform:translateY(-5px);
+}
+
+/* ===== Animations ===== */
+.fade-in{
+    opacity:0;
+    transform:translateY(40px);
+    transition:all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fade-in.show{
+    opacity:1;
+    transform:translateY(0);
+}
+
+.slide-left{
+    opacity:0;
+    transform:translateX(-60px);
+    transition:all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.slide-left.show{
+    opacity:1;
+    transform:translateX(0);
+}
+
+.slide-right{
+    opacity:0;
+    transform:translateX(60px);
+    transition:all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.slide-right.show{
+    opacity:1;
+    transform:translateX(0);
+}
+
+.scale-in{
+    opacity:0;
+    transform:scale(0.9);
+    transition:all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.scale-in.show{
+    opacity:1;
+    transform:scale(1);
+}
+
+/* Staggered animations */
+.stagger-1{ transition-delay:0.1s; }
+.stagger-2{ transition-delay:0.2s; }
+.stagger-3{ transition-delay:0.3s; }
+.stagger-4{ transition-delay:0.4s; }
+.stagger-5{ transition-delay:0.5s; }
+
+/* ===== Responsive ===== */
+@media(max-width:1024px){
+    .demo-container{
+        grid-template-columns:1fr;
+        gap:60px;
+    }
+    
+    .footer-container{
+        grid-template-columns:1fr 1fr;
+    }
+}
+
+@media(max-width:768px){
+    .nav-links{
+        display:none;
+    }
+    
+    .mobile-menu-btn{
+        display:flex;
+    }
+    
+    .hero-stats{
+        gap:40px;
+    }
+    
+    .stat-number{
+        font-size:32px;
+    }
+    
+    .features-grid{
+        grid-template-columns:1fr;
+    }
+    
+    .demo-container{
+        grid-template-columns:1fr;
+    }
+    
+    .footer-container{
+        grid-template-columns:1fr;
+        gap:40px;
+    }
+    
+    .footer-bottom{
+        flex-direction:column;
+        text-align:center;
+    }
+    
+    .cta-container{
+        padding:50px 30px;
+    }
+}
+
+@media(max-width:480px){
+    .hero h1{
+        font-size:32px;
+    }
+    
+    .hero-buttons{
+        flex-direction:column;
+        width:100%;
+    }
+    
+    .btn-primary, .btn-secondary{
+        width:100%;
+        justify-content:center;
+    }
+    
+    .trusted-logos{
+        gap:30px;
+    }
+    
+    .trusted-logo{
+        font-size:18px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- Progress Bar -->
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- Particles Canvas -->
+<canvas id="particles-canvas"></canvas>
+
+<!-- Navigation -->
+<nav class="nav-wrapper" id="navbar">
+    <div class="nav-container">
+        <a href="#" class="logo">
+            <div class="logo-icon">⚡</div>
+            <span class="logo-text">Findly</span>
+        </a>
+        <div class="nav-links">
+            <a href="#features">Features</a>
+            <a href="#how-it-works">How it Works</a>
+            <a href="#testimonials">Reviews</a>
+            <a href="#faq">FAQ</a>
+            <a href="app.html" class="nav-cta">Try Now</a>
+        </div>
+        <div class="mobile-menu-btn" id="mobileMenuBtn">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-glow"></div>
+    <div class="hero-content">
+        <div class="hero-badge fade-in">
+            <span class="hero-badge-dot"></span>
+            AI-Powered Intelligence Platform
+        </div>
+        <h1 class="fade-in stagger-1">
+            <span class="gradient-text">Intelligence</span> Before<br>Every Purchase
+        </h1>
+        <p class="hero-description fade-in stagger-2">
+            Transform complex product data into clear, actionable insights. 
+            Analyze prices, detect risks, and make smarter decisions with AI-powered intelligence.
+        </p>
+        <div class="hero-buttons fade-in stagger-3">
+            <a href="app.html" class="btn-primary">
+                <span>🚀</span>
+                Start Analyzing Free
+            </a>
+            <a href="#how-it-works" class="btn-secondary">
+                <span>▶</span>
+                See How It Works
+            </a>
+        </div>
+        <div class="hero-stats fade-in stagger-4">
+            <div class="stat-item">
+                <div class="stat-number" data-target="2500000">0</div>
+                <div class="stat-label">Products Analyzed</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" data-target="180000">0</div>
+                <div class="stat-label">Active Users</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" data-target="45">0</div>
+                <div class="stat-label">Countries</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Trusted By Section -->
+<section class="trusted-section fade-in">
+    <div class="trusted-content">
+        <p class="trusted-title">Trusted by smart shoppers worldwide</p>
+        <div class="trusted-logos">
+            <div class="trusted-logo">🛒 Amazon</div>
+            <div class="trusted-logo">🛍️ eBay</div>
+            <div class="trusted-logo">🏬 AliExpress</div>
+            <div class="trusted-logo">🏪 Walmart</div>
+            <div class="trusted-logo">🛒 Target</div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section" id="features">
+    <div class="section-header fade-in">
+        <span class="section-label">Features</span>
+        <h2 class="section-title">Powerful AI at Your Fingertips</h2>
+        <p class="section-description">
+            Advanced algorithms working 24/7 to protect your wallet and ensure you get the best deals.
+        </p>
+    </div>
+    
+    <div class="features-grid">
+        <div class="feature-card fade-in stagger-1">
+            <div class="feature-icon">📊</div>
+            <h3>Real-Time Price Analysis</h3>
+            <p>Instant analysis of pricing history, market trends, and competitive pricing across multiple platforms to ensure you're getting the best deal possible.</p>
+            <span class="feature-tag">✓ Instant Results</span>
+        </div>
+        
+        <div class="feature-card fade-in stagger-2">
+            <div class="feature-icon">🛡️</div>
+            <h3>Risk Intelligence Engine</h3>
+            <p>Advanced detection of pricing anomalies, suspicious seller patterns, and potential scams before you make a purchase decision.</p>
+            <span class="feature-tag">✓ Fraud Protection</span>
+        </div>
+        
+        <div class="feature-card fade-in stagger-3">
+            <div class="feature-icon">🎯</div>
+            <h3>Smart Recommendations</h3>
+            <p>Personalized product suggestions based on your preferences, budget, and shopping behavior powered by machine learning.</p>
+            <span class="feature-tag">✓ AI Powered</span>
+        </div>
+        
+        <div class="feature-card fade-in stagger-4">
+            <div class="feature-icon">⚡</div>
+            <h3>Deal Quality Score</h3>
+            <p>Every product gets a comprehensive quality score based on price, seller reputation, reviews, and market position.</p>
+            <span class="feature-tag">✓ Transparent</span>
+        </div>
+        
+        <div class="feature-card fade-in stagger-5">
+            <div class="feature-icon">🌐</div>
+            <h3>Multi-Platform Support</h3>
+            <p>Seamlessly analyze products from Amazon, eBay, AliExpress, and more from a single unified dashboard.</p>
+            <span class="feature-tag">✓ Universal</span>
+        </div>
+        
+        <div class="feature-card fade-in stagger-5">
+            <div class="feature-icon">🔒</div>
+            <h3>Privacy First</h3>
+            <p>Your data stays yours. We never sell your information or track your purchases for advertising purposes.</p>
+            <span class="feature-tag">✓ 100% Private</span>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="how-section" id="how-it-works">
+    <div class="section-header fade-in">
+        <span class="section-label">Process</span>
+        <h2 class="section-title">How Findly Works</h2>
+        <p class="section-description">
+            Three simple steps to smarter shopping decisions
+        </p>
+    </div>
+    
+    <div class="steps-container">
+        <div class="step-card fade-in stagger-1">
+            <div class="step-number">1</div>
+            <h3>Paste Product URL</h3>
+            <p>Simply copy and paste any product link from supported platforms. Our system handles the rest automatically.</p>
+        </div>
+        
+        <div class="step-card fade-in stagger-2">
+            <div class="step-number">2</div>
+            <h3>AI Analysis</h3>
+            <p>Our AI engine analyzes price history, seller reputation, reviews, and market data in real-time.</p>
+        </div>
+        
+        <div class="step-card fade-in stagger-3">
+            <div class="step-number">3</div>
+            <h3>Get Insights</h3>
+            <p>Receive comprehensive insights, risk scores, and recommendations to make informed decisions.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Demo Preview Section -->
+<section class="demo-section">
+    <div class="demo-container">
+        <div class="demo-content slide-left">
+            <h2>See Findly in Action</h2>
+            <p>
+                Get instant intelligence on any product. Our AI analyzes multiple data points 
+                to give you a clear picture of whether a deal is truly worth it.
+            </p>
+            <div class="demo-features">
+                <div class="demo-feature">
+                    <span class="demo-feature-icon">✓</span>
+                    <span>Price history & trend analysis</span>
+                </div>
+                <div class="demo-feature">
+                    <span class="demo-feature-icon">✓</span>
+                    <span>Seller reputation & trust score</span>
+                </div>
+                <div class="demo-feature">
+                    <span class="demo-feature-icon">✓</span>
+                    <span>Fake review detection</span>
+                </div>
+                <div class="demo-feature">
+                    <span class="demo-feature-icon">✓</span>
+                    <span>Deal quality assessment</span>
+                </div>
+                <div class="demo-feature">
+                    <span class="demo-feature-icon">✓</span>
+                    <span>Personalized recommendations</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="demo-preview slide-right scale-in">
+            <div class="demo-header">
+                <span class="demo-dot red"></span>
+                <span class="demo-dot yellow"></span>
+                <span class="demo-dot green"></span>
+            </div>
+            <div class="demo-url">
+                <span class="demo-url-icon">🔗</span>
+                <span>amazon.com/dp/B08N5WRWNW</span>
+            </div>
+            <div class="demo-result">
+                <div class="demo-result-header">
+                    <span class="demo-result-title">Analysis Complete</span>
+                    <span class="demo-score">Score: 94/100</span>
+                </div>
+                <div class="demo-result-items">
+                    <div class="demo-result-item">
+                        <span>Price Status</span>
+                        <span class="demo-result-value" style="color:#10b981">Great Deal ✓</span>
+                    </div>
+                    <div class="demo-result-item">
+                        <span>Seller Trust</span>
+                        <span class="demo-result-value">98% Verified</span>
+                    </div>
+                    <div class="demo-result-item">
+                        <span>Review Quality</span>
+                        <span class="demo-result-value">92% Authentic</span>
+                    </div>
+                    <div class="demo-result-item">
+                        <span>Market Position</span>
+                        <span class="demo-result-value">Top 5% Price</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="testimonials-section" id="testimonials">
+    <div class="section-header fade-in">
+        <span class="section-label">Testimonials</span>
+        <h2 class="section-title">What Our Users Say</h2>
+        <p class="section-description">
+            Join thousands of smart shoppers who trust Findly
+        </p>
+    </div>
+    
+    <div class="testimonials-grid">
+        <div class="testimonial-card fade-in stagger-1">
+            <div class="testimonial-stars">★★★★★</div>
+            <p class="testimonial-text">
+                "Findly saved me $200 on a laptop purchase. The price analysis showed it was actually 
+                $150 cheaper two weeks ago. I waited and got the better deal!"
+            </p>
+            <div class="testimonial-author">
+                <div class="testimonial-avatar">SM</div>
+                <div class="testimonial-info">
+                    <h4>Sarah Mitchell</h4>
+                    <span>Verified User</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="testimonial-card fade-in stagger-2">
+            <div class="testimonial-stars">★★★★★</div>
+            <p class="testimonial-text">
+                "The fake review detection is incredible. I was about to buy from a seller with 
+                manipulated reviews. Findly's risk alert saved me from a potential scam."
+            </p>
+            <div class="testimonial-author">
+                <div class="testimonial-avatar">JD</div>
+                <div class="testimonial-info">
+                    <h4>James Davidson</h4>
+                    <span>Verified User</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="testimonial-card fade-in stagger-3">
+            <div class="testimonial-stars">★★★★★</div>
+            <p class="testimonial-text">
+                "Finally, a tool that gives me confidence in online shopping. The seller trust 
+                score alone has made my shopping experience so much less stressful."
+            </p>
+            <div class="testimonial-author">
+                <div class="testimonial-avatar">EW</div>
+                <div class="testimonial-info">
+                    <h4>Emma Wilson</h4>
+                    <span>Verified User</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="faq-section" id="faq">
+    <div class="section-header fade-in">
+        <span class="section-label">FAQ</span>
+        <h2 class="section-title">Frequently Asked Questions</h2>
+        <p class="section-description">
+            Everything you need to know about Findly
+        </p>
+    </div>
+    
+    <div class="faq-container">
+        <div class="faq-item fade-in">
+            <div class="faq-question">
+                <span>Is Findly completely free to use?</span>
+                <span class="faq-icon">▼</span>
+            </div>
+            <div class="faq-answer">
+                <p class="faq-answer-content">
+                    Yes! Findly offers a generous free tier with unlimited basic analyses. Premium features 
+                    like advanced price tracking, detailed seller reports, and priority support are available 
+                    in our Pro plan.
+                </p>
+            </div>
+        </div>
+        
+        <div class="faq-item fade-in">
+            <div class="faq-question">
+                <span>Which shopping platforms are supported?</span>
+                <span class="faq-icon">▼</span>
+            </div>
+            <div class="faq-answer">
+                <p class="faq-answer-content">
+                    Findly currently supports Amazon, eBay, AliExpress, Walmart, and Target. We're constantly 
+                    adding new platforms based on user demand. Let us know if you'd like us to add a specific store!
+                </p>
+            </div>
+        </div>
+        
+        <div class="faq-item fade-in">
+            <div class="faq-question">
+                <span>How accurate is the price analysis?</span>
+                <span class="faq-icon">▼</span>
+            </div>
+            <div class="faq-answer">
+                <p class="faq-answer-content">
+                    Our AI achieves 97% accuracy in price predictions by analyzing millions of historical data 
+                    points. We track prices across multiple platforms and factor in seasonal trends, 
+                    competitor pricing, and market conditions.
+                </p>
+            </div>
+        </div>
+        
+        <div class="faq-item fade-in">
+            <div class="faq-question">
+                <span>Is my data private and secure?</span>
+                <span class="faq-icon">▼</span>
+            </div>
+            <div class="faq-answer">
+                <p class="faq-answer-content">
+                    Absolutely. We take privacy seriously. Your search history is encrypted and never sold to 
+                    third parties. We don't track your purchases for advertising purposes. Read our Privacy 
+                    Policy for more details.
+                </p>
+            </div>
+        </div>
+        
+        <div class="faq-item fade-in">
+            <div class="faq-question">
+                <span>Can I use Findly on mobile devices?</span>
+                <span class="faq-icon">▼</span>
+            </div>
+            <div class="faq-answer">
+                <p class="faq-answer-content">
+                    Yes! Findly is fully responsive and works great on all devices. We also offer a Progressive 
+                    Web App (PWA) that you can install on your phone for quick access. Native iOS and Android 
+                    apps are coming soon!
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="cta-container scale-in">
+        <div class="cta-bg"></div>
+        <div class="cta-content">
+            <h2>Start Making Smarter Decisions Today</h2>
+            <p>Join over 180,000 users who trust Findly for intelligent shopping</p>
+            <a href="app.html" class="btn-primary" style="display:inline-flex;">
+                <span>🚀</span>
+                Get Started Free
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="footer-container">
+        <div class="footer-brand">
+            <a href="#" class="logo">
+                <div class="logo-icon">⚡</div>
+                <span class="logo-text">Findly</span>
+            </a>
+            <p>AI-powered product intelligence platform that helps you make smarter, safer buying decisions.</p>
+            <div class="footer-social">
+                <a href="#" class="social-link">𝕏</a>
+                <a href="#" class="social-link">in</a>
+                <a href="#" class="social-link">📘</a>
+                <a href="#" class="social-link">📷</a>
+            </div>
+        </div>
+        
+        <div class="footer-column">
+            <h4>Product</h4>
+            <ul>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#">Pricing</a></li>
+                <li><a href="#">API</a></li>
+                <li><a href="#">Integrations</a></li>
+            </ul>
+        </div>
+        
+        <div class="footer-column">
+            <h4>Company</h4>
+            <ul>
+                <li><a href="about.html">About</a></li>
+                <li><a href="#">Blog</a></li>
+                <li><a href="#">Careers</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </div>
+        
+        <div class="footer-column">
+            <h4>Legal</h4>
+            <ul>
+                <li><a href="privacy.html">Privacy Policy</a></li>
+                <li><a href="terms.html">Terms of Service</a></li>
+                <li><a href="#">Cookie Policy</a></li>
+                <li><a href="#">GDPR</a></li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="footer-bottom">
+        <p>© 2026 Findly. All rights reserved.</p>
+        <div class="footer-bottom-links">
+            <a href="privacy.html">Privacy</a>
+            <a href="terms.html">Terms</a>
+            <a href="#">Sitemap</a>
+        </div>
+    </div>
+</footer>
+
+<!-- Back to Top Button -->
+<button class="back-to-top" id="backToTop">↑</button>
+
+<script>
+// ===== Particles Animation =====
+const canvas = document.getElementById('particles-canvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+let mouse = { x: null, y: null };
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+document.addEventListener('mousemove', (e) => {
+    mouse.x = e.x;
+    mouse.y = e.y;
+});
+
+class Particle {
+    constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2 + 0.5;
+        this.speedX = Math.random() * 0.5 - 0.25;
+        this.speedY = Math.random() * 0.5 - 0.25;
+        this.opacity = Math.random() * 0.5 + 0.2;
+    }
+    
+    update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        
+        if (mouse.x && mouse.y) {
+            const dx = mouse.x - this.x;
+            const dy = mouse.y - this.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            if (distance < 100) {
+                this.x -= dx * 0.02;
+                this.y -= dy * 0.02;
+            }
+        }
+        
+        if (this.x > canvas.width) this.x = 0;
+        if (this.x < 0) this.x = canvas.width;
+        if (this.y > canvas.height) this.y = 0;
+        if (this.y < 0) this.y = canvas.height;
+    }
+    
+    draw() {
+        ctx.fillStyle = `rgba(139, 92, 246, ${this.opacity})`;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
+function initParticles() {
+    particles = [];
+    const numParticles = Math.min(100, (canvas.width * canvas.height) / 15000);
+    for (let i = 0; i < numParticles; i++) {
+        particles.push(new Particle());
+    }
+}
+initParticles();
+
+function animateParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    particles.forEach((particle, i) => {
+        particle.update();
+        particle.draw();
+        
+        particles.forEach((particle2, j) => {
+            if (i !== j) {
+                const dx = particle.x - particle2.x;
+                const dy = particle.y - particle2.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance < 120) {
+                    ctx.strokeStyle = `rgba(139, 92, 246, ${0.15 * (1 - distance / 120)})`;
+                    ctx.lineWidth = 0.5;
+                    ctx.beginPath();
+                    ctx.moveTo(particle.x, particle.y);
+                    ctx.lineTo(particle2.x, particle2.y);
+                    ctx.stroke();
+                }
+            }
+        });
+    });
+    
+    requestAnimationFrame(animateParticles);
+}
+animateParticles();
+
+// ===== Progress Bar =====
+window.addEventListener('scroll', () => {
+    const scrollTop = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = (scrollTop / docHeight) * 100;
+    document.getElementById('progressBar').style.width = progress + '%';
+});
+
+// ===== Navbar Scroll Effect =====
+window.addEventListener('scroll', () => {
+    const navbar = document.getElementById('navbar');
+    if (window.scrollY > 50) {
+        navbar.classList.add('scrolled');
+    } else {
+        navbar.classList.remove('scrolled');
+    }
+});
+
+// ===== Back to Top Button =====
+const backToTop = document.getElementById('backToTop');
+window.addEventListener('scroll', () => {
+    if (window.scrollY > 500) {
+        backToTop.classList.add('show');
+    } else {
+        backToTop.classList.remove('show');
+    }
+});
+
+backToTop.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// ===== Scroll Animations =====
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('show');
+        }
+    });
+}, observerOptions);
+
+document.querySelectorAll('.fade-in, .slide-left, .slide-right, .scale-in').forEach(el => {
+    observer.observe(el);
+});
+
+// ===== Counter Animation =====
+function animateCounters() {
+    const counters = document.querySelectorAll('.stat-number');
+    
+    counters.forEach(counter => {
+        const target = parseInt(counter.getAttribute('data-target'));
+        const duration = 2000;
+        const increment = target / (duration / 16);
+        let current = 0;
+        
+        const updateCounter = () => {
+            current += increment;
+            if (current < target) {
+                counter.textContent = formatNumber(Math.floor(current));
+                requestAnimationFrame(updateCounter);
+            } else {
+                counter.textContent = formatNumber(target);
+            }
+        };
+        
+        updateCounter();
+    });
+}
+
+function formatNumber(num) {
+    if (num >= 1000000) {
+        return (num / 1000000).toFixed(1) + 'M+';
+    } else if (num >= 1000) {
+        return (num / 1000).toFixed(0) + 'K+';
+    }
+    return num + '+';
+}
+
+// Start counter animation when hero is visible
+const heroObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            setTimeout(animateCounters, 500);
+            heroObserver.disconnect();
+        }
+    });
+}, { threshold: 0.5 });
+
+const heroStats = document.querySelector('.hero-stats');
+if (heroStats) {
+    heroObserver.observe(heroStats);
+}
+
+// ===== FAQ Accordion =====
+document.querySelectorAll('.faq-question').forEach(question => {
+    question.addEventListener('click', () => {
+        const faqItem = question.parentElement;
+        const isActive = faqItem.classList.contains('active');
+        
+        // Close all FAQ items
+        document.querySelectorAll('.faq-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        
+        // Open clicked item if it wasn't active
+        if (!isActive) {
+            faqItem.classList.add('active');
+        }
+    });
+});
+
+// ===== Mobile Menu =====
+const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+mobileMenuBtn.addEventListener('click', () => {
+    mobileMenuBtn.classList.toggle('active');
+});
+
+// ===== Service Worker =====
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
+</script>
+
+</body>
+</html>

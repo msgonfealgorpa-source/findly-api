@@ -1,0 +1,2301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Findly | AI-Powered Product Intelligence Platform</title>
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#8b5cf6">
+<meta name="description" content="Findly is an AI-powered product intelligence platform that analyzes price trends, seller behavior, and market signals.">
+
+<!-- Premium Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+    --primary:#8b5cf6;
+    --primary-light:#a78bfa;
+    --primary-dark:#7c3aed;
+    --bg:#020617;
+    --bg-secondary:#0a0f1a;
+    --card:rgba(15,23,42,0.8);
+    --card-border:rgba(139,92,246,0.2);
+    --text:#f8fafc;
+    --muted:#94a3b8;
+    --success:#10b981;
+    --warning:#f59e0b;
+    --error:#ef4444;
+    --gradient-1:linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+    --gradient-2:linear-gradient(135deg, #06b6d4 0%, #8b5cf6 100%);
+    --glass:rgba(255,255,255,0.05);
+    --glass-border:rgba(255,255,255,0.1);
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    font-family:'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    overflow-x:hidden;
+    line-height:1.6;
+}
+
+/* ===== Scrollbar ===== */
+::-webkit-scrollbar{
+    width:8px;
+}
+::-webkit-scrollbar-track{
+    background:var(--bg);
+}
+::-webkit-scrollbar-thumb{
+    background:var(--primary);
+    border-radius:4px;
+}
+
+/* ===== Particles Background ===== */
+#particles-canvas{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+    z-index:0;
+}
+
+/* ===== Progress Bar ===== */
+.progress-bar{
+    position:fixed;
+    top:0;
+    left:0;
+    height:3px;
+    background:var(--gradient-1);
+    z-index:9999;
+    transition:width 0.1s;
+}
+
+/* ===== Navigation ===== */
+.nav-wrapper{
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
+    z-index:1000;
+    padding:15px 0;
+    transition:all 0.3s ease;
+}
+
+.nav-wrapper.scrolled{
+    background:rgba(2,6,23,0.85);
+    backdrop-filter:blur(20px);
+    -webkit-backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--glass-border);
+    padding:12px 0;
+}
+
+.nav-container{
+    max-width:1300px;
+    margin:auto;
+    padding:0 30px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.logo{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    text-decoration:none;
+}
+
+.logo-icon{
+    width:42px;
+    height:42px;
+    background:var(--gradient-1);
+    border-radius:12px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:20px;
+    box-shadow:0 4px 15px rgba(139,92,246,0.4);
+}
+
+.logo-text{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:26px;
+    font-weight:700;
+    background:var(--gradient-1);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    background-clip:text;
+}
+
+.nav-links{
+    display:flex;
+    align-items:center;
+    gap:35px;
+}
+
+.nav-links a{
+    color:var(--muted);
+    text-decoration:none;
+    font-size:14px;
+    font-weight:500;
+    transition:color 0.3s;
+    position:relative;
+}
+
+.nav-links a::after{
+    content:'';
+    position:absolute;
+    bottom:-5px;
+    left:0;
+    width:0;
+    height:2px;
+    background:var(--primary);
+    transition:width 0.3s;
+}
+
+.nav-links a:hover{
+    color:var(--text);
+}
+
+.nav-links a:hover::after{
+    width:100%;
+}
+
+.nav-cta{
+    padding:12px 28px;
+    background:var(--gradient-1);
+    color:white;
+    text-decoration:none;
+    border-radius:10px;
+    font-weight:600;
+    font-size:14px;
+    transition:all 0.3s;
+    box-shadow:0 4px 20px rgba(139,92,246,0.3);
+}
+
+.nav-cta:hover{
+    transform:translateY(-2px);
+    box-shadow:0 8px 30px rgba(139,92,246,0.5);
+}
+
+.mobile-menu-btn{
+    display:none;
+    flex-direction:column;
+    gap:5px;
+    cursor:pointer;
+    padding:5px;
+}
+
+.mobile-menu-btn span{
+    width:25px;
+    height:2px;
+    background:var(--text);
+    transition:all 0.3s;
+}
+
+/* ===== Hero Section ===== */
+.hero{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:120px 20px 100px;
+    position:relative;
+    overflow:hidden;
+}
+
+.hero-bg{
+    position:absolute;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    background:radial-gradient(ellipse at top, rgba(139,92,246,0.2) 0%, transparent 50%),
+                radial-gradient(ellipse at bottom right, rgba(236,72,153,0.1) 0%, transparent 50%);
+    z-index:1;
+}
+
+.hero-glow{
+    position:absolute;
+    width:600px;
+    height:600px;
+    background:radial-gradient(circle, rgba(139,92,246,0.3) 0%, transparent 70%);
+    border-radius:50%;
+    top:50%;
+    left:50%;
+    transform:translate(-50%, -50%);
+    animation:pulse 4s ease-in-out infinite;
+    z-index:1;
+}
+
+@keyframes pulse{
+    0%, 100%{ transform:translate(-50%, -50%) scale(1); opacity:0.5; }
+    50%{ transform:translate(-50%, -50%) scale(1.1); opacity:0.3; }
+}
+
+.hero-content{
+    position:relative;
+    z-index:2;
+    max-width:900px;
+}
+
+.hero-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 18px;
+    background:var(--glass);
+    border:1px solid var(--glass-border);
+    border-radius:50px;
+    font-size:13px;
+    color:var(--primary-light);
+    margin-bottom:30px;
+    backdrop-filter:blur(10px);
+}
+
+.hero-badge-dot{
+    width:8px;
+    height:8px;
+    background:var(--success);
+    border-radius:50%;
+    animation:blink 2s infinite;
+}
+
+@keyframes blink{
+    0%, 100%{ opacity:1; }
+    50%{ opacity:0.3; }
+}
+
+.hero h1{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:clamp(40px, 8vw, 72px);
+    font-weight:800;
+    line-height:1.1;
+    margin-bottom:25px;
+    letter-spacing:-2px;
+}
+
+.hero h1 .gradient-text{
+    background:var(--gradient-1);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    background-clip:text;
+}
+
+.hero-description{
+    font-size:clamp(16px, 2.5vw, 20px);
+    color:var(--muted);
+    max-width:650px;
+    margin:0 auto 40px;
+    line-height:1.8;
+}
+
+.hero-buttons{
+    display:flex;
+    gap:20px;
+    justify-content:center;
+    flex-wrap:wrap;
+}
+
+.btn-primary{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding:16px 36px;
+    background:var(--gradient-1);
+    color:white;
+    text-decoration:none;
+    border-radius:12px;
+    font-weight:600;
+    font-size:16px;
+    transition:all 0.3s;
+    box-shadow:0 4px 25px rgba(139,92,246,0.4);
+    border:none;
+    cursor:pointer;
+}
+
+.btn-primary:hover{
+    transform:translateY(-3px);
+    box-shadow:0 10px 40px rgba(139,92,246,0.5);
+}
+
+.btn-secondary{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding:16px 36px;
+    background:var(--glass);
+    color:var(--text);
+    text-decoration:none;
+    border-radius:12px;
+    font-weight:600;
+    font-size:16px;
+    border:1px solid var(--glass-border);
+    transition:all 0.3s;
+    backdrop-filter:blur(10px);
+}
+
+.btn-secondary:hover{
+    background:rgba(255,255,255,0.1);
+    border-color:var(--primary);
+    transform:translateY(-3px);
+}
+
+/* ===== Stats Section ===== */
+.stats-section{
+    padding:60px 20px;
+    background:var(--bg-secondary);
+    position:relative;
+    z-index:2;
+}
+
+.stats-container{
+    max-width:1000px;
+    margin:auto;
+    display:flex;
+    justify-content:center;
+    gap:60px;
+    flex-wrap:wrap;
+}
+
+.stat-item{
+    text-align:center;
+}
+
+.stat-number{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:48px;
+    font-weight:700;
+    background:var(--gradient-1);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    background-clip:text;
+}
+
+.stat-label{
+    font-size:14px;
+    color:var(--muted);
+    margin-top:5px;
+}
+
+.stat-change{
+    font-size:12px;
+    color:var(--success);
+    margin-top:3px;
+}
+
+/* ===== Features Section ===== */
+.features-section{
+    padding:120px 20px;
+    position:relative;
+    z-index:2;
+}
+
+.section-header{
+    text-align:center;
+    max-width:700px;
+    margin:0 auto 80px;
+}
+
+.section-label{
+    display:inline-block;
+    padding:8px 16px;
+    background:rgba(139,92,246,0.1);
+    border:1px solid rgba(139,92,246,0.3);
+    border-radius:50px;
+    font-size:13px;
+    color:var(--primary-light);
+    margin-bottom:20px;
+}
+
+.section-title{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:clamp(32px, 5vw, 48px);
+    font-weight:700;
+    margin-bottom:20px;
+    letter-spacing:-1px;
+}
+
+.section-description{
+    color:var(--muted);
+    font-size:18px;
+    line-height:1.7;
+}
+
+.features-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(350px, 1fr));
+    gap:30px;
+    max-width:1200px;
+    margin:auto;
+}
+
+.feature-card{
+    background:var(--card);
+    border:1px solid var(--card-border);
+    border-radius:20px;
+    padding:40px;
+    transition:all 0.4s ease;
+    position:relative;
+    overflow:hidden;
+}
+
+.feature-card::before{
+    content:'';
+    position:absolute;
+    top:0;
+    left:0;
+    right:0;
+    height:3px;
+    background:var(--gradient-1);
+    opacity:0;
+    transition:opacity 0.3s;
+}
+
+.feature-card:hover{
+    transform:translateY(-8px);
+    border-color:var(--primary);
+    box-shadow:0 20px 60px rgba(139,92,246,0.15);
+}
+
+.feature-card:hover::before{
+    opacity:1;
+}
+
+.feature-icon{
+    width:60px;
+    height:60px;
+    background:var(--gradient-1);
+    border-radius:16px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:28px;
+    margin-bottom:25px;
+    box-shadow:0 8px 25px rgba(139,92,246,0.3);
+}
+
+.feature-card h3{
+    font-size:22px;
+    font-weight:600;
+    margin-bottom:15px;
+}
+
+.feature-card p{
+    color:var(--muted);
+    font-size:15px;
+    line-height:1.7;
+}
+
+.feature-tag{
+    display:inline-block;
+    padding:5px 12px;
+    background:rgba(16,185,129,0.1);
+    color:var(--success);
+    border-radius:50px;
+    font-size:12px;
+    margin-top:20px;
+}
+
+/* ===== How It Works Section ===== */
+.how-section{
+    padding:120px 20px;
+    background:var(--bg-secondary);
+    position:relative;
+    z-index:2;
+}
+
+.steps-container{
+    max-width:1100px;
+    margin:auto;
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));
+    gap:40px;
+    position:relative;
+}
+
+.step-card{
+    text-align:center;
+    padding:40px 30px;
+    position:relative;
+}
+
+.step-number{
+    width:70px;
+    height:70px;
+    background:var(--gradient-1);
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Space Grotesk', sans-serif;
+    font-size:28px;
+    font-weight:700;
+    margin:0 auto 25px;
+    box-shadow:0 8px 30px rgba(139,92,246,0.4);
+    position:relative;
+}
+
+.step-number::after{
+    content:'';
+    position:absolute;
+    width:90px;
+    height:90px;
+    border:2px dashed var(--glass-border);
+    border-radius:50%;
+    animation:rotate 20s linear infinite;
+}
+
+@keyframes rotate{
+    from{ transform:rotate(0deg); }
+    to{ transform:rotate(360deg); }
+}
+
+.step-card h3{
+    font-size:20px;
+    font-weight:600;
+    margin-bottom:15px;
+}
+
+.step-card p{
+    color:var(--muted);
+    font-size:15px;
+    line-height:1.7;
+}
+
+/* ===== Reviews Section ===== */
+.reviews-section{
+    padding:120px 20px;
+    position:relative;
+    z-index:2;
+}
+
+.reviews-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    max-width:1200px;
+    margin:0 auto 60px;
+    flex-wrap:wrap;
+    gap:30px;
+}
+
+.reviews-header-left h2{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:clamp(28px, 4vw, 40px);
+    font-weight:700;
+    margin-bottom:10px;
+}
+
+.reviews-header-left p{
+    color:var(--muted);
+    font-size:16px;
+}
+
+.reviews-summary{
+    display:flex;
+    align-items:center;
+    gap:30px;
+    padding:25px 35px;
+    background:var(--card);
+    border:1px solid var(--card-border);
+    border-radius:16px;
+}
+
+.summary-score{
+    text-align:center;
+}
+
+.summary-number{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:56px;
+    font-weight:700;
+    background:var(--gradient-1);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    background-clip:text;
+}
+
+.summary-stars{
+    color:#fbbf24;
+    font-size:20px;
+    margin-top:5px;
+}
+
+.summary-count{
+    font-size:13px;
+    color:var(--muted);
+    margin-top:5px;
+}
+
+.summary-bars{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+}
+
+.bar-item{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-size:13px;
+}
+
+.bar-label{
+    width:20px;
+    color:var(--muted);
+}
+
+.bar-fill{
+    width:120px;
+    height:8px;
+    background:var(--glass);
+    border-radius:4px;
+    overflow:hidden;
+}
+
+.bar-fill span{
+    display:block;
+    height:100%;
+    background:var(--gradient-1);
+    border-radius:4px;
+    transition:width 0.5s ease;
+}
+
+.bar-count{
+    color:var(--muted);
+    width:30px;
+}
+
+/* Write Review Button */
+.write-review-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding:14px 28px;
+    background:var(--gradient-1);
+    color:white;
+    border:none;
+    border-radius:10px;
+    font-weight:600;
+    font-size:15px;
+    cursor:pointer;
+    transition:all 0.3s;
+    box-shadow:0 4px 20px rgba(139,92,246,0.3);
+}
+
+.write-review-btn:hover{
+    transform:translateY(-3px);
+    box-shadow:0 8px 30px rgba(139,92,246,0.5);
+}
+
+/* Reviews Grid */
+.reviews-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(380px, 1fr));
+    gap:25px;
+    max-width:1200px;
+    margin:auto;
+}
+
+.review-card{
+    background:var(--card);
+    border:1px solid var(--card-border);
+    border-radius:16px;
+    padding:30px;
+    transition:all 0.3s;
+}
+
+.review-card:hover{
+    transform:translateY(-5px);
+    border-color:var(--primary);
+}
+
+.review-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    margin-bottom:15px;
+}
+
+.review-author{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.author-avatar{
+    width:48px;
+    height:48px;
+    background:var(--gradient-1);
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:700;
+    font-size:18px;
+}
+
+.author-info h4{
+    font-size:15px;
+    font-weight:600;
+    margin-bottom:3px;
+}
+
+.author-info span{
+    font-size:12px;
+    color:var(--muted);
+}
+
+.review-rating{
+    color:#fbbf24;
+    font-size:14px;
+}
+
+.review-text{
+    color:var(--text);
+    font-size:15px;
+    line-height:1.7;
+    margin-bottom:15px;
+}
+
+.review-footer{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding-top:15px;
+    border-top:1px solid var(--glass-border);
+}
+
+.review-date{
+    font-size:12px;
+    color:var(--muted);
+}
+
+.review-helpful{
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+.helpful-btn{
+    display:flex;
+    align-items:center;
+    gap:5px;
+    background:none;
+    border:none;
+    color:var(--muted);
+    font-size:13px;
+    cursor:pointer;
+    transition:color 0.3s;
+}
+
+.helpful-btn:hover{
+    color:var(--primary);
+}
+
+/* Review Modal */
+.modal-overlay{
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    background:rgba(0,0,0,0.8);
+    backdrop-filter:blur(10px);
+    z-index:10000;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    opacity:0;
+    visibility:hidden;
+    transition:all 0.3s;
+}
+
+.modal-overlay.active{
+    opacity:1;
+    visibility:visible;
+}
+
+.modal-content{
+    background:var(--card);
+    border:1px solid var(--card-border);
+    border-radius:20px;
+    padding:40px;
+    max-width:500px;
+    width:100%;
+    max-height:90vh;
+    overflow-y:auto;
+    transform:scale(0.9);
+    transition:transform 0.3s;
+}
+
+.modal-overlay.active .modal-content{
+    transform:scale(1);
+}
+
+.modal-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:30px;
+}
+
+.modal-header h3{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:24px;
+    font-weight:700;
+}
+
+.modal-close{
+    width:40px;
+    height:40px;
+    background:var(--glass);
+    border:1px solid var(--glass-border);
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:20px;
+    cursor:pointer;
+    transition:all 0.3s;
+}
+
+.modal-close:hover{
+    background:rgba(239,68,68,0.2);
+    border-color:#ef4444;
+    color:#ef4444;
+}
+
+.form-group{
+    margin-bottom:25px;
+}
+
+.form-group label{
+    display:block;
+    font-size:14px;
+    font-weight:500;
+    margin-bottom:10px;
+    color:var(--text);
+}
+
+.form-group input,
+.form-group textarea{
+    width:100%;
+    padding:14px 18px;
+    background:var(--glass);
+    border:1px solid var(--glass-border);
+    border-radius:10px;
+    color:var(--text);
+    font-size:15px;
+    font-family:inherit;
+    transition:all 0.3s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus{
+    outline:none;
+    border-color:var(--primary);
+    box-shadow:0 0 0 3px rgba(139,92,246,0.1);
+}
+
+.form-group textarea{
+    min-height:120px;
+    resize:vertical;
+}
+
+/* Star Rating Input */
+.star-rating{
+    display:flex;
+    gap:8px;
+    flex-direction:row-reverse;
+    justify-content:flex-end;
+}
+
+.star-rating input{
+    display:none;
+}
+
+.star-rating label{
+    font-size:32px;
+    color:var(--muted);
+    cursor:pointer;
+    transition:all 0.2s;
+}
+
+.star-rating label:hover,
+.star-rating label:hover ~ label,
+.star-rating input:checked ~ label{
+    color:#fbbf24;
+}
+
+.submit-review-btn{
+    width:100%;
+    padding:16px;
+    background:var(--gradient-1);
+    color:white;
+    border:none;
+    border-radius:12px;
+    font-weight:600;
+    font-size:16px;
+    cursor:pointer;
+    transition:all 0.3s;
+}
+
+.submit-review-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 8px 30px rgba(139,92,246,0.4);
+}
+
+.submit-review-btn:disabled{
+    opacity:0.6;
+    cursor:not-allowed;
+    transform:none;
+}
+
+/* Success Message */
+.success-message{
+    text-align:center;
+    padding:40px 20px;
+}
+
+.success-icon{
+    width:80px;
+    height:80px;
+    background:rgba(16,185,129,0.2);
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:40px;
+    margin:0 auto 20px;
+    color:var(--success);
+}
+
+.success-message h3{
+    font-size:22px;
+    margin-bottom:10px;
+}
+
+.success-message p{
+    color:var(--muted);
+}
+
+/* No Reviews */
+.no-reviews{
+    text-align:center;
+    padding:60px 20px;
+    background:var(--card);
+    border:1px solid var(--card-border);
+    border-radius:16px;
+    max-width:600px;
+    margin:auto;
+}
+
+.no-reviews-icon{
+    font-size:60px;
+    margin-bottom:20px;
+}
+
+.no-reviews h3{
+    font-size:20px;
+    margin-bottom:10px;
+}
+
+.no-reviews p{
+    color:var(--muted);
+    margin-bottom:25px;
+}
+
+/* Loading State */
+.loading-reviews{
+    text-align:center;
+    padding:60px 20px;
+}
+
+.loading-spinner{
+    width:50px;
+    height:50px;
+    border:3px solid var(--glass-border);
+    border-top-color:var(--primary);
+    border-radius:50%;
+    animation:spin 1s linear infinite;
+    margin:0 auto 20px;
+}
+
+@keyframes spin{
+    to{ transform:rotate(360deg); }
+}
+
+.loading-reviews p{
+    color:var(--muted);
+}
+
+/* Error State */
+.error-message{
+    text-align:center;
+    padding:40px 20px;
+    background:rgba(239,68,68,0.1);
+    border:1px solid rgba(239,68,68,0.3);
+    border-radius:16px;
+    max-width:600px;
+    margin:auto;
+}
+
+.error-message p{
+    color:var(--error);
+    margin-bottom:15px;
+}
+
+.retry-btn{
+    padding:10px 20px;
+    background:var(--error);
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:14px;
+}
+
+/* ===== FAQ Section ===== */
+.faq-section{
+    padding:120px 20px;
+    background:var(--bg-secondary);
+    position:relative;
+    z-index:2;
+}
+
+.faq-container{
+    max-width:800px;
+    margin:auto;
+}
+
+.faq-item{
+    background:var(--card);
+    border:1px solid var(--card-border);
+    border-radius:16px;
+    margin-bottom:15px;
+    overflow:hidden;
+    transition:all 0.3s;
+}
+
+.faq-item:hover{
+    border-color:var(--primary);
+}
+
+.faq-question{
+    padding:25px 30px;
+    cursor:pointer;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-weight:600;
+    font-size:16px;
+}
+
+.faq-icon{
+    width:30px;
+    height:30px;
+    background:var(--glass);
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:transform 0.3s;
+}
+
+.faq-item.active .faq-icon{
+    transform:rotate(180deg);
+}
+
+.faq-answer{
+    max-height:0;
+    overflow:hidden;
+    transition:max-height 0.3s ease;
+}
+
+.faq-item.active .faq-answer{
+    max-height:300px;
+}
+
+.faq-answer-content{
+    padding:0 30px 25px;
+    color:var(--muted);
+    font-size:15px;
+    line-height:1.8;
+}
+
+/* ===== CTA Section ===== */
+.cta-section{
+    padding:120px 20px;
+    position:relative;
+    z-index:2;
+    text-align:center;
+}
+
+.cta-container{
+    max-width:800px;
+    margin:auto;
+    background:var(--card);
+    border:1px solid var(--card-border);
+    border-radius:30px;
+    padding:80px 60px;
+    position:relative;
+    overflow:hidden;
+}
+
+.cta-bg{
+    position:absolute;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    background:radial-gradient(circle at top right, rgba(139,92,246,0.2), transparent 60%);
+    z-index:0;
+}
+
+.cta-content{
+    position:relative;
+    z-index:1;
+}
+
+.cta-content h2{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:clamp(28px, 4vw, 42px);
+    font-weight:700;
+    margin-bottom:20px;
+}
+
+.cta-content p{
+    color:var(--muted);
+    font-size:18px;
+    margin-bottom:40px;
+}
+
+/* ===== Footer ===== */
+.footer{
+    padding:80px 20px 40px;
+    background:var(--bg-secondary);
+    border-top:1px solid var(--glass-border);
+    position:relative;
+    z-index:2;
+}
+
+.footer-container{
+    max-width:1200px;
+    margin:auto;
+    display:grid;
+    grid-template-columns:2fr 1fr 1fr 1fr;
+    gap:60px;
+}
+
+.footer-brand p{
+    color:var(--muted);
+    font-size:14px;
+    line-height:1.8;
+    margin-top:20px;
+    max-width:300px;
+}
+
+.footer-social{
+    display:flex;
+    gap:15px;
+    margin-top:25px;
+}
+
+.social-link{
+    width:40px;
+    height:40px;
+    background:var(--glass);
+    border:1px solid var(--glass-border);
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--muted);
+    text-decoration:none;
+    transition:all 0.3s;
+}
+
+.social-link:hover{
+    background:var(--primary);
+    color:white;
+    border-color:var(--primary);
+}
+
+.footer-column h4{
+    font-size:14px;
+    font-weight:600;
+    margin-bottom:20px;
+    color:var(--text);
+}
+
+.footer-column ul{
+    list-style:none;
+}
+
+.footer-column li{
+    margin-bottom:12px;
+}
+
+.footer-column a{
+    color:var(--muted);
+    text-decoration:none;
+    font-size:14px;
+    transition:color 0.3s;
+}
+
+.footer-column a:hover{
+    color:var(--primary);
+}
+
+.footer-bottom{
+    max-width:1200px;
+    margin:60px auto 0;
+    padding-top:30px;
+    border-top:1px solid var(--glass-border);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:20px;
+}
+
+.footer-bottom p{
+    color:var(--muted);
+    font-size:14px;
+}
+
+.footer-bottom-links{
+    display:flex;
+    gap:30px;
+}
+
+.footer-bottom-links a{
+    color:var(--muted);
+    text-decoration:none;
+    font-size:14px;
+    transition:color 0.3s;
+}
+
+.footer-bottom-links a:hover{
+    color:var(--primary);
+}
+
+/* ===== Back to Top ===== */
+.back-to-top{
+    position:fixed;
+    bottom:30px;
+    right:30px;
+    width:50px;
+    height:50px;
+    background:var(--gradient-1);
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-size:20px;
+    cursor:pointer;
+    opacity:0;
+    visibility:hidden;
+    transition:all 0.3s;
+    z-index:999;
+    box-shadow:0 4px 20px rgba(139,92,246,0.4);
+    border:none;
+}
+
+.back-to-top.show{
+    opacity:1;
+    visibility:visible;
+}
+
+.back-to-top:hover{
+    transform:translateY(-5px);
+}
+
+/* ===== Animations ===== */
+.fade-in{
+    opacity:0;
+    transform:translateY(40px);
+    transition:all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fade-in.show{
+    opacity:1;
+    transform:translateY(0);
+}
+
+.scale-in{
+    opacity:0;
+    transform:scale(0.9);
+    transition:all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.scale-in.show{
+    opacity:1;
+    transform:scale(1);
+}
+
+.stagger-1{ transition-delay:0.1s; }
+.stagger-2{ transition-delay:0.2s; }
+.stagger-3{ transition-delay:0.3s; }
+.stagger-4{ transition-delay:0.4s; }
+.stagger-5{ transition-delay:0.5s; }
+
+/* ===== Responsive ===== */
+@media(max-width:1024px){
+    .footer-container{
+        grid-template-columns:1fr 1fr;
+    }
+    
+    .reviews-header{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+    
+    .reviews-summary{
+        width:100%;
+    }
+}
+
+@media(max-width:768px){
+    .nav-links{
+        display:none;
+    }
+    
+    .mobile-menu-btn{
+        display:flex;
+    }
+    
+    .features-grid{
+        grid-template-columns:1fr;
+    }
+    
+    .reviews-grid{
+        grid-template-columns:1fr;
+    }
+    
+    .reviews-summary{
+        flex-direction:column;
+        text-align:center;
+    }
+    
+    .footer-container{
+        grid-template-columns:1fr;
+        gap:40px;
+    }
+    
+    .footer-bottom{
+        flex-direction:column;
+        text-align:center;
+    }
+    
+    .cta-container{
+        padding:50px 30px;
+    }
+    
+    .stats-container{
+        gap:40px;
+    }
+    
+    .stat-number{
+        font-size:36px;
+    }
+}
+
+@media(max-width:480px){
+    .hero h1{
+        font-size:32px;
+    }
+    
+    .hero-buttons{
+        flex-direction:column;
+        width:100%;
+    }
+    
+    .btn-primary, .btn-secondary{
+        width:100%;
+        justify-content:center;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- Progress Bar -->
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- Particles Canvas -->
+<canvas id="particles-canvas"></canvas>
+
+<!-- Navigation -->
+<nav class="nav-wrapper" id="navbar">
+    <div class="nav-container">
+        <a href="#" class="logo">
+            <div class="logo-icon">⚡</div>
+            <span class="logo-text">Findly</span>
+        </a>
+        <div class="nav-links">
+            <a href="#features">Features</a>
+            <a href="#how-it-works">How it Works</a>
+            <a href="#reviews">Reviews</a>
+            <a href="#faq">FAQ</a>
+            <a href="app.html" class="nav-cta">Try Now</a>
+        </div>
+        <div class="mobile-menu-btn" id="mobileMenuBtn">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-glow"></div>
+    <div class="hero-content">
+        <div class="hero-badge fade-in">
+            <span class="hero-badge-dot"></span>
+            AI-Powered Intelligence Platform
+        </div>
+        <h1 class="fade-in stagger-1">
+            <span class="gradient-text">Intelligence</span> Before<br>Every Purchase
+        </h1>
+        <p class="hero-description fade-in stagger-2">
+            Transform complex product data into clear, actionable insights. 
+            Analyze prices, detect risks, and make smarter decisions with AI-powered intelligence.
+        </p>
+        <div class="hero-buttons fade-in stagger-3">
+            <a href="app.html" class="btn-primary">
+                <span>🚀</span>
+                Start Analyzing
+            </a>
+            <a href="#reviews" class="btn-secondary">
+                <span>⭐</span>
+                See Reviews
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats-section fade-in">
+    <div class="stats-container">
+        <div class="stat-item">
+            <div class="stat-number" id="totalReviews">-</div>
+            <div class="stat-label">User Reviews</div>
+            <div class="stat-change" id="todayReviews">Loading...</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number" id="avgRating">-</div>
+            <div class="stat-label">Average Rating</div>
+            <div class="stat-change">⭐⭐⭐⭐⭐</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number" id="satisfactionRate">-%</div>
+            <div class="stat-label">Satisfaction Rate</div>
+            <div class="stat-change">5 star reviews</div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section" id="features">
+    <div class="section-header fade-in">
+        <span class="section-label">Features</span>
+        <h2 class="section-title">Powerful AI at Your Fingertips</h2>
+        <p class="section-description">
+            Advanced algorithms working 24/7 to protect your wallet and ensure you get the best deals.
+        </p>
+    </div>
+    
+    <div class="features-grid">
+        <div class="feature-card fade-in stagger-1">
+            <div class="feature-icon">📊</div>
+            <h3>Real-Time Price Analysis</h3>
+            <p>Instant analysis of pricing history, market trends, and competitive pricing across multiple platforms to ensure you're getting the best deal possible.</p>
+            <span class="feature-tag">✓ Instant Results</span>
+        </div>
+        
+        <div class="feature-card fade-in stagger-2">
+            <div class="feature-icon">🛡️</div>
+            <h3>Risk Intelligence Engine</h3>
+            <p>Advanced detection of pricing anomalies, suspicious seller patterns, and potential scams before you make a purchase decision.</p>
+            <span class="feature-tag">✓ Fraud Protection</span>
+        </div>
+        
+        <div class="feature-card fade-in stagger-3">
+            <div class="feature-icon">🎯</div>
+            <h3>Smart Recommendations</h3>
+            <p>Personalized product suggestions based on your preferences, budget, and shopping behavior powered by machine learning.</p>
+            <span class="feature-tag">✓ AI Powered</span>
+        </div>
+        
+        <div class="feature-card fade-in stagger-4">
+            <div class="feature-icon">⚡</div>
+            <h3>Deal Quality Score</h3>
+            <p>Every product gets a comprehensive quality score based on price, seller reputation, reviews, and market position.</p>
+            <span class="feature-tag">✓ Transparent</span>
+        </div>
+        
+        <div class="feature-card fade-in stagger-5">
+            <div class="feature-icon">🌐</div>
+            <h3>Multi-Platform Support</h3>
+            <p>Seamlessly analyze products from Amazon, eBay, AliExpress, and more from a single unified dashboard.</p>
+            <span class="feature-tag">✓ Universal</span>
+        </div>
+        
+        <div class="feature-card fade-in stagger-5">
+            <div class="feature-icon">🔒</div>
+            <h3>Privacy First</h3>
+            <p>Your data stays yours. We never sell your information or track your purchases for advertising purposes.</p>
+            <span class="feature-tag">✓ 100% Private</span>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="how-section" id="how-it-works">
+    <div class="section-header fade-in">
+        <span class="section-label">Process</span>
+        <h2 class="section-title">How Findly Works</h2>
+        <p class="section-description">
+            Three simple steps to smarter shopping decisions
+        </p>
+    </div>
+    
+    <div class="steps-container">
+        <div class="step-card fade-in stagger-1">
+            <div class="step-number">1</div>
+            <h3>Paste Product URL</h3>
+            <p>Simply copy and paste any product link from supported platforms. Our system handles the rest automatically.</p>
+        </div>
+        
+        <div class="step-card fade-in stagger-2">
+            <div class="step-number">2</div>
+            <h3>AI Analysis</h3>
+            <p>Our AI engine analyzes price history, seller reputation, reviews, and market data in real-time.</p>
+        </div>
+        
+        <div class="step-card fade-in stagger-3">
+            <div class="step-number">3</div>
+            <h3>Get Insights</h3>
+            <p>Receive comprehensive insights, risk scores, and recommendations to make informed decisions.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Reviews Section -->
+<section class="reviews-section" id="reviews">
+    <div class="reviews-header fade-in">
+        <div class="reviews-header-left">
+            <h2>User Reviews</h2>
+            <p>See what our community says about Findly</p>
+        </div>
+        <div class="reviews-summary">
+            <div class="summary-score">
+                <div class="summary-number" id="summaryScore">-</div>
+                <div class="summary-stars" id="summaryStars">☆☆☆☆☆</div>
+                <div class="summary-count" id="summaryCount">Loading...</div>
+            </div>
+            <div class="summary-bars">
+                <div class="bar-item">
+                    <span class="bar-label">5</span>
+                    <div class="bar-fill"><span id="bar5" style="width:0%"></span></div>
+                    <span class="bar-count" id="count5">-</span>
+                </div>
+                <div class="bar-item">
+                    <span class="bar-label">4</span>
+                    <div class="bar-fill"><span id="bar4" style="width:0%"></span></div>
+                    <span class="bar-count" id="count4">-</span>
+                </div>
+                <div class="bar-item">
+                    <span class="bar-label">3</span>
+                    <div class="bar-fill"><span id="bar3" style="width:0%"></span></div>
+                    <span class="bar-count" id="count3">-</span>
+                </div>
+                <div class="bar-item">
+                    <span class="bar-label">2</span>
+                    <div class="bar-fill"><span id="bar2" style="width:0%"></span></div>
+                    <span class="bar-count" id="count2">-</span>
+                </div>
+                <div class="bar-item">
+                    <span class="bar-label">1</span>
+                    <div class="bar-fill"><span id="bar1" style="width:0%"></span></div>
+                    <span class="bar-count" id="count1">-</span>
+                </div>
+            </div>
+        </div>
+        <button class="write-review-btn" onclick="openReviewModal()">
+            <span>✍️</span>
+            Write a Review
+        </button>
+    </div>
+    
+    <!-- Loading State -->
+    <div class="loading-reviews" id="loadingReviews">
+        <div class="loading-spinner"></div>
+        <p>Loading reviews...</p>
+    </div>
+    
+    <!-- Error State -->
+    <div class="error-message" id="errorReviews" style="display:none;">
+        <p>⚠️ Failed to load reviews. Please check your connection.</p>
+        <button class="retry-btn" onclick="loadReviews()">Retry</button>
+    </div>
+    
+    <!-- Reviews Grid -->
+    <div class="reviews-grid" id="reviewsGrid" style="display:none;">
+        <!-- Reviews will be loaded here -->
+    </div>
+    
+    <!-- No Reviews -->
+    <div class="no-reviews" id="noReviews" style="display:none;">
+        <div class="no-reviews-icon">📝</div>
+        <h3>No Reviews Yet</h3>
+        <p>Be the first to share your experience with Findly!</p>
+        <button class="write-review-btn" onclick="openReviewModal()">
+            <span>✍️</span>
+            Write the First Review
+        </button>
+    </div>
+</section>
+
+<!-- Review Modal -->
+<div class="modal-overlay" id="reviewModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Write a Review</h3>
+            <button class="modal-close" onclick="closeReviewModal()">✕</button>
+        </div>
+        
+        <form id="reviewForm" onsubmit="submitReview(event)">
+            <div class="form-group">
+                <label>Your Name</label>
+                <input type="text" id="reviewerName" placeholder="Enter your name" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Your Rating</label>
+                <div class="star-rating">
+                    <input type="radio" name="rating" value="5" id="star5" required>
+                    <label for="star5">★</label>
+                    <input type="radio" name="rating" value="4" id="star4">
+                    <label for="star4">★</label>
+                    <input type="radio" name="rating" value="3" id="star3">
+                    <label for="star3">★</label>
+                    <input type="radio" name="rating" value="2" id="star2">
+                    <label for="star2">★</label>
+                    <input type="radio" name="rating" value="1" id="star1">
+                    <label for="star1">★</label>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Your Review</label>
+                <textarea id="reviewText" placeholder="Share your experience with Findly..." required></textarea>
+            </div>
+            
+            <button type="submit" class="submit-review-btn" id="submitBtn">
+                Submit Review
+            </button>
+        </form>
+        
+        <div class="success-message" id="successMessage" style="display:none;">
+            <div class="success-icon">✓</div>
+            <h3>Thank You!</h3>
+            <p>Your review has been submitted successfully.</p>
+        </div>
+    </div>
+</div>
+
+<!-- FAQ Section -->
+<section class="faq-section" id="faq">
+    <div class="section-header fade-in">
+        <span class="section-label">FAQ</span>
+        <h2 class="section-title">Frequently Asked Questions</h2>
+        <p class="section-description">
+            Everything you need to know about Findly
+        </p>
+    </div>
+    
+    <div class="faq-container">
+        <div class="faq-item fade-in">
+            <div class="faq-question">
+                <span>Is Findly free to use?</span>
+                <span class="faq-icon">▼</span>
+            </div>
+            <div class="faq-answer">
+                <p class="faq-answer-content">
+                    Yes! Findly offers a free tier with basic analysis features. Premium features like advanced 
+                    price tracking, detailed seller reports, and priority support are available in our Pro plan.
+                </p>
+            </div>
+        </div>
+        
+        <div class="faq-item fade-in">
+            <div class="faq-question">
+                <span>Which shopping platforms are supported?</span>
+                <span class="faq-icon">▼</span>
+            </div>
+            <div class="faq-answer">
+                <p class="faq-answer-content">
+                    Findly currently supports analysis of product links from Amazon, eBay, AliExpress, Walmart, 
+                    and Target. We're constantly working to add more platforms.
+                </p>
+            </div>
+        </div>
+        
+        <div class="faq-item fade-in">
+            <div class="faq-question">
+                <span>How accurate is the price analysis?</span>
+                <span class="faq-icon">▼</span>
+            </div>
+            <div class="faq-answer">
+                <p class="faq-answer-content">
+                    Our AI analyzes multiple data points including historical pricing, market conditions, 
+                    and competitor pricing to provide accurate insights. Results improve over time as our 
+                    system learns from more data.
+                </p>
+            </div>
+        </div>
+        
+        <div class="faq-item fade-in">
+            <div class="faq-question">
+                <span>Is my data private and secure?</span>
+                <span class="faq-icon">▼</span>
+            </div>
+            <div class="faq-answer">
+                <p class="faq-answer-content">
+                    Absolutely. We take privacy seriously. Your search history is encrypted and never sold to 
+                    third parties. We don't track your purchases for advertising purposes. Read our Privacy 
+                    Policy for more details.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="cta-container scale-in">
+        <div class="cta-bg"></div>
+        <div class="cta-content">
+            <h2>Start Making Smarter Decisions Today</h2>
+            <p>Try Findly now and experience intelligent shopping</p>
+            <a href="app.html" class="btn-primary" style="display:inline-flex;">
+                <span>🚀</span>
+                Get Started
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="footer-container">
+        <div class="footer-brand">
+            <a href="#" class="logo">
+                <div class="logo-icon">⚡</div>
+                <span class="logo-text">Findly</span>
+            </a>
+            <p>AI-powered product intelligence platform that helps you make smarter, safer buying decisions.</p>
+            <div class="footer-social">
+                <a href="#" class="social-link">𝕏</a>
+                <a href="#" class="social-link">in</a>
+            </div>
+        </div>
+        
+        <div class="footer-column">
+            <h4>Product</h4>
+            <ul>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#">Pricing</a></li>
+                <li><a href="#">API</a></li>
+            </ul>
+        </div>
+        
+        <div class="footer-column">
+            <h4>Company</h4>
+            <ul>
+                <li><a href="about.html">About</a></li>
+                <li><a href="#">Blog</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </div>
+        
+        <div class="footer-column">
+            <h4>Legal</h4>
+            <ul>
+                <li><a href="privacy.html">Privacy Policy</a></li>
+                <li><a href="terms.html">Terms of Service</a></li>
+                <li><a href="#">Cookie Policy</a></li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="footer-bottom">
+        <p>© 2026 Findly. All rights reserved.</p>
+        <div class="footer-bottom-links">
+            <a href="privacy.html">Privacy</a>
+            <a href="terms.html">Terms</a>
+        </div>
+    </div>
+</footer>
+
+<!-- Back to Top Button -->
+<button class="back-to-top" id="backToTop">↑</button>
+
+<script>
+// ===== Configuration =====
+const API_BASE = 'https://findly-api.onrender.com';
+
+// ===== Particles Animation =====
+const canvas = document.getElementById('particles-canvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+let mouse = { x: null, y: null };
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+document.addEventListener('mousemove', (e) => {
+    mouse.x = e.x;
+    mouse.y = e.y;
+});
+
+class Particle {
+    constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2 + 0.5;
+        this.speedX = Math.random() * 0.5 - 0.25;
+        this.speedY = Math.random() * 0.5 - 0.25;
+        this.opacity = Math.random() * 0.5 + 0.2;
+    }
+    
+    update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        
+        if (mouse.x && mouse.y) {
+            const dx = mouse.x - this.x;
+            const dy = mouse.y - this.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            if (distance < 100) {
+                this.x -= dx * 0.02;
+                this.y -= dy * 0.02;
+            }
+        }
+        
+        if (this.x > canvas.width) this.x = 0;
+        if (this.x < 0) this.x = canvas.width;
+        if (this.y > canvas.height) this.y = 0;
+        if (this.y < 0) this.y = canvas.height;
+    }
+    
+    draw() {
+        ctx.fillStyle = `rgba(139, 92, 246, ${this.opacity})`;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
+function initParticles() {
+    particles = [];
+    const numParticles = Math.min(80, (canvas.width * canvas.height) / 20000);
+    for (let i = 0; i < numParticles; i++) {
+        particles.push(new Particle());
+    }
+}
+initParticles();
+
+function animateParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    particles.forEach((particle, i) => {
+        particle.update();
+        particle.draw();
+        
+        particles.forEach((particle2, j) => {
+            if (i !== j) {
+                const dx = particle.x - particle2.x;
+                const dy = particle.y - particle2.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance < 100) {
+                    ctx.strokeStyle = `rgba(139, 92, 246, ${0.1 * (1 - distance / 100)})`;
+                    ctx.lineWidth = 0.5;
+                    ctx.beginPath();
+                    ctx.moveTo(particle.x, particle.y);
+                    ctx.lineTo(particle2.x, particle2.y);
+                    ctx.stroke();
+                }
+            }
+        });
+    });
+    
+    requestAnimationFrame(animateParticles);
+}
+animateParticles();
+
+// ===== Progress Bar =====
+window.addEventListener('scroll', () => {
+    const scrollTop = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = (scrollTop / docHeight) * 100;
+    document.getElementById('progressBar').style.width = progress + '%';
+});
+
+// ===== Navbar Scroll Effect =====
+window.addEventListener('scroll', () => {
+    const navbar = document.getElementById('navbar');
+    if (window.scrollY > 50) {
+        navbar.classList.add('scrolled');
+    } else {
+        navbar.classList.remove('scrolled');
+    }
+});
+
+// ===== Back to Top Button =====
+const backToTop = document.getElementById('backToTop');
+window.addEventListener('scroll', () => {
+    if (window.scrollY > 500) {
+        backToTop.classList.add('show');
+    } else {
+        backToTop.classList.remove('show');
+    }
+});
+
+backToTop.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// ===== Scroll Animations =====
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('show');
+        }
+    });
+}, observerOptions);
+
+document.querySelectorAll('.fade-in, .slide-left, .slide-right, .scale-in').forEach(el => {
+    observer.observe(el);
+});
+
+// ===== FAQ Accordion =====
+document.querySelectorAll('.faq-question').forEach(question => {
+    question.addEventListener('click', () => {
+        const faqItem = question.parentElement;
+        const isActive = faqItem.classList.contains('active');
+        
+        document.querySelectorAll('.faq-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        
+        if (!isActive) {
+            faqItem.classList.add('active');
+        }
+    });
+});
+
+// ===== Reviews API System =====
+
+// Load reviews from API
+async function loadReviews() {
+    const loadingEl = document.getElementById('loadingReviews');
+    const errorEl = document.getElementById('errorReviews');
+    const gridEl = document.getElementById('reviewsGrid');
+    const noReviewsEl = document.getElementById('noReviews');
+    
+    // Show loading
+    loadingEl.style.display = 'block';
+    errorEl.style.display = 'none';
+    gridEl.style.display = 'none';
+    noReviewsEl.style.display = 'none';
+    
+    try {
+        const response = await fetch(`${API_BASE}/reviews`);
+        
+        if (!response.ok) {
+            throw new Error('Failed to fetch reviews');
+        }
+        
+        const data = await response.json();
+        const reviews = data.reviews || [];
+        
+        // Hide loading
+        loadingEl.style.display = 'none';
+        
+        // Update stats display
+        updateStatsDisplay(reviews, data.todayCount || 0);
+        
+        if (reviews.length === 0) {
+            noReviewsEl.style.display = 'block';
+        } else {
+            gridEl.style.display = 'grid';
+            renderReviews(reviews);
+        }
+        
+    } catch (error) {
+        console.error('Error loading reviews:', error);
+        loadingEl.style.display = 'none';
+        errorEl.style.display = 'block';
+    }
+}
+
+// Render reviews to grid
+function renderReviews(reviews) {
+    const grid = document.getElementById('reviewsGrid');
+    
+    grid.innerHTML = reviews
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .map(review => renderReviewCard(review))
+        .join('');
+}
+
+// Render single review card
+function renderReviewCard(review) {
+    const initials = review.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    
+    return `
+        <div class="review-card fade-in show">
+            <div class="review-header">
+                <div class="review-author">
+                    <div class="author-avatar">${initials}</div>
+                    <div class="author-info">
+                        <h4>${escapeHtml(review.name)}</h4>
+                        <span>Verified User</span>
+                    </div>
+                </div>
+                <div class="review-rating">${getStarsString(review.rating)}</div>
+            </div>
+            <p class="review-text">${escapeHtml(review.text)}</p>
+            <div class="review-footer">
+                <span class="review-date">${formatDate(review.createdAt)}</span>
+                <div class="review-helpful">
+                    <button class="helpful-btn" onclick="markHelpful('${review.id}', this)">
+                        👍 Helpful (<span>${review.helpful || 0}</span>)
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Update stats display
+function updateStatsDisplay(reviews, todayCount) {
+    const total = reviews.length;
+    const avgRating = getAverageRating(reviews);
+    const dist = getRatingDistribution(reviews);
+    const satisfaction = total > 0 ? Math.round(((dist[4] + dist[5]) / total) * 100) : 0;
+    
+    // Update main stats
+    document.getElementById('totalReviews').textContent = total;
+    document.getElementById('todayReviews').textContent = `+${todayCount} today`;
+    document.getElementById('avgRating').textContent = avgRating;
+    document.getElementById('satisfactionRate').textContent = satisfaction + '%';
+    
+    // Update summary
+    document.getElementById('summaryScore').textContent = avgRating;
+    document.getElementById('summaryStars').textContent = getStarsString(Math.round(avgRating));
+    document.getElementById('summaryCount').textContent = `${total} review${total !== 1 ? 's' : ''}`;
+    
+    // Update bars
+    const maxCount = Math.max(...Object.values(dist), 1);
+    for (let i = 5; i >= 1; i--) {
+        const percentage = (dist[i] / maxCount) * 100;
+        document.getElementById(`bar${i}`).style.width = percentage + '%';
+        document.getElementById(`count${i}`).textContent = dist[i];
+    }
+}
+
+// Helper functions
+function getAverageRating(reviews) {
+    if (reviews.length === 0) return '0.0';
+    const sum = reviews.reduce((acc, r) => acc + r.rating, 0);
+    return (sum / reviews.length).toFixed(1);
+}
+
+function getRatingDistribution(reviews) {
+    const dist = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+    reviews.forEach(r => {
+        dist[r.rating]++;
+    });
+    return dist;
+}
+
+function getStarsString(rating) {
+    const r = Math.max(0, Math.min(5, Math.round(rating)));
+    return '★'.repeat(r) + '☆'.repeat(5 - r);
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diff = now - date;
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    
+    if (days === 0) return 'Today';
+    if (days === 1) return 'Yesterday';
+    if (days < 7) return `${days} days ago`;
+    if (days < 30) return `${Math.floor(days / 7)} weeks ago`;
+    return date.toLocaleDateString();
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Open review modal
+function openReviewModal() {
+    document.getElementById('reviewModal').classList.add('active');
+    document.getElementById('reviewForm').style.display = 'block';
+    document.getElementById('successMessage').style.display = 'none';
+    document.getElementById('reviewForm').reset();
+    document.body.style.overflow = 'hidden';
+}
+
+// Close review modal
+function closeReviewModal() {
+    document.getElementById('reviewModal').classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+// Submit review to API
+async function submitReview(event) {
+    event.preventDefault();
+    
+    const submitBtn = document.getElementById('submitBtn');
+    const name = document.getElementById('reviewerName').value.trim();
+    const text = document.getElementById('reviewText').value.trim();
+    const ratingInput = document.querySelector('input[name="rating"]:checked');
+    
+    if (!name || !text || !ratingInput) {
+        alert('Please fill in all fields and select a rating.');
+        return;
+    }
+    
+    const rating = parseInt(ratingInput.value);
+    
+    // Disable button
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting...';
+    
+    try {
+        const response = await fetch(`${API_BASE}/reviews`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                name: name,
+                text: text,
+                rating: rating
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to submit review');
+        }
+        
+        // Show success message
+        document.getElementById('reviewForm').style.display = 'none';
+        document.getElementById('successMessage').style.display = 'block';
+        
+        // Reload reviews
+        setTimeout(() => {
+            loadReviews();
+            closeReviewModal();
+        }, 1500);
+        
+    } catch (error) {
+        console.error('Error submitting review:', error);
+        alert('Failed to submit review. Please try again.');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit Review';
+    }
+}
+
+// Mark review as helpful
+async function markHelpful(reviewId, btn) {
+    const span = btn.querySelector('span');
+    let count = parseInt(span.textContent);
+    span.textContent = count + 1;
+    btn.disabled = true;
+    btn.style.opacity = '0.6';
+    
+    try {
+        await fetch(`${API_BASE}/reviews/${reviewId}/helpful`, {
+            method: 'POST'
+        });
+    } catch (error) {
+        console.error('Error marking helpful:', error);
+    }
+}
+
+// Close modal on overlay click
+document.getElementById('reviewModal').addEventListener('click', (e) => {
+    if (e.target.id === 'reviewModal') {
+        closeReviewModal();
+    }
+});
+
+// Close modal on Escape key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        closeReviewModal();
+    }
+});
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', () => {
+    loadReviews();
+});
+
+// Mobile menu
+const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+mobileMenuBtn.addEventListener('click', () => {
+    mobileMenuBtn.classList.toggle('active');
+});
+
+// Service Worker
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
+</script>
+
+</body>
+</html>

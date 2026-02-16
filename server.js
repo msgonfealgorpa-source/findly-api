@@ -1,6 +1,7 @@
 /* =========================================
 FINDLY SERVER v6.0 - COMPLETE WITH SAGE CORE v4
 Ultimate Shopping Intelligence Platform
++ Reviews System Added
 ========================================= */
 
 const express = require('express');
@@ -149,6 +150,15 @@ const MerchantRatingSchema = new mongoose.Schema({
     lastUpdated: { type: Date, default: Date.now }
 });
 
+// ⭐ NEW: Review Schema
+const ReviewSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    text: { type: String, required: true },
+    rating: { type: Number, required: true, min: 1, max: 5 },
+    helpful: { type: Number, default: 0 },
+    createdAt: { type: Date, default: Date.now, index: true }
+});
+
 // Models
 const Energy = mongoose.model('Energy', EnergySchema);
 const PriceHistory = mongoose.model('PriceHistory', PriceHistorySchema);
@@ -156,6 +166,7 @@ const UserBehavior = mongoose.model('UserBehavior', UserBehaviorSchema);
 const PriceAlert = mongoose.model('PriceAlert', PriceAlertSchema);
 const UserProfile = mongoose.model('UserProfile', UserProfileSchema);
 const MerchantRating = mongoose.model('MerchantRating', MerchantRatingSchema);
+const Review = mongoose.model('Review', ReviewSchema);
 
 /* ================================
    🔮 SAGE CORE v4.0 - EMBEDDED
@@ -842,7 +853,7 @@ app.get('/health', (req, res) => {
         uptime: process.uptime(),
         gemini: GEMINI_API_KEY ? 'configured' : 'not_configured',
         database: dbConnected ? 'connected' : 'disconnected',
-        features: ['ai_chat', 'price_intelligence', 'personality_engine', 'merchant_trust', 'fake_deal_detection', 'price_alerts', 'behavior_tracking']
+        features: ['ai_chat', 'price_intelligence', 'personality_engine', 'merchant_trust', 'fake_deal_detection', 'price_alerts', 'behavior_tracking', 'reviews']
     });
 });
 
@@ -861,6 +872,9 @@ app.get('/', (req, res) => {
             alerts: 'POST /alerts - Price Alerts',
             history: 'GET /history/:productId - Price History',
             profile: 'GET /profile/:userId - User Profile',
+            reviews: 'GET /reviews - Get All Reviews',
+            addReview: 'POST /reviews - Add New Review',
+            helpfulReview: 'POST /reviews/:id/helpful - Mark Review Helpful',
             health: 'GET /health - Server Status'
         }
     });
@@ -1219,6 +1233,177 @@ app.get('/profile/:userId', async (req, res) => {
     }
 });
 
+/* ================================
+   ⭐ REVIEWS API ENDPOINTS
+================================ */
+
+// GET /reviews - Get all reviews with today count
+app.get('/reviews', async (req, res) => {
+    try {
+        if (!dbConnected) {
+            // Return demo data if no database
+            return res.json({
+                success: true,
+                reviews: [],
+                todayCount: 0,
+                message: 'Database not connected - reviews will not persist'
+            });
+        }
+
+        // Get all reviews sorted by newest first
+        const reviews = await Review.find()
+            .sort({ createdAt: -1 })
+            .limit(100)
+            .lean();
+
+        // Calculate today's reviews count
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        const todayCount = await Review.countDocuments({
+            createdAt: { $gte: today }
+        });
+
+        res.json({
+            success: true,
+            reviews: reviews,
+            todayCount: todayCount,
+            total: await Review.countDocuments()
+        });
+
+    } catch (error) {
+        console.error('❌ Get Reviews Error:', error.message);
+        res.status(500).json({
+            success: false,
+            error: 'FETCH_REVIEWS_FAILED',
+            message: error.message
+        });
+    }
+});
+
+// POST /reviews - Create new review
+app.post('/reviews', async (req, res) => {
+    try {
+        const { name, text, rating } = req.body;
+
+        // Validation
+        if (!name || !text || !rating) {
+            return res.status(400).json({
+                success: false,
+                error: 'MISSING_FIELDS',
+                message: 'Name, text, and rating are required'
+            });
+        }
+
+        // Validate rating
+        const ratingNum = parseInt(rating);
+        if (isNaN(ratingNum) || ratingNum < 1 || ratingNum > 5) {
+            return res.status(400).json({
+                success: false,
+                error: 'INVALID_RATING',
+                message: 'Rating must be between 1 and 5'
+            });
+        }
+
+        // Validate name length
+        if (name.trim().length < 2 || name.trim().length > 50) {
+            return res.status(400).json({
+                success: false,
+                error: 'INVALID_NAME',
+                message: 'Name must be between 2 and 50 characters'
+            });
+        }
+
+        // Validate text length
+        if (text.trim().length < 10 || text.trim().length > 1000) {
+            return res.status(400).json({
+                success: false,
+                error: 'INVALID_TEXT',
+                message: 'Review must be between 10 and 1000 characters'
+            });
+        }
+
+        if (!dbConnected) {
+            return res.json({
+                success: true,
+                message: 'Review received (demo mode - not persisted)',
+                review: {
+                    id: Date.now().toString(),
+                    name: name.trim(),
+                    text: text.trim(),
+                    rating: ratingNum,
+                    helpful: 0,
+                    createdAt: new Date()
+                }
+            });
+        }
+
+        // Create review
+        const review = await Review.create({
+            name: name.trim(),
+            text: text.trim(),
+            rating: ratingNum
+        });
+
+        console.log('⭐ New Review:', { name: name.trim(), rating: ratingNum });
+
+        res.status(201).json({
+            success: true,
+            message: 'Review submitted successfully',
+            review: review
+        });
+
+    } catch (error) {
+        console.error('❌ Create Review Error:', error.message);
+        res.status(500).json({
+            success: false,
+            error: 'CREATE_REVIEW_FAILED',
+            message: error.message
+        });
+    }
+});
+
+// POST /reviews/:id/helpful - Mark review as helpful
+app.post('/reviews/:id/helpful', async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!dbConnected) {
+            return res.json({
+                success: true,
+                message: 'Marked as helpful (demo mode)'
+            });
+        }
+
+        const review = await Review.findByIdAndUpdate(
+            id,
+            { $inc: { helpful: 1 } },
+            { new: true }
+        );
+
+        if (!review) {
+            return res.status(404).json({
+                success: false,
+                error: 'REVIEW_NOT_FOUND',
+                message: 'Review not found'
+            });
+        }
+
+        res.json({
+            success: true,
+            helpful: review.helpful
+        });
+
+    } catch (error) {
+        console.error('❌ Helpful Error:', error.message);
+        res.status(500).json({
+            success: false,
+            error: 'HELPFUL_FAILED',
+            message: error.message
+        });
+    }
+});
+
 // Payment Endpoint
 app.post('/create-payment', async (req, res) => {
     try {
@@ -1309,8 +1494,6 @@ setInterval(async () => {
             .limit(100);
 
         for (const alert of activeAlerts) {
-            // In a real implementation, you'd check the current price
-            // and notify the user if the target price is reached
             alert.lastChecked = new Date();
             await alert.save();
         }
@@ -1331,6 +1514,7 @@ app.listen(PORT, '0.0.0.0', () => {
     console.log(`💬 AI Chat: ${GEMINI_API_KEY ? '✅ Gemini Active' : '⚠️ Fallback Mode'}`);
     console.log(`🔍 Search: ${SEARCHAPI_KEY ? '✅ SearchAPI Active' : '❌ Not Configured'}`);
     console.log(`💾 Database: ${dbConnected ? '✅ Connected' : '⚠️ Not Connected'}`);
+    console.log(`⭐ Reviews: ✅ Active`);
     console.log('=================================');
 });
 

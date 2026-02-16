@@ -1128,78 +1128,43 @@ function t(key) {
 
 // ===== VOICE SEARCH (FIXED) =====
 function initVoiceSearch() {
-    const micBtn = document.getElementById('mic-btn');
-    const searchInput = document.getElementById('s-input');
-    
-    // Check if Speech Recognition is supported
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    
+    const micBtn = document.getElementById('mic-btn');
+    const input = document.getElementById('s-input');
+
     if (!SpeechRecognition) {
-        micBtn.style.display = 'none';
+        console.log("SpeechRecognition not supported");
         return;
     }
-    
+
     const recognition = new SpeechRecognition();
-    
-    const langMap = {
-        'ar': 'ar-SA',
-        'en': 'en-US',
-        'fr': 'fr-FR',
-        'de': 'de-DE',
-        'es': 'es-ES',
-        'tr': 'tr-TR'
-    };
-    
-    recognition.lang = langMap[lang] || 'ar-SA';
+    recognition.lang = lang === 'ar' ? 'ar-SA' : 'en-US';
     recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-    
-    let isListening = false;
-    
-    micBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        
-        if (isListening) {
-            recognition.stop();
-            return;
-        }
-        
-        try {
-            recognition.start();
-        } catch (err) {
-            console.error('Voice start error:', err);
-        }
+    recognition.continuous = false;
+
+    micBtn.addEventListener('click', () => {
+        recognition.start();
     });
-    
-    recognition.onstart = function() {
-        isListening = true;
+
+    recognition.onstart = () => {
         micBtn.classList.add('mic-active');
-        micBtn.innerHTML = '<i class="fa-solid fa-stop"></i>';
     };
-    
-    recognition.onresult = function(event) {
+
+    recognition.onresult = (event) => {
         const transcript = event.results[0][0].transcript;
-        searchInput.value = transcript;
-        setTimeout(function() { runSearch(); }, 300);
+        input.value = transcript;
+        runSearch();
     };
-    
-    recognition.onerror = function(event) {
-        console.error('Voice error:', event.error);
-        isListening = false;
-        micBtn.classList.remove('mic-active');
-        micBtn.innerHTML = '<i class="fa-solid fa-microphone"></i>';
-        
-        if (event.error !== 'no-speech' && event.error !== 'aborted') {
-            alert(t('voice.notSupported'));
-        }
+
+    recognition.onerror = (event) => {
+        console.log("Voice error:", event.error);
     };
-    
-    recognition.onend = function() {
-        isListening = false;
+
+    recognition.onend = () => {
         micBtn.classList.remove('mic-active');
-        micBtn.innerHTML = '<i class="fa-solid fa-microphone"></i>';
     };
 }
+    
 
 // ===== CHAT BOT (FIXED) =====
 function initChat() {

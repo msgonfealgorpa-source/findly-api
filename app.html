@@ -3,332 +3,188 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Findly Sage Ultimate - AI Shopping Intelligence</title>
-    <meta name="description" content="Findly Sage - Revolutionary AI-powered shopping intelligence platform">
+    <title>Findly Sage - Smart Shopping AI</title>
+    <meta name="description" content="Findly Sage - Your intelligent shopping assistant powered by AI">
     <meta name="theme-color" content="#6366f1">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+Arabic:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        /* ═══════════════════════════════════════════════════════════════
-           FINDLY SAGE ULTIMATE v6.0
-           تصميم مطور + جميع الوظائف
-        ═══════════════════════════════════════════════════════════════ */
-
-        /* ═══ ROOT VARIABLES ═══ */
+        /* ================= ROOT VARIABLES ================= */
         :root {
-            --primary-50: #eef2ff;
-            --primary-100: #e0e7ff;
-            --primary-200: #c7d2fe;
-            --primary-300: #a5b4fc;
-            --primary-400: #818cf8;
-            --primary-500: #6366f1;
-            --primary-600: #4f46e5;
-            --primary-700: #4338ca;
-            --primary-800: #3730a3;
-            --primary-900: #312e81;
-
-            --accent-cyan: #06b6d4;
-            --accent-emerald: #10b981;
-            --accent-amber: #f59e0b;
-            --accent-rose: #f43f5e;
-            --accent-violet: #8b5cf6;
-            --accent-sky: #0ea5e9;
-
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            --secondary: #8b5cf6;
+            --accent: #06b6d4;
             --success: #10b981;
             --warning: #f59e0b;
             --danger: #ef4444;
-            --info: #3b82f6;
-
-            --bg-canvas: #030712;
-            --bg-surface: #0f172a;
-            --bg-elevated: #1e293b;
-            --bg-card: rgba(30, 41, 59, 0.7);
+            
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-tertiary: #1a1a24;
+            --bg-card: rgba(26, 26, 36, 0.8);
             --bg-glass: rgba(255, 255, 255, 0.03);
-            --bg-glass-hover: rgba(255, 255, 255, 0.06);
-
-            --border-subtle: rgba(255, 255, 255, 0.05);
+            
+            --border-subtle: rgba(255, 255, 255, 0.06);
             --border-default: rgba(255, 255, 255, 0.1);
-            --border-emphasis: rgba(255, 255, 255, 0.15);
-            --border-glow: rgba(99, 102, 241, 0.4);
-
-            --text-primary: #f8fafc;
-            --text-secondary: #cbd5e1;
-            --text-tertiary: #94a3b8;
-            --text-muted: #64748b;
-            --text-inverse: #0f172a;
-
+            --border-glow: rgba(99, 102, 241, 0.3);
+            
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            
             --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
-            --gradient-secondary: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
-            --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-            --gradient-danger: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-            --gradient-mesh: radial-gradient(at 40% 20%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
-                            radial-gradient(at 80% 0%, rgba(139, 92, 246, 0.1) 0px, transparent 50%),
-                            radial-gradient(at 0% 50%, rgba(6, 182, 212, 0.1) 0px, transparent 50%),
-                            radial-gradient(at 80% 50%, rgba(236, 72, 153, 0.08) 0px, transparent 50%),
-                            radial-gradient(at 0% 100%, rgba(99, 102, 241, 0.1) 0px, transparent 50%);
-
-            --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-sm: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-            --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            --shadow-glow: 0 0 40px -10px rgba(99, 102, 241, 0.5);
-            --shadow-glow-lg: 0 0 60px -15px rgba(99, 102, 241, 0.6);
-
-            --radius-xs: 4px;
-            --radius-sm: 6px;
-            --radius-md: 8px;
-            --radius-lg: 12px;
-            --radius-xl: 16px;
-            --radius-2xl: 24px;
-            --radius-3xl: 32px;
+            --gradient-glow: linear-gradient(135deg, rgba(99, 102, 241, 0.4) 0%, rgba(139, 92, 246, 0.4) 100%);
+            --gradient-dark: linear-gradient(180deg, #0a0a0f 0%, #12121a 100%);
+            
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.5);
+            --shadow-glow: 0 0 40px rgba(99, 102, 241, 0.2);
+            
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
             --radius-full: 9999px;
-
-            --space-1: 4px;
-            --space-2: 8px;
-            --space-3: 12px;
-            --space-4: 16px;
-            --space-5: 20px;
-            --space-6: 24px;
-            --space-8: 32px;
-            --space-10: 40px;
-            --space-12: 48px;
-
-            --font-sans: 'IBM Plex Sans Arabic', 'Space Grotesk', -apple-system, sans-serif;
-            --font-display: 'Space Grotesk', 'IBM Plex Sans Arabic', sans-serif;
-            --font-mono: 'JetBrains Mono', monospace;
-
-            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-spring: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
-
-            --z-dropdown: 100;
-            --z-sticky: 200;
-            --z-fixed: 300;
-            --z-modal-backdrop: 400;
-            --z-modal: 500;
-            --z-popover: 600;
+            
+            --transition-fast: 0.15s ease;
+            --transition-normal: 0.3s ease;
+            --transition-slow: 0.5s ease;
         }
 
-        /* ═══ LIGHT THEME ═══ */
+        /* ================= LIGHT MODE ================= */
         .light-mode {
-            --bg-canvas: #f8fafc;
-            --bg-surface: #ffffff;
-            --bg-elevated: #f1f5f9;
+            --bg-primary: #fafafa;
+            --bg-secondary: #f4f4f5;
+            --bg-tertiary: #e4e4e7;
             --bg-card: rgba(255, 255, 255, 0.9);
             --bg-glass: rgba(0, 0, 0, 0.02);
-            --bg-glass-hover: rgba(0, 0, 0, 0.04);
-            --border-subtle: rgba(0, 0, 0, 0.04);
-            --border-default: rgba(0, 0, 0, 0.08);
-            --border-emphasis: rgba(0, 0, 0, 0.12);
-            --text-primary: #0f172a;
-            --text-secondary: #334155;
-            --text-tertiary: #64748b;
-            --text-muted: #94a3b8;
-            --text-inverse: #f8fafc;
+            
+            --border-subtle: rgba(0, 0, 0, 0.05);
+            --border-default: rgba(0, 0, 0, 0.1);
+            
+            --text-primary: #18181b;
+            --text-secondary: #52525b;
+            --text-muted: #71717a;
         }
 
-        /* ═══ RESET & BASE ═══ */
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        html { scroll-behavior: smooth; }
+        /* ================= RESET & BASE ================= */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
-            font-family: var(--font-sans);
-            font-size: 16px;
-            line-height: 1.6;
+            font-family: 'Inter', 'Noto Sans Arabic', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
             color: var(--text-primary);
-            background: var(--bg-canvas);
             min-height: 100vh;
+            line-height: 1.6;
             overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
+            transition: background var(--transition-normal), color var(--transition-normal);
         }
 
-        /* ═══ BACKGROUND EFFECTS ═══ */
-        .bg-effects {
+        /* Background Effects */
+        body::before {
+            content: '';
             position: fixed;
-            inset: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 100vh;
+            background: 
+                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.15), transparent),
+                radial-gradient(ellipse 60% 40% at 100% 0%, rgba(139, 92, 246, 0.1), transparent),
+                radial-gradient(ellipse 60% 40% at 0% 100%, rgba(6, 182, 212, 0.08), transparent);
             pointer-events: none;
             z-index: 0;
         }
 
-        .bg-mesh {
-            position: absolute;
-            inset: 0;
-            background: var(--gradient-mesh);
-            opacity: 0.8;
-        }
-
-        .bg-noise {
-            position: absolute;
-            inset: 0;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-            opacity: 0.5;
-        }
-
-        .bg-grid {
-            position: absolute;
-            inset: 0;
+        /* Animated Grid Background */
+        .grid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             background-image: 
                 linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
-            background-size: 64px 64px;
-            mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 100%);
-            -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 100%);
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: 0;
         }
 
-        .bg-orbs {
-            position: absolute;
-            inset: 0;
-            overflow: hidden;
+        /* ================= HEADER ================= */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 16px 24px;
+            background: rgba(10, 10, 15, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-subtle);
         }
 
-        .orb {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.4;
-            animation: float 20s ease-in-out infinite;
+        .light-mode header {
+            background: rgba(250, 250, 250, 0.9);
         }
 
-        .orb-1 {
-            width: 500px;
-            height: 500px;
-            background: var(--primary-500);
-            top: -250px;
-            left: 15%;
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .orb-2 {
-            width: 400px;
-            height: 400px;
-            background: var(--accent-violet);
-            top: 25%;
-            right: -150px;
-            animation-delay: -7s;
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
-        .orb-3 {
-            width: 450px;
-            height: 450px;
-            background: var(--accent-cyan);
-            bottom: -200px;
-            left: 5%;
-            animation-delay: -14s;
-        }
-
-        .orb-4 {
-            width: 300px;
-            height: 300px;
-            background: var(--accent-rose);
-            top: 60%;
-            right: 20%;
-            animation-delay: -10s;
-            opacity: 0.2;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            25% { transform: translate(40px, -40px) scale(1.1); }
-            50% { transform: translate(-30px, 30px) scale(0.9); }
-            75% { transform: translate(20px, -20px) scale(1.05); }
-        }
-
-        /* ═══ TYPOGRAPHY ═══ */
-        .text-gradient {
+        .logo {
+            font-size: 1.75rem;
+            font-weight: 800;
             background: var(--gradient-primary);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            letter-spacing: -0.5px;
         }
 
-        .text-glow { text-shadow: 0 0 30px rgba(99, 102, 241, 0.4); }
-
-        /* ═══ HEADER ═══ */
-        .header {
-            position: sticky;
-            top: 0;
-            z-index: var(--z-sticky);
-            padding: var(--space-4) var(--space-6);
-            background: rgba(3, 7, 18, 0.85);
-            backdrop-filter: blur(24px) saturate(180%);
-            -webkit-backdrop-filter: blur(24px) saturate(180%);
-            border-bottom: 1px solid var(--border-subtle);
-        }
-
-        .light-mode .header { background: rgba(248, 250, 252, 0.92); }
-
-        .header-inner {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: var(--space-6);
-        }
-
-        .brand { display: flex; align-items: center; gap: var(--space-3); }
-
-        .brand-logo {
-            width: 48px;
-            height: 48px;
+        .logo-icon {
+            width: 40px;
+            height: 40px;
             background: var(--gradient-primary);
-            border-radius: var(--radius-xl);
+            border-radius: var(--radius-md);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 1.35rem;
+            font-size: 1.2rem;
             box-shadow: var(--shadow-glow);
-            position: relative;
-            overflow: hidden;
         }
 
-        .brand-logo::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, transparent 30%, rgba(255,255,255,0.25) 50%, transparent 70%);
-            animation: shimmer 3s infinite;
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        @keyframes shimmer {
-            0% { transform: translateX(-100%) rotate(45deg); }
-            100% { transform: translateX(200%) rotate(45deg); }
-        }
-
-        .brand-text { display: flex; flex-direction: column; gap: 2px; }
-
-        .brand-name {
-            font-family: var(--font-display);
-            font-size: 1.6rem;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            background: var(--gradient-primary);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .brand-tagline {
-            font-size: 0.65rem;
-            color: var(--text-muted);
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            font-weight: 600;
-        }
-
-        .header-actions { display: flex; align-items: center; gap: var(--space-2); }
-
-        /* Icon Button */
-        .btn-icon {
+        .icon-btn {
             width: 44px;
             height: 44px;
-            border-radius: var(--radius-xl);
+            border-radius: var(--radius-md);
             background: var(--bg-glass);
             border: 1px solid var(--border-subtle);
             color: var(--text-secondary);
@@ -336,996 +192,522 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.15rem;
+            font-size: 1.1rem;
             transition: all var(--transition-fast);
             position: relative;
         }
 
-        .btn-icon:hover {
-            background: var(--bg-glass-hover);
-            border-color: var(--primary-400);
-            color: var(--primary-400);
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-glow);
+        .icon-btn:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border-color: var(--border-default);
+            transform: translateY(-2px);
         }
 
-        .btn-icon:active { transform: translateY(0); }
-
-        .btn-icon .badge {
+        .icon-btn .badge {
             position: absolute;
-            top: -5px;
-            right: -5px;
-            min-width: 20px;
-            height: 20px;
-            padding: 0 6px;
+            top: -4px;
+            right: -4px;
             background: var(--danger);
             color: white;
             font-size: 0.65rem;
-            font-weight: 800;
+            font-weight: 700;
+            min-width: 18px;
+            height: 18px;
             border-radius: var(--radius-full);
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 2px solid var(--bg-canvas);
-            animation: badgePulse 2s infinite;
-        }
-
-        @keyframes badgePulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+            border: 2px solid var(--bg-primary);
         }
 
         /* Language Dropdown */
-        .dropdown-wrapper { position: relative; }
-
-        .dropdown-menu {
+        .lang-dropdown {
             position: absolute;
-            top: calc(100% + 10px);
+            top: calc(100% + 8px);
             right: 0;
-            min-width: 180px;
-            background: var(--bg-surface);
+            background: var(--bg-secondary);
             border: 1px solid var(--border-default);
-            border-radius: var(--radius-2xl);
-            box-shadow: var(--shadow-2xl);
+            border-radius: var(--radius-lg);
+            min-width: 160px;
+            box-shadow: var(--shadow-lg);
             opacity: 0;
             visibility: hidden;
-            transform: translateY(-10px) scale(0.95);
+            transform: translateY(-10px);
             transition: all var(--transition-fast);
-            z-index: var(--z-dropdown);
-            overflow: hidden;
+            z-index: 200;
         }
 
-        .dropdown-menu.active {
+        .lang-dropdown.active {
             opacity: 1;
             visibility: visible;
-            transform: translateY(0) scale(1);
+            transform: translateY(0);
         }
 
-        .dropdown-item {
-            padding: var(--space-3) var(--space-4);
+        .lang-item {
+            padding: 12px 16px;
+            cursor: pointer;
             display: flex;
             align-items: center;
-            gap: var(--space-3);
-            cursor: pointer;
-            transition: all var(--transition-fast);
+            gap: 10px;
+            transition: background var(--transition-fast);
             border-bottom: 1px solid var(--border-subtle);
         }
 
-        .dropdown-item:last-child { border-bottom: none; }
-        .dropdown-item:hover { background: var(--bg-glass-hover); padding-right: var(--space-6); }
-        .dropdown-item .flag { font-size: 1.35rem; }
-        .dropdown-item .lang-name { flex: 1; font-weight: 500; }
+        .lang-item:last-child {
+            border-bottom: none;
+        }
 
-        /* ═══ MAIN CONTENT ═══ */
-        .main-content {
+        .lang-item:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .lang-item .flag {
+            font-size: 1.2rem;
+        }
+
+        /* ================= MAIN CONTENT ================= */
+        main {
             position: relative;
             z-index: 1;
             max-width: 1200px;
             margin: 0 auto;
-            padding: var(--space-12) var(--space-6);
+            padding: 40px 24px;
         }
 
-        /* ═══ HERO SECTION ═══ */
+        /* ================= HERO SECTION ================= */
         .hero {
             text-align: center;
-            margin-bottom: var(--space-12);
+            margin-bottom: 48px;
         }
 
-        .energy-badge {
+        .energy-indicator {
             display: inline-flex;
             align-items: center;
-            gap: var(--space-3);
-            padding: var(--space-3) var(--space-5);
+            gap: 10px;
+            padding: 10px 20px;
             background: rgba(99, 102, 241, 0.1);
-            border: 1px solid rgba(99, 102, 241, 0.25);
+            border: 1px solid rgba(99, 102, 241, 0.2);
             border-radius: var(--radius-full);
-            margin-bottom: var(--space-6);
+            margin-bottom: 24px;
             font-size: 0.9rem;
-            animation: fadeInDown 0.6s ease;
+            color: var(--primary-light);
         }
 
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .energy-badge i {
-            color: #fbbf24;
-            font-size: 1.1rem;
-            animation: energyPulse 1.5s infinite;
-        }
-
-        @keyframes energyPulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.2); opacity: 0.7; }
-        }
-
-        .energy-badge .count {
+        .energy-indicator .count {
             background: var(--gradient-primary);
             color: white;
-            padding: 4px 14px;
+            padding: 4px 12px;
             border-radius: var(--radius-full);
-            font-weight: 800;
-            font-size: 0.85rem;
-            box-shadow: 0 2px 10px rgba(99, 102, 241, 0.3);
+            font-weight: 700;
         }
 
         .greeting {
-            font-size: 1.2rem;
-            color: var(--primary-400);
+            font-size: 1.1rem;
+            color: var(--primary);
             font-weight: 600;
-            margin-bottom: var(--space-2);
-            animation: fadeIn 0.6s ease 0.1s both;
+            margin-bottom: 8px;
         }
 
         .hero-title {
-            font-family: var(--font-display);
-            font-size: clamp(2.5rem, 6vw, 4rem);
-            font-weight: 900;
-            line-height: 1.1;
-            margin-bottom: var(--space-4);
-            letter-spacing: -1px;
-            animation: fadeIn 0.6s ease 0.2s both;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .hero-title .line { display: block; }
-
-        .hero-title .highlight {
-            background: var(--gradient-primary);
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 800;
+            margin-bottom: 16px;
+            line-height: 1.2;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            position: relative;
         }
 
         .hero-subtitle {
-            font-size: 1.15rem;
-            color: var(--text-tertiary);
-            max-width: 550px;
-            margin: 0 auto var(--space-10);
-            line-height: 1.7;
-            animation: fadeIn 0.6s ease 0.3s both;
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            max-width: 500px;
+            margin: 0 auto 32px;
         }
 
-        /* ═══ SEARCH SECTION ═══ */
-        .search-section {
-            max-width: 750px;
-            margin: 0 auto var(--space-10);
-            animation: fadeIn 0.6s ease 0.4s both;
+        /* ================= SEARCH SECTION ================= */
+        .search-container {
+            max-width: 700px;
+            margin: 0 auto 40px;
         }
 
-        .ai-toggle {
+        .ai-mode-toggle {
             display: inline-flex;
             align-items: center;
-            gap: var(--space-3);
-            padding: var(--space-3) var(--space-6);
+            gap: 10px;
+            padding: 10px 20px;
             background: var(--bg-glass);
             border: 1px solid var(--border-subtle);
             border-radius: var(--radius-full);
-            margin-bottom: var(--space-5);
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
             cursor: pointer;
             transition: all var(--transition-fast);
         }
 
-        .ai-toggle:hover {
-            border-color: var(--primary-400);
-            background: rgba(99, 102, 241, 0.08);
-            transform: translateY(-2px);
+        .ai-mode-toggle:hover {
+            border-color: var(--primary);
+            color: var(--primary);
         }
 
-        .ai-toggle i { color: var(--primary-400); font-size: 1.2rem; }
-        .ai-toggle span { color: var(--text-secondary); font-size: 0.95rem; font-weight: 600; }
-
-        .ai-toggle input[type="checkbox"] {
-            width: 48px;
-            height: 26px;
-            appearance: none;
-            background: var(--bg-elevated);
-            border-radius: var(--radius-full);
-            position: relative;
-            cursor: pointer;
-            transition: all var(--transition-fast);
-        }
-
-        .ai-toggle input[type="checkbox"]::before {
-            content: '';
-            position: absolute;
-            top: 3px;
-            left: 3px;
+        .ai-mode-toggle input {
             width: 20px;
             height: 20px;
-            background: var(--text-muted);
-            border-radius: 50%;
-            transition: all var(--transition-fast);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            accent-color: var(--primary);
         }
 
-        .ai-toggle input[type="checkbox"]:checked {
-            background: var(--primary-500);
+        .search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
         }
-
-        .ai-toggle input[type="checkbox"]:checked::before {
-            transform: translateX(22px);
-            background: white;
-        }
-
-        .search-container { position: relative; }
 
         .search-input {
-            width: 100%;
-            padding: var(--space-5) var(--space-8);
-            padding-right: 75px;
-            padding-left: 70px;
-            font-family: inherit;
-            font-size: 1.15rem;
-            font-weight: 500;
+            flex: 1;
+            padding: 20px 70px 20px 60px;
+            font-size: 1.1rem;
             background: var(--bg-card);
             border: 2px solid var(--border-subtle);
-            border-radius: var(--radius-3xl);
+            border-radius: var(--radius-xl);
             color: var(--text-primary);
             text-align: center;
             transition: all var(--transition-normal);
-            backdrop-filter: blur(12px);
+            backdrop-filter: blur(10px);
         }
 
         .search-input:focus {
             outline: none;
-            border-color: var(--primary-400);
-            box-shadow: 0 0 0 5px rgba(99, 102, 241, 0.15), var(--shadow-glow);
-            background: var(--bg-elevated);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1), var(--shadow-glow);
         }
 
-        .search-input::placeholder { color: var(--text-muted); font-weight: 400; }
+        .search-input::placeholder {
+            color: var(--text-muted);
+        }
 
         .voice-btn {
             position: absolute;
-            right: 18px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 48px;
-            height: 48px;
+            right: 16px;
+            width: 44px;
+            height: 44px;
             background: transparent;
             border: none;
             color: var(--text-muted);
-            font-size: 1.35rem;
+            font-size: 1.3rem;
             cursor: pointer;
-            border-radius: var(--radius-xl);
             transition: all var(--transition-fast);
+            border-radius: var(--radius-md);
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
         .voice-btn:hover {
-            color: var(--primary-400);
+            color: var(--primary);
             background: rgba(99, 102, 241, 0.1);
-            transform: translateY(-50%) scale(1.05);
         }
 
         .voice-btn.recording {
             color: var(--danger);
-            animation: recordingPulse 1.5s infinite;
-        }
-
-        @keyframes recordingPulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
-            50% { box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
+            animation: pulse 1s infinite;
         }
 
         .search-btn {
             position: absolute;
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 54px;
-            height: 54px;
+            left: 8px;
+            width: 48px;
+            height: 48px;
             background: var(--gradient-primary);
             border: none;
-            border-radius: var(--radius-2xl);
+            border-radius: var(--radius-lg);
             color: white;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             cursor: pointer;
             transition: all var(--transition-fast);
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+            box-shadow: var(--shadow-sm);
         }
 
         .search-btn:hover {
-            transform: translateY(-50%) scale(1.08);
-            box-shadow: var(--shadow-glow-lg);
+            transform: scale(1.05);
+            box-shadow: var(--shadow-glow);
         }
 
-        .search-btn:active { transform: translateY(-50%) scale(0.98); }
-
-        /* Quick Filters */
+        /* ================= QUICK FILTERS ================= */
         .quick-filters {
             display: flex;
             justify-content: center;
-            gap: var(--space-3);
+            gap: 10px;
             flex-wrap: wrap;
-            margin-top: var(--space-5);
+            margin-top: 16px;
         }
 
-        .filter-chip {
-            padding: var(--space-2) var(--space-5);
+        .filter-tag {
+            padding: 8px 16px;
             background: var(--bg-glass);
             border: 1px solid var(--border-subtle);
             border-radius: var(--radius-full);
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: var(--text-tertiary);
+            font-size: 0.85rem;
+            color: var(--text-muted);
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: var(--space-2);
+            gap: 6px;
             transition: all var(--transition-fast);
         }
 
-        .filter-chip:hover {
-            background: var(--bg-glass-hover);
-            border-color: var(--primary-400);
-            color: var(--primary-400);
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-glow);
+        .filter-tag:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--primary);
+            color: var(--primary);
         }
 
-        .filter-chip i { font-size: 0.95rem; }
-
-        /* ═══ CATEGORIES ═══ */
+        /* ================= CATEGORIES ================= */
         .categories {
             display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: var(--space-4);
-            margin-bottom: var(--space-10);
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 12px;
+            max-width: 700px;
+            margin: 40px auto;
         }
 
         .category-card {
-            padding: var(--space-6) var(--space-4);
+            padding: 20px 12px;
             background: var(--bg-card);
             border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-2xl);
+            border-radius: var(--radius-lg);
             text-align: center;
             cursor: pointer;
             transition: all var(--transition-normal);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .category-card::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: var(--gradient-primary);
-            opacity: 0;
-            transition: opacity var(--transition-fast);
-        }
-
-        .category-card::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
-            opacity: 0;
-            transition: opacity var(--transition-fast);
         }
 
         .category-card:hover {
-            transform: translateY(-6px);
-            border-color: var(--primary-400);
+            transform: translateY(-4px);
+            border-color: var(--primary);
             box-shadow: var(--shadow-glow);
         }
 
-        .category-card:hover::before { opacity: 0.03; }
-        .category-card:hover::after { opacity: 1; }
-
         .category-card i {
-            font-size: 2rem;
-            color: var(--primary-400);
-            margin-bottom: var(--space-3);
-            position: relative;
-            z-index: 1;
-            transition: transform var(--transition-fast);
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 8px;
         }
-
-        .category-card:hover i { transform: scale(1.15); }
 
         .category-card span {
             font-size: 0.85rem;
-            font-weight: 700;
+            font-weight: 600;
             color: var(--text-secondary);
-            display: block;
-            position: relative;
-            z-index: 1;
         }
 
-        /* ═══ INVITE CARD ═══ */
-        .invite-card {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: var(--space-4);
-            padding: var(--space-5) var(--space-6);
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(139, 92, 246, 0.08));
-            border: 1px solid rgba(99, 102, 241, 0.2);
-            border-radius: var(--radius-2xl);
-            cursor: pointer;
-            transition: all var(--transition-fast);
-            margin-bottom: var(--space-8);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .invite-card::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-            transform: translateX(-100%);
-            animation: inviteShine 3s infinite;
-        }
-
-        @keyframes inviteShine {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-
-        .invite-card:hover {
-            transform: translateY(-3px);
-            border-color: var(--primary-400);
-            box-shadow: var(--shadow-glow);
-        }
-
-        .invite-card .icon { font-size: 1.6rem; }
-        .invite-card .text { color: var(--text-secondary); font-weight: 600; font-size: 0.95rem; }
-
-        /* ═══ LAYOUT WRAPPER ═══ */
-        .layout-wrapper {
-            display: flex;
-            gap: var(--space-6);
-            align-items: flex-start;
-        }
-
-        .results-container {
-            flex: 3;
+        /* ================= RESULTS ================= */
+        #results {
             display: flex;
             flex-direction: column;
-            gap: var(--space-6);
+            gap: 24px;
+            margin-top: 40px;
         }
 
-        /* ═══ AFFILIATE CARD ═══ */
-        .affiliate-card {
-            flex: 1;
-            background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
-            border: 2px solid var(--accent-amber);
-            border-radius: var(--radius-2xl);
-            padding: var(--space-5);
-            position: sticky;
-            top: 100px;
-            max-width: 300px;
-            box-shadow: 0 0 30px rgba(245, 158, 11, 0.2);
-            transition: all var(--transition-fast);
-        }
-
-        .affiliate-card.hidden { display: none; }
-
-        .affiliate-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 0 50px rgba(245, 158, 11, 0.3);
-        }
-
-        .affiliate-card img {
-            width: 100%;
-            height: 160px;
-            object-fit: cover;
-            border-radius: var(--radius-xl);
-            margin-bottom: var(--space-4);
-        }
-
-        .affiliate-card h3 {
-            font-size: 1rem;
-            margin-bottom: var(--space-3);
-            color: var(--text-primary);
-            line-height: 1.5;
-            font-weight: 600;
-        }
-
-        .affiliate-card .offer-text {
-            font-size: 0.9rem;
-            color: var(--accent-amber);
-            margin-bottom: var(--space-4);
-            font-weight: 600;
-        }
-
-        .affiliate-btn {
-            display: block;
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-            text-align: center;
-            padding: var(--space-4);
-            border-radius: var(--radius-xl);
-            text-decoration: none;
-            color: white;
-            font-weight: 700;
-            font-size: 0.95rem;
-            transition: all var(--transition-fast);
-            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
-        }
-
-        .affiliate-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 25px rgba(245, 158, 11, 0.5);
-        }
-
-        /* ═══ PRODUCT CARD - REVOLUTIONARY DESIGN ═══ */
         .product-card {
             background: var(--bg-card);
             border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-3xl);
-            overflow: hidden;
-            backdrop-filter: blur(16px);
-            animation: cardEnter 0.6s ease forwards;
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            backdrop-filter: blur(10px);
+            animation: slideUp 0.5s ease forwards;
             opacity: 0;
-            transform: translateY(30px);
-            transition: all var(--transition-normal);
-        }
-
-        .product-card:hover {
-            border-color: var(--border-default);
-            box-shadow: var(--shadow-xl);
         }
 
         .product-card:nth-child(1) { animation-delay: 0.1s; }
         .product-card:nth-child(2) { animation-delay: 0.2s; }
         .product-card:nth-child(3) { animation-delay: 0.3s; }
-        .product-card:nth-child(4) { animation-delay: 0.4s; }
-        .product-card:nth-child(5) { animation-delay: 0.5s; }
 
-        @keyframes cardEnter {
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
-        }
-
-        .product-card.over-budget {
-            border: 2px solid var(--danger);
-            background: rgba(239, 68, 68, 0.05);
-        }
-
-        .budget-alert {
-            background: linear-gradient(135deg, var(--danger), #dc2626);
-            color: white;
-            padding: var(--space-3) var(--space-5);
-            font-size: 0.9rem;
-            font-weight: 700;
-            text-align: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: var(--space-2);
-        }
-
-        .product-header {
-            display: flex;
-            gap: var(--space-5);
-            padding: var(--space-6);
-        }
-
-        .product-image-wrapper {
-            flex-shrink: 0;
-            width: 200px;
-            height: 200px;
-            background: linear-gradient(145deg, #ffffff, #f8fafc);
-            border-radius: var(--radius-2xl);
-            overflow: hidden;
-            position: relative;
-            box-shadow: var(--shadow-md);
         }
 
         .product-image {
             width: 100%;
-            height: 100%;
+            height: 200px;
             object-fit: contain;
-            padding: var(--space-4);
-            transition: transform var(--transition-slow);
+            background: white;
+            border-radius: var(--radius-lg);
+            margin-bottom: 16px;
+            padding: 16px;
         }
-
-        .product-card:hover .product-image { transform: scale(1.08); }
-
-        .product-badge {
-            position: absolute;
-            top: var(--space-3);
-            right: var(--space-3);
-            padding: var(--space-1) var(--space-3);
-            background: var(--gradient-success);
-            color: white;
-            font-size: 0.7rem;
-            font-weight: 800;
-            border-radius: var(--radius-full);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            box-shadow: 0 2px 10px rgba(16, 185, 129, 0.4);
-        }
-
-        .product-info { flex: 1; display: flex; flex-direction: column; }
 
         .product-title {
-            font-size: 1.15rem;
-            font-weight: 700;
-            line-height: 1.6;
-            margin-bottom: var(--space-3);
-            color: var(--text-primary);
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            line-height: 1.5;
         }
 
-        .product-pricing { display: flex; align-items: baseline; gap: var(--space-3); margin-bottom: var(--space-4); }
-
-        .current-price {
-            font-size: 2rem;
-            font-weight: 900;
+        .product-price {
+            font-size: 1.5rem;
+            font-weight: 800;
             color: var(--success);
-            text-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+            margin-bottom: 16px;
         }
 
         .old-price {
-            font-size: 1.1rem;
-            color: var(--text-muted);
             text-decoration: line-through;
+            opacity: 0.5;
+            font-size: 1rem;
+            margin-right: 8px;
         }
 
-        .discount-badge {
-            padding: var(--space-1) var(--space-3);
-            background: rgba(16, 185, 129, 0.15);
-            color: var(--success);
-            font-size: 0.8rem;
-            font-weight: 800;
-            border-radius: var(--radius-full);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-        }
-
-        /* ═══ VERDICT SECTION ═══ */
-        .verdict-section {
-            padding: var(--space-5) var(--space-6);
-            background: linear-gradient(135deg, var(--bg-glass), rgba(99, 102, 241, 0.03));
-            border-top: 1px solid var(--border-subtle);
-            border-bottom: 1px solid var(--border-subtle);
-        }
-
-        .verdict-header { display: flex; align-items: center; gap: var(--space-4); margin-bottom: var(--space-3); }
-
-        .verdict-icon {
-            width: 56px;
-            height: 56px;
-            border-radius: var(--radius-xl);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.6rem;
-            box-shadow: var(--shadow-md);
-        }
-
-        .verdict-icon.buy {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.1));
-            border: 1px solid rgba(16, 185, 129, 0.3);
-        }
-
-        .verdict-icon.wait {
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.1));
-            border: 1px solid rgba(245, 158, 11, 0.3);
-        }
-
-        .verdict-icon.avoid {
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.1));
-            border: 1px solid rgba(239, 68, 68, 0.3);
-        }
-
-        .verdict-title { font-size: 1.2rem; font-weight: 800; letter-spacing: -0.3px; }
-        .verdict-title.buy { color: var(--success); }
-        .verdict-title.wait { color: var(--warning); }
-        .verdict-title.avoid { color: var(--danger); }
-
-        .verdict-reason {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-            line-height: 1.7;
-            margin-bottom: var(--space-3);
-        }
-
-        .verdict-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: var(--space-4);
-            font-size: 0.9rem;
-        }
-
-        .verdict-meta span {
-            color: var(--text-tertiary);
-            display: flex;
-            align-items: center;
-            gap: var(--space-2);
-        }
-
-        .verdict-meta strong { color: var(--text-primary); font-weight: 700; }
-
-        /* ═══ INTEL GRID ═══ */
-        .intel-grid {
+        /* Intelligence Badges */
+        .intel-badges {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: var(--space-4);
-            padding: var(--space-5) var(--space-6);
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 16px;
         }
 
-        .intel-item {
-            padding: var(--space-4);
+        .intel-badge {
+            padding: 10px 12px;
             background: var(--bg-glass);
             border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-xl);
-            text-align: center;
-            transition: all var(--transition-fast);
+            border-radius: var(--radius-md);
+            font-size: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .intel-item:hover {
-            background: var(--bg-glass-hover);
-            transform: translateY(-2px);
+        .intel-badge.good { border-color: var(--success); }
+        .intel-badge.warning { border-color: var(--warning); }
+        .intel-badge.danger { border-color: var(--danger); }
+
+        /* Analysis Box */
+        .analysis-box {
+            background: rgba(99, 102, 241, 0.05);
+            border-right: 3px solid var(--primary);
+            padding: 16px;
+            border-radius: var(--radius-md);
+            margin: 16px 0;
         }
 
-        .intel-item .icon { font-size: 1.5rem; margin-bottom: var(--space-2); }
-        .intel-item .label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: var(--space-1); font-weight: 600; }
-        .intel-item .value { font-size: 1rem; font-weight: 800; }
-        .intel-item .value.good { color: var(--success); }
-        .intel-item .value.warning { color: var(--warning); }
-        .intel-item .value.danger { color: var(--danger); }
-
-        /* ═══ INTEL SECTION ═══ */
-        .intel-section {
-            background: var(--bg-glass);
-            padding: var(--space-4) var(--space-5);
-            border-radius: var(--radius-xl);
-            margin: var(--space-3) var(--space-6);
-            border: 1px solid var(--border-subtle);
-            transition: all var(--transition-fast);
-        }
-
-        .intel-section:hover {
-            background: var(--bg-glass-hover);
-        }
-
-        .intel-section h4 {
-            margin: 0 0 var(--space-3) 0;
-            font-size: 0.95rem;
-            color: var(--primary-400);
+        .analysis-box .label {
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
-            gap: var(--space-2);
-            font-weight: 700;
+            gap: 8px;
         }
 
-        .intel-section p { margin: var(--space-2) 0; font-size: 0.9rem; color: var(--text-secondary); }
-        .intel-section ul { margin: var(--space-3) 0; padding-right: var(--space-5); font-size: 0.9rem; }
-        .intel-section ul li { color: var(--text-secondary); margin: var(--space-2) 0; }
-
-        /* ═══ COUPON BOX ═══ */
-        .coupon-box {
-            margin: var(--space-4) var(--space-6);
-            padding: var(--space-5);
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(6, 182, 212, 0.05));
-            border-radius: var(--radius-xl);
-            border: 2px dashed var(--success);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .coupon-box::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: var(--gradient-success);
-        }
-
-        .coupon-header { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-3); }
-
-        .coupon-code {
-            font-family: var(--font-mono);
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--success);
-            letter-spacing: 2px;
-            background: rgba(16, 185, 129, 0.1);
-            padding: var(--space-2) var(--space-4);
-            border-radius: var(--radius-lg);
-        }
-
-        .coupon-discount {
-            padding: var(--space-2) var(--space-3);
-            background: var(--success);
-            color: white;
-            font-size: 0.8rem;
-            font-weight: 800;
-            border-radius: var(--radius-md);
-        }
-
-        .coupon-after { font-size: 0.95rem; color: var(--text-secondary); margin-bottom: var(--space-3); }
-        .coupon-after strong { color: var(--success); font-size: 1.1rem; }
-
-        .coupon-copy {
-            background: var(--gradient-success);
-            color: white;
-            border: none;
-            padding: var(--space-3) var(--space-5);
-            border-radius: var(--radius-lg);
-            font-weight: 700;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all var(--transition-fast);
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-        }
-
-        .coupon-copy:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
-        }
-
-        /* ═══ ACTION BUTTONS ═══ */
+        /* Action Buttons */
         .action-buttons {
             display: flex;
-            gap: var(--space-3);
-            padding: var(--space-5) var(--space-6);
+            gap: 12px;
+            margin-top: 16px;
         }
 
         .btn {
             flex: 1;
-            padding: var(--space-4) var(--space-5);
-            border-radius: var(--radius-xl);
-            font-family: inherit;
+            padding: 14px 20px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
             font-size: 0.95rem;
-            font-weight: 700;
             cursor: pointer;
+            transition: all var(--transition-fast);
+            text-decoration: none;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: var(--space-2);
-            text-decoration: none;
-            transition: all var(--transition-fast);
+            gap: 8px;
             border: none;
-            letter-spacing: 0.3px;
         }
 
         .btn-primary {
             background: var(--gradient-primary);
             color: white;
-            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
         }
 
         .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
         }
 
         .btn-secondary {
-            background: var(--bg-glass);
+            background: var(--bg-tertiary);
             border: 1px solid var(--border-default);
             color: var(--text-primary);
         }
 
         .btn-secondary:hover {
-            border-color: var(--primary-400);
-            color: var(--primary-400);
-            background: rgba(99, 102, 241, 0.08);
+            border-color: var(--primary);
+            color: var(--primary);
         }
 
         .btn-warning {
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(217, 119, 6, 0.1));
+            background: rgba(245, 158, 11, 0.1);
             border: 1px solid var(--warning);
             color: var(--warning);
         }
 
-        .btn-warning:hover {
-            background: var(--warning);
-            color: white;
-            box-shadow: 0 4px 20px rgba(245, 158, 11, 0.4);
-        }
-
-        .btn.disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
-
-        /* ═══ CHAT BUBBLE ═══ */
+        /* ================= CHAT BUBBLE ================= */
         .chat-bubble {
             position: fixed;
-            bottom: var(--space-6);
-            right: var(--space-6);
-            width: 68px;
-            height: 68px;
+            bottom: 24px;
+            right: 24px;
+            width: 64px;
+            height: 64px;
             background: var(--gradient-primary);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 1.6rem;
+            font-size: 1.5rem;
             cursor: pointer;
-            box-shadow: var(--shadow-xl), var(--shadow-glow);
-            z-index: var(--z-fixed);
+            box-shadow: var(--shadow-lg), var(--shadow-glow);
+            z-index: 1000;
             transition: all var(--transition-fast);
         }
 
-        .chat-bubble:hover { transform: scale(1.12); box-shadow: var(--shadow-glow-lg); }
-
-        .chat-bubble .unread-dot {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 14px;
-            height: 14px;
-            background: var(--success);
-            border-radius: 50%;
-            border: 3px solid var(--primary-600);
-            animation: dotPulse 2s infinite;
+        .chat-bubble:hover {
+            transform: scale(1.1);
         }
 
-        @keyframes dotPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-        }
-
-        /* ═══ CHAT WINDOW ═══ */
         .chat-window {
             position: fixed;
-            bottom: calc(68px + var(--space-6));
-            right: var(--space-6);
-            width: 420px;
-            max-width: calc(100vw - var(--space-12));
-            height: 560px;
+            bottom: 100px;
+            right: 24px;
+            width: 380px;
+            max-width: calc(100vw - 48px);
+            height: 520px;
             max-height: calc(100vh - 150px);
-            background: var(--bg-surface);
+            background: var(--bg-secondary);
             border: 1px solid var(--border-default);
-            border-radius: var(--radius-3xl);
+            border-radius: var(--radius-xl);
             display: none;
             flex-direction: column;
-            box-shadow: var(--shadow-2xl);
-            z-index: var(--z-fixed);
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
             overflow: hidden;
         }
 
         .chat-window.active {
             display: flex;
-            animation: chatEnter 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            animation: fadeIn 0.3s ease;
         }
 
-        @keyframes chatEnter {
-            from { opacity: 0; transform: translateY(30px) scale(0.9); }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px) scale(0.95); }
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         .chat-header {
-            padding: var(--space-5);
+            padding: 20px;
             background: var(--gradient-primary);
             color: white;
             display: flex;
@@ -1333,84 +715,62 @@
             align-items: center;
         }
 
-        .chat-header-content { display: flex; align-items: center; gap: var(--space-3); }
-
-        .chat-avatar {
-            width: 48px;
-            height: 48px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 50%;
+        .chat-header h3 {
+            font-size: 1rem;
+            font-weight: 600;
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-size: 1.3rem;
+            gap: 10px;
         }
 
-        .chat-title { font-weight: 700; font-size: 1.05rem; }
-
-        .chat-status {
-            display: flex;
-            align-items: center;
-            gap: var(--space-2);
-            font-size: 0.85rem;
-            opacity: 0.9;
-            margin-top: 2px;
-        }
-
-        .chat-status .dot {
+        .status-dot {
             width: 8px;
             height: 8px;
             background: var(--success);
             border-radius: 50%;
-            animation: dotPulse 2s infinite;
+            animation: pulse 2s infinite;
         }
 
-        .chat-close {
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .close-chat {
             background: none;
             border: none;
             color: white;
-            font-size: 1.6rem;
+            font-size: 1.5rem;
             cursor: pointer;
             opacity: 0.8;
-            transition: all var(--transition-fast);
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            transition: opacity var(--transition-fast);
         }
 
-        .chat-close:hover { opacity: 1; background: rgba(255,255,255,0.1); }
+        .close-chat:hover {
+            opacity: 1;
+        }
 
         .chat-messages {
             flex: 1;
-            padding: var(--space-5);
+            padding: 20px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: var(--space-3);
+            gap: 12px;
         }
 
         .message {
             max-width: 85%;
-            padding: var(--space-3) var(--space-4);
-            border-radius: var(--radius-xl);
+            padding: 12px 16px;
+            border-radius: var(--radius-lg);
             font-size: 0.9rem;
-            line-height: 1.6;
-            animation: messageEnter 0.3s ease;
-        }
-
-        @keyframes messageEnter {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            line-height: 1.5;
         }
 
         .message.bot {
-            background: var(--bg-elevated);
+            background: var(--bg-tertiary);
             align-self: flex-start;
             border-bottom-right-radius: var(--radius-sm);
-            border: 1px solid var(--border-subtle);
         }
 
         .message.user {
@@ -1421,602 +781,583 @@
         }
 
         .chat-input-area {
-            padding: var(--space-4);
+            padding: 16px;
             border-top: 1px solid var(--border-subtle);
             display: flex;
-            gap: var(--space-3);
+            gap: 10px;
         }
 
-        .chat-input {
+        .chat-input-area input {
             flex: 1;
-            padding: var(--space-3) var(--space-4);
-            background: var(--bg-elevated);
+            padding: 12px 16px;
+            background: var(--bg-tertiary);
             border: 1px solid var(--border-subtle);
             border-radius: var(--radius-full);
             color: var(--text-primary);
-            font-family: inherit;
             font-size: 0.9rem;
-            transition: all var(--transition-fast);
         }
 
-        .chat-input:focus { outline: none; border-color: var(--primary-400); }
+        .chat-input-area input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
 
         .chat-send {
-            width: 50px;
-            height: 50px;
+            width: 44px;
+            height: 44px;
             background: var(--gradient-primary);
             border: none;
             border-radius: 50%;
             color: white;
             cursor: pointer;
             transition: all var(--transition-fast);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1rem;
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
         }
 
-        .chat-send:hover { transform: scale(1.08); }
+        .chat-send:hover {
+            transform: scale(1.05);
+        }
 
-        /* ═══ AUTH OVERLAY ═══ */
+        /* ================= AUTH OVERLAY ================= */
         .auth-overlay {
             position: fixed;
-            inset: 0;
-            background: var(--bg-canvas);
-            z-index: var(--z-modal-backdrop);
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-primary);
+            z-index: 9999;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: var(--space-6);
+            padding: 20px;
         }
-
-        .auth-overlay.hidden { display: none; }
 
         .auth-card {
-            background: var(--bg-surface);
+            background: var(--bg-card);
             border: 1px solid var(--border-default);
-            border-radius: var(--radius-3xl);
-            padding: var(--space-10);
-            width: 100%;
-            max-width: 460px;
-            text-align: center;
-            box-shadow: var(--shadow-2xl);
-            animation: authEnter 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        @keyframes authEnter {
-            from { opacity: 0; transform: scale(0.9) translateY(20px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
-        }
-
-        .auth-logo {
-            width: 80px;
-            height: 80px;
-            background: var(--gradient-primary);
-            border-radius: var(--radius-2xl);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto var(--space-5);
-            font-size: 2.2rem;
-            color: white;
-            box-shadow: var(--shadow-glow);
-        }
-
-        .auth-title { font-size: 1.9rem; font-weight: 800; margin-bottom: var(--space-2); }
-        .auth-subtitle { color: var(--text-muted); margin-bottom: var(--space-8); font-size: 0.95rem; }
-
-        .auth-input {
-            width: 100%;
-            padding: var(--space-4) var(--space-5);
-            background: var(--bg-elevated);
-            border: 1px solid var(--border-subtle);
             border-radius: var(--radius-xl);
-            color: var(--text-primary);
-            font-family: inherit;
-            font-size: 1rem;
-            margin-bottom: var(--space-3);
-            transition: all var(--transition-fast);
+            padding: 40px;
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
         }
 
-        .auth-input:focus { outline: none; border-color: var(--primary-400); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
+        .auth-card .logo {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
 
-        .auth-buttons { display: flex; gap: var(--space-3); margin-top: var(--space-5); }
-        .auth-buttons .btn { flex: 1; padding: var(--space-4); }
+        .auth-card p {
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
 
-        .auth-divider {
+        .auth-card input {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 1rem;
+            margin-bottom: 12px;
+        }
+
+        .auth-card input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .auth-buttons .btn {
+            flex: 1;
+        }
+
+        .divider {
             display: flex;
             align-items: center;
-            gap: var(--space-4);
-            margin: var(--space-6) 0;
+            margin: 20px 0;
             color: var(--text-muted);
             font-size: 0.85rem;
         }
 
-        .auth-divider::before, .auth-divider::after {
+        .divider::before,
+        .divider::after {
             content: '';
             flex: 1;
             height: 1px;
             background: var(--border-subtle);
         }
 
+        .divider span {
+            padding: 0 16px;
+        }
+
         .google-btn {
             width: 100%;
-            padding: var(--space-4);
+            padding: 14px;
             background: white;
             border: 1px solid var(--border-default);
-            border-radius: var(--radius-xl);
-            font-family: inherit;
+            border-radius: var(--radius-md);
             font-size: 0.95rem;
             font-weight: 600;
-            color: var(--text-inverse);
+            color: #333;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: var(--space-3);
+            gap: 12px;
             transition: all var(--transition-fast);
         }
 
-        .google-btn:hover { background: #f8f8f8; transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .google-btn:hover {
+            background: #f8f8f8;
+        }
 
-        .auth-links { margin-top: var(--space-8); font-size: 0.85rem; }
-        .auth-links a { color: var(--text-muted); text-decoration: none; margin: 0 var(--space-3); transition: color var(--transition-fast); }
-        .auth-links a:hover { color: var(--primary-400); }
-
-        /* ═══ MODALS ═══ */
-        .modal-backdrop {
+        /* ================= MODALS ================= */
+        .modal {
             position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.75);
-            backdrop-filter: blur(10px);
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
             display: none;
             align-items: center;
             justify-content: center;
-            z-index: var(--z-modal-backdrop);
-            padding: var(--space-6);
+            z-index: 2000;
+            padding: 20px;
         }
 
-        .modal-backdrop.active { display: flex; }
+        .modal.active {
+            display: flex;
+        }
 
         .modal-content {
-            background: var(--bg-surface);
+            background: var(--bg-secondary);
             border: 1px solid var(--border-default);
-            border-radius: var(--radius-3xl);
-            padding: var(--space-8);
-            width: 100%;
-            max-width: 500px;
-            max-height: 85vh;
-            overflow-y: auto;
-            animation: modalEnter 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        @keyframes modalEnter {
-            from { opacity: 0; transform: scale(0.9) translateY(30px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
-        }
-
-        .modal-header { display: flex; align-items: center; gap: var(--space-4); margin-bottom: var(--space-6); }
-        .modal-header i { font-size: 1.6rem; color: var(--primary-400); }
-        .modal-header h3 { font-size: 1.35rem; font-weight: 800; }
-        .modal-body { margin-bottom: var(--space-6); }
-        .modal-footer { display: flex; gap: var(--space-3); }
-        .modal-footer .btn { flex: 1; }
-
-        /* ═══ ANALYSIS MODAL ═══ */
-        .analysis-modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(12px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: var(--z-modal);
-            padding: var(--space-6);
-        }
-
-        .analysis-modal.active { display: flex; }
-
-        .analysis-modal-content {
-            background: var(--bg-surface);
-            border: 2px solid var(--primary-400);
-            border-radius: var(--radius-3xl);
-            padding: var(--space-8);
-            width: 100%;
-            max-width: 520px;
-            max-height: 85vh;
-            overflow-y: auto;
-            box-shadow: 0 0 50px rgba(99, 102, 241, 0.25);
-            animation: modalEnter 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .analysis-modal-header { margin-bottom: var(--space-6); padding-bottom: var(--space-4); border-bottom: 1px solid var(--border-subtle); }
-        .analysis-modal-header h3 { font-size: 1.3rem; color: var(--primary-400); display: flex; align-items: center; gap: var(--space-3); font-weight: 800; }
-
-        .analysis-section {
-            margin-bottom: var(--space-5);
-            padding: var(--space-5);
-            background: var(--bg-glass);
             border-radius: var(--radius-xl);
-            border: 1px solid var(--border-subtle);
+            padding: 32px;
+            width: 100%;
+            max-width: 450px;
+            max-height: 80vh;
+            overflow-y: auto;
         }
 
-        .analysis-section h4 {
-            font-size: 1rem;
-            color: var(--primary-400);
-            margin-bottom: var(--space-3);
-            display: flex;
-            align-items: center;
-            gap: var(--space-2);
-            font-weight: 700;
+        .modal-content h3 {
+            margin-bottom: 20px;
+            color: var(--primary);
         }
 
-        .analysis-section p { margin: var(--space-2) 0; font-size: 0.9rem; color: var(--text-secondary); }
-        .analysis-section ul { margin: var(--space-3) 0; padding-right: var(--space-5); }
-        .analysis-section ul li { font-size: 0.9rem; color: var(--text-secondary); margin: var(--space-2) 0; }
+        /* ================= LOADING STATE ================= */
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
 
-        /* ═══ UPGRADE SECTION ═══ */
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid var(--border-subtle);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ================= STATUS MESSAGES ================= */
+        .status-message {
+            text-align: center;
+            padding: 16px;
+            margin: 20px 0;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+        }
+
+        .status-message.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .status-message.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        /* ================= UPGRADE SECTION ================= */
         .upgrade-section {
             background: var(--bg-card);
-            border: 2px solid var(--danger);
-            border-radius: var(--radius-3xl);
-            padding: var(--space-10);
+            border: 1px solid var(--danger);
+            border-radius: var(--radius-xl);
+            padding: 32px;
             text-align: center;
-            margin: var(--space-8) auto;
-            max-width: 520px;
+            margin: 20px auto;
+            max-width: 500px;
         }
 
-        .upgrade-icon {
-            width: 80px;
-            height: 80px;
-            background: rgba(239, 68, 68, 0.15);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto var(--space-5);
-            font-size: 2.2rem;
-        }
-
-        .upgrade-title {
-            font-size: 1.6rem;
-            font-weight: 800;
+        .upgrade-section h3 {
             color: var(--danger);
-            margin-bottom: var(--space-4);
+            margin-bottom: 12px;
         }
-
-        .upgrade-text { color: var(--text-secondary); margin-bottom: var(--space-6); font-size: 1rem; line-height: 1.7; }
 
         .upgrade-btn {
             background: var(--gradient-primary);
             color: white;
-            padding: var(--space-4) var(--space-10);
+            padding: 14px 32px;
             border: none;
             border-radius: var(--radius-full);
-            font-family: inherit;
-            font-size: 1.05rem;
-            font-weight: 800;
+            font-size: 1rem;
+            font-weight: 700;
             cursor: pointer;
+            margin-top: 16px;
             transition: all var(--transition-fast);
-            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
         }
 
         .upgrade-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-glow-lg);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-glow);
         }
 
-        /* ═══ LOADING ═══ */
-        .loading-container { text-align: center; padding: var(--space-12); }
-
-        .loading-spinner {
-            width: 60px;
-            height: 60px;
-            border: 4px solid var(--border-subtle);
-            border-top-color: var(--primary-500);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto var(--space-5);
-        }
-
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .loading-text { color: var(--text-muted); font-size: 1rem; }
-
-        /* ═══ STATUS ═══ */
-        .status-message {
-            padding: var(--space-4) var(--space-5);
-            border-radius: var(--radius-xl);
-            font-weight: 600;
-            margin: var(--space-4) 0;
+        /* ================= INVITE CARD ================= */
+        .invite-card {
             display: flex;
             align-items: center;
-            gap: var(--space-3);
-            font-size: 0.95rem;
+            justify-content: center;
+            gap: 12px;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: var(--radius-lg);
+            margin-top: 24px;
+            cursor: pointer;
+            transition: all var(--transition-fast);
         }
 
-        .status-message.error { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: var(--danger); }
-        .status-message.success { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); color: var(--success); }
-        .status-message.info { background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); color: var(--info); }
+        .invite-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary);
+        }
 
-        /* ═══ FOOTER ═══ */
-        .footer {
+        .invite-card .icon {
+            font-size: 1.5rem;
+        }
+
+        /* ================= FOOTER ================= */
+        footer {
             text-align: center;
-            padding: var(--space-10) var(--space-6);
+            padding: 40px 24px;
             color: var(--text-muted);
             font-size: 0.85rem;
-            border-top: 1px solid var(--border-subtle);
-            margin-top: var(--space-12);
         }
 
-        .footer-links { display: flex; justify-content: center; gap: var(--space-6); margin-bottom: var(--space-4); }
-        .footer-links a { color: var(--text-tertiary); text-decoration: none; transition: all var(--transition-fast); font-weight: 500; }
-        .footer-links a:hover { color: var(--primary-400); }
-
-        /* ═══ RESPONSIVE ═══ */
-        @media (max-width: 1024px) {
-            .product-header { flex-direction: column; align-items: center; text-align: center; }
-            .product-image-wrapper { width: 180px; height: 180px; }
-            .intel-grid { grid-template-columns: repeat(2, 1fr); }
-            .affiliate-card { display: none; }
-            .layout-wrapper { flex-direction: column; }
+        footer a {
+            color: var(--text-secondary);
+            margin: 0 8px;
+            text-decoration: none;
+            transition: color var(--transition-fast);
         }
 
+        footer a:hover {
+            color: var(--primary);
+        }
+
+        /* ================= RESPONSIVE ================= */
         @media (max-width: 768px) {
-            .header { padding: var(--space-3) var(--space-4); }
-            .brand-tagline { display: none; }
-            .main-content { padding: var(--space-6) var(--space-4); }
-            .hero-title { font-size: 2.2rem; }
-            .search-input { padding: var(--space-4) var(--space-6); padding-right: 60px; padding-left: 55px; font-size: 1rem; }
-            .voice-btn { right: 10px; width: 40px; height: 40px; }
-            .search-btn { width: 45px; height: 45px; left: 6px; }
-            .categories { grid-template-columns: repeat(3, 1fr); gap: var(--space-3); }
-            .category-card { padding: var(--space-4) var(--space-3); }
-            .category-card i { font-size: 1.5rem; }
-            .intel-grid { grid-template-columns: repeat(2, 1fr); padding: var(--space-4); gap: var(--space-3); }
-            .action-buttons { flex-direction: column; padding: var(--space-4); }
-            .product-header { padding: var(--space-4); gap: var(--space-4); }
-            .verdict-section, .intel-section, .coupon-box { margin-left: var(--space-4); margin-right: var(--space-4); }
-            .chat-window { right: var(--space-4); bottom: 80px; width: calc(100vw - var(--space-8)); }
-            .chat-bubble { right: var(--space-4); bottom: var(--space-4); width: 60px; height: 60px; }
+            header {
+                padding: 12px 16px;
+            }
+
+            .logo {
+                font-size: 1.4rem;
+            }
+
+            .icon-btn {
+                width: 40px;
+                height: 40px;
+            }
+
+            main {
+                padding: 24px 16px;
+            }
+
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .search-input {
+                padding: 16px 60px 16px 50px;
+                font-size: 1rem;
+            }
+
+            .categories {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+
+            .category-card {
+                padding: 16px 8px;
+            }
+
+            .category-card i {
+                font-size: 1.4rem;
+            }
+
+            .chat-window {
+                right: 16px;
+                bottom: 90px;
+                width: calc(100vw - 32px);
+            }
+
+            .chat-bubble {
+                right: 16px;
+                bottom: 16px;
+                width: 56px;
+                height: 56px;
+            }
+
+            .intel-badges {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
         }
 
-        @media (max-width: 480px) {
-            .categories { grid-template-columns: repeat(2, 1fr); }
-            .quick-filters { flex-direction: column; align-items: stretch; }
-            .intel-grid { grid-template-columns: 1fr; }
+        /* ================= ANIMATIONS ================= */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
 
-        /* ═══ ACCESSIBILITY ═══ */
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+        .slide-in {
+            animation: slideIn 0.3s ease forwards;
         }
-
-        *:focus-visible { outline: 2px solid var(--primary-400); outline-offset: 2px; }
-        ::selection { background: rgba(99, 102, 241, 0.35); color: var(--text-primary); }
-
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: var(--bg-elevated); }
-        ::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: var(--radius-full); }
-        ::-webkit-scrollbar-thumb:hover { background: var(--border-emphasis); }
     </style>
 </head>
 <body>
-    <!-- Background Effects -->
-    <div class="bg-effects">
-        <div class="bg-mesh"></div>
-        <div class="bg-orbs">
-            <div class="orb orb-1"></div>
-            <div class="orb orb-2"></div>
-            <div class="orb orb-3"></div>
-            <div class="orb orb-4"></div>
-        </div>
-        <div class="bg-grid"></div>
-        <div class="bg-noise"></div>
-    </div>
+    <div class="grid-bg"></div>
 
     <!-- Chat Bubble -->
     <div class="chat-bubble" onclick="toggleChat()">
         <i class="fas fa-comments"></i>
-        <span class="unread-dot"></span>
     </div>
 
     <!-- Chat Window -->
     <div class="chat-window" id="chat-window">
         <div class="chat-header">
-            <div class="chat-header-content">
-                <div class="chat-avatar"><i class="fas fa-robot"></i></div>
-                <div>
-                    <div class="chat-title">Findly AI</div>
-                    <div class="chat-status"><span class="dot"></span><span id="chat-status-text">متصل الآن</span></div>
-                </div>
-            </div>
-            <button class="chat-close" onclick="toggleChat()">&times;</button>
+            <h3>
+                <span class="status-dot"></span>
+                Findly AI Assistant
+            </h3>
+            <button class="close-chat" onclick="toggleChat()">&times;</button>
         </div>
         <div class="chat-messages" id="chat-messages">
-            <div class="message bot">مرحباً! 👋 أنا Findly Sage، مساعدك الذكي للتسوق. كيف يمكنني مساعدتك؟</div>
+            <div class="message bot">مرحباً! 👋 أنا مساعدك الذكي للتسوق. كيف يمكنني مساعدتك اليوم؟</div>
         </div>
         <div class="chat-input-area">
-            <input type="text" class="chat-input" id="chat-input" placeholder="اكتب رسالتك..." onkeypress="handleChatKey(event)">
-            <button class="chat-send" onclick="sendChatMessage()"><i class="fas fa-paper-plane"></i></button>
+            <input type="text" id="chat-input" placeholder="اكتب رسالتك..." onkeypress="handleChatKey(event)">
+            <button class="chat-send" onclick="sendChatMessage()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
         </div>
     </div>
 
     <!-- Auth Overlay -->
     <div class="auth-overlay" id="auth-overlay" style="display: none;">
         <div class="auth-card">
-            <div class="auth-logo"><i class="fas fa-wand-magic-sparkles"></i></div>
-            <h1 class="auth-title">Findly <span class="text-gradient">Sage</span></h1>
-            <p class="auth-subtitle" id="auth-subtitle">سجل دخولك لتبدأ البحث الذكي</p>
-            <input type="email" class="auth-input" id="auth-email" placeholder="البريد الإلكتروني">
-            <input type="password" class="auth-input" id="auth-password" placeholder="كلمة المرور">
+            <div class="logo">Findly <i class="fas fa-wand-magic-sparkles"></i></div>
+            <p id="auth-subtitle">سجل دخولك لتبدأ البحث الذكي</p>
+            <input type="email" id="auth-email" placeholder="البريد الإلكتروني">
+            <input type="password" id="auth-password" placeholder="كلمة المرور">
             <div class="auth-buttons">
-                <button class="btn btn-primary" onclick="handleLogin()"><i class="fas fa-sign-in-alt"></i><span id="auth-login-text">تسجيل دخول</span></button>
-                <button class="btn btn-secondary" onclick="handleRegister()"><i class="fas fa-user-plus"></i><span id="auth-register-text">إنشاء حساب</span></button>
+                <button class="btn btn-primary" onclick="handleLogin()">تسجيل دخول</button>
+                <button class="btn btn-secondary" onclick="handleRegister()">إنشاء حساب</button>
             </div>
-            <div class="auth-divider"><span id="auth-or-text">أو</span></div>
+            <div class="divider"><span>أو</span></div>
             <button class="google-btn" onclick="loginWithGoogle()">
                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="20">
-                <span id="auth-google-text">متابعة بـ Google</span>
+                متابعة بـ Google
             </button>
-            <div class="auth-links">
-                <a href="privacy.html" id="link-privacy">سياسة الخصوصية</a>
-                <a href="terms.html" id="link-terms">شروط الاستخدام</a>
-                <a href="about.html" id="link-about">من نحن</a>
+            <div style="margin-top: 24px; font-size: 0.8rem;">
+                <a href="#" style="color: var(--text-muted); margin: 0 8px;">سياسة الخصوصية</a>
+                <a href="#" style="color: var(--text-muted); margin: 0 8px;">الشروط</a>
             </div>
-        </div>
-    </div>
-
-    <!-- Profile Modal -->
-    <div class="modal-backdrop" id="profile-modal">
-        <div class="modal-content">
-            <div class="modal-header"><i class="fas fa-user-cog"></i><h3 id="p-head">الملف الشخصي</h3></div>
-            <div class="modal-body">
-                <label style="font-size: 0.9rem; color: var(--text-muted); display: block; margin-bottom: var(--space-2);" id="lbl-name">الاسم</label>
-                <input type="text" class="auth-input" id="in-name" placeholder="أدخل اسمك">
-                <label style="font-size: 0.9rem; color: var(--text-muted); display: block; margin: var(--space-4) 0 var(--space-2);" id="lbl-budget">الميزانية ($)</label>
-                <input type="number" class="auth-input" id="in-budget" placeholder="أقصى ميزانية">
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary" onclick="saveProfile()"><i class="fas fa-check"></i><span id="btn-save-settings">حفظ التغييرات</span></button>
-                <button class="btn btn-secondary" onclick="closeModal('profile-modal')"><span id="btn-close-profile">إغلاق</span></button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Watchlist Modal -->
-    <div class="modal-backdrop" id="watchlist-modal">
-        <div class="modal-content">
-            <div class="modal-header"><i class="fas fa-bell"></i><h3 id="txt-watch-title">قائمة المراقبة</h3></div>
-            <div class="modal-body" id="watch-list-content"><p style="color: var(--text-muted); text-align: center; padding: var(--space-6);">لا توجد منتجات في القائمة</p></div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal('watchlist-modal')"><span id="btn-close-watch">إغلاق</span></button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Analysis Modal -->
-    <div class="analysis-modal" id="analysis-modal">
-        <div class="analysis-modal-content">
-            <div class="analysis-modal-header">
-                <h3 id="analysis-modal-title"><i class="fas fa-brain"></i> تحليل Sage الذكي</h3>
-            </div>
-            <div id="analysis-content-body"></div>
-            <button class="btn btn-primary" style="width: 100%; margin-top: var(--space-5);" onclick="closeAnalysisModal()">
-                <span id="btn-close-analysis">إغلاق</span>
-            </button>
         </div>
     </div>
 
     <!-- Header -->
-    <header class="header">
-        <div class="header-inner">
-            <div class="brand">
-                <div class="brand-logo"><i class="fas fa-wand-magic-sparkles"></i></div>
-                <div class="brand-text">
-                    <div class="brand-name">Findly Sage</div>
-                    <div class="brand-tagline" id="hero-tagline">AI Shopping Intelligence</div>
+    <header>
+        <div class="header-content">
+            <div class="logo-section">
+                <div class="logo-icon"><i class="fas fa-wand-magic-sparkles"></i></div>
+                <div>
+                    <div class="logo">Findly Sage</div>
                 </div>
             </div>
             <div class="header-actions">
-                <button class="btn-icon" onclick="toggleTheme()" title="تبديل المظهر"><i class="fas fa-circle-half-stroke"></i></button>
-                <div class="dropdown-wrapper">
-                    <button class="btn-icon" onclick="toggleLangMenu()" title="اللغة"><i class="fas fa-globe"></i></button>
-                    <div class="dropdown-menu" id="lang-menu">
-                        <div class="dropdown-item" onclick="setLang('ar')"><span class="flag">🇸🇦</span><span class="lang-name">العربية</span></div>
-                        <div class="dropdown-item" onclick="setLang('en')"><span class="flag">🇺🇸</span><span class="lang-name">English</span></div>
-                        <div class="dropdown-item" onclick="setLang('fr')"><span class="flag">🇫🇷</span><span class="lang-name">Français</span></div>
-                        <div class="dropdown-item" onclick="setLang('de')"><span class="flag">🇩🇪</span><span class="lang-name">Deutsch</span></div>
-                        <div class="dropdown-item" onclick="setLang('es')"><span class="flag">🇪🇸</span><span class="lang-name">Español</span></div>
-                        <div class="dropdown-item" onclick="setLang('tr')"><span class="flag">🇹🇷</span><span class="lang-name">Türkçe</span></div>
+                <button class="icon-btn" onclick="toggleTheme()" title="تبديل المظهر">
+                    <i class="fas fa-circle-half-stroke"></i>
+                </button>
+                <div style="position: relative;">
+                    <button class="icon-btn" onclick="toggleLangMenu()" title="اللغة">
+                        <i class="fas fa-globe"></i>
+                    </button>
+                    <div class="lang-dropdown" id="lang-menu">
+                        <div class="lang-item" onclick="setLang('ar')"><span class="flag">🇸🇦</span> العربية</div>
+                        <div class="lang-item" onclick="setLang('en')"><span class="flag">🇺🇸</span> English</div>
+                        <div class="lang-item" onclick="setLang('fr')"><span class="flag">🇫🇷</span> Français</div>
+                        <div class="lang-item" onclick="setLang('de')"><span class="flag">🇩🇪</span> Deutsch</div>
+                        <div class="lang-item" onclick="setLang('es')"><span class="flag">🇪🇸</span> Español</div>
+                        <div class="lang-item" onclick="setLang('tr')"><span class="flag">🇹🇷</span> Türkçe</div>
                     </div>
                 </div>
-                <button class="btn-icon" onclick="openWatchlist()" title="قائمة المراقبة"><i class="fas fa-bell"></i><span class="badge" id="watch-badge" style="display: none;">0</span></button>
-                <button class="btn-icon" onclick="openProfile()" title="الملف الشخصي"><i class="fas fa-user-gear"></i></button>
-                <button class="btn-icon" id="logout-btn" onclick="logout()" title="تسجيل الخروج"><i class="fas fa-right-from-bracket"></i></button>
+                <button class="icon-btn" onclick="openWatchlist()" title="قائمة المراقبة">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge" id="watch-badge" style="display: none;">0</span>
+                </button>
+                <button class="icon-btn" onclick="openProfile()" title="الملف الشخصي">
+                    <i class="fas fa-user-circle"></i>
+                </button>
+                <button class="icon-btn" onclick="logout()" title="تسجيل الخروج">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
             </div>
         </div>
     </header>
 
     <!-- Main Content -->
-    <main class="main-content">
-        <!-- Hero -->
+    <main>
         <section class="hero">
-            <div class="energy-badge">
-                <span id="txt-energy">طاقة البحث:</span>
-                <span class="count" id="r-count">∞</span>
-                <i class="fas fa-bolt"></i>
+            <div class="energy-indicator">
+                <i class="fas fa-bolt" style="color: #FFD700;"></i>
+                <span id="energy-text">طاقة البحث:</span>
+                <span class="count" id="energy-count">∞</span>
             </div>
-            <p class="greeting" id="greeting">مرحباً، أيها الباحث</p>
-            <h1 class="hero-title">
-                <span class="line" id="txt-title">مستشارك الذكي</span>
-                <span class="line"><span class="highlight" id="txt-title2">للتسوق المثالي</span></span>
-            </h1>
-            <p class="hero-subtitle" id="txt-sub">دليلك الذكي للتسوق المثالي - اكتشف أفضل المنتجات والأسعار بمساعدة الذكاء الاصطناعي</p>
+            <p class="greeting" id="greeting-text">مرحباً، أيها الباحث</p>
+            <h1 class="hero-title" id="hero-title">مستشارك الذكي للتسوق</h1>
+            <p class="hero-subtitle" id="hero-subtitle">اكتشف أفضل المنتجات والأسعار بمساعدة الذكاء الاصطناعي</p>
         </section>
 
-        <!-- Search -->
-        <section class="search-section">
-            <div class="ai-toggle" onclick="toggleAiMode()">
+        <section class="search-container">
+            <div class="ai-mode-toggle" onclick="toggleAiMode()">
                 <i class="fas fa-brain"></i>
-                <span id="txt-deep">وضع التحليل الذكي</span>
-                <input type="checkbox" id="ai-deep-mode">
+                <span id="ai-mode-text">وضع التحليل العميق</span>
+                <input type="checkbox" id="ai-mode-checkbox">
             </div>
-            <div class="search-container">
-                <input type="text" class="search-input" id="s-input" placeholder="ابحث عن منتج..." onkeypress="handleSearchKey(event)">
-                <button class="voice-btn" id="mic-btn" onclick="startVoice()"><i class="fas fa-microphone"></i></button>
-                <button class="search-btn" onclick="performSearch()"><i class="fas fa-search"></i></button>
+            <div class="search-box">
+                <input type="text" class="search-input" id="search-input" placeholder="ابحث عن أي منتج..." onkeypress="handleSearchKey(event)">
+                <button class="voice-btn" id="voice-btn" onclick="startVoice()">
+                    <i class="fas fa-microphone"></i>
+                </button>
+                <button class="search-btn" onclick="performSearch()">
+                    <i class="fas fa-search"></i>
+                </button>
             </div>
             <div class="quick-filters">
-                <div class="filter-chip" onclick="quickFilter('cheap')"><i class="fas fa-sack-dollar"></i><span id="tag-cheap">اقتصادي</span></div>
-                <div class="filter-chip" onclick="quickFilter('top')"><i class="fas fa-star"></i><span id="tag-top">الأعلى تقييماً</span></div>
-                <div class="filter-chip" onclick="quickFilter('new')"><i class="fas fa-fire"></i><span id="tag-new">حديث جداً</span></div>
+                <div class="filter-tag" onclick="quickFilter('cheap')">
+                    <i class="fas fa-tag"></i>
+                    <span id="filter-cheap">الأقل سعراً</span>
+                </div>
+                <div class="filter-tag" onclick="quickFilter('top')">
+                    <i class="fas fa-star"></i>
+                    <span id="filter-top">الأعلى تقييماً</span>
+                </div>
+                <div class="filter-tag" onclick="quickFilter('new')">
+                    <i class="fas fa-fire"></i>
+                    <span id="filter-new">الأحدث</span>
+                </div>
             </div>
         </section>
 
-        <!-- Categories -->
         <section class="categories">
-            <div class="category-card" onclick="quickSearch('ألعاب')"><i class="fas fa-gamepad"></i><span id="cat-game">ألعاب</span></div>
-            <div class="category-card" onclick="quickSearch('جمال')"><i class="fas fa-spa"></i><span id="cat-beauty">جمال</span></div>
-            <div class="category-card" onclick="quickSearch('منزل ذكي')"><i class="fas fa-home"></i><span id="cat-home">منزل ذكي</span></div>
-            <div class="category-card" onclick="quickSearch('هواتف')"><i class="fas fa-mobile-alt"></i><span id="cat-c1">هواتف</span></div>
-            <div class="category-card" onclick="quickSearch('لابتوب')"><i class="fas fa-laptop"></i><span id="cat-c2">لابتوب</span></div>
-            <div class="category-card" onclick="quickSearch('ساعات')"><i class="fas fa-clock"></i><span id="cat-c4">ساعات</span></div>
+            <div class="category-card" onclick="quickSearch('ألعاب')">
+                <i class="fas fa-gamepad"></i>
+                <span id="cat-games">ألعاب</span>
+            </div>
+            <div class="category-card" onclick="quickSearch('جمال')">
+                <i class="fas fa-spa"></i>
+                <span id="cat-beauty">جمال</span>
+            </div>
+            <div class="category-card" onclick="quickSearch('منزل ذكي')">
+                <i class="fas fa-home"></i>
+                <span id="cat-home">منزل</span>
+            </div>
+            <div class="category-card" onclick="quickSearch('هواتف')">
+                <i class="fas fa-mobile-alt"></i>
+                <span id="cat-phones">هواتف</span>
+            </div>
+            <div class="category-card" onclick="quickSearch('لابتوب')">
+                <i class="fas fa-laptop"></i>
+                <span id="cat-laptops">لابتوب</span>
+            </div>
+            <div class="category-card" onclick="quickSearch('ساعات')">
+                <i class="fas fa-clock"></i>
+                <span id="cat-watches">ساعات</span>
+            </div>
         </section>
 
-        <!-- Invite Card -->
         <div class="invite-card" onclick="copyInviteLink()">
             <span class="icon">🚀</span>
-            <span class="text" id="inviteText">ادعُ أصدقاءك الآن ✨ — مكافآت قادمة قريباً 🎁</span>
+            <span id="invite-text">ادعُ أصدقاءك الآن - مكافآت قادمة قريباً!</span>
         </div>
 
-        <!-- Status Container -->
         <div id="status-container"></div>
-
-        <!-- Layout Wrapper -->
-        <div class="layout-wrapper">
-            <div class="results-container" id="results"></div>
-            <div class="affiliate-card hidden" id="affiliateCard">
-                <img id="affImage" src="" alt="Special Offer">
-                <h3 id="affTitle">عرض مميز</h3>
-                <p class="offer-text" id="aff-offer">🔥 عرض مميز مرتبط ببحثك</p>
-                <a id="affBtn" href="#" target="_blank" class="affiliate-btn">🛒 شراء الآن</a>
-            </div>
-        </div>
+        <div id="results"></div>
     </main>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="footer-links">
-            <a href="privacy.html" id="footer-privacy">سياسة الخصوصية</a>
-            <a href="terms.html" id="footer-terms">شروط الاستخدام</a>
-            <a href="about.html" id="footer-about">من نحن</a>
+    <!-- Profile Modal -->
+    <div class="modal" id="profile-modal">
+        <div class="modal-content">
+            <h3 id="profile-title"><i class="fas fa-user-cog"></i> الملف الشخصي</h3>
+            <label id="name-label" style="font-size: 0.9rem; color: var(--text-muted);">الاسم</label>
+            <input type="text" id="profile-name" placeholder="أدخل اسمك">
+            <label id="budget-label" style="font-size: 0.9rem; color: var(--text-muted); margin-top: 16px; display: block;">الميزانية ($)</label>
+            <input type="number" id="profile-budget" placeholder="أقصى ميزانية">
+            <button class="btn btn-primary" style="width: 100%; margin-top: 20px;" onclick="saveProfile()">حفظ التغييرات</button>
+            <button class="btn btn-secondary" style="width: 100%; margin-top: 10px;" onclick="closeModal('profile-modal')">إغلاق</button>
         </div>
-        <p>© 2024 Findly Sage. جميع الحقوق محفوظة.</p>
+    </div>
+
+    <!-- Watchlist Modal -->
+    <div class="modal" id="watchlist-modal">
+        <div class="modal-content">
+            <h3 id="watchlist-title"><i class="fas fa-bell"></i> قائمة المراقبة</h3>
+            <div id="watchlist-content">
+                <p style="color: var(--text-muted); text-align: center;">لا توجد منتجات في القائمة</p>
+            </div>
+            <button class="btn btn-secondary" style="width: 100%; margin-top: 20px;" onclick="closeModal('watchlist-modal')">إغلاق</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <a href="#">سياسة الخصوصية</a>
+        <a href="#">شروط الاستخدام</a>
+        <a href="#">من نحن</a>
+        <p style="margin-top: 16px;">© 2024 Findly Sage. جميع الحقوق محفوظة.</p>
     </footer>
 
-    <!-- Firebase -->
+    <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
@@ -2041,1045 +1382,478 @@
         onAuthStateChanged(auth, (user) => {
             const overlay = document.getElementById('auth-overlay');
             if (user) {
-                overlay.classList.add('hidden');
+                overlay.style.display = 'none';
                 localStorage.setItem('findly_uid', user.uid);
                 if (user.displayName) {
                     localStorage.setItem('fn', user.displayName);
                     updateGreeting();
                 }
             } else {
-                overlay.classList.remove('hidden');
+                overlay.style.display = 'flex';
             }
         });
 
         window.loginWithGoogle = async () => {
-            try { await signInWithPopup(auth, provider); } catch (error) { alert("خطأ: " + error.message); }
+            try {
+                await signInWithPopup(auth, provider);
+            } catch (error) {
+                alert("خطأ: " + error.message);
+            }
         };
 
         window.handleLogin = async () => {
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
-            const currentLang = localStorage.getItem('findly_lang') || 'ar';
-            const authDict = dict[currentLang]?.auth || dict.ar.auth;
-            if (!email || !password) return alert(authDict.fillFields);
-            try { await signInWithEmailAndPassword(auth, email, password); }
-            catch (error) {
-                let msg = authDict.loginFailed;
-                if (error.code === 'auth/user-not-found') msg = authDict.userNotFound;
-                else if (error.code === 'auth/wrong-password') msg = authDict.wrongPassword;
-                else if (error.code === 'auth/invalid-email') msg = authDict.invalidEmail;
-                else if (error.code === 'auth/invalid-credential') msg = authDict.invalidCredential;
-                else msg += " " + error.message;
-                alert(msg);
+            if (!email || !password) {
+                alert("الرجاء إدخال البريد وكلمة المرور");
+                return;
+            }
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                alert("خطأ: " + error.message);
             }
         };
 
         window.handleRegister = async () => {
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
-            const currentLang = localStorage.getItem('findly_lang') || 'ar';
-            const authDict = dict[currentLang]?.auth || dict.ar.auth;
-            if (!email || !password) return alert(authDict.fillFields);
-            if (password.length < 6) return alert(authDict.weakPassword);
+            if (!email || !password) {
+                alert("الرجاء إدخال البريد وكلمة المرور");
+                return;
+            }
+            if (password.length < 6) {
+                alert("كلمة المرور يجب أن تكون 6 أحرف على الأقل");
+                return;
+            }
             try {
                 await createUserWithEmailAndPassword(auth, email, password);
-                alert(authDict.registerSuccess);
+                alert("تم إنشاء الحساب بنجاح!");
             } catch (error) {
-                let msg = authDict.registerFailed;
-                if (error.code === 'auth/email-already-in-use') msg = authDict.emailInUse;
-                else if (error.code === 'auth/weak-password') msg = authDict.weakPassword;
-                else if (error.code === 'auth/invalid-email') msg = authDict.invalidEmail;
-                else msg += " " + error.message;
-                alert(msg);
+                alert("خطأ: " + error.message);
             }
         };
 
         window.logout = () => {
-            const currentLang = localStorage.getItem('findly_lang') || 'ar';
-            const authDict = dict[currentLang]?.auth || dict.ar.auth;
-            if (confirm(authDict.logoutConfirm)) {
-                signOut(auth).then(() => { sessionStorage.removeItem('welcome_shown'); location.reload(); });
+            if (confirm("هل تريد تسجيل الخروج؟")) {
+                signOut(auth);
             }
         };
     </script>
 
     <script>
-        // ═══════════════════════════════════════════════════════════════
-        // FINDLY SAGE - COMPLETE APPLICATION LOGIC
-        // ═══════════════════════════════════════════════════════════════
+        // ================= CONFIGURATION =================
+        const API_BASE = 'https://findly-api-production.up.railway.app';
 
-        const API = "https://findly-api-production.up.railway.app";
+        // ================= STATE =================
+        let currentLang = localStorage.getItem('findly_lang') || 'ar';
+        let userName = localStorage.getItem('fn') || '';
+        let userBudget = parseFloat(localStorage.getItem('user_budget')) || 0;
 
-        let lang = localStorage.getItem('findly_lang') || 'ar';
-        let aiModeEnabled = false;
-
-        // ═══ DICTIONARY ═══
+        // ================= DICTIONARY =================
         const dict = {
             ar: {
-                ui: {
-                    hero_tagline: "قرارات شراء أذكى تبدأ من هنا",
-                    title: "مستشارك الحكيم",
-                    title2: "للتسوق المثالي",
-                    sub: "دليلك الذكي للتسوق المثالي",
-                    energy: "طاقة العقل",
-                    welcome: "مرحباً،",
-                    game: "ألعاب", beauty: "جمال", home: "منزل ذكي", c1: "هواتف", c2: "لابتوب", c4: "ساعات",
-                    p_head: "الملف الشخصي",
-                    lbl_name: "اسم المستخدم",
-                    lbl_budget: "الميزانية ($)",
-                    buy: "شراء الآن 🛒",
-                    watch: "راقب السعر 🔔",
-                    over: "يتجاوز ميزانيتك",
-                    cheap: "اقتصادي", top: "الأعلى تقييماً", new: "حديث جداً",
-                    deep: "وضع التحليل الذكي",
-                    watchTitle: "قائمة المراقبة",
-                    why: "لماذا اخترنا هذا؟",
-                    slow: "السيرفر يستيقظ.. انتظر ثوانٍ",
-                    noAttempts: "⚠️ استنفدت محاولاتك!",
-                    analyze: "📊 تحليل السعر",
-                    close: "إغلاق",
-                    saveChanges: "حفظ التغييرات ✅",
-                    searchPlaceholder: "ابحث عن منتج...",
-                    noResults: "لا توجد نتائج",
-                    errorFetching: "❌ خطأ في جلب النتائج",
-                    affiliateOffer: "🔥 عرض مميز مرتبط ببحثك",
-                    buyNowAffiliate: "🛒 شراء الآن",
-                    namePlaceholder: "أدخل اسمك هنا...",
-                    budgetPlaceholder: "أقصى ميزانية لديك...",
-                    settingsSaved: "تم حفظ الإعدادات بنجاح!",
-                    seeker: "أيها الباحث"
-                },
-                search: {
-                    market: "السوق",
-                    avg_price: "متوسط السعر",
-                    competitors: "عدد المنافسين",
-                    value: "قيمة الصفقة",
-                    deal_score: "تقييم الصفقة",
-                    learning_on: "سيتحسن التحليل مع الاستخدام",
-                    learning_later: "التحليل قيد التعلم",
-                    forecast: "التوقع السعري",
-                    trend: { up: "قد يرتفع قريبًا", down: "قد ينخفض", stable: "مستقر" },
-                    expected_price: "السعر المتوقع",
-                    confidence: "الثقة",
-                    trust: "الثقة والمخاطر",
-                    no_risks: "لا توجد مخاطر واضحة",
-                    buy: "اشترِ",
-                    analyze: "تحليل",
-                    watch: "راقب",
-                    after_discount: "بعد الخصم",
-                    copy_coupon: "نسخ الكوبون",
-                    price: "السعر",
-                    timing: "التوقيت",
-                    behavior: "السلوك",
-                    excellent: "ممتاز", good: "جيد", weak: "ضعيف",
-                    wait: "انتظر", mayRise: "قد يرتفع", stableTxt: "مستقر",
-                    risk: "مخاطرة", safe: "آمن",
-                    suitable: "مناسب لك", general: "عام",
-                    smartDecision: "قرار ذكي: اشترِ الآن",
-                    preferWait: "يفضل الانتظار",
-                    waitPriceDrop: "انتظر انخفاض السعر",
-                    priceHigh: "السعر مرتفع",
-                    saving: "التوفير",
-                    bestStore: "أفضل متجر",
-                    confidenceScore: "الثقة",
-                    watchPrice: "مراقبة السعر",
-                    linkUnavailable: "الرابط غير متوفر"
-                },
-                analysis: {
-                    title: "🧠 تحليل Sage الذكي",
-                    market: "السوق",
-                    avgPrice: "متوسط السعر",
-                    competitors: "عدد المنافسين",
-                    deal: "الصفقة",
-                    dealScore: "درجة الصفقة",
-                    forecast: "التوقع",
-                    trend: "الاتجاه",
-                    expectedPrice: "سعر متوقع",
-                    confidence: "ثقة",
-                    trustRisks: "الثقة والمخاطر",
-                    noClearRisks: "لا توجد مخاطر واضحة"
-                },
-                auth: {
-                    title: "سجل دخولك لتبدأ البحث الذكي",
-                    email: "البريد الإلكتروني",
-                    password: "كلمة المرور",
-                    login: "تسجيل دخول",
-                    register: "إنشاء حساب",
-                    or: "أو",
-                    googleBtn: "متابعة باستخدام جوجل",
-                    privacy: "سياسة الخصوصية",
-                    terms: "شروط الاستخدام",
-                    about: "من نحن",
-                    logoutConfirm: "هل تريد تسجيل الخروج؟",
-                    fillFields: "الرجاء إدخال البريد الإلكتروني وكلمة المرور",
-                    loginFailed: "فشل تسجيل الدخول:",
-                    userNotFound: "هذا الحساب غير موجود، يرجى إنشاء حساب جديد.",
-                    wrongPassword: "كلمة المرور غير صحيحة.",
-                    invalidEmail: "صيغة البريد الإلكتروني غير صحيحة.",
-                    invalidCredential: "بيانات الاعتماد غير صالحة.",
-                    registerFailed: "فشل إنشاء الحساب:",
-                    emailInUse: "هذا البريد مسجل بالفعل، حاول تسجيل الدخول.",
-                    weakPassword: "كلمة المرور يجب أن تكون 6 أحرف على الأقل",
-                    registerSuccess: "تم إنشاء الحساب بنجاح! جاري الدخول..."
-                },
-                upgrade: {
-                    title: "انتهت المحاولات المجانية",
-                    message: "لقد استهلكت جميع عمليات البحث المجانية. يرجى تفعيل الاشتراك للمتابعة بدون حدود.",
-                    upgradeBtn: "ترقية الآن",
-                    successTitle: "🎉 تم تفعيل اشتراكك بنجاح!",
-                    successMessage: "تم تفعيل اشتراك Findly Pro بنجاح.",
-                    thanks: "شكرًا لدعمك 🤍",
-                    paymentUnavailable: "⚠️ خدمة الدفع غير متاحة",
-                    paymentError: "❌ خطأ في خدمة الدفع"
-                },
-                voice: { notSupported: "متصفحك لا يدعم البحث الصوتي" },
-                invite: { text: "ادعُ أصدقاءك الآن ✨ — مكافآت قادمة قريباً 🎁 — كن من الأوائل 🚀", copied: "تم نسخ رابط الدعوة ✨", copyFailed: "لم يتم نسخ الرابط، انسخه يدويًا:\n" },
-                watch: { enterEmail: "أدخل إيميلك للتنبيه عند انخفاض السعر:", activated: "✅ تم تفعيل التنبيه بنجاح!", serverError: "❌ خطأ في السيرفر: ", connectionFailed: "❌ فشل الاتصال" }
+                energy: "طاقة البحث:",
+                greeting: "مرحباً،",
+                title: "مستشارك الذكي للتسوق",
+                subtitle: "اكتشف أفضل المنتجات والأسعار بمساعدة الذكاء الاصطناعي",
+                aiMode: "وضع التحليل العميق",
+                search: "ابحث عن أي منتج...",
+                cheap: "الأقل سعراً",
+                top: "الأعلى تقييماً",
+                newest: "الأحدث",
+                buy: "شراء الآن",
+                watch: "راقب السعر",
+                analyze: "تحليل",
+                noResults: "لا توجد نتائج",
+                error: "حدث خطأ، حاول مرة أخرى",
+                invite: "ادعُ أصدقاءك الآن - مكافآت قادمة قريباً!",
+                copied: "تم نسخ رابط الدعوة!",
+                searchFailed: "فشل البحث",
+                loading: "جاري البحث...",
+                seeker: "أيها الباحث"
             },
             en: {
-                ui: {
-                    hero_tagline: "Smarter buying decisions start here",
-                    title: "Sage Advisor",
-                    title2: "Perfect Shopping",
-                    sub: "Your smart shopping guide",
-                    energy: "Sage Energy",
-                    welcome: "Welcome,",
-                    game: "Gaming", beauty: "Beauty", home: "Smart Home", c1: "Phones", c2: "Laptops", c4: "Watches",
-                    p_head: "Profile",
-                    lbl_name: "Username",
-                    lbl_budget: "Budget ($)",
-                    buy: "Buy Now 🛒",
-                    watch: "Watch Price 🔔",
-                    over: "Over Budget!",
-                    cheap: "Budget", top: "Top Rated", new: "Newest",
-                    deep: "AI Deep Mode",
-                    watchTitle: "Watch List",
-                    why: "Why this choice?",
-                    slow: "Server waking up.. wait",
-                    noAttempts: "⚠️ No attempts left!",
-                    analyze: "📊 Analysis",
-                    close: "Close",
-                    saveChanges: "Save Changes ✅",
-                    searchPlaceholder: "Search for a product...",
-                    noResults: "No results found",
-                    errorFetching: "❌ Error fetching results",
-                    affiliateOffer: "🔥 Special offer related to your search",
-                    buyNowAffiliate: "🛒 Buy Now",
-                    namePlaceholder: "Enter your name...",
-                    budgetPlaceholder: "Your maximum budget...",
-                    settingsSaved: "Settings saved successfully!",
-                    seeker: "Seeker"
-                },
-                search: {
-                    market: "Market",
-                    avg_price: "Average price",
-                    competitors: "Competitors",
-                    value: "Deal value",
-                    deal_score: "Deal score",
-                    learning_on: "Analysis improves with usage",
-                    learning_later: "Analysis is learning",
-                    forecast: "Price forecast",
-                    trend: { up: "Likely to rise", down: "Likely to drop", stable: "Stable" },
-                    expected_price: "Expected price",
-                    confidence: "Confidence",
-                    trust: "Trust & risks",
-                    no_risks: "No clear risks",
-                    buy: "Buy",
-                    analyze: "Analyze",
-                    watch: "Watch",
-                    after_discount: "After discount",
-                    copy_coupon: "Copy coupon",
-                    price: "Price",
-                    timing: "Timing",
-                    behavior: "Behavior",
-                    excellent: "Excellent", good: "Good", weak: "Weak",
-                    wait: "Wait", mayRise: "May rise", stableTxt: "Stable",
-                    risk: "Risk", safe: "Safe",
-                    suitable: "Suitable", general: "General",
-                    smartDecision: "Smart decision: Buy now",
-                    preferWait: "Better to wait",
-                    waitPriceDrop: "Wait for price drop",
-                    priceHigh: "Price is high",
-                    saving: "Saving",
-                    bestStore: "Best store",
-                    confidenceScore: "Confidence",
-                    watchPrice: "Watch Price",
-                    linkUnavailable: "Link unavailable"
-                },
-                analysis: {
-                    title: "🧠 Sage Smart Analysis",
-                    market: "Market",
-                    avgPrice: "Average price",
-                    competitors: "Competitors",
-                    deal: "Deal",
-                    dealScore: "Deal score",
-                    forecast: "Forecast",
-                    trend: "Trend",
-                    expectedPrice: "Expected price",
-                    confidence: "Confidence",
-                    trustRisks: "Trust & Risks",
-                    noClearRisks: "No clear risks"
-                },
-                auth: {
-                    title: "Sign in to start smart search",
-                    email: "Email",
-                    password: "Password",
-                    login: "Sign In",
-                    register: "Sign Up",
-                    or: "or",
-                    googleBtn: "Continue with Google",
-                    privacy: "Privacy Policy",
-                    terms: "Terms of Use",
-                    about: "About Us",
-                    logoutConfirm: "Do you want to logout?",
-                    fillFields: "Please enter email and password",
-                    loginFailed: "Login failed:",
-                    userNotFound: "Account not found, please create a new account.",
-                    wrongPassword: "Incorrect password.",
-                    invalidEmail: "Invalid email format.",
-                    invalidCredential: "Invalid credentials.",
-                    registerFailed: "Registration failed:",
-                    emailInUse: "This email is already registered, try signing in.",
-                    weakPassword: "Password must be at least 6 characters",
-                    registerSuccess: "Account created successfully! Signing in..."
-                },
-                upgrade: {
-                    title: "Free searches exhausted",
-                    message: "You have used all your free searches. Please upgrade to continue.",
-                    upgradeBtn: "Upgrade now",
-                    successTitle: "🎉 Subscription Activated!",
-                    successMessage: "Your Findly Pro subscription is now active.",
-                    thanks: "Thank you for supporting Findly 💙",
-                    paymentUnavailable: "⚠️ Payment unavailable",
-                    paymentError: "❌ Payment service error"
-                },
-                voice: { notSupported: "Your browser does not support voice search" },
-                invite: { text: "Invite your friends now ✨ — features & rewards coming soon 🎁", copied: "Invite link copied ✨", copyFailed: "Link not copied, copy manually:\n" },
-                watch: { enterEmail: "Enter your email for price alerts:", activated: "✅ Alert activated!", serverError: "❌ Server Error: ", connectionFailed: "❌ Connection failed" }
-            },
-            fr: {
-                ui: {
-                    hero_tagline: "Des décisions d'achat plus intelligentes",
-                    title: "Conseiller Sage",
-                    title2: "Shopping Parfait",
-                    sub: "Votre guide d'achat intelligent",
-                    energy: "Énergie Sage",
-                    welcome: "Bienvenue,",
-                    game: "Jeux", beauty: "Beauté", home: "Maison Intelligente", c1: "Téléphones", c2: "Ordinateurs", c4: "Montres",
-                    p_head: "Profil",
-                    lbl_name: "Nom d'utilisateur",
-                    lbl_budget: "Budget ($)",
-                    buy: "Acheter 🛒",
-                    watch: "Surveiller 🔔",
-                    over: "Hors budget!",
-                    cheap: "Économique", top: "Mieux notés", new: "Nouveautés",
-                    deep: "Mode IA Profonde",
-                    watchTitle: "Liste de surveillance",
-                    why: "Pourquoi ce choix?",
-                    slow: "Le serveur se réveille..",
-                    noAttempts: "⚠️ Plus d'essais!",
-                    analyze: "📊 Analyse",
-                    close: "Fermer",
-                    saveChanges: "Enregistrer ✅",
-                    searchPlaceholder: "Rechercher un produit...",
-                    noResults: "Aucun résultat",
-                    errorFetching: "❌ Erreur lors de la récupération",
-                    affiliateOffer: "🔥 Offre spéciale",
-                    buyNowAffiliate: "🛒 Acheter maintenant",
-                    namePlaceholder: "Entrez votre nom...",
-                    budgetPlaceholder: "Votre budget maximum...",
-                    settingsSaved: "Paramètres enregistrés!",
-                    seeker: "Chercheur"
-                },
-                search: {
-                    market: "Marché",
-                    avg_price: "Prix moyen",
-                    competitors: "Concurrents",
-                    value: "Valeur de l'offre",
-                    deal_score: "Score de l'offre",
-                    learning_on: "L'analyse s'améliore",
-                    learning_later: "Analyse en cours",
-                    forecast: "Prévision de prix",
-                    trend: { up: "Probablement hausse", down: "Probablement baisse", stable: "Stable" },
-                    expected_price: "Prix attendu",
-                    confidence: "Confiance",
-                    trust: "Confiance et risques",
-                    no_risks: "Aucun risque clair",
-                    buy: "Acheter",
-                    analyze: "Analyser",
-                    watch: "Surveiller",
-                    after_discount: "Après remise",
-                    copy_coupon: "Copier le coupon",
-                    price: "Prix",
-                    timing: "Timing",
-                    behavior: "Comportement",
-                    excellent: "Excellent", good: "Bon", weak: "Faible",
-                    wait: "Attendre", mayRise: "Peut augmenter", stableTxt: "Stable",
-                    risk: "Risque", safe: "Sûr",
-                    suitable: "Adapté", general: "Général",
-                    smartDecision: "Décision intelligente: Acheter",
-                    preferWait: "Mieux vaut attendre",
-                    waitPriceDrop: "Attendre une baisse",
-                    priceHigh: "Prix élevé",
-                    saving: "Économie",
-                    bestStore: "Meilleur magasin",
-                    confidenceScore: "Confiance",
-                    watchPrice: "Surveiller le prix",
-                    linkUnavailable: "Lien non disponible"
-                },
-                analysis: {
-                    title: "🧠 Analyse Sage Intelligente",
-                    market: "Marché",
-                    avgPrice: "Prix moyen",
-                    competitors: "Concurrents",
-                    deal: "Offre",
-                    dealScore: "Score de l'offre",
-                    forecast: "Prévision",
-                    trend: "Tendance",
-                    expectedPrice: "Prix attendu",
-                    confidence: "Confiance",
-                    trustRisks: "Confiance et Risques",
-                    noClearRisks: "Aucun risque clair"
-                },
-                auth: {
-                    title: "Connectez-vous pour commencer",
-                    email: "E-mail",
-                    password: "Mot de passe",
-                    login: "Se connecter",
-                    register: "S'inscrire",
-                    or: "ou",
-                    googleBtn: "Continuer avec Google",
-                    privacy: "Politique de confidentialité",
-                    terms: "Conditions d'utilisation",
-                    about: "À propos",
-                    logoutConfirm: "Voulez-vous vous déconnecter?",
-                    fillFields: "Veuillez entrer l'e-mail et le mot de passe",
-                    loginFailed: "Échec de la connexion:",
-                    userNotFound: "Compte non trouvé.",
-                    wrongPassword: "Mot de passe incorrect.",
-                    invalidEmail: "Format d'e-mail invalide.",
-                    invalidCredential: "Identifiants invalides.",
-                    registerFailed: "Échec de l'inscription:",
-                    emailInUse: "Cet e-mail est déjà enregistré.",
-                    weakPassword: "Le mot de passe doit contenir au moins 6 caractères",
-                    registerSuccess: "Compte créé avec succès!"
-                },
-                upgrade: {
-                    title: "Recherches gratuites épuisées",
-                    message: "Vous avez utilisé toutes vos recherches gratuites.",
-                    upgradeBtn: "Mettre à niveau",
-                    successTitle: "🎉 Abonnement activé!",
-                    successMessage: "Votre abonnement Findly Pro est maintenant actif.",
-                    thanks: "Merci pour votre soutien 💙",
-                    paymentUnavailable: "⚠️ Paiement indisponible",
-                    paymentError: "❌ Erreur du service de paiement"
-                },
-                voice: { notSupported: "Votre navigateur ne prend pas en charge la recherche vocale" },
-                invite: { text: "Invitez vos amis maintenant ✨", copied: "Lien d'invitation copié ✨", copyFailed: "Lien non copié:\n" },
-                watch: { enterEmail: "Entrez votre e-mail pour les alertes:", activated: "✅ Alerte activée!", serverError: "❌ Erreur serveur: ", connectionFailed: "❌ Échec de la connexion" }
-            },
-            de: {
-                ui: {
-                    hero_tagline: "Intelligentere Kaufentscheidungen",
-                    title: "Weiser Berater",
-                    title2: "Perfektes Shopping",
-                    sub: "Ihr intelligenter Einkaufsführer",
-                    energy: "Sage Energie",
-                    welcome: "Willkommen,",
-                    game: "Spiele", beauty: "Schönheit", home: "Smart Home", c1: "Handys", c2: "Laptops", c4: "Uhren",
-                    p_head: "Profil",
-                    lbl_name: "Benutzername",
-                    lbl_budget: "Budget ($)",
-                    buy: "Jetzt kaufen 🛒",
-                    watch: "Preis beobachten 🔔",
-                    over: "Über Budget!",
-                    cheap: "Budget", top: "Top bewertet", new: "Neueste",
-                    deep: "KI Tiefenmodus",
-                    watchTitle: "Beobachtungsliste",
-                    why: "Warum diese Wahl?",
-                    slow: "Server startet..",
-                    noAttempts: "⚠️ Keine Versuche mehr!",
-                    analyze: "📊 Analyse",
-                    close: "Schließen",
-                    saveChanges: "Speichern ✅",
-                    searchPlaceholder: "Produkt suchen...",
-                    noResults: "Keine Ergebnisse",
-                    errorFetching: "❌ Fehler beim Abrufen",
-                    affiliateOffer: "🔥 Sonderangebot",
-                    buyNowAffiliate: "🛒 Jetzt kaufen",
-                    namePlaceholder: "Geben Sie Ihren Namen ein...",
-                    budgetPlaceholder: "Ihr maximales Budget...",
-                    settingsSaved: "Einstellungen gespeichert!",
-                    seeker: "Sucher"
-                },
-                search: {
-                    market: "Markt",
-                    avg_price: "Durchschnittspreis",
-                    competitors: "Wettbewerber",
-                    value: "Angebotswert",
-                    deal_score: "Angebotsbewertung",
-                    learning_on: "Analyse verbessert sich",
-                    learning_later: "Analyse lernt",
-                    forecast: "Preisprognose",
-                    trend: { up: "Wahrscheinlich steigend", down: "Wahrscheinlich fallend", stable: "Stabil" },
-                    expected_price: "Erwarteter Preis",
-                    confidence: "Vertrauen",
-                    trust: "Vertrauen & Risiken",
-                    no_risks: "Keine klaren Risiken",
-                    buy: "Kaufen",
-                    analyze: "Analysieren",
-                    watch: "Beobachten",
-                    after_discount: "Nach Rabatt",
-                    copy_coupon: "Gutschein kopieren",
-                    price: "Preis",
-                    timing: "Zeitpunkt",
-                    behavior: "Verhalten",
-                    excellent: "Ausgezeichnet", good: "Gut", weak: "Schwach",
-                    wait: "Warten", mayRise: "Kann steigen", stableTxt: "Stabil",
-                    risk: "Risiko", safe: "Sicher",
-                    suitable: "Geeignet", general: "Allgemein",
-                    smartDecision: "Kluge Entscheidung: Jetzt kaufen",
-                    preferWait: "Besser warten",
-                    waitPriceDrop: "Auf Preissturz warten",
-                    priceHigh: "Preis ist hoch",
-                    saving: "Ersparnis",
-                    bestStore: "Bester Laden",
-                    confidenceScore: "Vertrauen",
-                    watchPrice: "Preis beobachten",
-                    linkUnavailable: "Link nicht verfügbar"
-                },
-                analysis: {
-                    title: "🧠 Sage Intelligente Analyse",
-                    market: "Markt",
-                    avgPrice: "Durchschnittspreis",
-                    competitors: "Wettbewerber",
-                    deal: "Angebot",
-                    dealScore: "Angebotsbewertung",
-                    forecast: "Prognose",
-                    trend: "Trend",
-                    expectedPrice: "Erwarteter Preis",
-                    confidence: "Vertrauen",
-                    trustRisks: "Vertrauen & Risiken",
-                    noClearRisks: "Keine klaren Risiken"
-                },
-                auth: {
-                    title: "Anmelden um intelligentes Suchen zu starten",
-                    email: "E-Mail",
-                    password: "Passwort",
-                    login: "Anmelden",
-                    register: "Registrieren",
-                    or: "oder",
-                    googleBtn: "Mit Google fortfahren",
-                    privacy: "Datenschutz",
-                    terms: "Nutzungsbedingungen",
-                    about: "Über uns",
-                    logoutConfirm: "Möchten Sie sich abmelden?",
-                    fillFields: "Bitte E-Mail und Passwort eingeben",
-                    loginFailed: "Anmeldung fehlgeschlagen:",
-                    userNotFound: "Konto nicht gefunden.",
-                    wrongPassword: "Falsches Passwort.",
-                    invalidEmail: "Ungültiges E-Mail-Format.",
-                    invalidCredential: "Ungültige Anmeldedaten.",
-                    registerFailed: "Registrierung fehlgeschlagen:",
-                    emailInUse: "Diese E-Mail ist bereits registriert.",
-                    weakPassword: "Passwort muss mindestens 6 Zeichen haben",
-                    registerSuccess: "Konto erfolgreich erstellt!"
-                },
-                upgrade: {
-                    title: "Kostenlose Suchvorgänge aufgebraucht",
-                    message: "Sie haben alle kostenlosen Suchvorgänge verwendet.",
-                    upgradeBtn: "Jetzt upgraden",
-                    successTitle: "🎉 Abonnement aktiviert!",
-                    successMessage: "Ihr Findly Pro-Abonnement ist jetzt aktiv.",
-                    thanks: "Danke für Ihre Unterstützung 💙",
-                    paymentUnavailable: "⚠️ Zahlung nicht verfügbar",
-                    paymentError: "❌ Zahlungsfehler"
-                },
-                voice: { notSupported: "Ihr Browser unterstützt keine Sprachsuche" },
-                invite: { text: "Lade jetzt deine Freunde ein ✨", copied: "Einladungslink kopiert ✨", copyFailed: "Link nicht kopiert:\n" },
-                watch: { enterEmail: "E-Mail für Preisalarm eingeben:", activated: "✅ Alarm aktiviert!", serverError: "❌ Serverfehler: ", connectionFailed: "❌ Verbindung fehlgeschlagen" }
-            },
-            es: {
-                ui: {
-                    hero_tagline: "Las decisiones de compra más inteligentes",
-                    title: "Consejero Sabio",
-                    title2: "Compras Perfectas",
-                    sub: "Tu guía de compras inteligente",
-                    energy: "Energía Sage",
-                    welcome: "Bienvenido,",
-                    game: "Juegos", beauty: "Belleza", home: "Hogar Inteligente", c1: "Teléfonos", c2: "Laptops", c4: "Relojes",
-                    p_head: "Perfil",
-                    lbl_name: "Nombre de usuario",
-                    lbl_budget: "Presupuesto ($)",
-                    buy: "Comprar ahora 🛒",
-                    watch: "Vigilar precio 🔔",
-                    over: "Fuera de presupuesto!",
-                    cheap: "Económico", top: "Mejor valorados", new: "Más nuevos",
-                    deep: "Modo IA Profundo",
-                    watchTitle: "Lista de seguimiento",
-                    why: "Por qué esta elección?",
-                    slow: "El servidor se está despertando..",
-                    noAttempts: "⚠️ No quedan intentos!",
-                    analyze: "📊 Análisis",
-                    close: "Cerrar",
-                    saveChanges: "Guardar cambios ✅",
-                    searchPlaceholder: "Buscar un producto...",
-                    noResults: "No se encontraron resultados",
-                    errorFetching: "❌ Error al obtener resultados",
-                    affiliateOffer: "🔥 Oferta especial",
-                    buyNowAffiliate: "🛒 Comprar ahora",
-                    namePlaceholder: "Ingresa tu nombre...",
-                    budgetPlaceholder: "Tu presupuesto máximo...",
-                    settingsSaved: "Configuración guardada!",
-                    seeker: "Buscador"
-                },
-                search: {
-                    market: "Mercado",
-                    avg_price: "Precio promedio",
-                    competitors: "Competidores",
-                    value: "Valor de oferta",
-                    deal_score: "Puntuación de oferta",
-                    learning_on: "El análisis mejora con el uso",
-                    learning_later: "Análisis aprendiendo",
-                    forecast: "Pronóstico de precios",
-                    trend: { up: "Probable subida", down: "Probable bajada", stable: "Estable" },
-                    expected_price: "Precio esperado",
-                    confidence: "Confianza",
-                    trust: "Confianza y riesgos",
-                    no_risks: "Sin riesgos claros",
-                    buy: "Comprar",
-                    analyze: "Analizar",
-                    watch: "Vigilar",
-                    after_discount: "Después del descuento",
-                    copy_coupon: "Copiar cupón",
-                    price: "Precio",
-                    timing: "Momento",
-                    behavior: "Comportamiento",
-                    excellent: "Excelente", good: "Bueno", weak: "Débil",
-                    wait: "Esperar", mayRise: "Puede subir", stableTxt: "Estable",
-                    risk: "Riesgo", safe: "Seguro",
-                    suitable: "Adecuado", general: "General",
-                    smartDecision: "Decisión inteligente: Comprar ahora",
-                    preferWait: "Mejor esperar",
-                    waitPriceDrop: "Esperar bajada de precio",
-                    priceHigh: "Precio alto",
-                    saving: "Ahorro",
-                    bestStore: "Mejor tienda",
-                    confidenceScore: "Confianza",
-                    watchPrice: "Vigilar precio",
-                    linkUnavailable: "Enlace no disponible"
-                },
-                analysis: {
-                    title: "🧠 Análisis Inteligente Sage",
-                    market: "Mercado",
-                    avgPrice: "Precio promedio",
-                    competitors: "Competidores",
-                    deal: "Oferta",
-                    dealScore: "Puntuación de oferta",
-                    forecast: "Pronóstico",
-                    trend: "Tendencia",
-                    expectedPrice: "Precio esperado",
-                    confidence: "Confianza",
-                    trustRisks: "Confianza y Riesgos",
-                    noClearRisks: "Sin riesgos claros"
-                },
-                auth: {
-                    title: "Inicia sesión para comenzar",
-                    email: "Correo electrónico",
-                    password: "Contraseña",
-                    login: "Iniciar sesión",
-                    register: "Registrarse",
-                    or: "o",
-                    googleBtn: "Continuar con Google",
-                    privacy: "Política de privacidad",
-                    terms: "Términos de uso",
-                    about: "Acerca de",
-                    logoutConfirm: "Desea cerrar sesión?",
-                    fillFields: "Por favor ingrese correo y contraseña",
-                    loginFailed: "Error de inicio de sesión:",
-                    userNotFound: "Cuenta no encontrada.",
-                    wrongPassword: "Contraseña incorrecta.",
-                    invalidEmail: "Formato de correo inválido.",
-                    invalidCredential: "Credenciales inválidas.",
-                    registerFailed: "Error de registro:",
-                    emailInUse: "Este correo ya está registrado.",
-                    weakPassword: "La contraseña debe tener al menos 6 caracteres",
-                    registerSuccess: "Cuenta creada exitosamente!"
-                },
-                upgrade: {
-                    title: "Búsquedas gratuitas agotadas",
-                    message: "Has usado todas tus búsquedas gratuitas.",
-                    upgradeBtn: "Actualizar ahora",
-                    successTitle: "🎉 Suscripción activada!",
-                    successMessage: "Tu suscripción Findly Pro está ahora activa.",
-                    thanks: "Gracias por tu apoyo 💙",
-                    paymentUnavailable: "⚠️ Pago no disponible",
-                    paymentError: "❌ Error del servicio de pago"
-                },
-                voice: { notSupported: "Tu navegador no soporta búsqueda por voz" },
-                invite: { text: "Invita a tus amigos ahora ✨", copied: "Enlace de invitación copiado ✨", copyFailed: "Enlace no copiado:\n" },
-                watch: { enterEmail: "Ingresa tu email para alertas:", activated: "✅ Alerta activada!", serverError: "❌ Error del servidor: ", connectionFailed: "❌ Conexión fallida" }
-            },
-            tr: {
-                ui: {
-                    hero_tagline: "Daha akıllı satın alma kararları",
-                    title: "Bilge Danışman",
-                    title2: "Mükemmel Alışveriş",
-                    sub: "Akıllı alışveriş rehberiniz",
-                    energy: "Sage Enerjisi",
-                    welcome: "Hoş geldiniz,",
-                    game: "Oyunlar", beauty: "Güzellik", home: "Akıllı Ev", c1: "Telefonlar", c2: "Laptoplar", c4: "Saatler",
-                    p_head: "Profil",
-                    lbl_name: "Kullanıcı adı",
-                    lbl_budget: "Bütçe ($)",
-                    buy: "Şimdi al 🛒",
-                    watch: "Fiyatı izle 🔔",
-                    over: "Bütçeyi aşıyor!",
-                    cheap: "Ekonomik", top: "En çok oylanan", new: "En yeniler",
-                    deep: "YA Derin Modu",
-                    watchTitle: "İzleme listesi",
-                    why: "Neden bu seçim?",
-                    slow: "Sunucu uyanıyor..",
-                    noAttempts: "⚠️ Deneme hakkı kalmadı!",
-                    analyze: "📊 Analiz",
-                    close: "Kapat",
-                    saveChanges: "Değişiklikleri kaydet ✅",
-                    searchPlaceholder: "Ürün ara...",
-                    noResults: "Sonuç bulunamadı",
-                    errorFetching: "❌ Sonuçlar alınırken hata",
-                    affiliateOffer: "🔥 Özel teklif",
-                    buyNowAffiliate: "🛒 Şimdi al",
-                    namePlaceholder: "Adınızı girin...",
-                    budgetPlaceholder: "Maksimum bütçeniz...",
-                    settingsSaved: "Ayarlar kaydedildi!",
-                    seeker: "Aranan"
-                },
-                search: {
-                    market: "Pazar",
-                    avg_price: "Ortalama fiyat",
-                    competitors: "Rakipler",
-                    value: "Teklif değeri",
-                    deal_score: "Teklif puanı",
-                    learning_on: "Analiz kullanımla gelişir",
-                    learning_later: "Analiz öğreniyor",
-                    forecast: "Fiyat tahmini",
-                    trend: { up: "Muhtemelen artacak", down: "Muhtemelen düşecek", stable: "Kararlı" },
-                    expected_price: "Beklenen fiyat",
-                    confidence: "Güven",
-                    trust: "Güven ve riskler",
-                    no_risks: "Açık risk yok",
-                    buy: "Satın al",
-                    analyze: "Analiz et",
-                    watch: "İzle",
-                    after_discount: "İndirim sonrası",
-                    copy_coupon: "Kuponu kopyala",
-                    price: "Fiyat",
-                    timing: "Zamanlama",
-                    behavior: "Davranış",
-                    excellent: "Mükemmel", good: "İyi", weak: "Zayıf",
-                    wait: "Bekle", mayRise: "Artabilir", stableTxt: "Kararlı",
-                    risk: "Risk", safe: "Güvenli",
-                    suitable: "Uygun", general: "Genel",
-                    smartDecision: "Akıllı karar: Şimdi al",
-                    preferWait: "Beklemek daha iyi",
-                    waitPriceDrop: "Fiyat düşüşünü bekle",
-                    priceHigh: "Fiyat yüksek",
-                    saving: "Tasarruf",
-                    bestStore: "En iyi mağaza",
-                    confidenceScore: "Güven",
-                    watchPrice: "Fiyatı izle",
-                    linkUnavailable: "Bağlantı mevcut değil"
-                },
-                analysis: {
-                    title: "🧠 Sage Akıllı Analiz",
-                    market: "Pazar",
-                    avgPrice: "Ortalama fiyat",
-                    competitors: "Rakipler",
-                    deal: "Teklif",
-                    dealScore: "Teklif puanı",
-                    forecast: "Tahmin",
-                    trend: "Trend",
-                    expectedPrice: "Beklenen fiyat",
-                    confidence: "Güven",
-                    trustRisks: "Güven ve Riskler",
-                    noClearRisks: "Açık risk yok"
-                },
-                auth: {
-                    title: "Akıllı aramayı başlatmak için giriş yapın",
-                    email: "E-posta",
-                    password: "Şifre",
-                    login: "Giriş yap",
-                    register: "Kayıt ol",
-                    or: "veya",
-                    googleBtn: "Google ile devam et",
-                    privacy: "Gizlilik Politikası",
-                    terms: "Kullanım Şartları",
-                    about: "Hakkımızda",
-                    logoutConfirm: "Çıkış yapmak istiyor musunuz?",
-                    fillFields: "Lütfen e-posta ve şifre girin",
-                    loginFailed: "Giriş başarısız:",
-                    userNotFound: "Hesap bulunamadı.",
-                    wrongPassword: "Yanlış şifre.",
-                    invalidEmail: "Geçersiz e-posta formatı.",
-                    invalidCredential: "Geçersiz kimlik bilgileri.",
-                    registerFailed: "Kayıt başarısız:",
-                    emailInUse: "Bu e-posta zaten kayıtlı.",
-                    weakPassword: "Şifre en az 6 karakter olmalı",
-                    registerSuccess: "Hesap başarıyla oluşturuldu!"
-                },
-                upgrade: {
-                    title: "Ücretsiz aramalar tükendi",
-                    message: "Tüm ücretsiz aramalarınızı kullandınız.",
-                    upgradeBtn: "Şimdi yükselt",
-                    successTitle: "🎉 Abonelik aktifleştirildi!",
-                    successMessage: "Findly Pro aboneliğiniz artık aktif.",
-                    thanks: "Desteğiniz için teşekkürler 💙",
-                    paymentUnavailable: "⚠️ Ödeme mevcut değil",
-                    paymentError: "❌ Ödeme servisi hatası"
-                },
-                voice: { notSupported: "Tarayıcınız sesli aramayı desteklemiyor" },
-                invite: { text: "Arkadaşlarınızı şimdi davet edin ✨", copied: "Davet linki kopyalandı ✨", copyFailed: "Link kopyalanmadı:\n" },
-                watch: { enterEmail: "Fiyat uyarıları için e-postanızı girin:", activated: "✅ Uyarı aktifleştirildi!", serverError: "❌ Sunucu hatası: ", connectionFailed: "❌ Bağlantı başarısız" }
+                energy: "Search Energy:",
+                greeting: "Hello,",
+                title: "Your Smart Shopping Advisor",
+                subtitle: "Discover the best products and prices with AI assistance",
+                aiMode: "Deep Analysis Mode",
+                search: "Search for any product...",
+                cheap: "Lowest Price",
+                top: "Top Rated",
+                newest: "Newest",
+                buy: "Buy Now",
+                watch: "Watch Price",
+                analyze: "Analyze",
+                noResults: "No results found",
+                error: "An error occurred, please try again",
+                invite: "Invite your friends - Rewards coming soon!",
+                copied: "Invite link copied!",
+                searchFailed: "Search failed",
+                loading: "Searching...",
+                seeker: "Seeker"
             }
         };
 
+        // ================= TRANSLATION =================
         function t(key) {
-            const keys = key.split('.');
-            let value = dict[lang];
-            for (const k of keys) { value = value?.[k]; }
-            return value || key;
+            return dict[currentLang]?.[key] || dict.ar[key] || key;
         }
 
-        // ═══ UI UPDATE ═══
         function updateUI() {
-            const d = dict[lang] || dict['en'] || dict['ar'];
-            if (!d) return;
-            const userName = localStorage.getItem('fn') || t('ui.seeker');
-            
-            document.getElementById('hero-tagline').innerText = t('ui.hero_tagline');
-            document.getElementById('txt-title').innerText = t('ui.title');
-            document.getElementById('txt-title2').innerText = t('ui.title2');
-            document.getElementById('txt-sub').innerText = t('ui.sub');
-            document.getElementById('txt-energy').innerText = t('ui.energy');
-            document.getElementById('greeting').innerText = t('ui.welcome') + " " + userName;
-            document.getElementById('txt-deep').innerText = t('ui.deep');
-            document.getElementById('tag-cheap').innerText = t('ui.cheap');
-            document.getElementById('tag-top').innerText = t('ui.top');
-            document.getElementById('tag-new').innerText = t('ui.new');
-            document.getElementById('cat-game').innerText = t('ui.game');
-            document.getElementById('cat-beauty').innerText = t('ui.beauty');
-            document.getElementById('cat-home').innerText = t('ui.home');
-            document.getElementById('cat-c1').innerText = t('ui.c1');
-            document.getElementById('cat-c2').innerText = t('ui.c2');
-            document.getElementById('cat-c4').innerText = t('ui.c4');
-            document.getElementById('p_head').innerText = t('ui.p_head');
-            document.getElementById('lbl-name').innerText = t('ui.lbl_name');
-            document.getElementById('lbl-budget').innerText = t('ui.lbl_budget');
-            document.getElementById('txt-watch-title').innerText = t('ui.watchTitle');
-            document.getElementById('s-input').placeholder = t('ui.searchPlaceholder');
-            document.getElementById('auth-subtitle').innerText = t('auth.title');
-            document.getElementById('auth-email').placeholder = t('auth.email');
-            document.getElementById('auth-password').placeholder = t('auth.password');
-            document.getElementById('auth-login-text').innerText = t('auth.login');
-            document.getElementById('auth-register-text').innerText = t('auth.register');
-            document.getElementById('auth-or-text').innerText = t('auth.or');
-            document.getElementById('auth-google-text').innerText = t('auth.googleBtn');
-            document.getElementById('link-privacy').innerText = t('auth.privacy');
-            document.getElementById('link-terms').innerText = t('auth.terms');
-            document.getElementById('link-about').innerText = t('auth.about');
-            document.getElementById('footer-privacy').innerText = t('auth.privacy');
-            document.getElementById('footer-terms').innerText = t('auth.terms');
-            document.getElementById('footer-about').innerText = t('auth.about');
-            document.getElementById('btn-save-settings').innerText = t('ui.saveChanges');
-            document.getElementById('btn-close-profile').innerText = t('ui.close');
-            document.getElementById('btn-close-watch').innerText = t('ui.close');
-            document.getElementById('btn-close-analysis').innerText = t('ui.close');
-            document.getElementById('analysis-modal-title').innerText = t('analysis.title');
-            document.getElementById('in-name').placeholder = t('ui.namePlaceholder');
-            document.getElementById('in-budget').placeholder = t('ui.budgetPlaceholder');
-            document.getElementById('aff-offer').innerText = t('ui.affiliateOffer');
-            document.getElementById('inviteText').innerText = t('invite.text');
-            document.getElementById('main-html').lang = lang;
-            document.getElementById('main-html').dir = (lang === 'ar') ? 'rtl' : 'ltr';
+            document.getElementById('energy-text').textContent = t('energy');
+            document.getElementById('hero-title').textContent = t('title');
+            document.getElementById('hero-subtitle').textContent = t('subtitle');
+            document.getElementById('ai-mode-text').textContent = t('aiMode');
+            document.getElementById('search-input').placeholder = t('search');
+            document.getElementById('filter-cheap').textContent = t('cheap');
+            document.getElementById('filter-top').textContent = t('top');
+            document.getElementById('filter-new').textContent = t('newest');
+            document.getElementById('invite-text').textContent = t('invite');
+            document.getElementById('main-html').lang = currentLang;
+            document.getElementById('main-html').dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+            updateGreeting();
         }
 
         function updateGreeting() {
-            const name = localStorage.getItem('fn') || t('ui.seeker');
-            document.getElementById('greeting').innerText = t('ui.welcome') + " " + name;
+            const name = localStorage.getItem('fn') || t('seeker');
+            document.getElementById('greeting-text').textContent = t('greeting') + ' ' + name;
         }
 
-        // ═══ THEME ═══
+        // ================= THEME =================
         function toggleTheme() {
             document.body.classList.toggle('light-mode');
             localStorage.setItem('theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
         }
 
-        // ═══ LANGUAGE ═══
-        function toggleLangMenu() { document.getElementById('lang-menu').classList.toggle('active'); }
-        
-        function setLang(l) {
-            lang = l;
-            localStorage.setItem('findly_lang', l);
+        // ================= LANGUAGE =================
+        function toggleLangMenu() {
+            document.getElementById('lang-menu').classList.toggle('active');
+        }
+
+        function setLang(lang) {
+            currentLang = lang;
+            localStorage.setItem('findly_lang', lang);
             toggleLangMenu();
             updateUI();
         }
 
-        // ═══ AI MODE ═══
+        // ================= AI MODE =================
         function toggleAiMode() {
-            aiModeEnabled = !aiModeEnabled;
-            document.getElementById('ai-deep-mode').checked = aiModeEnabled;
+            const checkbox = document.getElementById('ai-mode-checkbox');
+            checkbox.checked = !checkbox.checked;
         }
 
-        // ═══ SEARCH ═══
-        function handleSearchKey(e) { if (e.key === 'Enter') performSearch(); }
+        // ================= SEARCH =================
+        function handleSearchKey(e) {
+            if (e.key === 'Enter') performSearch();
+        }
 
         async function performSearch() {
-            const q = document.getElementById('s-input').value.trim();
-            const status = document.getElementById('status-container');
+            const query = document.getElementById('search-input').value.trim();
+            if (!query) return;
+
+            const container = document.getElementById('status-container');
             const resultsBox = document.getElementById('results');
             
-            if (!q) return;
-            
-            const T = dict[lang]?.search || dict.en.search;
-            const UI = dict[lang]?.ui || dict.en.ui;
-            
-            status.innerHTML = `<div class="loading-container"><div class="loading-spinner"></div><p class="loading-text">${t('ui.slow')}</p></div>`;
+            container.innerHTML = `<div class="loading"><div class="loading-spinner"></div><p>${t('loading')}</p></div>`;
             resultsBox.innerHTML = '';
-            
-            const userBudget = parseFloat(localStorage.getItem('user_budget')) || 0;
-            
+
             try {
                 const uid = localStorage.getItem('findly_uid') || 'guest';
-                const res = await fetch(`${API}/search?q=${encodeURIComponent(q)}&lang=${lang}&uid=${uid}`);
-                const data = await res.json();
-                
-                status.innerHTML = '';
-                
+                const response = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}&lang=${currentLang}&uid=${uid}`);
+                const data = await response.json();
+
+                container.innerHTML = '';
+
                 if (data.error === 'ENERGY_EMPTY') {
-                    const upgradeDict = dict[lang]?.upgrade || dict.ar.upgrade;
-                    status.innerHTML = `
+                    container.innerHTML = `
                         <div class="upgrade-section">
-                            <div class="upgrade-icon"><i class="fas fa-battery-empty"></i></div>
-                            <h3 class="upgrade-title">${upgradeDict.title}</h3>
-                            <p class="upgrade-text">${upgradeDict.message}</p>
-                            <button class="upgrade-btn" onclick="openUpgrade()">${upgradeDict.upgradeBtn}</button>
+                            <h3>⚠️ انتهت المحاولات المجانية</h3>
+                            <p>لقد استخدمت جميع عمليات البحث المجانية. قم بالترقية للمتابعة.</p>
+                            <button class="upgrade-btn" onclick="openUpgrade()">ترقية الآن</button>
                         </div>
                     `;
                     return;
                 }
-                
+
                 if (!data.results || data.results.length === 0) {
-                    status.innerHTML = `<div class="status-message info"><i class="fas fa-search"></i> ${UI.noResults}</div>`;
+                    container.innerHTML = `<div class="status-message error">${t('noResults')}</div>`;
                     return;
                 }
-                
-                if (data.energy) { document.getElementById('r-count').textContent = data.energy.left; }
-                if (data.results.length > 0) { updateAffiliateCard(data.results[0]); }
-                
-                data.results.forEach((p, index) => {
-                    const card = createProductCard(p, index, T, UI, userBudget);
-                    resultsBox.appendChild(card);
-                });
-                
-            } catch (e) {
-                console.error('Search error:', e);
-                status.innerHTML = `<div class="status-message error"><i class="fas fa-exclamation-triangle"></i> ${UI.errorFetching}</div>`;
+
+                displayResults(data.results);
+
+            } catch (error) {
+                container.innerHTML = `<div class="status-message error">${t('error')}</div>`;
+                console.error('Search error:', error);
             }
         }
 
-        function createProductCard(p, index, T, UI, userBudget) {
-            const intel = p.intelligence || {};
-            const verdict = intel.finalVerdict || {};
-            const priceIntel = intel.priceIntel || {};
-            const valueIntel = intel.valueIntel || {};
-            const forecastIntel = intel.forecastIntel || {};
-            const trustIntel = intel.trustIntel || {};
-            
+        function displayResults(results) {
+            const container = document.getElementById('results');
+            container.innerHTML = '';
+
+            results.forEach((product, index) => {
+                const card = createProductCard(product, index);
+                container.appendChild(card);
+            });
+        }
+
+        function createProductCard(product, index) {
             const card = document.createElement('div');
             card.className = 'product-card';
             card.style.animationDelay = `${index * 0.1}s`;
-            
-            const priceVal = parseFloat(String(p.price).replace(/[^\d.]/g, '')) || p.numericPrice || 0;
-            
-            let budgetClass = '';
-            let budgetBadge = '';
-            if (userBudget > 0 && priceVal > userBudget) {
-                budgetClass = 'over-budget';
-                budgetBadge = `<div class="budget-alert"><i class="fas fa-exclamation-triangle"></i> ${UI.over}</div>`;
-            }
-            
-            let verdictClass = 'buy';
-            let verdictIcon = 'fa-check-circle';
-            if (verdict.decision === 'WAIT' || verdict.decision === 'WAIT_PRICE_DROP') {
-                verdictClass = 'wait';
-                verdictIcon = 'fa-clock';
-            } else if (verdict.decision === 'OVERPRICED' || verdict.decision === 'OVER_BUDGET') {
-                verdictClass = 'avoid';
-                verdictIcon = 'fa-exclamation-triangle';
-            }
-            
-            let priceEval = T.weak;
-            if (priceIntel.score >= 70) priceEval = T.excellent;
-            else if (priceIntel.score >= 50) priceEval = T.good;
-            
-            let trendEval = T.stableTxt;
-            if (forecastIntel.trend === 'down') trendEval = T.wait;
-            else if (forecastIntel.trend === 'up') trendEval = T.mayRise;
-            
-            let trustEval = T.safe;
-            if ((trustIntel.riskScore || 0) > 50) trustEval = T.risk;
-            
-            let behaviorEval = T.general;
-            if ((valueIntel.learningBoost || 0) > 0) behaviorEval = T.suitable;
-            
-            const coupons = p.coupons || [];
-            const numericPrice = priceVal;
-            const bestCoupon = numericPrice && coupons.length ? pickBestCoupon(numericPrice, coupons) : null;
-            const discountedPrice = bestCoupon ? applyCoupon(numericPrice, bestCoupon) : null;
-            
-            const bestLink = verdict.bestLink || p.link;
-            const safeLink = bestLink && bestLink.startsWith('http') ? bestLink : null;
-            
-            const savings = verdict.savingPercent || (priceIntel.savings || 0);
-            
+
+            const price = product.numericPrice || 0;
+            const intelligence = product.intelligence || {};
+            const verdict = intelligence.finalVerdict || {};
+
+            const decisionEmoji = {
+                'BUY_NOW': '✅',
+                'WAIT': '⏳',
+                'OVERPRICED': '⚠️',
+                'OVER_BUDGET': '💸'
+            };
+
             card.innerHTML = `
-                ${budgetBadge}
-                <div class="product-header">
-                    <div class="product-image-wrapper">
-                        <img class="product-image" src="${p.thumbnail || ''}" alt="${p.title}" onerror="this.src='https://via.placeholder.com/200'">
-                        ${savings > 15 ? `<span class="product-badge">${T.excellent}</span>` : ''}
+                <img class="product-image" src="${product.thumbnail || 'https://via.placeholder.com/200'}" alt="${product.title}" onerror="this.src='https://via.placeholder.com/200'">
+                <h3 class="product-title">${product.title || 'منتج'}</h3>
+                <div class="product-price">$${price || '—'}</div>
+                
+                <div class="intel-badges">
+                    <div class="intel-badge">
+                        <span>💰 السعر</span>
+                        <span>${intelligence.priceIntel?.score >= 70 ? 'ممتاز' : intelligence.priceIntel?.score >= 50 ? 'جيد' : 'مرتفع'}</span>
                     </div>
-                    <div class="product-info">
-                        <h3 class="product-title">${p.title || '—'}</h3>
-                        <div class="product-pricing">
-                            ${bestCoupon && discountedPrice ? `<span class="old-price">$${numericPrice}</span><span class="current-price">$${discountedPrice}</span><span class="discount-badge">-${bestCoupon.type === 'percent' ? bestCoupon.discount + '%' : '$' + bestCoupon.discount}</span>` : `<span class="current-price">$${numericPrice || '—'}</span>`}
-                        </div>
+                    <div class="intel-badge">
+                        <span>📈 التوقعات</span>
+                        <span>${intelligence.forecastIntel?.trend === 'down' ? 'سينخفض' : intelligence.forecastIntel?.trend === 'up' ? 'سيرتفع' : 'مستقر'}</span>
+                    </div>
+                    <div class="intel-badge">
+                        <span>🛡️ الثقة</span>
+                        <span>${verdict.confidence || 60}%</span>
+                    </div>
+                    <div class="intel-badge">
+                        <span>🧠 التحليل</span>
+                        <span>${intelligence.valueIntel?.learningBoost > 0 ? 'مخصص' : 'عام'}</span>
                     </div>
                 </div>
 
                 ${verdict.decision ? `
-                <div class="verdict-section">
-                    <div class="verdict-header">
-                        <div class="verdict-icon ${verdictClass}"><i class="fas ${verdictIcon}"></i></div>
-                        <div class="verdict-title ${verdictClass}">${verdict.title || (verdictClass === 'buy' ? T.smartDecision : verdictClass === 'wait' ? T.preferWait : T.priceHigh)}</div>
+                <div class="analysis-box">
+                    <div class="label">
+                        <span>${decisionEmoji[verdict.decision] || '🤖'}</span>
+                        ${verdict.title || 'تحليل'}
                     </div>
-                    <p class="verdict-reason">${verdict.reason || ''}</p>
-                    ${verdict.savingPercent ? `<div class="verdict-meta"><span>💰 ${T.saving}: <strong>${verdict.savingPercent}%</strong></span></div>` : ''}
-                    ${verdict.bestStore ? `<div class="verdict-meta"><span>🏪 ${T.bestStore}: <strong>${verdict.bestStore}</strong></span></div>` : ''}
-                    <div class="verdict-meta"><span>🎯 ${T.confidenceScore}: <strong>${verdict.confidence || 60}%</strong></span></div>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem;">${verdict.reason || ''}</p>
                 </div>
                 ` : ''}
 
-                <div class="intel-grid">
-                    <div class="intel-item"><div class="icon">💰</div><div class="label">${T.price}</div><div class="value ${priceIntel.score >= 70 ? 'good' : priceIntel.score < 50 ? 'danger' : ''}">${priceEval}</div></div>
-                    <div class="intel-item"><div class="icon">📈</div><div class="label">${T.timing}</div><div class="value ${forecastIntel.trend === 'down' ? 'good' : forecastIntel.trend === 'up' ? 'danger' : ''}">${trendEval}</div></div>
-                    <div class="intel-item"><div class="icon">🛡️</div><div class="label">${T.confidence}</div><div class="value">${trustEval}</div></div>
-                    <div class="intel-item"><div class="icon">🧠</div><div class="label">${T.behavior}</div><div class="value">${behaviorEval}</div></div>
+                <div class="action-buttons">
+                    ${product.link && product.link !== '#' ? `
+                    <a class="btn btn-primary" href="${API_BASE}/go?url=${encodeURIComponent(product.link)}" target="_blank">
+                        <i class="fas fa-shopping-cart"></i>
+                        ${t('buy')}
+                    </a>
+                    ` : ''}
+                    <button class="btn btn-warning" onclick="addToWatchlist('${product.title?.replace(/'/g, "\\'") || ''}', ${price}, '${product.link || ''}')">
+                        <i class="fas fa-bell"></i>
+                        ${t('watch')}
+                    </button>
                 </div>
+            `;
 
-                <div class="intel-section"><h4>📊 ${T.market}</h4><p>${T.avg_price}: <strong>${priceIntel.average ? '$' + Math.round(priceIntel.average) : '—'}</strong></p><p>${T.competitors}: <strong>${valueIntel.competitors || 0}</strong></p></div>
-                <div class="intel-section"><h4>💎 ${T.value}</h4><p>${T.deal_score}: <strong>${valueIntel.score || 0}%</strong></p><p>${valueIntel.learningBoost > 0 ? T.learning_on : T.learning_later}</p></div>
-                <div class="intel-section"><h4>🔮 ${T.forecast}</h4><p>${T.trend[forecastIntel.trend] || T.trend.stable}</p><p>${T.expected_price}: <strong>$${forecastIntel.expectedPrice || '—'}</strong></p></div>
-                <div class="intel-section"><h4>⚠️ ${T.trust}</h4>${trustIntel.warnings && trustIntel.warnings.length ? `<ul>${trustIntel.warnings.map(w => `<li>${w}</li>`).join('')}</ul>` : `<p>✅ ${T.no_risks}</p>`}</div>
+            return card;
+        }
 
-                ${bestCoupon ? `<div class="coupon-box"><div class="coupon-header"><span
+        function quickSearch(query) {
+            document.getElementById('search-input').value = query;
+            performSearch();
+        }
+
+        function quickFilter(type) {
+            const input = document.getElementById('search-input');
+            input.value += ' ' + type;
+            performSearch();
+        }
+
+        // ================= VOICE =================
+        function startVoice() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alert(currentLang === 'ar' ? 'متصفحك لا يدعم البحث الصوتي' : 'Your browser does not support voice search');
+                return;
+            }
+
+            const recognition = new SpeechRecognition();
+            const voiceBtn = document.getElementById('voice-btn');
+
+            recognition.lang = currentLang === 'ar' ? 'ar-SA' : 'en-US';
+            recognition.interimResults = false;
+
+            recognition.onstart = () => voiceBtn.classList.add('recording');
+            recognition.onend = () => voiceBtn.classList.remove('recording');
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById('search-input').value = transcript;
+                performSearch();
+            };
+            recognition.onerror = () => voiceBtn.classList.remove('recording');
+
+            recognition.start();
+        }
+
+        // ================= CHAT =================
+        function toggleChat() {
+            document.getElementById('chat-window').classList.toggle('active');
+        }
+
+        function handleChatKey(e) {
+            if (e.key === 'Enter') sendChatMessage();
+        }
+
+        async function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            if (!message) return;
+
+            const container = document.getElementById('chat-messages');
+            
+            // Add user message
+            container.innerHTML += `<div class="message user">${message}</div>`;
+            input.value = '';
+            container.scrollTop = container.scrollHeight;
+
+            try {
+                const response = await fetch(`${API_BASE}/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message, userId: localStorage.getItem('findly_uid') || 'guest' })
+                });
+                const data = await response.json();
+                container.innerHTML += `<div class="message bot">${data.reply || data.response || '🤔 عذراً، لم أفهم.'}</div>`;
+            } catch (error) {
+                container.innerHTML += `<div class="message bot">⚠️ حدث خطأ في الاتصال</div>`;
+            }
+
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // ================= WATCHLIST =================
+        function addToWatchlist(name, price, link) {
+            let watchlist = JSON.parse(localStorage.getItem('findly_watchlist') || '[]');
+            watchlist.push({ name, price, link, addedAt: Date.now() });
+            localStorage.setItem('findly_watchlist', JSON.stringify(watchlist));
+            updateWatchBadge();
+            alert(currentLang === 'ar' ? '✅ تمت الإضافة لقائمة المراقبة!' : '✅ Added to watchlist!');
+        }
+
+        function updateWatchBadge() {
+            const watchlist = JSON.parse(localStorage.getItem('findly_watchlist') || '[]');
+            const badge = document.getElementById('watch-badge');
+            if (watchlist.length > 0) {
+                badge.textContent = watchlist.length;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        function openWatchlist() {
+            document.getElementById('watchlist-modal').classList.add('active');
+            const watchlist = JSON.parse(localStorage.getItem('findly_watchlist') || '[]');
+            const content = document.getElementById('watchlist-content');
+            
+            if (watchlist.length === 0) {
+                content.innerHTML = '<p style="color: var(--text-muted); text-align: center;">لا توجد منتجات في القائمة</p>';
+            } else {
+                content.innerHTML = watchlist.map(item => `
+                    <div style="padding: 12px; background: var(--bg-tertiary); border-radius: var(--radius-md); margin-bottom: 8px;">
+                        <p style="font-weight: 600;">${item.name}</p>
+                        <p style="color: var(--success);">$${item.price || '—'}</p>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // ================= PROFILE =================
+        function openProfile() {
+            document.getElementById('profile-modal').classList.add('active');
+            document.getElementById('profile-name').value = localStorage.getItem('fn') || '';
+            document.getElementById('profile-budget').value = localStorage.getItem('user_budget') || '';
+        }
+
+        function saveProfile() {
+            localStorage.setItem('fn', document.getElementById('profile-name').value);
+            localStorage.setItem('user_budget', document.getElementById('profile-budget').value);
+            closeModal('profile-modal');
+            updateGreeting();
+            alert(currentLang === 'ar' ? '✅ تم الحفظ!' : '✅ Saved!');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        // ================= INVITE =================
+        function copyInviteLink() {
+            const uid = localStorage.getItem('findly_uid') || 'guest';
+            const link = `${window.location.origin}${window.location.pathname}?ref=${uid}`;
+            navigator.clipboard.writeText(link).then(() => {
+                alert(t('copied'));
+            }).catch(() => {
+                alert(link);
+            });
+        }
+
+        // ================= UPGRADE =================
+        async function openUpgrade() {
+            const uid = localStorage.getItem('findly_uid') || 'guest_' + Date.now();
+            try {
+                const response = await fetch(`${API_BASE}/create-payment`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ uid })
+                });
+                const data = await response.json();
+                if (data.url) {
+                    window.open(data.url, '_blank');
+                } else {
+                    alert(currentLang === 'ar' ? 'خدمة الدفع غير متاحة' : 'Payment service unavailable');
+                }
+            } catch (error) {
+                alert(currentLang === 'ar' ? 'خطأ في خدمة الدفع' : 'Payment service error');
+            }
+        }
+
+        // ================= INIT =================
+        window.onload = () => {
+            // Load theme
+            if (localStorage.getItem('theme') === 'light') {
+                document.body.classList.add('light-mode');
+            }
+            
+            updateUI();
+            updateWatchBadge();
+
+            // Check for upgrade success
+            if (window.location.search.includes('upgrade=success')) {
+                localStorage.setItem('findly_pro', 'true');
+                alert(currentLang === 'ar' ? '🎉 تم تفعيل اشتراكك بنجاح!' : '🎉 Subscription activated!');
+            }
+        };
+
+        // Close dropdowns on outside click
+        window.onclick = (e) => {
+            if (!e.target.closest('.header-actions')) {
+                document.getElementById('lang-menu').classList.remove('active');
+            }
+            if (e.target.classList.contains('modal')) {
+                e.target.classList.remove('active');
+            }
+        };
+    </script>
+</body>
+</html>

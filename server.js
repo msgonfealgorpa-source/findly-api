@@ -1,6 +1,6 @@
 /* =========================================
-FINDLY SERVER - COMPLETE WITH GEMINI AI
-Fixed for Railway Deployment
+FINDLY SERVER v6.0 - COMPLETE WITH SAGE CORE v4
+Ultimate Shopping Intelligence Platform
 ========================================= */
 
 const express = require('express');
@@ -8,37 +8,6 @@ const cors = require('cors');
 const axios = require('axios');
 const mongoose = require('mongoose');
 const crypto = require('crypto');
-
-// Import modules
-let SageCore = null;
-let processChatMessage = null;
-let supportedLanguages = { ar: {}, en: {}, fr: {}, de: {}, es: {}, tr: {} };
-
-try {
-    SageCore = require('./sage-core');
-    console.log('✅ SageCore loaded');
-} catch (e) {
-    console.log('⚠️ SageCore not found, using fallback');
-}
-
-try {
-    const chatEngine = require('./chat.engine');
-    processChatMessage = chatEngine.processChatMessage;
-    supportedLanguages = chatEngine.supportedLanguages || supportedLanguages;
-    console.log('✅ Chat Engine loaded');
-} catch (e) {
-    console.log('⚠️ Chat Engine not found, using fallback');
-    // Fallback chat function
-    processChatMessage = async (message, userId) => {
-        return {
-            reply: '🤖 مرحباً! أنا مساعدك الذكي. كيف يمكنني مساعدتك؟',
-            response: '🤖 مرحباً! أنا مساعدك الذكي. كيف يمكنني مساعدتك؟',
-            intent: 'greeting',
-            sentiment: 'neutral',
-            language: 'ar'
-        };
-    };
-}
 
 const app = express();
 
@@ -54,12 +23,11 @@ app.use(express.json({ limit: '10mb' }));
 /* ================= ENVIRONMENT VARIABLES ================= */
 const MONGO_URI = process.env.MONGO_URI || '';
 const SEARCHAPI_KEY = process.env.SEARCHAPI_KEY || '';
-const SERPER_API_KEY = process.env.SERPER_API_KEY || '';
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 const NOWPAYMENTS_IPN_SECRET = process.env.NOWPAYMENTS_IPN_SECRET || '';
 const NOWPAYMENTS_API_KEY = process.env.NOWPAYMENTS_API_KEY || '';
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 
-console.log('🚀 Findly Server Starting...');
+console.log('🚀 Findly Sage Server v6.0 Starting...');
 console.log('🔑 GEMINI_API_KEY:', GEMINI_API_KEY ? '✅ Set' : '❌ Not Set');
 console.log('🔑 SEARCHAPI_KEY:', SEARCHAPI_KEY ? '✅ Set' : '❌ Not Set');
 console.log('🔑 MONGO_URI:', MONGO_URI ? '✅ Set' : '❌ Not Set');
@@ -96,23 +64,688 @@ if (MONGO_URI) {
     console.log('⚠️ No MONGO_URI - running without database');
 }
 
-/* ================= MODELS ================= */
-const Energy = mongoose.model(
-    'Energy',
-    new mongoose.Schema({
-        uid: { type: String, unique: true, required: true },
-        searchesUsed: { type: Number, default: 0 },
-        hasFreePass: { type: Boolean, default: false },
-        createdAt: { type: Date, default: Date.now }
-    })
-);
+/* ================= DATABASE SCHEMAS ================= */
+
+// User Energy Schema
+const EnergySchema = new mongoose.Schema({
+    uid: { type: String, unique: true, required: true },
+    searchesUsed: { type: Number, default: 0 },
+    hasFreePass: { type: Boolean, default: false },
+    createdAt: { type: Date, default: Date.now }
+});
+
+// Price History Schema
+const PriceHistorySchema = new mongoose.Schema({
+    productId: { type: String, index: true },
+    title: String,
+    price: Number,
+    currency: { type: String, default: 'USD' },
+    store: String,
+    source: String,
+    thumbnail: String,
+    link: String,
+    inStock: { type: Boolean, default: true },
+    timestamp: { type: Date, default: Date.now, index: true }
+});
+
+// User Behavior Schema
+const UserBehaviorSchema = new mongoose.Schema({
+    userId: { type: String, index: true },
+    eventType: { 
+        type: String, 
+        enum: ['search', 'view', 'click', 'wishlist', 'purchase', 'abandon', 'analysis', 'chat'] 
+    },
+    productId: String,
+    query: String,
+    price: Number,
+    metadata: mongoose.Schema.Types.Mixed,
+    timestamp: { type: Date, default: Date.now, index: true }
+});
+
+// Price Alert Schema
+const PriceAlertSchema = new mongoose.Schema({
+    userId: { type: String, index: true },
+    productId: { type: String, index: true },
+    productTitle: String,
+    productImage: String,
+    productLink: String,
+    targetPrice: Number,
+    currentPrice: Number,
+    notifyOn: { type: String, enum: ['drop', 'percentage', 'specific'], default: 'drop' },
+    threshold: { type: Number, default: 10 },
+    active: { type: Boolean, default: true },
+    notified: { type: Boolean, default: false },
+    createdAt: { type: Date, default: Date.now },
+    lastChecked: Date
+});
+
+// User Profile Schema
+const UserProfileSchema = new mongoose.Schema({
+    userId: { type: String, unique: true, required: true },
+    personality: { type: String, default: 'neutral' },
+    preferences: {
+        categories: [String],
+        brands: [String],
+        priceRange: { min: Number, max: Number }
+    },
+    stats: {
+        totalSearches: { type: Number, default: 0 },
+        totalPurchases: { type: Number, default: 0 },
+        totalSaved: { type: Number, default: 0 },
+        averageSpent: Number
+    },
+    createdAt: { type: Date, default: Date.now },
+    lastActive: { type: Date, default: Date.now }
+});
+
+// Merchant Rating Schema
+const MerchantRatingSchema = new mongoose.Schema({
+    domain: { type: String, unique: true },
+    name: String,
+    overallScore: { type: Number, default: 50 },
+    trustScore: { type: Number, default: 50 },
+    totalProducts: { type: Number, default: 0 },
+    avgPriceDeviation: Number,
+    lastUpdated: { type: Date, default: Date.now }
+});
+
+// Models
+const Energy = mongoose.model('Energy', EnergySchema);
+const PriceHistory = mongoose.model('PriceHistory', PriceHistorySchema);
+const UserBehavior = mongoose.model('UserBehavior', UserBehaviorSchema);
+const PriceAlert = mongoose.model('PriceAlert', PriceAlertSchema);
+const UserProfile = mongoose.model('UserProfile', UserProfileSchema);
+const MerchantRating = mongoose.model('MerchantRating', MerchantRatingSchema);
+
+/* ================================
+   🔮 SAGE CORE v4.0 - EMBEDDED
+================================ */
+
+// Translations
+const SAGE_TRANSLATIONS = {
+  ar: {
+    buy_now: "اشتري الآن",
+    wait: "انتظر",
+    overpriced: "السعر مرتفع",
+    fair_price: "سعر عادل",
+    excellent_deal: "صفقة ممتازة",
+    good_deal: "صفقة جيدة",
+    bad_deal: "صفقة ضعيفة",
+    high_risk: "مخاطرة عالية",
+    medium_risk: "مخاطرة متوسطة",
+    low_risk: "مخاطرة منخفضة",
+    strong_signal: "إشارة قوية",
+    weak_signal: "إشارة ضعيفة",
+    insufficient_data: "بيانات غير كافية للتحليل",
+    market_stable: "السوق مستقر",
+    market_rising: "السوق في ارتفاع",
+    market_falling: "السوق في انخفاض",
+    analysis_learning: "التحليل قيد التعلم",
+    fake_offer: "قد يكون العرض غير منطقي مقارنة بالسوق",
+    price_drop_expected: "متوقع انخفاض السعر",
+    price_rise_expected: "متوقع ارتفاع السعر",
+    best_time_to_buy: "أفضل وقت للشراء",
+    trusted_merchant: "تاجر موثوق",
+    suspicious_merchant: "تاجر مشبوه",
+    recommended: "موصى به",
+    alternative: "بديل أرخص",
+    tip_wait_sale: "انتظر العروض القادمة",
+    tip_buy_now: "السعر مناسب حالياً",
+    tip_compare: "قارن مع خيارات أخرى"
+  },
+  en: {
+    buy_now: "Buy Now",
+    wait: "Wait",
+    overpriced: "Overpriced",
+    fair_price: "Fair Price",
+    excellent_deal: "Excellent Deal",
+    good_deal: "Good Deal",
+    bad_deal: "Weak Deal",
+    high_risk: "High Risk",
+    medium_risk: "Medium Risk",
+    low_risk: "Low Risk",
+    strong_signal: "Strong Signal",
+    weak_signal: "Weak Signal",
+    insufficient_data: "Insufficient data for analysis",
+    market_stable: "Market Stable",
+    market_rising: "Market Rising",
+    market_falling: "Market Falling",
+    analysis_learning: "Analysis in progress",
+    fake_offer: "Offer may be unrealistic",
+    price_drop_expected: "Price drop expected",
+    price_rise_expected: "Price rise expected",
+    best_time_to_buy: "Best time to buy",
+    trusted_merchant: "Trusted Merchant",
+    suspicious_merchant: "Suspicious Merchant",
+    recommended: "Recommended",
+    alternative: "Cheaper Alternative",
+    tip_wait_sale: "Wait for upcoming sales",
+    tip_buy_now: "Price is good right now",
+    tip_compare: "Compare with other options"
+  },
+  fr: {
+    buy_now: "Acheter maintenant",
+    wait: "Attendre",
+    overpriced: "Prix élevé",
+    fair_price: "Prix juste",
+    excellent_deal: "Excellente offre",
+    good_deal: "Bonne offre",
+    bad_deal: "Mauvaise offre",
+    high_risk: "Risque élevé",
+    medium_risk: "Risque moyen",
+    low_risk: "Risque faible",
+    insufficient_data: "Données insuffisantes",
+    market_stable: "Marché stable",
+    market_rising: "Marché en hausse",
+    market_falling: "Marché en baisse",
+    fake_offer: "Offre potentiellement irréaliste"
+  },
+  de: {
+    buy_now: "Jetzt kaufen",
+    wait: "Warten",
+    overpriced: "Überteuert",
+    fair_price: "Fairer Preis",
+    excellent_deal: "Ausgezeichnetes Angebot",
+    good_deal: "Gutes Angebot",
+    insufficient_data: "Unzureichende Daten",
+    market_stable: "Markt stabil"
+  },
+  es: {
+    buy_now: "Comprar ahora",
+    wait: "Esperar",
+    overpriced: "Precio alto",
+    fair_price: "Precio justo",
+    excellent_deal: "Oferta excelente",
+    good_deal: "Buena oferta",
+    insufficient_data: "Datos insuficientes"
+  },
+  tr: {
+    buy_now: "Şimdi Satın Al",
+    wait: "Bekle",
+    overpriced: "Fiyat yüksek",
+    fair_price: "Adil fiyat",
+    excellent_deal: "Mükemmel fırsat",
+    good_deal: "İyi fırsat",
+    insufficient_data: "Yetersiz veri"
+  }
+};
+
+// Utility Functions
+function t(lang, key) {
+    const shortLang = (lang || "en").split("-")[0];
+    return SAGE_TRANSLATIONS[shortLang]?.[key] 
+        || SAGE_TRANSLATIONS["en"][key] 
+        || key;
+}
+
+function cleanPrice(p) {
+    if (!p) return 0;
+    const cleaned = parseFloat(p.toString().replace(/[^0-9.]/g, ''));
+    return isNaN(cleaned) ? 0 : cleaned;
+}
+
+function calculateSMA(data, period) {
+    if (data.length < period) return null;
+    const result = [];
+    for (let i = period - 1; i < data.length; i++) {
+        const sum = data.slice(i - period + 1, i + 1).reduce((a, b) => a + b, 0);
+        result.push(sum / period);
+    }
+    return result;
+}
+
+function calculateStdDev(data) {
+    if (data.length < 2) return 0;
+    const mean = data.reduce((a, b) => a + b, 0) / data.length;
+    const variance = data.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / data.length;
+    return Math.sqrt(variance);
+}
+
+function removeOutliers(data) {
+    if (data.length < 4) return data;
+    const sorted = [...data].sort((a, b) => a - b);
+    const q1Index = Math.floor(sorted.length * 0.25);
+    const q3Index = Math.floor(sorted.length * 0.75);
+    const q1 = sorted[q1Index];
+    const q3 = sorted[q3Index];
+    const iqr = q3 - q1;
+    const lowerBound = q1 - 1.5 * iqr;
+    const upperBound = q3 + 1.5 * iqr;
+    return sorted.filter(p => p >= lowerBound && p <= upperBound);
+}
+
+// Sage AI Engine Class
+class SageAIEngine {
+    constructor(apiKey = null) {
+        this.apiKey = apiKey || GEMINI_API_KEY;
+        this.baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
+    }
+
+    async callGemini(prompt) {
+        if (!this.apiKey) return null;
+
+        try {
+            const response = await axios.post(
+                `${this.baseUrl}?key=${this.apiKey}`,
+                {
+                    contents: [{ parts: [{ text: prompt }] }],
+                    generationConfig: { temperature: 0.3, maxOutputTokens: 1024 }
+                },
+                { timeout: 10000 }
+            );
+
+            const text = response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (text) {
+                try {
+                    const jsonMatch = text.match(/\{[\s\S]*\}/);
+                    if (jsonMatch) return JSON.parse(jsonMatch[0]);
+                } catch (e) {}
+                return { text };
+            }
+            return null;
+        } catch (error) {
+            console.error('Gemini API Error:', error.message);
+            return null;
+        }
+    }
+
+    async generateAdvice(product, analysis, lang = 'ar') {
+        const prompt = `You are a smart shopping advisor. Product: "${product.title}", Price: ${product.price}.
+Analysis: ${JSON.stringify(analysis)}. Language: ${lang}.
+Return JSON: {"advice": "brief advice", "tip": "specific tip", "confidence": 0-100}`;
+
+        const result = await this.callGemini(prompt);
+        if (result && result.advice) return result;
+        
+        if (analysis.priceIntel?.score >= 70) {
+            return { advice: t(lang, 'tip_buy_now'), tip: t(lang, 'tip_buy_now'), confidence: 70 };
+        }
+        return { advice: t(lang, 'tip_compare'), tip: t(lang, 'tip_compare'), confidence: 60 };
+    }
+}
+
+// Personality Engine
+class PersonalityEngine {
+    static analyze(userEvents, price, marketAverage, userHistory = {}) {
+        const scores = { hunter: 0, analyst: 0, impulse: 0, premium: 0, budget: 0 };
+
+        if (userEvents) {
+            if (userEvents.wishlistAdditions > 3) scores.hunter += 20;
+            if (userEvents.priceChecks > 5) scores.hunter += 15;
+            if (userEvents.clickedAnalysis) scores.analyst += 20;
+            if (userEvents.comparisonViews > 3) scores.analyst += 25;
+            if (userEvents.quickPurchases > 2) scores.impulse += 30;
+            if (userEvents.brandSearches > 3) scores.premium += 20;
+            if (userEvents.budgetSet) scores.budget += 25;
+        }
+
+        let dominant = 'neutral';
+        let maxScore = 0;
+        Object.entries(scores).forEach(([p, s]) => {
+            if (s > maxScore) { maxScore = s; dominant = p; }
+        });
+
+        if (maxScore < 20) dominant = 'neutral';
+
+        const traits = {
+            hunter: { description: 'يبحث عن أقل سعر ممكن', style: 'صياد الصفقات' },
+            analyst: { description: 'يفضل التحليل قبل الشراء', style: 'المحلل' },
+            impulse: { description: 'يتخذ قرارات سريعة', style: 'المتسرع' },
+            premium: { description: 'يهتم بالجودة', style: 'محب الجودة' },
+            budget: { description: 'محدود الميزانية', style: 'المخطط' },
+            neutral: { description: 'سلوك متوازن', style: 'متوازن' }
+        };
+
+        return {
+            type: dominant,
+            scores,
+            confidence: Math.min(100, maxScore),
+            traits: traits[dominant]
+        };
+    }
+
+    static personalize(personality, product, marketData, lang) {
+        const price = cleanPrice(product.price);
+        const avg = marketData.average || price;
+
+        switch (personality.type) {
+            case 'hunter':
+                if (price <= avg * 0.85) {
+                    return { action: 'buy_now', reason: t(lang, 'excellent_deal'), confidence: 85 };
+                }
+                return { action: 'wait', reason: 'انتظر انخفاضاً أفضل', confidence: 70 };
+            case 'analyst':
+                return { action: 'compare', reason: t(lang, 'tip_compare'), confidence: 75 };
+            case 'impulse':
+                if (price <= avg * 1.05) {
+                    return { action: 'buy_now', reason: 'السعر مناسب للشراء السريع', confidence: 80 };
+                }
+                return { action: 'consider', reason: t(lang, 'tip_compare'), confidence: 60 };
+            case 'premium':
+                return { action: 'buy_now', reason: 'منتج مميز', confidence: 75 };
+            case 'budget':
+                if (price <= avg * 0.7) {
+                    return { action: 'buy_now', reason: t(lang, 'excellent_deal'), confidence: 90 };
+                }
+                return { action: 'search_alternative', reason: t(lang, 'alternative'), confidence: 70 };
+            default:
+                return { action: price <= avg ? 'buy_now' : 'wait', reason: price <= avg ? t(lang, 'good_deal') : t(lang, 'tip_wait_sale'), confidence: 60 };
+        }
+    }
+}
+
+// Price Intelligence Engine
+class PriceIntelligence {
+    static analyze(product, marketProducts = [], priceHistory = [], lang = 'ar') {
+        const currentPrice = cleanPrice(product.price);
+        const marketPrices = marketProducts.map(p => cleanPrice(p.product_price || p.price || p)).filter(p => p > 0);
+
+        if (marketPrices.length < 3) {
+            return {
+                priceIntel: {
+                    current: currentPrice,
+                    average: null,
+                    median: null,
+                    score: 50,
+                    decision: t(lang, 'insufficient_data'),
+                    color: '#6b7280',
+                    confidence: 30
+                },
+                hasEnoughData: false
+            };
+        }
+
+        const sorted = [...marketPrices].sort((a, b) => a - b);
+        const cleanedPrices = removeOutliers(sorted);
+        const average = marketPrices.reduce((a, b) => a + b, 0) / marketPrices.length;
+        const median = cleanedPrices[Math.floor(cleanedPrices.length / 2)];
+        const min = Math.min(...cleanedPrices);
+        const max = Math.max(...cleanedPrices);
+
+        let score = 50, decision = t(lang, 'fair_price'), color = '#3b82f6', label = '';
+
+        if (currentPrice < median * 0.85) {
+            score = 85; decision = t(lang, 'excellent_deal'); color = '#10b981';
+            label = `أقل من ${Math.round((1 - currentPrice / median) * 100)}% من السوق`;
+        } else if (currentPrice < median * 0.95) {
+            score = 70; decision = t(lang, 'good_deal'); color = '#22c55e';
+            label = 'أقل من متوسط السوق';
+        } else if (currentPrice > median * 1.15) {
+            score = 25; decision = t(lang, 'overpriced'); color = '#ef4444';
+            label = `أعلى من ${Math.round((currentPrice / median - 1) * 100)}% من السوق`;
+        } else if (currentPrice > median * 1.05) {
+            score = 40; decision = t(lang, 'wait'); color = '#f59e0b';
+        }
+
+        let trend = null;
+        if (priceHistory && priceHistory.length >= 5) {
+            const prices = priceHistory.map(h => cleanPrice(h.price)).filter(p => p > 0);
+            if (prices.length >= 5) {
+                const sma5 = calculateSMA(prices, Math.min(5, prices.length));
+                const sma10 = calculateSMA(prices, Math.min(10, prices.length));
+                if (sma5 && sma10) {
+                    const lastSma5 = sma5[sma5.length - 1];
+                    const lastSma10 = sma10[sma10.length - 1];
+                    trend = {
+                        trend: lastSma5 > lastSma10 * 1.02 ? 'rising' : lastSma5 < lastSma10 * 0.98 ? 'falling' : 'stable',
+                        confidence: Math.min(95, 50 + prices.length),
+                        predictedPrice: lastSma5
+                    };
+                }
+            }
+        }
+
+        return {
+            priceIntel: {
+                current: currentPrice,
+                average: Math.round(average * 100) / 100,
+                median: Math.round(median * 100) / 100,
+                min, max,
+                score, decision, label, color,
+                confidence: Math.min(100, 40 + marketPrices.length * 3)
+            },
+            trendIntel: trend,
+            hasEnoughData: true,
+            marketStats: {
+                competitors: marketPrices.length,
+                priceVariation: Math.round(((max - min) / median) * 100)
+            }
+        };
+    }
+}
+
+// Merchant Trust Engine
+class MerchantTrustEngine {
+    static evaluate(storeData, productData = {}, lang = 'ar') {
+        const store = storeData.source || storeData.store || 'Unknown';
+        let trustScore = 50;
+        const factors = [], warnings = [];
+
+        const trustedStores = ['amazon', 'ebay', 'walmart', 'aliexpress', 'noon', 'jarir', 'extra', 'apple', 'samsung', 'nike'];
+        const suspiciousPatterns = ['free money', 'guaranteed', 'act now'];
+
+        if (trustedStores.some(s => store.toLowerCase().includes(s))) {
+            trustScore += 25;
+            factors.push({ factor: 'known_brand', impact: +25 });
+        }
+
+        if (productData.price && productData.marketAverage && cleanPrice(productData.price) < productData.marketAverage * 0.5) {
+            trustScore -= 20;
+            warnings.push(t(lang, 'fake_offer'));
+        }
+
+        const badge = trustScore >= 80 ? { level: 'gold', icon: '🥇' } :
+                      trustScore >= 65 ? { level: 'silver', icon: '🥈' } :
+                      trustScore >= 50 ? { level: 'bronze', icon: '🥉' } :
+                      { level: 'warning', icon: '⚠️' };
+
+        return { store, trustScore: Math.max(0, Math.min(100, trustScore)), badge, factors, warnings };
+    }
+}
+
+// Fake Deal Detector
+class FakeDealDetector {
+    static detect(product, marketProducts, lang = 'ar') {
+        const warnings = [], riskFactors = [];
+        let riskScore = 0;
+
+        const currentPrice = cleanPrice(product.price);
+        const marketPrices = marketProducts.map(p => cleanPrice(p.product_price || p.price)).filter(p => p > 0);
+
+        if (marketPrices.length >= 3) {
+            const avg = marketPrices.reduce((a, b) => a + b, 0) / marketPrices.length;
+            const min = Math.min(...marketPrices);
+
+            if (currentPrice < avg * 0.5) {
+                warnings.push(t(lang, 'fake_offer'));
+                riskFactors.push({ factor: 'price_too_low', severity: 'high' });
+                riskScore += 40;
+            }
+            if (currentPrice > min * 1.5) {
+                warnings.push('السعر أعلى بكثير من المنافسين');
+                riskScore += 25;
+            }
+        }
+
+        return {
+            isSuspicious: riskScore >= 40,
+            riskScore: Math.min(100, riskScore),
+            riskLevel: riskScore >= 70 ? 'high' : riskScore >= 40 ? 'medium' : 'low',
+            warnings, riskFactors
+        };
+    }
+}
+
+// Main Sage Core Function
+async function SageCore(product, marketProducts = [], priceHistory = [], userEvents = {}, userId = 'guest', userHistory = {}, lang = 'ar') {
+    const currentPrice = cleanPrice(product.price);
+    const ai = new SageAIEngine();
+
+    // 1. Price Intelligence
+    const priceAnalysis = PriceIntelligence.analyze(product, marketProducts, priceHistory, lang);
+    if (!priceAnalysis.hasEnoughData) {
+        return {
+            ...priceAnalysis,
+            finalVerdict: { decision: 'INSUFFICIENT_DATA', confidence: 30, recommendation: t(lang, 'insufficient_data') }
+        };
+    }
+
+    const { priceIntel, trendIntel, marketStats } = priceAnalysis;
+
+    // 2. Personality Analysis
+    const personality = PersonalityEngine.analyze(userEvents, currentPrice, priceIntel.median, userHistory);
+
+    // 3. Merchant Trust
+    const merchantTrust = MerchantTrustEngine.evaluate(product, { price: currentPrice, marketAverage: priceIntel.median }, lang);
+
+    // 4. Fake Deal Detection
+    const fakeDealCheck = FakeDealDetector.detect(product, marketProducts, lang);
+
+    // 5. AI Insights
+    let aiInsights = null;
+    try {
+        aiInsights = await ai.generateAdvice(product, { priceIntel, trendIntel }, lang);
+    } catch (e) {}
+
+    // 6. Personalized Recommendation
+    const personalizedRec = PersonalityEngine.personalize(personality, product, { average: priceIntel.median }, lang);
+
+    // 7. Best Store
+    let bestStore = null, bestPrice = currentPrice, bestLink = product.link || null;
+    if (marketProducts.length > 0) {
+        const cheapest = marketProducts.reduce((min, item) => {
+            const p = cleanPrice(item.product_price || item.price);
+            if (!p) return min;
+            if (!min || p < min.price) return { price: p, store: item.source || item.store || 'Unknown', link: item.link || null };
+            return min;
+        }, null);
+        if (cheapest && cheapest.price < currentPrice) {
+            bestStore = cheapest.store;
+            bestPrice = cheapest.price;
+            bestLink = cheapest.link;
+        }
+    }
+
+    // 8. Final Verdict
+    const savingsPercent = priceIntel.median ? Math.round((1 - currentPrice / priceIntel.median) * 100) : 0;
+    const confidenceScore = Math.round(
+        (priceIntel.confidence * 0.35) +
+        ((100 - fakeDealCheck.riskScore) * 0.25) +
+        (merchantTrust.trustScore * 0.20) +
+        (personality.confidence * 0.10) +
+        ((trendIntel?.confidence || 50) * 0.10)
+    );
+
+    let strategicDecision = 'WAIT', strategicReason = '', strategicColor = '#f59e0b';
+
+    if (fakeDealCheck.riskScore >= 60) {
+        strategicDecision = 'AVOID'; strategicReason = 'عرض مشبوه'; strategicColor = '#ef4444';
+    } else if (merchantTrust.trustScore < 30) {
+        strategicDecision = 'CAUTION'; strategicReason = 'تاجر غير موثوق'; strategicColor = '#f59e0b';
+    } else if (priceIntel.score >= 75 && fakeDealCheck.riskScore < 30) {
+        strategicDecision = 'BUY_NOW'; strategicReason = `صفقة ممتازة - وفر ${savingsPercent}%`; strategicColor = '#10b981';
+    } else if (priceIntel.score >= 60 && trendIntel?.trend !== 'falling') {
+        strategicDecision = 'BUY'; strategicReason = t(lang, 'good_deal'); strategicColor = '#22c55e';
+    } else if (trendIntel?.trend === 'falling' && priceIntel.score < 70) {
+        strategicDecision = 'WAIT'; strategicReason = t(lang, 'price_drop_expected'); strategicColor = '#3b82f6';
+    } else if (priceIntel.score <= 40) {
+        strategicDecision = 'WAIT'; strategicReason = t(lang, 'overpriced'); strategicColor = '#ef4444';
+    } else {
+        strategicDecision = 'CONSIDER'; strategicReason = t(lang, 'fair_price'); strategicColor = '#3b82f6';
+    }
+
+    if (personalizedRec.action === 'buy_now' && strategicDecision !== 'AVOID') {
+        strategicDecision = 'BUY_NOW';
+        strategicReason = personalizedRec.reason;
+    }
+
+    return {
+        priceIntel,
+        valueIntel: {
+            score: priceIntel.score,
+            competitors: marketStats.competitors,
+            savingsPercent,
+            savingsAmount: priceIntel.median ? Math.round((priceIntel.median - currentPrice) * 100) / 100 : 0
+        },
+        trendIntel: trendIntel || { trend: 'unknown', confidence: 0 },
+        trustIntel: { merchantTrust, fakeDealCheck, overallRisk: fakeDealCheck.riskScore },
+        personalityIntel: { type: personality.type, confidence: personality.confidence, traits: personality.traits },
+        recommendationIntel: { aiInsights },
+        finalVerdict: {
+            decision: strategicDecision,
+            confidence: confidenceScore,
+            reason: strategicReason,
+            color: strategicColor,
+            savingsPercent,
+            savingsAmount: priceIntel.median ? Math.round((priceIntel.median - currentPrice) * 100) / 100 : 0,
+            bestStore, bestPrice, bestLink
+        }
+    };
+}
+
+/* ================================
+   💬 CHAT ENGINE
+================================ */
+
+const CHAT_RESPONSES = {
+    ar: {
+        greeting: ['مرحباً! 👋 أنا Sage، مساعدك الذكي للتسوق. كيف يمكنني مساعدتك؟', 'أهلاً! 🔮 أنا هنا لمساعدتك في العثور على أفضل الصفقات!'],
+        search: ['سأبحث لك عن أفضل الأسعار. ما المنتج الذي تريده؟', 'دعني أساعدك في العثور على أفضل عرض!'],
+        price: ['هذا سعر جيد! 💰', 'أنصحك بالمقارنة مع متاجر أخرى', 'يمكنك انتظار العروض للحصول على سعر أفضل'],
+        deal: ['صفقة ممتازة! 🎉 أنصحك بالشراء الآن', 'هذا عرض رائع! لا تفوته'],
+        general: ['كيف يمكنني مساعدتك في التسوق اليوم؟', 'أنا هنا لمساعدتك في العثور على أفضل الصفقات 🛍️']
+    },
+    en: {
+        greeting: ['Hello! 👋 I\'m Sage, your smart shopping assistant. How can I help?', 'Hi! 🔮 I\'m here to help you find the best deals!'],
+        search: ['I\'ll search for the best prices. What product do you need?', 'Let me help you find the best offer!'],
+        price: ['That\'s a good price! 💰', 'I recommend comparing with other stores'],
+        deal: ['Excellent deal! 🎉 I recommend buying now', 'This is a great offer! Don\'t miss it'],
+        general: ['How can I help you shop today?', 'I\'m here to help you find the best deals 🛍️']
+    }
+};
+
+async function processChatMessage(message, userId, lang = 'ar') {
+    const lowerMessage = message.toLowerCase();
+    let intent = 'general', sentiment = 'neutral';
+    
+    const responses = CHAT_RESPONSES[lang] || CHAT_RESPONSES.ar;
+
+    // Intent detection
+    if (lowerMessage.match(/مرحبا|اهلا|hello|hi|hey/)) {
+        intent = 'greeting';
+    } else if (lowerMessage.match(/ابحث|بحث|search|find|lookup/)) {
+        intent = 'search';
+    } else if (lowerMessage.match(/سعر|price|cost|كم/)) {
+        intent = 'price';
+    } else if (lowerMessage.match(/صفقة|deal|offer|discount|خصم/)) {
+        intent = 'deal';
+    }
+
+    // Get response
+    const responseArray = responses[intent] || responses.general;
+    const reply = responseArray[Math.floor(Math.random() * responseArray.length)];
+
+    // Try Gemini AI if available
+    if (GEMINI_API_KEY) {
+        try {
+            const ai = new SageAIEngine();
+            const prompt = `You are Sage, a smart shopping assistant. User says: "${message}". Language: ${lang}.
+            Respond helpfully about shopping, deals, prices. Keep response brief and friendly.
+            Return JSON: {"reply": "your response", "intent": "${intent}", "suggestions": ["suggestion1", "suggestion2"]}`;
+            
+            const aiResult = await ai.callGemini(prompt);
+            if (aiResult && aiResult.reply) {
+                return { reply: aiResult.reply, response: aiResult.reply, intent, sentiment, language: lang, suggestions: aiResult.suggestions };
+            }
+        } catch (e) {
+            console.log('AI chat fallback:', e.message);
+        }
+    }
+
+    return { reply, response: reply, intent, sentiment, language: lang };
+}
 
 /* ================= HELPER FUNCTIONS ================= */
-const cleanPrice = (price) => {
-    if (!price) return 0;
-    const num = parseFloat(String(price).replace(/[^0-9.]/g, ''));
-    return isNaN(num) ? 0 : num;
-};
 
 const finalizeUrl = (url) => {
     if (!url) return '#';
@@ -121,52 +754,125 @@ const finalizeUrl = (url) => {
     return url;
 };
 
-const normalizeQuery = (q) => {
-    return q.trim().toLowerCase().replace(/\s+/g, ' ');
-};
+const normalizeQuery = (q) => q.trim().toLowerCase().replace(/\s+/g, ' ');
 
 const pendingSearches = new Map();
 
-/* ================= HEALTH CHECK ================= */
+/* ================= TRACKING FUNCTIONS ================= */
+
+async function trackUserBehavior(userId, eventType, data) {
+    if (!dbConnected || !userId || userId === 'guest') return;
+    
+    try {
+        await UserBehavior.create({
+            userId,
+            eventType,
+            productId: data.productId,
+            query: data.query,
+            price: data.price,
+            metadata: data.metadata
+        });
+
+        // Update user profile
+        await UserProfile.findOneAndUpdate(
+            { userId },
+            { 
+                $inc: { 'stats.totalSearches': eventType === 'search' ? 1 : 0 },
+                $set: { lastActive: new Date() }
+            },
+            { upsert: true }
+        );
+    } catch (e) {
+        console.log('Tracking error:', e.message);
+    }
+}
+
+async function savePriceHistory(product) {
+    if (!dbConnected) return;
+    
+    try {
+        await PriceHistory.create({
+            productId: product.id || crypto.createHash('md5').update(product.title).digest('hex'),
+            title: product.title,
+            price: cleanPrice(product.price),
+            store: product.source,
+            source: product.source,
+            thumbnail: product.thumbnail,
+            link: product.link
+        });
+    } catch (e) {
+        console.log('Price history error:', e.message);
+    }
+}
+
+async function getUserHistory(userId) {
+    if (!dbConnected || !userId || userId === 'guest') return {};
+    
+    try {
+        const behaviors = await UserBehavior.find({ userId })
+            .sort({ timestamp: -1 })
+            .limit(100)
+            .lean();
+
+        const profile = await UserProfile.findOne({ userId }).lean();
+
+        // Aggregate events
+        const userEvents = {
+            searches: behaviors.filter(b => b.eventType === 'search').length,
+            views: behaviors.filter(b => b.eventType === 'view').length,
+            wishlistAdditions: behaviors.filter(b => b.eventType === 'wishlist').length,
+            purchases: behaviors.filter(b => b.eventType === 'purchase').length,
+            clickedAnalysis: behaviors.some(b => b.eventType === 'analysis')
+        };
+
+        return { userEvents, profile };
+    } catch (e) {
+        return {};
+    }
+}
+
+/* ================= API ENDPOINTS ================= */
+
+// Health Check
 app.get('/health', (req, res) => {
     res.json({
         status: 'ok',
+        version: '6.0.0',
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
         gemini: GEMINI_API_KEY ? 'configured' : 'not_configured',
         database: dbConnected ? 'connected' : 'disconnected',
-        chatLanguages: Object.keys(supportedLanguages).length
+        features: ['ai_chat', 'price_intelligence', 'personality_engine', 'merchant_trust', 'fake_deal_detection', 'price_alerts', 'behavior_tracking']
     });
 });
 
-/* ================= ROOT ENDPOINT ================= */
+// Root
 app.get('/', (req, res) => {
     res.json({
         name: 'Findly Sage API',
-        version: '5.0.0',
+        version: '6.0.0',
         status: 'running',
-        ai: GEMINI_API_KEY ? '✅ Gemini Active' : '❌ Gemini Not Configured',
+        ai: GEMINI_API_KEY ? '✅ Gemini Active' : '⚠️ Gemini Not Configured',
         database: dbConnected ? '✅ Connected' : '⚠️ Not Connected',
         endpoints: {
             chat: 'POST /chat - AI Shopping Assistant',
-            search: 'GET /search?q=product - Product Search',
-            health: 'GET /health - Server Status',
-            languages: 'GET /chat/languages - Supported Languages'
+            search: 'GET /search?q=product - Smart Product Search',
+            analyze: 'POST /analyze - Deep Product Analysis',
+            alerts: 'POST /alerts - Price Alerts',
+            history: 'GET /history/:productId - Price History',
+            profile: 'GET /profile/:userId - User Profile',
+            health: 'GET /health - Server Status'
         }
     });
 });
 
-/* ================= CHAT ENDPOINT ================= */
+// Chat Endpoint
 app.post('/chat', async (req, res) => {
     try {
-        const { message, userId } = req.body;
+        const { message, userId, lang = 'ar' } = req.body;
         
-        console.log('📩 Chat Request:', { 
-            message: message?.substring(0, 50) + '...', 
-            userId: userId || 'guest' 
-        });
+        console.log('📩 Chat:', { message: message?.substring(0, 50), userId });
         
-        // Validate input
         if (!message || typeof message !== 'string' || message.trim() === '') {
             return res.json({
                 reply: '👋 مرحباً! كيف يمكنني مساعدتك؟',
@@ -175,17 +881,18 @@ app.post('/chat', async (req, res) => {
             });
         }
         
-        // Process message
-        const result = await processChatMessage(message.trim(), userId || 'guest');
+        // Track chat
+        await trackUserBehavior(userId, 'chat', { query: message });
         
-        console.log(`💬 Response: Intent=${result.intent}, Lang=${result.language}`);
+        const result = await processChatMessage(message.trim(), userId, lang);
         
         res.json({
-            reply: result.reply || result.response,
-            response: result.reply || result.response,
+            reply: result.reply,
+            response: result.response,
             intent: result.intent,
             sentiment: result.sentiment,
-            language: result.language
+            language: result.language,
+            suggestions: result.suggestions
         });
         
     } catch (error) {
@@ -198,15 +905,7 @@ app.post('/chat', async (req, res) => {
     }
 });
 
-/* ================= CHAT LANGUAGES ================= */
-app.get('/chat/languages', (req, res) => {
-    res.json({
-        supported: supportedLanguages,
-        total: Object.keys(supportedLanguages).length
-    });
-});
-
-/* ================= SEARCH ENDPOINT ================= */
+// Smart Search Endpoint
 app.get('/search', async (req, res) => {
     const { q, lang = 'ar', uid = 'guest' } = req.query;
     
@@ -214,24 +913,19 @@ app.get('/search', async (req, res) => {
         return res.json({ results: [], error: 'no_query' });
     }
 
-    // Check energy/limits
+    // Check energy
     let energy = { searchesUsed: 0, hasFreePass: true };
     
-    if (MONGO_URI && uid !== 'guest') {
+    if (dbConnected && uid !== 'guest') {
         try {
-            energy = await Energy.findOne({ uid });
-            if (!energy) {
-                energy = await Energy.create({ uid });
-            }
+            energy = await Energy.findOne({ uid }) || await Energy.create({ uid });
             if (!energy.hasFreePass && energy.searchesUsed >= 3) {
                 return res.status(429).json({ 
                     error: 'ENERGY_EMPTY',
                     message: 'Free searches exhausted. Please upgrade.'
                 });
             }
-        } catch (e) {
-            console.log('Energy check error:', e.message);
-        }
+        } catch (e) {}
     }
 
     // Check cache
@@ -243,17 +937,13 @@ app.get('/search', async (req, res) => {
     }
 
     try {
-        // Check for duplicate requests
         if (pendingSearches.has(cacheKey)) {
             const data = await pendingSearches.get(cacheKey);
             return res.json(data);
         }
 
-        // Create search promise
         const searchPromise = (async () => {
-            if (!SEARCHAPI_KEY) {
-                throw new Error('SEARCHAPI_KEY not configured');
-            }
+            if (!SEARCHAPI_KEY) throw new Error('SEARCHAPI_KEY not configured');
             
             return await axios.get('https://www.searchapi.io/api/v1/search', {
                 params: {
@@ -275,19 +965,21 @@ app.get('/search', async (req, res) => {
             pendingSearches.delete(cacheKey);
         }
 
-        // Process results
-        const rawResults = apiRes.data?.shopping_results?.slice(0, 5) || [];
-        
-        // Filter results
-        const filteredResults = rawResults.filter(item =>
-            item.title?.toLowerCase().includes(q.toLowerCase())
-        );
-        const baseResults = filteredResults.length ? filteredResults : rawResults;
+        const rawResults = apiRes.data?.shopping_results?.slice(0, 10) || [];
+        const baseResults = rawResults.filter(item => item.title?.toLowerCase().includes(q.toLowerCase())).length ? 
+            rawResults.filter(item => item.title?.toLowerCase().includes(q.toLowerCase())) : rawResults;
 
-        // Build response
-        const results = baseResults.map((item, index) => {
+        // Track search
+        await trackUserBehavior(uid, 'search', { query: q });
+
+        // Get user history for personalization
+        const userHistory = await getUserHistory(uid);
+
+        // Build results with intelligence
+        const results = await Promise.all(baseResults.map(async (item, index) => {
             const price = cleanPrice(item.price || item.extracted_price);
             const product = {
+                id: crypto.createHash('md5').update(item.title + item.source).digest('hex'),
                 title: item.title || 'Unknown Product',
                 price: item.price || '$0',
                 numericPrice: price,
@@ -296,27 +988,45 @@ app.get('/search', async (req, res) => {
                 source: item.source || 'Google Shopping'
             };
 
-            // Add intelligence analysis
-            let intelligence = {};
-            if (index === 0 && SageCore) {
+            // Save to price history
+            await savePriceHistory(product);
+
+            // Get price history for this product
+            let priceHistory = [];
+            if (dbConnected) {
                 try {
-                    intelligence = SageCore(product, rawResults, [], {}, uid, null, lang);
-                } catch (e) {
-                    console.log('SageCore error:', e.message);
-                }
+                    priceHistory = await PriceHistory.find({ title: { $regex: item.title?.substring(0, 30), $options: 'i' } })
+                        .sort({ timestamp: -1 })
+                        .limit(30)
+                        .lean();
+                } catch (e) {}
+            }
+
+            // Run Sage Core analysis
+            let intelligence = {};
+            try {
+                intelligence = await SageCore(
+                    product,
+                    baseResults,
+                    priceHistory,
+                    userHistory.userEvents,
+                    uid,
+                    userHistory.profile,
+                    lang
+                );
+            } catch (e) {
+                console.log('SageCore error:', e.message);
             }
 
             return { ...product, intelligence };
-        });
+        }));
 
-        // Update energy usage
-        if (MONGO_URI && !energy.hasFreePass && uid !== 'guest') {
+        // Update energy
+        if (dbConnected && !energy.hasFreePass && uid !== 'guest') {
             try {
                 energy.searchesUsed += 1;
                 await energy.save();
-            } catch (e) {
-                console.log('Energy update error:', e.message);
-            }
+            } catch (e) {}
         }
 
         const responseData = {
@@ -342,20 +1052,179 @@ app.get('/search', async (req, res) => {
     }
 });
 
-/* ================= CREATE PAYMENT ================= */
+// Deep Analysis Endpoint
+app.post('/analyze', async (req, res) => {
+    try {
+        const { product, marketProducts, userId, lang = 'ar' } = req.body;
+        
+        if (!product) {
+            return res.status(400).json({ error: 'product_required' });
+        }
+
+        // Track analysis
+        await trackUserBehavior(userId, 'analysis', { productId: product.id, price: cleanPrice(product.price) });
+
+        // Get price history
+        let priceHistory = [];
+        if (dbConnected && product.title) {
+            try {
+                priceHistory = await PriceHistory.find({ 
+                    title: { $regex: product.title?.substring(0, 30), $options: 'i' } 
+                })
+                .sort({ timestamp: -1 })
+                .limit(30)
+                .lean();
+            } catch (e) {}
+        }
+
+        // Get user history
+        const userHistory = await getUserHistory(userId);
+
+        // Run full analysis
+        const intelligence = await SageCore(
+            product,
+            marketProducts || [],
+            priceHistory,
+            userHistory.userEvents,
+            userId,
+            userHistory.profile,
+            lang
+        );
+
+        res.json({
+            product,
+            intelligence
+        });
+
+    } catch (error) {
+        console.error('❌ Analysis Error:', error.message);
+        res.status(500).json({ error: 'ANALYSIS_FAILED', message: error.message });
+    }
+});
+
+// Price Alert Endpoint
+app.post('/alerts', async (req, res) => {
+    try {
+        const { userId, productId, productTitle, productImage, productLink, targetPrice, currentPrice, notifyOn = 'drop' } = req.body;
+        
+        if (!userId || !productId || !targetPrice) {
+            return res.status(400).json({ error: 'missing_required_fields' });
+        }
+
+        if (!dbConnected) {
+            return res.json({ success: true, message: 'Alert created (demo mode)' });
+        }
+
+        const alert = await PriceAlert.create({
+            userId,
+            productId,
+            productTitle,
+            productImage,
+            productLink,
+            targetPrice,
+            currentPrice,
+            notifyOn
+        });
+
+        console.log('🔔 Price Alert Created:', { userId, productId, targetPrice });
+        
+        res.json({ 
+            success: true, 
+            message: 'Alert created successfully',
+            alertId: alert._id
+        });
+    } catch (error) {
+        console.error('Alert error:', error.message);
+        res.status(500).json({ error: 'ALERT_FAILED' });
+    }
+});
+
+// Get User Alerts
+app.get('/alerts/:userId', async (req, res) => {
+    try {
+        const { userId } = req.params;
+        
+        if (!dbConnected) {
+            return res.json({ alerts: [] });
+        }
+
+        const alerts = await PriceAlert.find({ userId, active: true })
+            .sort({ createdAt: -1 })
+            .limit(20);
+
+        res.json({ alerts });
+    } catch (error) {
+        res.status(500).json({ error: 'FETCH_FAILED' });
+    }
+});
+
+// Price History Endpoint
+app.get('/history/:productId', async (req, res) => {
+    try {
+        const { productId } = req.params;
+        const { days = 30 } = req.query;
+
+        if (!dbConnected) {
+            return res.json({ history: [], message: 'Database not connected' });
+        }
+
+        const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+        
+        const history = await PriceHistory.find({
+            $or: [
+                { productId },
+                { title: { $regex: productId, $options: 'i' } }
+            ],
+            timestamp: { $gte: since }
+        })
+        .sort({ timestamp: 1 })
+        .lean();
+
+        res.json({ 
+            productId,
+            history,
+            stats: {
+                count: history.length,
+                lowest: history.length ? Math.min(...history.map(h => h.price)) : null,
+                highest: history.length ? Math.max(...history.map(h => h.price)) : null,
+                average: history.length ? Math.round(history.reduce((a, b) => a + b.price, 0) / history.length) : null
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ error: 'HISTORY_FAILED' });
+    }
+});
+
+// User Profile Endpoint
+app.get('/profile/:userId', async (req, res) => {
+    try {
+        const { userId } = req.params;
+
+        if (!dbConnected) {
+            return res.json({ profile: null, message: 'Database not connected' });
+        }
+
+        const profile = await UserProfile.findOne({ userId }).lean();
+        const recentBehavior = await UserBehavior.find({ userId })
+            .sort({ timestamp: -1 })
+            .limit(20)
+            .lean();
+
+        res.json({
+            profile,
+            recentActivity: recentBehavior
+        });
+    } catch (error) {
+        res.status(500).json({ error: 'PROFILE_FAILED' });
+    }
+});
+
+// Payment Endpoint
 app.post('/create-payment', async (req, res) => {
     try {
         const { uid } = req.body;
-        if (!uid) {
-            return res.status(400).json({ error: 'UID_REQUIRED' });
-        }
-
-        if (!NOWPAYMENTS_API_KEY) {
-            return res.status(503).json({ 
-                error: 'PAYMENT_NOT_CONFIGURED',
-                message: 'Payment service not available'
-            });
-        }
+        if (!uid) return res.status(400).json({ error: 'UID_REQUIRED' });
+        if (!NOWPAYMENTS_API_KEY) return res.status(503).json({ error: 'PAYMENT_NOT_CONFIGURED' });
 
         const response = await axios.post(
             'https://api.nowpayments.io/v1/invoice',
@@ -369,26 +1238,19 @@ app.post('/create-payment', async (req, res) => {
                 cancel_url: 'https://findly.source.github.io/?upgrade=cancel'
             },
             {
-                headers: {
-                    'x-api-key': NOWPAYMENTS_API_KEY,
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'x-api-key': NOWPAYMENTS_API_KEY, 'Content-Type': 'application/json' },
                 timeout: 10000
             }
         );
 
         return res.json({ url: response.data.invoice_url });
-
     } catch (error) {
         console.error('❌ Payment Error:', error.response?.data || error.message);
-        return res.status(500).json({ 
-            error: 'PAYMENT_FAILED',
-            message: error.message 
-        });
+        return res.status(500).json({ error: 'PAYMENT_FAILED', message: error.message });
     }
 });
 
-/* ================= WEBHOOK ================= */
+// Webhook
 app.post('/nowpayments/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
     try {
         const signature = req.headers['x-nowpayments-sig'];
@@ -399,23 +1261,14 @@ app.post('/nowpayments/webhook', express.raw({ type: 'application/json' }), asyn
                 .createHmac('sha512', NOWPAYMENTS_IPN_SECRET)
                 .update(payload)
                 .digest('hex');
-
-            if (signature !== expectedSignature) {
-                return res.status(403).json({ error: 'INVALID_SIGNATURE' });
-            }
+            if (signature !== expectedSignature) return res.status(403).json({ error: 'INVALID_SIGNATURE' });
         }
 
         const data = JSON.parse(payload);
         
-        if (data.payment_status === 'finished' && MONGO_URI) {
+        if (data.payment_status === 'finished' && dbConnected) {
             const uid = data.order_id;
-            let energy = await Energy.findOne({ uid });
-            if (!energy) {
-                energy = await Energy.create({ uid });
-            }
-            energy.hasFreePass = true;
-            energy.searchesUsed = 0;
-            await energy.save();
+            await Energy.findOneAndUpdate({ uid }, { hasFreePass: true, searchesUsed: 0 }, { upsert: true });
             console.log('✅ Payment confirmed for:', uid);
         }
 
@@ -426,68 +1279,61 @@ app.post('/nowpayments/webhook', express.raw({ type: 'application/json' }), asyn
     }
 });
 
-/* ================= REDIRECT ================= */
+// Redirect
 app.get('/go', (req, res) => {
     const { url } = req.query;
-    if (!url) {
-        return res.status(400).send("No URL provided");
-    }
+    if (!url) return res.status(400).send("No URL provided");
     try {
         const decodedUrl = decodeURIComponent(url);
-        if (!/^https?:\/\//i.test(decodedUrl)) {
-            return res.status(400).send("Invalid URL");
-        }
+        if (!/^https?:\/\//i.test(decodedUrl)) return res.status(400).send("Invalid URL");
         return res.redirect(decodedUrl);
     } catch (error) {
         return res.status(500).send("Redirect error");
     }
 });
 
-/* ================= PRICE ALERTS ================= */
-app.post('/alerts', async (req, res) => {
-    try {
-        const { email, productName, targetPrice, currentPrice, productLink, lang, uid } = req.body;
-        
-        // In a real app, save to database
-        console.log('🔔 Price Alert Created:', { email, productName, targetPrice });
-        
-        res.json({ 
-            success: true, 
-            message: 'Alert created successfully' 
-        });
-    } catch (error) {
-        res.status(500).json({ error: 'ALERT_FAILED' });
-    }
-});
-
-/* ================= ERROR HANDLING ================= */
+// Error Handling
 app.use((err, req, res, next) => {
     console.error('Unhandled Error:', err);
-    res.status(500).json({ 
-        error: 'INTERNAL_ERROR',
-        message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
-    });
+    res.status(500).json({ error: 'INTERNAL_ERROR', message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong' });
 });
 
-/* ================= START SERVER ================= */
+/* ================= SCHEDULED JOBS ================= */
+
+// Check price alerts every hour
+setInterval(async () => {
+    if (!dbConnected) return;
+    
+    try {
+        const activeAlerts = await PriceAlert.find({ active: true, notified: false })
+            .limit(100);
+
+        for (const alert of activeAlerts) {
+            // In a real implementation, you'd check the current price
+            // and notify the user if the target price is reached
+            alert.lastChecked = new Date();
+            await alert.save();
+        }
+        
+        console.log(`🔔 Checked ${activeAlerts.length} price alerts`);
+    } catch (e) {
+        console.log('Alert check error:', e.message);
+    }
+}, 60 * 60 * 1000);
+
+// ================= START SERVER =================
 const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, '0.0.0.0', () => {
     console.log('=================================');
-    console.log(`🚀 Findly Server running on port ${PORT}`);
-    console.log(`💬 AI Chat: ${GEMINI_API_KEY ? '✅ Gemini Active' : '❌ Gemini Not Configured'}`);
-    console.log(`🔍 Search: ${SEARCHAPI_KEY ? '✅ SearchAPI Active' : '❌ SearchAPI Not Configured'}`);
+    console.log(`🚀 Findly Sage Server v6.0 running on port ${PORT}`);
+    console.log(`🔮 Sage Core: ✅ Active`);
+    console.log(`💬 AI Chat: ${GEMINI_API_KEY ? '✅ Gemini Active' : '⚠️ Fallback Mode'}`);
+    console.log(`🔍 Search: ${SEARCHAPI_KEY ? '✅ SearchAPI Active' : '❌ Not Configured'}`);
     console.log(`💾 Database: ${dbConnected ? '✅ Connected' : '⚠️ Not Connected'}`);
     console.log('=================================');
 });
 
-// Handle graceful shutdown
-process.on('SIGTERM', () => {
-    console.log('SIGTERM received, shutting down gracefully');
-    process.exit(0);
-});
-
-process.on('SIGINT', () => {
-    console.log('SIGINT received, shutting down gracefully');
-    process.exit(0);
-});
+// Graceful shutdown
+process.on('SIGTERM', () => { console.log('SIGTERM received'); process.exit(0); });
+process.on('SIGINT', () => { console.log('SIGINT received'); process.exit(0); });

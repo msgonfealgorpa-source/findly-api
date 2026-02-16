@@ -17,6 +17,10 @@
             --text: #f8fafc;
             --text-muted: #94a3b8;
             --gradient: linear-gradient(135deg, #6366F1, #A855F7);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
         }
         .light-mode {
             --bg-dark: #f8fafc;
@@ -75,6 +79,7 @@
             position: relative;
         }
         .tool-btn:hover { transform: translateY(-2px); border-color: var(--primary); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .tool-btn.active { background: var(--primary); color: white; }
         .lang-menu {
             display: none;
             position: absolute;
@@ -166,6 +171,8 @@
             font-size: 1.4rem;
             transition: 0.3s;
             z-index: 10;
+            background: none;
+            border: none;
         }
         .mic-active { color: #ef4444; text-shadow: 0 0 10px #ef4444; animation: pulse 1s infinite; }
         .send-btn {
@@ -253,9 +260,11 @@
         }
         .modal-box {
             background: #0f172a; padding: 30px; border-radius: 30px;
-            width: 85%; max-width: 400px;
+            width: 85%; max-width: 450px;
             border: 1px solid var(--glass-border);
             text-align: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            max-height: 80vh;
+            overflow-y: auto;
         }
         .modal-box input {
             width: 100%; padding: 14px; margin: 10px 0; border-radius: 14px;
@@ -278,12 +287,15 @@
             position: relative;
             top: 50%;
             transform: translateY(-50%);
+            max-height: 80vh;
+            overflow-y: auto;
         }
         .over-budget { border: 2px solid #ff4d4d !important; background-color: rgba(255, 77, 77, 0.05) !important; }
         .budget-alert { background: #ff4d4d; color: white; padding: 4px 10px; border-radius: 8px; font-size: 0.8rem; margin-bottom: 10px; display: inline-block; font-weight: bold; }
         @keyframes pulse { 0% { opacity: 1; transform:translateY(-50%) scale(1); } 50% { opacity: 0.5; transform:translateY(-50%) scale(1.1); } 100% { opacity: 1; transform:translateY(-50%) scale(1); } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
         .auth-overlay {
             display: none !important;
             position: fixed !important;
@@ -427,11 +439,384 @@
         .upgrade-btn { background: linear-gradient(135deg, #8b5cf6, #6366f1); color: white; padding: 12px 24px; border-radius: 14px; border: none; cursor: pointer; font-weight: 600; margin-top: 10px; transition: 0.3s; }
         .upgrade-btn:hover { filter: brightness(1.1); transform: translateY(-2px); }
         .coupon-box { margin: 10px 0; padding: 10px; background: rgba(16,185,129,0.1); border-radius: 10px; border: 1px dashed #10b981; }
+        
+        /* ===== CHAT BOT STYLES ===== */
+        .chat-fab {
+            position: fixed;
+            bottom: 25px;
+            left: 25px;
+            width: 60px;
+            height: 60px;
+            background: var(--gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+            z-index: 999;
+            transition: all 0.3s ease;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+        }
+        .chat-fab:hover { transform: scale(1.1); box-shadow: 0 12px 35px rgba(139, 92, 246, 0.5); }
+        .chat-fab.active { background: #ef4444; }
+        .chat-window {
+            position: fixed;
+            bottom: 100px;
+            left: 25px;
+            width: 380px;
+            max-width: calc(100vw - 50px);
+            height: 520px;
+            max-height: 70vh;
+            background: #0f172a;
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            display: none;
+            flex-direction: column;
+            z-index: 998;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            animation: slideUp 0.3s ease;
+        }
+        .chat-window.active { display: flex; }
+        .chat-header {
+            background: var(--gradient);
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .chat-avatar {
+            width: 42px;
+            height: 42px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+        .chat-title-area { flex: 1; }
+        .chat-title-area h4 { margin: 0; font-size: 1rem; }
+        .chat-title-area span { font-size: 0.75rem; opacity: 0.8; }
+        .chat-close {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .chat-message {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            animation: slideUp 0.2s ease;
+        }
+        .chat-message.user {
+            align-self: flex-end;
+            background: var(--gradient);
+            color: white;
+            border-bottom-left-radius: 6px;
+        }
+        .chat-message.assistant {
+            align-self: flex-start;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--glass-border);
+            border-bottom-right-radius: 6px;
+        }
+        .chat-typing {
+            display: flex;
+            gap: 4px;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 18px;
+            width: fit-content;
+        }
+        .chat-typing span {
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: typingBounce 1s infinite;
+        }
+        .chat-typing span:nth-child(2) { animation-delay: 0.2s; }
+        .chat-typing span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typingBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+        .chat-input-area {
+            padding: 16px;
+            border-top: 1px solid var(--glass-border);
+            display: flex;
+            gap: 10px;
+        }
+        .chat-input {
+            flex: 1;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+        .chat-input:focus { border-color: var(--primary); outline: none; }
+        .chat-send {
+            width: 48px;
+            height: 48px;
+            background: var(--gradient);
+            border: none;
+            border-radius: 14px;
+            color: white;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: 0.3s;
+        }
+        .chat-send:hover { transform: scale(1.05); }
+        .chat-send:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .chat-suggestions {
+            display: flex;
+            gap: 8px;
+            padding: 0 16px 16px;
+            flex-wrap: wrap;
+        }
+        .chat-suggestion {
+            background: rgba(139, 92, 246, 0.15);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #a78bfa;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .chat-suggestion:hover { background: var(--primary); color: white; }
+        
+        /* ===== V4.0 FEATURES ===== */
+        .personality-badge {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(99, 102, 241, 0.2));
+            border: 1px solid rgba(139, 92, 246, 0.4);
+            border-radius: 16px;
+            padding: 12px 16px;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideUp 0.5s ease;
+        }
+        .personality-icon {
+            width: 45px;
+            height: 45px;
+            background: var(--gradient);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+        .personality-info { flex: 1; }
+        .personality-type {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--primary);
+        }
+        .personality-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+        .personality-traits {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+        .trait-tag {
+            background: rgba(139, 92, 246, 0.15);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            color: #a78bfa;
+        }
+        .merchant-trust {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 14px;
+            padding: 12px;
+            margin: 10px 0;
+        }
+        .merchant-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .merchant-name { font-weight: 600; font-size: 0.9rem; }
+        .trust-score { display: flex; align-items: center; gap: 6px; }
+        .trust-score-value { font-weight: 800; font-size: 1.1rem; }
+        .trust-score-value.high { color: #10b981; }
+        .trust-score-value.medium { color: #f59e0b; }
+        .trust-score-value.low { color: #ef4444; }
+        .trust-bar {
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .trust-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+        .trust-bar-fill.high { background: linear-gradient(90deg, #10b981, #22c55e); }
+        .trust-bar-fill.medium { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+        .trust-bar-fill.low { background: linear-gradient(90deg, #ef4444, #f87171); }
+        .trust-details {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        .fake-deal-alert {
+            background: rgba(239, 68, 68, 0.15);
+            border: 2px solid rgba(239, 68, 68, 0.5);
+            border-radius: 14px;
+            padding: 14px;
+            margin: 12px 0;
+            animation: shake 0.5s ease;
+        }
+        .fake-deal-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        .fake-deal-icon { font-size: 1.5rem; }
+        .fake-deal-title { font-weight: 700; color: #ef4444; }
+        .fake-deal-reasons { font-size: 0.85rem; color: var(--text-muted); }
+        .fake-deal-reasons li { margin: 4px 0; }
+        .recommendations-section {
+            background: rgba(99, 102, 241, 0.08);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 16px;
+            padding: 16px;
+            margin: 15px 0;
+        }
+        .rec-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .rec-icon { font-size: 1.3rem; }
+        .rec-title { font-weight: 700; color: var(--primary); }
+        .rec-items { display: flex; flex-direction: column; gap: 10px; }
+        .rec-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 12px;
+            padding: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .rec-item:hover {
+            background: rgba(255,255,255,0.06);
+            transform: translateX(-5px);
+        }
+        .rec-item-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            object-fit: cover;
+            background: white;
+        }
+        .rec-item-info { flex: 1; }
+        .rec-item-title { font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; }
+        .rec-item-price { font-size: 0.9rem; color: #10b981; font-weight: 700; }
+        .rec-item-reason { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+        .deal-quality {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(6, 182, 212, 0.1));
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 14px;
+            padding: 14px;
+            margin: 12px 0;
+            text-align: center;
+        }
+        .deal-quality-score {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #10b981, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .deal-quality-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
+        .deal-quality-meter {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            margin-top: 10px;
+        }
+        .meter-bar {
+            width: 30px;
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+        }
+        .meter-bar.filled { background: linear-gradient(90deg, #10b981, #06b6d4); }
+        .score-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin: 12px 0;
+        }
+        .score-item {
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+        }
+        .score-item-value { font-size: 1.2rem; font-weight: 800; }
+        .score-item-label { font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; }
+        .score-item.value .score-item-value { color: #10b981; }
+        .score-item.trust .score-item-value { color: #3b82f6; }
+        .score-item.deal .score-item-value { color: #f59e0b; }
+        
         @media (max-width: 768px) {
             .cat-grid { grid-template-columns: repeat(3, 1fr); }
             .layout-wrapper { flex-direction: row; }
             #results { flex: 2; }
             .affiliate-card { flex: 1; position: relative; top: auto; max-width: 140px; }
+            .score-grid { grid-template-columns: repeat(2, 1fr); }
+            .chat-window {
+                left: 10px;
+                right: 10px;
+                bottom: 80px;
+                width: auto;
+                height: 60vh;
+            }
+            .chat-fab {
+                bottom: 20px;
+                left: 20px;
+            }
         }
     </style>
 </head>
@@ -504,8 +889,8 @@
         <input type="checkbox" id="ai-deep-mode">
     </div>
     <div class="search-wrapper">
-        <input type="text" id="s-input" class="search-input" placeholder="">
-        <i id="mic-btn" class="fa-solid fa-microphone-lines mic-icon" onclick="startVoice()"></i>
+        <input type="text" id="s-input" class="search-input" placeholder="" onkeypress="if(event.key==='Enter')runSearch()">
+        <button id="mic-btn" class="mic-icon" onclick="startVoice()"><i class="fa-solid fa-microphone"></i></button>
         <button class="send-btn" onclick="runSearch()"><i class="fa-solid fa-magnifying-glass"></i></button>
     </div>
     <div class="invite-card" onclick="copyInvite()">
@@ -526,6 +911,7 @@
         <div class="cat-card" onclick="quickSearch('ساعات')"><i class="fa-solid fa-stopwatch"></i><span id="cat-c4"></span></div>
     </div>
     <div id="status" style="display:none; color:var(--primary); font-weight:bold; margin-top:30px; font-size: 1.1rem; text-align: center;"></div>
+    <div id="personality-container" style="display: none; max-width: 600px; margin: 20px auto;"></div>
     <div class="layout-wrapper">
         <div id="results"></div>
         <div id="affiliateCard" class="affiliate-card" style="display:none;">
@@ -541,6 +927,32 @@
         <a href="about.html" style="color:var(--text-muted); margin:0 5px;" id="footer-about"></a>
     </div>
 </main>
+
+<!-- Chat Bot FAB -->
+<button id="chat-fab" class="chat-fab" onclick="toggleChat()">
+    <i class="fa-solid fa-comments" id="chat-fab-icon"></i>
+</button>
+
+<!-- Chat Window -->
+<div id="chat-window" class="chat-window">
+    <div class="chat-header">
+        <div class="chat-avatar">🤖</div>
+        <div class="chat-title-area">
+            <h4 id="chat-title">Sage AI</h4>
+            <span id="chat-status">متصل</span>
+        </div>
+        <button class="chat-close" onclick="toggleChat()">✕</button>
+    </div>
+    <div class="chat-messages" id="chat-messages">
+        <div class="chat-message assistant" id="chat-welcome"></div>
+    </div>
+    <div class="chat-suggestions" id="chat-suggestions"></div>
+    <div class="chat-input-area">
+        <input type="text" id="chat-input" class="chat-input" placeholder="" onkeypress="if(event.key==='Enter')sendChatMessage()">
+        <button class="chat-send" id="chat-send" onclick="sendChatMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+    </div>
+</div>
+
 <div class="modal" id="w-modal">
     <div class="modal-box">
         <h3 style="color:var(--primary); margin-top:0;"><i class="fa-solid fa-bell"></i> <span id="txt-watch-title"></span></h3>
@@ -566,6 +978,7 @@
         <button class="action-btn buy-now" style="margin-top:15px; width:100%" onclick="document.getElementById('analysis-modal').style.display='none'" id="btn-close-analysis"></button>
     </div>
 </div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-analytics.js";
@@ -593,7 +1006,6 @@ onAuthStateChanged(auth, (user) => {
         document.body.style.overflow = 'auto';
         localStorage.setItem('findly_uid', user.uid);
         if (!sessionStorage.getItem('welcome_shown')) {
-            const name = user.displayName || (lang === 'ar' ? 'أيها الباحث الحكيم' : 'Wise Seeker');
             sessionStorage.setItem('welcome_shown', 'true');
         }
     } else {
@@ -656,6 +1068,7 @@ window.logoutUser = () => {
     }
 };
 </script>
+
 <script>
 const API = "https://findly-api.onrender.com";
 const dict = {
@@ -710,9 +1123,42 @@ const dict = {
             thanks: "شكرًا لدعمك 🤍", goToDashboard: "الانتقال إلى لوحة التحكم",
             paymentUnavailable: "⚠️ خدمة الدفع غير متاحة", paymentError: "❌ خطأ في خدمة الدفع"
         },
-        voice: { notSupported: "متصفحك لا يدعم البحث الصوتي" },
+        voice: { notSupported: "متصفحك لا يدعم البحث الصوتي", listening: "جاري الاستماع...", speakNow: "تحدث الآن" },
         invite: { text: "ادعُ أصدقاءك الآن ✨ — ميزات ومكافآت قادمة قريبًا 🎁 — كن من الأوائل 🚀", copied: "تم نسخ رابط الدعوة ✨", copyFailed: "لم يتم نسخ الرابط، انسخه يدويًا:\n" },
-        watch: { enterEmail: "أدخل إيميلك للتنبيه عند انخفاض السعر:", activated: "✅ تم تفعيل التنبيه بنجاح!", serverError: "❌ خطأ في السيرفر: ", connectionFailed: "❌ فشل الاتصال" }
+        watch: { enterEmail: "أدخل إيميلك للتنبيه عند انخفاض السعر:", activated: "✅ تم تفعيل التنبيه بنجاح!", serverError: "❌ خطأ في السيرفر: ", connectionFailed: "❌ فشل الاتصال" },
+        chat: {
+            title: "Sage AI",
+            status: "متصل",
+            welcome: "مرحباً! 👋 أنا Sage، مساعدك الذكي للتسوق. كيف يمكنني مساعدتك اليوم؟",
+            placeholder: "اكتب رسالتك...",
+            suggestions: ["ابحث عن أفضل الأسعار", "قارن بين منتجين", "ما هي العروض الحالية؟", "ساعدني في اختيار هاتف"],
+            thinking: "جاري التفكير...",
+            error: "عذراً، حدث خطأ. حاول مرة أخرى."
+        },
+        v4: {
+            personality: "شخصية التسوق",
+            personalityTypes: {
+                smartHunter: { name: "صياد ذكي", desc: "تبحث عن أفضل الصفقات وتحلل الأسعار بذكاء", icon: "🎯" },
+                brandLover: { name: "محب العلامات", desc: "تفضل العلامات التجارية الموثوقة", icon: "💎" },
+                budgetSaver: { name: "موفر ذكي", desc: "تركز على توفير المال والصفقات الاقتصادية", icon: "💰" },
+                impulsive: { name: "متسوق عفوي", desc: "تتخذ قرارات سريعة بناءً على الإعجاب", icon: "⚡" },
+                researcher: { name: "باحث دقيق", desc: "تقارن وتحلل قبل كل قرار شراء", icon: "🔬" }
+            },
+            merchantTrust: "ثقة التاجر",
+            merchantScore: "تقييم المتجر",
+            verified: "موثق",
+            warnings: "تحذيرات",
+            fakeDealAlert: "⚠️ تنبيه: صفقة مشبوهة!",
+            fakeDealReasons: "أسباب الشك",
+            recommendations: "💡 توصيات ذكية",
+            recReason: "السبب",
+            dealQuality: "جودة الصفقة",
+            overallScore: "النتيجة الإجمالية",
+            priceAnalysis: "تحليل السعر",
+            valueForMoney: "القيمة مقابل السعر",
+            reliability: "الموثوقية",
+            viewDetails: "عرض التفاصيل"
+        }
     },
     en: {
         ui: {
@@ -763,9 +1209,42 @@ const dict = {
             successMessage: "Your Findly Pro subscription is now active.", thanks: "Thank you for supporting Findly 💙",
             goToDashboard: "Go to Dashboard", paymentUnavailable: "⚠️ Payment unavailable", paymentError: "❌ Payment service error"
         },
-        voice: { notSupported: "Your browser does not support voice search" },
+        voice: { notSupported: "Your browser does not support voice search", listening: "Listening...", speakNow: "Speak now" },
         invite: { text: "Invite your friends now ✨ — features & rewards coming soon 🎁 — be among the first 🚀", copied: "Invite link copied ✨", copyFailed: "Link not copied, copy manually:\n" },
-        watch: { enterEmail: "Enter your email for price alerts:", activated: "✅ Alert activated!", serverError: "❌ Server Error: ", connectionFailed: "❌ Connection failed" }
+        watch: { enterEmail: "Enter your email for price alerts:", activated: "✅ Alert activated!", serverError: "❌ Server Error: ", connectionFailed: "❌ Connection failed" },
+        chat: {
+            title: "Sage AI",
+            status: "Online",
+            welcome: "Hello! 👋 I'm Sage, your smart shopping assistant. How can I help you today?",
+            placeholder: "Type your message...",
+            suggestions: ["Find best prices", "Compare products", "What are current deals?", "Help me choose a phone"],
+            thinking: "Thinking...",
+            error: "Sorry, an error occurred. Please try again."
+        },
+        v4: {
+            personality: "Shopping Personality",
+            personalityTypes: {
+                smartHunter: { name: "Smart Hunter", desc: "You hunt for the best deals and analyze prices smartly", icon: "🎯" },
+                brandLover: { name: "Brand Lover", desc: "You prefer trusted brands", icon: "💎" },
+                budgetSaver: { name: "Budget Saver", desc: "You focus on saving money and budget deals", icon: "💰" },
+                impulsive: { name: "Impulsive Shopper", desc: "You make quick decisions based on appeal", icon: "⚡" },
+                researcher: { name: "Deep Researcher", desc: "You compare and analyze before every purchase", icon: "🔬" }
+            },
+            merchantTrust: "Merchant Trust",
+            merchantScore: "Store Rating",
+            verified: "Verified",
+            warnings: "Warnings",
+            fakeDealAlert: "⚠️ Alert: Suspicious Deal!",
+            fakeDealReasons: "Suspicion Reasons",
+            recommendations: "💡 Smart Recommendations",
+            recReason: "Reason",
+            dealQuality: "Deal Quality",
+            overallScore: "Overall Score",
+            priceAnalysis: "Price Analysis",
+            valueForMoney: "Value for Money",
+            reliability: "Reliability",
+            viewDetails: "View Details"
+        }
     },
     fr: {
         ui: { hero_tagline: "Des decisions d'achat plus intelligentes", title: "Conseiller Sage", sub: "Votre guide d'achat intelligent", energy: "Energie Sage", welcome: "Bienvenue,", game: "Jeux", beauty: "Beaute", home: "Maison Intelligente", c1: "Telephones", c2: "Ordinateurs", c4: "Montres", p_head: "Profil", lbl_name: "Nom d'utilisateur", lbl_budget: "Budget ($)", buy: "Acheter 🛒", watch: "Surveiller 🔔", over: "Hors budget!", cheap: "Economique", top: "Mieux notes", new: "Nouveautes", deep: "Mode IA Profonde", watchTitle: "Liste de surveillance", why: "Pourquoi ce choix?", slow: "Le serveur se reveille..", noAttempts: "⚠️ Plus d'essais!", analyze: "📊 Analyse", close: "Fermer", saveChanges: "Enregistrer ✅", searchPlaceholder: "Rechercher un produit...", noResults: "Aucun resultat", errorFetching: "❌ Erreur lors de la recuperation", affiliateOffer: "🔥 Offre speciale", buyNowAffiliate: "🛒 Acheter maintenant" },
@@ -773,9 +1252,11 @@ const dict = {
         analysis: { title: "🧠 Analyse Sage Intelligente", market: "Marche", avgPrice: "Prix moyen", competitors: "Concurrents", deal: "Offre", dealScore: "Score de l'offre", forecast: "Prevision", trend: "Tendance", expectedPrice: "Prix attendu", confidence: "Confiance", trustRisks: "Confiance et Risques", noClearRisks: "Aucun risque clair" },
         auth: { title: "Connectez-vous pour commencer", email: "E-mail", password: "Mot de passe", login: "Se connecter", register: "S'inscrire", or: "ou", googleBtn: "Continuer avec Google", privacy: "Politique de confidentialite", terms: "Conditions d'utilisation", about: "A propos", logoutConfirm: "Voulez-vous vous deconnecter?", fillFields: "Veuillez entrer l'e-mail et le mot de passe", loginFailed: "Echec de la connexion:", userNotFound: "Compte non trouve.", wrongPassword: "Mot de passe incorrect.", invalidEmail: "Format d'e-mail invalide.", invalidCredential: "Identifiants invalides.", registerFailed: "Echec de l'inscription:", emailInUse: "Cet e-mail est deja enregistre.", weakPassword: "Le mot de passe doit contenir au moins 6 caracteres", registerSuccess: "Compte cree avec succes!" },
         upgrade: { title: "Recherches gratuites epuisees", message: "Vous avez utilise toutes vos recherches gratuites.", upgradeBtn: "Mettre a niveau", successTitle: "🎉 Abonnement active!", successMessage: "Votre abonnement Findly Pro est maintenant actif.", thanks: "Merci pour votre soutien 💙", goToDashboard: "Aller au tableau de bord", paymentUnavailable: "⚠️ Paiement indisponible", paymentError: "❌ Erreur du service de paiement" },
-        voice: { notSupported: "Votre navigateur ne prend pas en charge la recherche vocale" },
+        voice: { notSupported: "Votre navigateur ne prend pas en charge la recherche vocale", listening: "Ecoute en cours...", speakNow: "Parlez maintenant" },
         invite: { text: "Invitez vos amis maintenant ✨ — fonctionnalites et recompenses bientot 🎁", copied: "Lien d'invitation copie ✨", copyFailed: "Lien non copie:\n" },
-        watch: { enterEmail: "Entrez votre e-mail pour les alertes:", activated: "✅ Alerte activee!", serverError: "❌ Erreur serveur: ", connectionFailed: "❌ Echec de la connexion" }
+        watch: { enterEmail: "Entrez votre e-mail pour les alertes:", activated: "✅ Alerte activee!", serverError: "❌ Erreur serveur: ", connectionFailed: "❌ Echec de la connexion" },
+        chat: { title: "Sage AI", status: "En ligne", welcome: "Bonjour! 👋 Je suis Sage, votre assistant shopping intelligent. Comment puis-je vous aider?", placeholder: "Tapez votre message...", suggestions: ["Trouver les meilleurs prix", "Comparer des produits", "Quelles sont les offres actuelles?", "Aidez-moi a choisir"], thinking: "Reflexion...", error: "Desole, une erreur s'est produite." },
+        v4: { personality: "Personnalite d'achat", personalityTypes: { smartHunter: { name: "Chasseur Intelligent", desc: "Vous cherchez les meilleures offres", icon: "🎯" }, brandLover: { name: "Amoureux des Marques", desc: "Vous preferez les marques de confiance", icon: "💎" }, budgetSaver: { name: "Econome", desc: "Vous vous concentrez sur les economies", icon: "💰" }, impulsive: { name: "Acheteur Impulsif", desc: "Vous prenez des decisions rapides", icon: "⚡" }, researcher: { name: "Chercheur", desc: "Vous comparez avant chaque achat", icon: "🔬" } }, merchantTrust: "Confiance Marchand", merchantScore: "Note du Magasin", verified: "Verifie", warnings: "Avertissements", fakeDealAlert: "⚠️ Alerte: Offre Suspecte!", fakeDealReasons: "Raisons du Soupcon", recommendations: "💡 Recommandations Intelligentes", recReason: "Raison", dealQuality: "Qualite de l'Offre", overallScore: "Score Global", priceAnalysis: "Analyse de Prix", valueForMoney: "Rapport Qualite-Prix", reliability: "Fiabilite", viewDetails: "Voir Details" }
     },
     de: {
         ui: { hero_tagline: "Intelligentere Kaufentscheidungen", title: "Weiser Berater", sub: "Ihr intelligenter Einkaufsfuhrer", energy: "Sage Energie", welcome: "Willkommen,", game: "Spiele", beauty: "Schonheit", home: "Smart Home", c1: "Handys", c2: "Laptops", c4: "Uhren", p_head: "Profil", lbl_name: "Benutzername", lbl_budget: "Budget ($)", buy: "Jetzt kaufen 🛒", watch: "Preis beobachten 🔔", over: "Uber Budget!", cheap: "Budget", top: "Top bewertet", new: "Neueste", deep: "KI Tiefenmodus", watchTitle: "Beobachtungsliste", why: "Warum diese Wahl?", slow: "Server startet..", noAttempts: "⚠️ Keine Versuche mehr!", analyze: "📊 Analyse", close: "Schliessen", saveChanges: "Speichern ✅", searchPlaceholder: "Produkt suchen...", noResults: "Keine Ergebnisse", errorFetching: "❌ Fehler beim Abrufen", affiliateOffer: "🔥 Sonderangebot", buyNowAffiliate: "🛒 Jetzt kaufen" },
@@ -783,9 +1264,11 @@ const dict = {
         analysis: { title: "🧠 Sage Intelligente Analyse", market: "Markt", avgPrice: "Durchschnittspreis", competitors: "Wettbewerber", deal: "Angebot", dealScore: "Angebotsbewertung", forecast: "Prognose", trend: "Trend", expectedPrice: "Erwarteter Preis", confidence: "Vertrauen", trustRisks: "Vertrauen & Risiken", noClearRisks: "Keine klaren Risiken" },
         auth: { title: "Anmelden um intelligentes Suchen zu starten", email: "E-Mail", password: "Passwort", login: "Anmelden", register: "Registrieren", or: "oder", googleBtn: "Mit Google fortfahren", privacy: "Datenschutz", terms: "Nutzungsbedingungen", about: "Uber uns", logoutConfirm: "Mochten Sie sich abmelden?", fillFields: "Bitte E-Mail und Passwort eingeben", loginFailed: "Anmeldung fehlgeschlagen:", userNotFound: "Konto nicht gefunden.", wrongPassword: "Falsches Passwort.", invalidEmail: "Ungultiges E-Mail-Format.", invalidCredential: "Ungultige Anmeldedaten.", registerFailed: "Registrierung fehlgeschlagen:", emailInUse: "Diese E-Mail ist bereits registriert.", weakPassword: "Passwort muss mindestens 6 Zeichen haben", registerSuccess: "Konto erfolgreich erstellt!" },
         upgrade: { title: "Kostenlose Suchvorgange aufgebraucht", message: "Sie haben alle kostenlosen Suchvorgange verwendet.", upgradeBtn: "Jetzt upgraden", successTitle: "🎉 Abonnement aktiviert!", successMessage: "Ihr Findly Pro-Abonnement ist jetzt aktiv.", thanks: "Danke fur Ihre Unterstutzung 💙", goToDashboard: "Zum Dashboard", paymentUnavailable: "⚠️ Zahlung nicht verfugbar", paymentError: "❌ Zahlungsfehler" },
-        voice: { notSupported: "Ihr Browser unterstutzt keine Sprachsuche" },
+        voice: { notSupported: "Ihr Browser unterstutzt keine Sprachsuche", listening: "Horen zu...", speakNow: "Sprechen Sie jetzt" },
         invite: { text: "Lade jetzt deine Freunde ein ✨ — neue Funktionen & Belohnungen bald 🎁", copied: "Einladungslink kopiert ✨", copyFailed: "Link nicht kopiert:\n" },
-        watch: { enterEmail: "E-Mail fur Preisalarm eingeben:", activated: "✅ Alarm aktiviert!", serverError: "❌ Serverfehler: ", connectionFailed: "❌ Verbindung fehlgeschlagen" }
+        watch: { enterEmail: "E-Mail fur Preisalarm eingeben:", activated: "✅ Alarm aktiviert!", serverError: "❌ Serverfehler: ", connectionFailed: "❌ Verbindung fehlgeschlagen" },
+        chat: { title: "Sage AI", status: "Online", welcome: "Hallo! 👋 Ich bin Sage, Ihr intelligenter Einkaufsassistent. Wie kann ich Ihnen helfen?", placeholder: "Nachricht eingeben...", suggestions: ["Beste Preise finden", "Produkte vergleichen", "Aktuelle Angebote?", "Helfen Sie mir bei der Wahl"], thinking: "Denke nach...", error: "Entschuldigung, ein Fehler ist aufgetreten." },
+        v4: { personality: "Shopping-Persoenlichkeit", personalityTypes: { smartHunter: { name: "Schlauer Jaeger", desc: "Sie suchen nach den besten Angeboten", icon: "🎯" }, brandLover: { name: "Markenliebhaber", desc: "Sie bevorzugen vertrauenswuerdige Marken", icon: "💎" }, budgetSaver: { name: "Budget-Sparer", desc: "Sie konzentrieren sich auf Sparen", icon: "💰" }, impulsive: { name: "Impulsivkaeufer", desc: "Sie treffen schnelle Entscheidungen", icon: "⚡" }, researcher: { name: "Forscher", desc: "Sie vergleichen vor jedem Kauf", icon: "🔬" } }, merchantTrust: "Haendler-Vertrauen", merchantScore: "Shop-Bewertung", verified: "Verifiziert", warnings: "Warnungen", fakeDealAlert: "⚠️ Warnung: Verdachtiges Angebot!", fakeDealReasons: "Verdachtsgruende", recommendations: "💡 Intelligente Empfehlungen", recReason: "Grund", dealQuality: "Angebotsqualitaet", overallScore: "Gesamtscore", priceAnalysis: "Preisanalyse", valueForMoney: "Preis-Leistungs-Verhaeltnis", reliability: "Zuverlaessigkeit", viewDetails: "Details anzeigen" }
     },
     es: {
         ui: { hero_tagline: "Las decisiones de compra mas inteligentes", title: "Consejero Sabio", sub: "Tu guia de compras inteligente", energy: "Energia Sage", welcome: "Bienvenido,", game: "Juegos", beauty: "Belleza", home: "Hogar Inteligente", c1: "Telefonos", c2: "Laptops", c4: "Relojes", p_head: "Perfil", lbl_name: "Nombre de usuario", lbl_budget: "Presupuesto ($)", buy: "Comprar ahora 🛒", watch: "Vigilar precio 🔔", over: "Fuera de presupuesto!", cheap: "Economico", top: "Mejor valorados", new: "Mas nuevos", deep: "Modo IA Profundo", watchTitle: "Lista de seguimiento", why: "Por que esta eleccion?", slow: "El servidor se esta despertando..", noAttempts: "⚠️ No quedan intentos!", analyze: "📊 Analisis", close: "Cerrar", saveChanges: "Guardar cambios ✅", searchPlaceholder: "Buscar un producto...", noResults: "No se encontraron resultados", errorFetching: "❌ Error al obtener resultados", affiliateOffer: "🔥 Oferta especial", buyNowAffiliate: "🛒 Comprar ahora" },
@@ -793,9 +1276,11 @@ const dict = {
         analysis: { title: "🧠 Analisis Inteligente Sage", market: "Mercado", avgPrice: "Precio promedio", competitors: "Competidores", deal: "Oferta", dealScore: "Puntuacion de oferta", forecast: "Pronostico", trend: "Tendencia", expectedPrice: "Precio esperado", confidence: "Confianza", trustRisks: "Confianza y Riesgos", noClearRisks: "Sin riesgos claros" },
         auth: { title: "Inicia sesion para comenzar", email: "Correo electronico", password: "Contrasena", login: "Iniciar sesion", register: "Registrarse", or: "o", googleBtn: "Continuar con Google", privacy: "Politica de privacidad", terms: "Terminos de uso", about: "Acerca de", logoutConfirm: "Desea cerrar sesion?", fillFields: "Por favor ingrese correo y contrasena", loginFailed: "Error de inicio de sesion:", userNotFound: "Cuenta no encontrada.", wrongPassword: "Contrasena incorrecta.", invalidEmail: "Formato de correo invalido.", invalidCredential: "Credenciales invalidas.", registerFailed: "Error de registro:", emailInUse: "Este correo ya esta registrado.", weakPassword: "La contrasena debe tener al menos 6 caracteres", registerSuccess: "Cuenta creada exitosamente!" },
         upgrade: { title: "Busquedas gratuitas agotadas", message: "Has usado todas tus busquedas gratuitas.", upgradeBtn: "Actualizar ahora", successTitle: "🎉 Suscripcion activada!", successMessage: "Tu suscripcion Findly Pro esta ahora activa.", thanks: "Gracias por tu apoyo 💙", goToDashboard: "Ir al panel", paymentUnavailable: "⚠️ Pago no disponible", paymentError: "❌ Error del servicio de pago" },
-        voice: { notSupported: "Tu navegador no soporta busqueda por voz" },
+        voice: { notSupported: "Tu navegador no soporta busqueda por voz", listening: "Escuchando...", speakNow: "Habla ahora" },
         invite: { text: "Invita a tus amigos ahora ✨ — funciones y recompensas proximamente 🎁", copied: "Enlace de invitacion copiado ✨", copyFailed: "Enlace no copiado:\n" },
-        watch: { enterEmail: "Ingresa tu email para alertas:", activated: "✅ Alerta activada!", serverError: "❌ Error del servidor: ", connectionFailed: "❌ Conexion fallida" }
+        watch: { enterEmail: "Ingresa tu email para alertas:", activated: "✅ Alerta activada!", serverError: "❌ Error del servidor: ", connectionFailed: "❌ Conexion fallida" },
+        chat: { title: "Sage AI", status: "En linea", welcome: "Hola! 👋 Soy Sage, tu asistente de compras inteligente. Como puedo ayudarte?", placeholder: "Escribe tu mensaje...", suggestions: ["Buscar mejores precios", "Comparar productos", "Cuales son las ofertas actuales?", "Ayudame a elegir"], thinking: "Pensando...", error: "Lo siento, ocurrio un error." },
+        v4: { personality: "Personalidad de Compra", personalityTypes: { smartHunter: { name: "Cazador Inteligente", desc: "Buscas las mejores ofertas", icon: "🎯" }, brandLover: { name: "Amante de Marcas", desc: "Prefieres marcas de confianza", icon: "💎" }, budgetSaver: { name: "Ahorrador", desc: "Te enfocas en ahorrar dinero", icon: "💰" }, impulsive: { name: "Comprador Impulsivo", desc: "Tomas decisiones rapidas", icon: "⚡" }, researcher: { name: "Investigador", desc: "Comparas antes de cada compra", icon: "🔬" } }, merchantTrust: "Confianza del Comerciante", merchantScore: "Calificacion de Tienda", verified: "Verificado", warnings: "Advertencias", fakeDealAlert: "⚠️ Alerta: Oferta Sospechosa!", fakeDealReasons: "Razones de Sospecha", recommendations: "💡 Recomendaciones Inteligentes", recReason: "Razon", dealQuality: "Calidad de Oferta", overallScore: "Puntuacion General", priceAnalysis: "Analisis de Precio", valueForMoney: "Relacion Calidad-Precio", reliability: "Fiabilidad", viewDetails: "Ver Detalles" }
     },
     tr: {
         ui: { hero_tagline: "Daha akilli satin alma kararları", title: "Bilge Danisman", sub: "Akilli alisveris rehberiniz", energy: "Sage Enerjisi", welcome: "Hos geldiniz,", game: "Oyunlar", beauty: "Guzellik", home: "Akilli Ev", c1: "Telefonlar", c2: "Laptoplar", c4: "Saatler", p_head: "Profil", lbl_name: "Kullanici adi", lbl_budget: "Butce ($)", buy: "Simdi al 🛒", watch: "Fiyati izle 🔔", over: "Butceyi asiyor!", cheap: "Ekonomik", top: "En cok oylanan", new: "En yeniler", deep: "YA Derin Modu", watchTitle: "Izleme listesi", why: "Neden bu secim?", slow: "Sunucu uykidan uyaniyor..", noAttempts: "⚠️ Deneme hakki kalmadi!", analyze: "📊 Analiz", close: "Kapat", saveChanges: "Degisiklikleri kaydet ✅", searchPlaceholder: "Urun ara...", noResults: "Sonuc bulunamadi", errorFetching: "❌ Sonuclar alinirken hata", affiliateOffer: "🔥 Ozel teklif", buyNowAffiliate: "🛒 Simdi al" },
@@ -803,9 +1288,11 @@ const dict = {
         analysis: { title: "🧠 Sage Akilli Analiz", market: "Pazar", avgPrice: "Ortalama fiyat", competitors: "Rakipler", deal: "Teklif", dealScore: "Teklif puani", forecast: "Tahmin", trend: "Trend", expectedPrice: "Beklenen fiyat", confidence: "Guven", trustRisks: "Guven ve Riskler", noClearRisks: "Acik risk yok" },
         auth: { title: "Akilli aramayi baslatmak icin giris yapin", email: "E-posta", password: "Sifre", login: "Giris yap", register: "Kayit ol", or: "veya", googleBtn: "Google ile devam et", privacy: "Gizlilik Politikasi", terms: "Kullanim Sartlari", about: "Hakkimizda", logoutConfirm: "Cikis yapmak istiyor musunuz?", fillFields: "Lutfen e-posta ve sifre girin", loginFailed: "Giris basarisiz:", userNotFound: "Hesap bulunamadi.", wrongPassword: "Yanlis sifre.", invalidEmail: "Gecersiz e-posta formati.", invalidCredential: "Gecersiz kimlik bilgileri.", registerFailed: "Kayit basarisiz:", emailInUse: "Bu e-posta zaten kayitli.", weakPassword: "Sifre en az 6 karakter olmali", registerSuccess: "Hesap basariyla olusturuldu!" },
         upgrade: { title: "Ucretsiz aramalar tukendi", message: "Tum ucretsiz aramalarinizi kullandiniz.", upgradeBtn: "Simdi yukselt", successTitle: "🎉 Abonelik aktiflestirildi!", successMessage: "Findly Pro aboneliginiz artik aktif.", thanks: "Desteginiz icin tesekkurler 💙", goToDashboard: "Kontrol paneline git", paymentUnavailable: "⚠️ Odeme mevcut degil", paymentError: "❌ Odeme servisi hatasi" },
-        voice: { notSupported: "Tarayiciniz sesli aramayi desteklemiyor" },
+        voice: { notSupported: "Tarayiciniz sesli aramayi desteklemiyor", listening: "Dinliyorum...", speakNow: "Simdi konusun" },
         invite: { text: "Arkadaslarinizi simdi davet edin ✨ — yakinda ozellikler ve oduller 🎁", copied: "Davet linki kopyalandi ✨", copyFailed: "Link kopyalanmadi:\n" },
-        watch: { enterEmail: "Fiyat uyarilari icin e-postanizi girin:", activated: "✅ Uyari aktiflestirildi!", serverError: "❌ Sunucu hatasi: ", connectionFailed: "❌ Baglanti basarisiz" }
+        watch: { enterEmail: "Fiyat uyarilari icin e-postanizi girin:", activated: "✅ Uyari aktiflestirildi!", serverError: "❌ Sunucu hatasi: ", connectionFailed: "❌ Baglanti basarisiz" },
+        chat: { title: "Sage AI", status: "Cevrimici", welcome: "Merhaba! 👋 Ben Sage, akilli alisveris asistaniniz. Size nasil yardimci olabilirim?", placeholder: "Mesajinizi yazin...", suggestions: ["En iyi fiyatlari bul", "Urunleri karsilastir", "Guncel teklifler neler?", "Secmeme yardim et"], thinking: "Dusunuyorum...", error: "Uzgunum, bir hata olustu." },
+        v4: { personality: "Alisveris Kisiligi", personalityTypes: { smartHunter: { name: "Akilli Avcı", desc: "En iyi firsatlari ararsiniz", icon: "🎯" }, brandLover: { name: "Marka Sever", desc: "Guvenilir markalari tercih edersiniz", icon: "💎" }, budgetSaver: { name: "Tasarrufcu", desc: "Tasarrufa odaklanirsiniz", icon: "💰" }, impulsive: { name: "Dürtüsel Alıcı", desc: "Hizli kararlar verirsiniz", icon: "⚡" }, researcher: { name: "Arastirmaci", desc: "Her alistan once karsilastirirsiniz", icon: "🔬" } }, merchantTrust: "Satici Guveni", merchantScore: "Magaza Puani", verified: "Dogrulanmis", warnings: "Uyarilar", fakeDealAlert: "⚠️ Uyari: Supheli Teklif!", fakeDealReasons: "Suphe Nedenleri", recommendations: "💡 Akilli Oneriler", recReason: "Neden", dealQuality: "Teklif Kalitesi", overallScore: "Genel Puan", priceAnalysis: "Fiyat Analizi", valueForMoney: "Fiyat/Performans", reliability: "Guvenilirlik", viewDetails: "Detaylari Gor" }
     }
 };
 
@@ -814,6 +1301,8 @@ let savedAttempts = localStorage.getItem('findly_attempts');
 let attempts = (savedAttempts !== null) ? parseInt(savedAttempts) : 3;
 if (savedAttempts === null) localStorage.setItem('findly_attempts', 3);
 let watchList = JSON.parse(localStorage.getItem('findly_watch')) || [];
+let chatHistory = [];
+let isChatOpen = false;
 
 function t(key) {
     const keys = key.split('.');
@@ -861,29 +1350,357 @@ function pickBestCoupon(price, coupons = []) {
     return best;
 }
 
+// ===== VOICE SEARCH (FIXED) =====
+function startVoice() {
+    const voiceDict = dict[lang]?.voice || dict.ar.voice;
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    
+    if (!SpeechRecognition) {
+        alert(voiceDict.notSupported);
+        return;
+    }
+    
+    const recognition = new SpeechRecognition();
+    const micBtn = document.getElementById('mic-btn');
+    const input = document.getElementById('s-input');
+    
+    // Set language based on current lang
+    const langMap = {
+        'ar': 'ar-SA',
+        'en': 'en-US',
+        'fr': 'fr-FR',
+        'de': 'de-DE',
+        'es': 'es-ES',
+        'tr': 'tr-TR'
+    };
+    
+    recognition.lang = langMap[lang] || 'ar-SA';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    
+    recognition.onstart = () => {
+        micBtn.classList.add('mic-active');
+        micBtn.innerHTML = '<i class="fa-solid fa-stop"></i>';
+    };
+    
+    recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        input.value = transcript;
+        micBtn.classList.remove('mic-active');
+        micBtn.innerHTML = '<i class="fa-solid fa-microphone"></i>';
+        // Auto search after voice input
+        setTimeout(() => runSearch(), 300);
+    };
+    
+    recognition.onerror = (event) => {
+        console.error('Voice recognition error:', event.error);
+        micBtn.classList.remove('mic-active');
+        micBtn.innerHTML = '<i class="fa-solid fa-microphone"></i>';
+        if (event.error !== 'no-speech') {
+            alert(voiceDict.notSupported + ' (' + event.error + ')');
+        }
+    };
+    
+    recognition.onend = () => {
+        micBtn.classList.remove('mic-active');
+        micBtn.innerHTML = '<i class="fa-solid fa-microphone"></i>';
+    };
+    
+    try {
+        recognition.start();
+    } catch (e) {
+        console.error('Voice start error:', e);
+    }
+}
+
+// ===== CHAT BOT FUNCTIONS =====
+function toggleChat() {
+    isChatOpen = !isChatOpen;
+    const chatWindow = document.getElementById('chat-window');
+    const chatFab = document.getElementById('chat-fab');
+    const fabIcon = document.getElementById('chat-fab-icon');
+    
+    if (isChatOpen) {
+        chatWindow.classList.add('active');
+        chatFab.classList.add('active');
+        fabIcon.className = 'fa-solid fa-times';
+        // Update chat UI language
+        updateChatUI();
+    } else {
+        chatWindow.classList.remove('active');
+        chatFab.classList.remove('active');
+        fabIcon.className = 'fa-solid fa-comments';
+    }
+}
+
+function updateChatUI() {
+    const chatDict = dict[lang]?.chat || dict.ar.chat;
+    document.getElementById('chat-title').textContent = chatDict.title;
+    document.getElementById('chat-status').textContent = chatDict.status;
+    document.getElementById('chat-welcome').textContent = chatDict.welcome;
+    document.getElementById('chat-input').placeholder = chatDict.placeholder;
+    
+    // Update suggestions
+    const suggestionsContainer = document.getElementById('chat-suggestions');
+    suggestionsContainer.innerHTML = chatDict.suggestions.map(s => 
+        `<div class="chat-suggestion" onclick="sendSuggestion('${s}')">${s}</div>`
+    ).join('');
+}
+
+function sendSuggestion(text) {
+    document.getElementById('chat-input').value = text;
+    sendChatMessage();
+}
+
+async function sendChatMessage() {
+    const input = document.getElementById('chat-input');
+    const message = input.value.trim();
+    if (!message) return;
+    
+    const chatDict = dict[lang]?.chat || dict.ar.chat;
+    const messagesContainer = document.getElementById('chat-messages');
+    
+    // Add user message
+    const userMsg = document.createElement('div');
+    userMsg.className = 'chat-message user';
+    userMsg.textContent = message;
+    messagesContainer.appendChild(userMsg);
+    
+    // Clear input
+    input.value = '';
+    
+    // Show typing indicator
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'chat-typing';
+    typingDiv.id = 'chat-typing';
+    typingDiv.innerHTML = '<span></span><span></span><span></span>';
+    messagesContainer.appendChild(typingDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    
+    // Disable send button
+    document.getElementById('chat-send').disabled = true;
+    
+    try {
+        // Call chat API
+        const response = await fetch(`${API}/chat`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                message: message,
+                history: chatHistory.slice(-10), // Last 10 messages
+                lang: lang,
+                uid: localStorage.getItem('findly_uid') || 'guest'
+            })
+        });
+        
+        const data = await response.json();
+        
+        // Remove typing indicator
+        document.getElementById('chat-typing')?.remove();
+        
+        // Add AI response
+        const aiMsg = document.createElement('div');
+        aiMsg.className = 'chat-message assistant';
+        aiMsg.textContent = data.response || data.message || chatDict.error;
+        messagesContainer.appendChild(aiMsg);
+        
+        // Save to history
+        chatHistory.push({ role: 'user', content: message });
+        chatHistory.push({ role: 'assistant', content: data.response || data.message });
+        
+    } catch (error) {
+        console.error('Chat error:', error);
+        document.getElementById('chat-typing')?.remove();
+        
+        // Add error message
+        const errorMsg = document.createElement('div');
+        errorMsg.className = 'chat-message assistant';
+        errorMsg.textContent = chatDict.error;
+        messagesContainer.appendChild(errorMsg);
+    }
+    
+    // Enable send button
+    document.getElementById('chat-send').disabled = false;
+    
+    // Scroll to bottom
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+// ===== V4.0 HELPER FUNCTIONS =====
+function renderPersonalityBadge(personality) {
+    if (!personality) return '';
+    const V4 = dict[lang]?.v4 || dict.ar.v4;
+    const typeInfo = V4.personalityTypes[personality.type] || V4.personalityTypes.smartHunter;
+    
+    return `
+        <div class="personality-badge">
+            <div class="personality-icon">${typeInfo.icon}</div>
+            <div class="personality-info">
+                <div class="personality-type">${typeInfo.name}</div>
+                <div class="personality-desc">${typeInfo.desc}</div>
+                ${personality.traits ? `
+                    <div class="personality-traits">
+                        ${personality.traits.slice(0, 4).map(trait => `<span class="trait-tag">${trait}</span>`).join('')}
+                    </div>
+                ` : ''}
+            </div>
+        </div>
+    `;
+}
+
+function renderMerchantTrust(merchantTrust) {
+    if (!merchantTrust) return '';
+    const V4 = dict[lang]?.v4 || dict.ar.v4;
+    const score = merchantTrust.score || 0;
+    const scoreClass = score >= 70 ? 'high' : score >= 40 ? 'medium' : 'low';
+    
+    return `
+        <div class="merchant-trust">
+            <div class="merchant-header">
+                <span class="merchant-name">🏪 ${merchantTrust.name || V4.merchantTrust}</span>
+                <div class="trust-score">
+                    <span class="trust-score-value ${scoreClass}">${score}%</span>
+                    ${merchantTrust.verified ? '<span style="color:#10b981;font-size:0.8rem;">✓ ' + V4.verified + '</span>' : ''}
+                </div>
+            </div>
+            <div class="trust-bar">
+                <div class="trust-bar-fill ${scoreClass}" style="width: ${score}%"></div>
+            </div>
+            <div class="trust-details">
+                <span>${V4.merchantScore}: ${score}/100</span>
+                ${merchantTrust.reviews ? `<span>📝 ${merchantTrust.reviews} ${lang === 'ar' ? 'تقييم' : 'reviews'}</span>` : ''}
+            </div>
+        </div>
+    `;
+}
+
+function renderFakeDealAlert(fakeDeal) {
+    if (!fakeDeal || !fakeDeal.isSuspicious) return '';
+    const V4 = dict[lang]?.v4 || dict.ar.v4;
+    
+    return `
+        <div class="fake-deal-alert">
+            <div class="fake-deal-header">
+                <span class="fake-deal-icon">🚨</span>
+                <span class="fake-deal-title">${V4.fakeDealAlert}</span>
+            </div>
+            <ul class="fake-deal-reasons">
+                ${fakeDeal.reasons.map(r => `<li>• ${r}</li>`).join('')}
+            </ul>
+            <div style="margin-top:8px; font-weight:bold; color:#f87171;">
+                ${lang === 'ar' ? 'درجة الخطورة' : 'Risk Level'}: ${fakeDeal.riskLevel || 'High'}%
+            </div>
+        </div>
+    `;
+}
+
+function renderRecommendations(recommendations) {
+    if (!recommendations || !recommendations.length) return '';
+    const V4 = dict[lang]?.v4 || dict.ar.v4;
+    
+    return `
+        <div class="recommendations-section">
+            <div class="rec-header">
+                <span class="rec-icon">${V4.recommendations.split(' ')[0]}</span>
+                <span class="rec-title">${V4.recommendations}</span>
+            </div>
+            <div class="rec-items">
+                ${recommendations.slice(0, 3).map(rec => `
+                    <div class="rec-item" onclick="document.getElementById('s-input').value='${rec.title.replace(/'/g, "\\'")}'; runSearch();">
+                        <img class="rec-item-img" src="${rec.image || 'https://via.placeholder.com/50'}" alt="">
+                        <div class="rec-item-info">
+                            <div class="rec-item-title">${rec.title}</div>
+                            <div class="rec-item-price">$${rec.price || '---'}</div>
+                            ${rec.reason ? `<div class="rec-item-reason">${V4.recReason}: ${rec.reason}</div>` : ''}
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+}
+
+function renderDealQuality(dealQuality) {
+    if (!dealQuality) return '';
+    const V4 = dict[lang]?.v4 || dict.ar.v4;
+    const score = dealQuality.score || 0;
+    const filledBars = Math.round(score / 10);
+    
+    return `
+        <div class="deal-quality">
+            <div class="deal-quality-score">${score}%</div>
+            <div class="deal-quality-label">${V4.dealQuality}</div>
+            <div class="deal-quality-meter">
+                ${Array(10).fill(0).map((_, i) => `<div class="meter-bar ${i < filledBars ? 'filled' : ''}"></div>`).join('')}
+            </div>
+        </div>
+    `;
+}
+
+function renderScoreGrid(intel) {
+    const V4 = dict[lang]?.v4 || dict.ar.v4;
+    const priceIntel = intel.priceIntel || {};
+    const trustIntel = intel.trustIntel || {};
+    const valueIntel = intel.valueIntel || {};
+    
+    return `
+        <div class="score-grid">
+            <div class="score-item value">
+                <div class="score-item-value">${valueIntel.score || 0}%</div>
+                <div class="score-item-label">${V4.priceAnalysis}</div>
+            </div>
+            <div class="score-item trust">
+                <div class="score-item-value">${100 - (trustIntel.riskScore || 0)}%</div>
+                <div class="score-item-label">${V4.reliability}</div>
+            </div>
+            <div class="score-item deal">
+                <div class="score-item-value">${intel.dealQuality?.score || valueIntel.score || 0}%</div>
+                <div class="score-item-label">${V4.valueForMoney}</div>
+            </div>
+        </div>
+    `;
+}
+
 async function runSearch() {
     const q = document.getElementById('s-input').value.trim();
     const status = document.getElementById('status');
     const resultsBox = document.getElementById('results');
+    const personalityContainer = document.getElementById('personality-container');
+    
     if (!q) return;
+    
     const T = dict[lang]?.search || dict.en.search;
     const UI = dict[lang]?.ui || dict.en.ui;
+    
     status.style.display = 'block';
     status.innerText = '🔍 ...';
     resultsBox.innerHTML = '';
+    personalityContainer.style.display = 'none';
+    
     const userBudget = parseFloat(localStorage.getItem('user_budget')) || 0;
+    
     try {
         const res = await fetch(`${API}/search?q=${encodeURIComponent(q)}&lang=${lang}&uid=${localStorage.getItem('findly_uid')}`);
         const data = await res.json();
+        
         status.style.display = 'none';
+        
         if (data.error === 'ENERGY_EMPTY') {
             const upgradeDict = dict[lang]?.upgrade || dict.ar.upgrade;
             status.style.display = 'block';
             status.innerHTML = `<div class="upgrade-section"><h3>${upgradeDict.title}</h3><p style="font-size:0.95rem; opacity:0.9">${upgradeDict.message}</p><button class="upgrade-btn" onclick="openUpgrade()">${upgradeDict.upgradeBtn}</button></div>`;
             return;
         }
+        
         if (!data.results) { status.style.display = 'block'; status.innerText = UI.noResults; return; }
+        
+        if (data.personality) {
+            personalityContainer.innerHTML = renderPersonalityBadge(data.personality);
+            personalityContainer.style.display = 'block';
+        }
+        
         if (data.results && data.results.length > 0) { updateAffiliateCard(data.results[0]); }
+        
         data.results.forEach(p => {
             const intel = p.intelligence || {};
             const verdict = intel.finalVerdict || {};
@@ -891,45 +1708,63 @@ async function runSearch() {
             const valueIntel = intel.valueIntel || {};
             const forecast = intel.forecastIntel || {};
             const trust = intel.trustIntel || {};
+            const merchantTrust = intel.merchantTrust || null;
+            const fakeDeal = intel.fakeDeal || null;
+            const recommendations = intel.recommendations || [];
+            const dealQuality = intel.dealQuality || null;
+            
             let strategicBadge = '';
             let strategicColor = '#3b82f6';
             if (verdict.decision === 'BUY_NOW') { strategicBadge = '🟢 ' + T.smartDecision; strategicColor = '#10b981'; }
             else if (verdict.decision === 'WAIT') { strategicBadge = '⏳ ' + T.preferWait; strategicColor = '#f59e0b'; }
             else if (verdict.decision === 'WAIT_PRICE_DROP') { strategicBadge = '📉 ' + T.waitPriceDrop; strategicColor = '#6366f1'; }
             else if (verdict.decision === 'OVERPRICED') { strategicBadge = '🔴 ' + T.priceHigh; strategicColor = '#ef4444'; }
+            
             const bestLink = p.intelligence?.finalVerdict?.bestLink || p.link;
             const safeLink = typeof bestLink === "string" && bestLink.startsWith("http") ? bestLink : null;
+            
             let budgetClass = '';
             let budgetBadge = '';
             const priceVal = parseFloat(String(p.price).replace(/[^\d.]/g, '')) || 0;
             if (userBudget > 0 && priceVal > userBudget) { budgetClass = 'over-budget'; budgetBadge = `<div class="budget-alert">⚠️ ${UI.over}</div>`; }
+            
             const card = document.createElement('div');
             card.className = `product-card ${budgetClass}`;
+            
             const coupons = p.coupons || [];
             const numericPrice = priceVal;
             const bestCoupon = (numericPrice && coupons.length) ? pickBestCoupon(numericPrice, coupons) : null;
             const discountedPrice = (numericPrice && bestCoupon) ? applyCoupon(numericPrice, bestCoupon) : null;
+            
             let priceEval = T.weak;
             if (priceIntel.score >= 70) priceEval = T.excellent;
             else if (priceIntel.score >= 50) priceEval = T.good;
+            
             let timingEval = T.stableTxt;
             if (forecast.trend === 'down') timingEval = T.wait;
             else if (forecast.trend === 'up') timingEval = T.mayRise;
+            
             let trustEval = T.safe;
             if ((trust.riskScore || 0) > 50) trustEval = T.risk;
+            
             let behaviorEval = T.general;
             if ((valueIntel.learningBoost || 0) > 0) behaviorEval = T.suitable;
+            
             card.innerHTML = `
             ${budgetBadge}
             <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/200'">
             <h3>${p.title || '—'}</h3>
             <div class="price">${bestCoupon && discountedPrice ? `<span class="old-price">$${numericPrice}</span><span class="new-price">$${discountedPrice}</span>` : `$${numericPrice || '-'}`}</div>
+            ${dealQuality ? renderDealQuality(dealQuality) : ''}
+            ${renderScoreGrid(intel)}
             <div class="sage-quick-brains">
                 <div class="brain-item good">💰 ${T.price} <span>${priceEval}</span></div>
                 <div class="brain-item ${forecast.trend === 'down' ? 'wait' : forecast.trend === 'up' ? 'buy' : 'neutral'}">📈 ${T.timing} <span>${timingEval}</span></div>
                 <div class="brain-item ${(trust.riskScore || 0) > 50 ? 'risk' : 'safe'}">🛡️ ${T.confidence} <span>${trustEval}</span></div>
                 <div class="brain-item learn">🧠 ${T.behavior} <span>${behaviorEval}</span></div>
             </div>
+            ${renderFakeDealAlert(fakeDeal)}
+            ${renderMerchantTrust(merchantTrust)}
             <div class="analysis-engine"><span class="analysis-label">${verdict.emoji || '🤖'} ${verdict.title || ''}</span><div>${verdict.reason || ''}</div></div>
             ${verdict.decision ? `<div style="margin-top:10px; padding:10px; border-radius:10px; background:rgba(255,255,255,0.05); border:1px solid ${strategicColor};"><div style="font-weight:bold; color:${strategicColor}; margin-bottom:6px;">${strategicBadge}</div><div style="font-size:0.9rem; opacity:0.9;">${verdict.reason || ''}</div>${verdict.savingPercent ? `<div style="margin-top:5px;">💰 ${T.saving}: <strong>${verdict.savingPercent}%</strong></div>` : ''}${verdict.bestStore ? `<div style="margin-top:5px;">🏪 ${T.bestStore}: <strong>${verdict.bestStore}</strong>${verdict.bestPrice ? ` - $${verdict.bestPrice}` : ''}</div>` : ''}<div style="margin-top:5px;">🎯 ${T.confidenceScore}: <strong>${verdict.confidence || 0}%</strong></div></div>` : ''}
             ${bestCoupon ? `<div class="coupon-box">🎟️ <strong>${bestCoupon.code}</strong> (${bestCoupon.type === 'percent' ? `-${bestCoupon.discount}%` : `-$${bestCoupon.discount}`})<div style="font-size:0.9rem; margin-top:5px;">${T.after_discount}: <strong>$${discountedPrice}</strong></div><button class="action-btn" onclick="navigator.clipboard.writeText('${bestCoupon.code}')" style="background:#10b981; color:white; padding:5px 10px; font-size:0.8rem; margin-top:5px;">${T.copy_coupon}</button></div>` : ''}
@@ -937,9 +1772,11 @@ async function runSearch() {
             <div class="intel-section"><h4>💎 ${T.value}</h4><p>${T.deal_score}: <strong>${valueIntel.score || 0}%</strong></p><p>${valueIntel.learningBoost > 0 ? T.learning_on : T.learning_later}</p></div>
             <div class="intel-section"><h4>🔮 ${T.forecast}</h4><p>${T.trend[forecast.trend] || T.trend.stable}</p><p>${T.expected_price}: <strong>$${forecast.expectedPrice || '—'}</strong></p><p>${T.confidence}: <strong>${Math.round((forecast.confidence || 0) * 100)}%</strong></p></div>
             <div class="intel-section"><h4>⚠️ ${T.trust}</h4>${trust.warnings && trust.warnings.length ? `<ul>${trust.warnings.map(w => `<li>${w}</li>`).join('')}</ul>` : `<p>✅ ${T.no_risks}</p>`}</div>
+            ${renderRecommendations(recommendations)}
             <button class="action-btn watch" onclick="addToWatch('${p.title.replace(/'/g,"\\'")}','${numericPrice}','${safeLink || ""}')" style="width:100%; margin-top:10px; background:#f59e0b; color:white;">🔔 ${T.watchPrice}</button>
             ${safeLink ? `<a class="action-btn buy-now" href="https://findly-api.onrender.com/go?url=${encodeURIComponent(safeLink)}" target="_blank" rel="noopener noreferrer" style="display:flex; margin-top:10px;">${T.buy}</a>` : `<button class="action-btn buy-now disabled" disabled style="margin-top:10px;">${T.linkUnavailable}</button>`}
-            <button class="action-btn analyze-btn" style="width:100%; margin-top:10px;" data-verdict="${encodeURIComponent(JSON.stringify(verdict))}" data-price="${encodeURIComponent(JSON.stringify(priceIntel))}" data-value="${encodeURIComponent(JSON.stringify(valueIntel))}" data-forecast="${encodeURIComponent(JSON.stringify(forecast))}" data-trust="${encodeURIComponent(JSON.stringify(trust))}" onclick="openAnalysisFromBtn(this)">${T.analyze}</button>`;
+            <button class="action-btn analyze-btn" style="width:100%; margin-top:10px;" data-verdict="${encodeURIComponent(JSON.stringify(verdict))}" data-price="${encodeURIComponent(JSON.stringify(priceIntel))}" data-value="${encodeURIComponent(JSON.stringify(valueIntel))}" data-forecast="${encodeURIComponent(JSON.stringify(forecast))}" data-trust="${encodeURIComponent(JSON.stringify(trust))}" data-merchant="${encodeURIComponent(JSON.stringify(merchantTrust || {}))}" data-fake="${encodeURIComponent(JSON.stringify(fakeDeal || {}))}" onclick="openAnalysisFromBtn(this)">${T.analyze}</button>`;
+            
             resultsBox.appendChild(card);
         });
     } catch (e) { console.error(e); status.style.display = 'block'; status.innerText = UI.errorFetching; }
@@ -968,11 +1805,34 @@ function copyInvite() {
 
 function openAnalysisFromBtn(btn) {
     try {
-        const data = { verdict: JSON.parse(decodeURIComponent(btn.dataset.verdict)), priceIntel: JSON.parse(decodeURIComponent(btn.dataset.price)), valueIntel: JSON.parse(decodeURIComponent(btn.dataset.value)), forecastIntel: JSON.parse(decodeURIComponent(btn.dataset.forecast)), trustIntel: JSON.parse(decodeURIComponent(btn.dataset.trust)) };
+        const data = { 
+            verdict: JSON.parse(decodeURIComponent(btn.dataset.verdict)), 
+            priceIntel: JSON.parse(decodeURIComponent(btn.dataset.price)), 
+            valueIntel: JSON.parse(decodeURIComponent(btn.dataset.value)), 
+            forecastIntel: JSON.parse(decodeURIComponent(btn.dataset.forecast)), 
+            trustIntel: JSON.parse(decodeURIComponent(btn.dataset.trust)),
+            merchantTrust: JSON.parse(decodeURIComponent(btn.dataset.merchant || '{}')),
+            fakeDeal: JSON.parse(decodeURIComponent(btn.dataset.fake || '{}'))
+        };
         const AT = dict[lang]?.analysis || dict.ar.analysis;
+        const V4 = dict[lang]?.v4 || dict.ar.v4;
         const modal = document.getElementById('analysis-modal');
         const body = document.getElementById('analysis-content-body');
-        body.innerHTML = `<h3>${AT.title}</h3><hr><p><strong>📊 ${AT.market}</strong></p><ul><li>${AT.avgPrice}: $${data.priceIntel.average ?? '—'}</li><li>${AT.competitors}: ${data.valueIntel.competitors ?? 0}</li></ul><p><strong>💎 ${AT.deal}</strong></p><ul><li>${AT.dealScore}: ${data.valueIntel.score ?? 0}%</li></ul><p><strong>🔮 ${AT.forecast}</strong></p><ul><li>${AT.trend}: ${data.forecastIntel.trend}</li><li>${AT.expectedPrice}: $${data.forecastIntel.expectedPrice}</li><li>${AT.confidence}: ${Math.round(data.forecastIntel.confidence * 100)}%</li></ul><p><strong>⚠️ ${AT.trustRisks}</strong></p>${data.trustIntel.warnings.length ? `<ul>${data.trustIntel.warnings.map(w => `<li>${w}</li>`).join('')}</ul>` : `<p>${AT.noClearRisks}</p>`}`;
+        
+        let additionalContent = '';
+        if (data.merchantTrust && data.merchantTrust.score) {
+            additionalContent += `<p><strong>🏪 ${V4.merchantTrust}</strong></p><ul><li>${V4.merchantScore}: ${data.merchantTrust.score}%</li></ul>`;
+        }
+        if (data.fakeDeal && data.fakeDeal.isSuspicious) {
+            additionalContent += `<p><strong>🚨 ${V4.fakeDealAlert}</strong></p><ul>${data.fakeDeal.reasons.map(r => `<li>${r}</li>`).join('')}</ul>`;
+        }
+        
+        body.innerHTML = `<h3>${AT.title}</h3><hr>
+            <p><strong>📊 ${AT.market}</strong></p><ul><li>${AT.avgPrice}: $${data.priceIntel.average ?? '—'}</li><li>${AT.competitors}: ${data.valueIntel.competitors ?? 0}</li></ul>
+            <p><strong>💎 ${AT.deal}</strong></p><ul><li>${AT.dealScore}: ${data.valueIntel.score ?? 0}%</li></ul>
+            <p><strong>🔮 ${AT.forecast}</strong></p><ul><li>${AT.trend}: ${data.forecastIntel.trend}</li><li>${AT.expectedPrice}: $${data.forecastIntel.expectedPrice}</li><li>${AT.confidence}: ${Math.round(data.forecastIntel.confidence * 100)}%</li></ul>
+            <p><strong>⚠️ ${AT.trustRisks}</strong></p>${data.trustIntel.warnings.length ? `<ul>${data.trustIntel.warnings.map(w => `<li>${w}</li>`).join('')}</ul>` : `<p>${AT.noClearRisks}</p>`}
+            ${additionalContent}`;
         modal.style.display = 'flex';
     } catch (e) { console.error("Error parsing analysis data", e); }
 }
@@ -980,7 +1840,7 @@ function openAnalysisFromBtn(btn) {
 function saveSet() { localStorage.setItem('fn', document.getElementById('in-name').value); localStorage.setItem('user_budget', document.getElementById('in-budget').value); document.getElementById('p-modal').style.display = 'none'; update(); }
 function toggleMode() { document.body.classList.toggle('light-mode'); }
 function toggleLMenu() { const m = document.getElementById('l-menu'); m.style.display = (m.style.display === 'block') ? 'none' : 'block'; }
-function setLang(l) { lang = l; localStorage.setItem('findly_lang', l); toggleLMenu(); update(); }
+function setLang(l) { lang = l; localStorage.setItem('findly_lang', l); toggleLMenu(); update(); updateChatUI(); }
 function openProfile() { document.getElementById('p-modal').style.display = 'flex'; document.getElementById('in-name').value = localStorage.getItem('fn') || ''; document.getElementById('in-budget').value = localStorage.getItem('user_budget') || ''; }
 function quickSearch(q) { document.getElementById('s-input').value = q; runSearch(); }
 function quickFilter(type) { document.getElementById('s-input').value += " " + type; }
@@ -1046,23 +1906,11 @@ function updateAffiliateCard(product) {
     document.getElementById("affiliateCard").style.display = "block";
 }
 
-function startVoice() {
-    const voiceDict = dict[lang]?.voice || dict.ar.voice;
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) { alert(voiceDict.notSupported); return; }
-    const recognition = new SpeechRecognition();
-    const micBtn = document.getElementById('mic-btn');
-    const input = document.getElementById('s-input');
-    recognition.lang = lang === 'ar' ? 'ar-SA' : 'en-US';
-    recognition.interimResults = false;
-    recognition.onstart = () => { micBtn.classList.add('mic-active'); };
-    recognition.onresult = (event) => { const transcript = event.results[0][0].transcript; input.value = transcript; micBtn.classList.remove('mic-active'); runSearch(); };
-    recognition.onerror = () => { micBtn.classList.remove('mic-active'); };
-    recognition.onend = () => { micBtn.classList.remove('mic-active'); };
-    recognition.start();
+window.onclick = function(event) { 
+    if (event.target.classList.contains('modal') || event.target.classList.contains('analysis-modal')) { 
+        event.target.style.display = "none"; 
+    }
 }
-
-window.onclick = function(event) { if (event.target.classList.contains('modal') || event.target.classList.contains('analysis-modal')) { event.target.style.display = "none"; } }
 
 function showUpgradeSuccess() {
     localStorage.setItem("findly_pro", "true");
@@ -1075,21 +1923,39 @@ function showUpgradeSuccess() {
 
 function handleUpgradeButton() { const isPro = localStorage.getItem("findly_pro") === "true"; const upgradeBtn = document.getElementById("upgradeBtn"); if (!upgradeBtn) return; upgradeBtn.style.display = isPro ? "none" : "inline-block"; }
 
-window.onload = () => { update(); if (location.href.includes("upgrade-success")) { showUpgradeSuccess(); } handleUpgradeButton(); };
+window.onload = () => { 
+    update(); 
+    updateChatUI();
+    if (location.href.includes("upgrade-success")) { showUpgradeSuccess(); } 
+    handleUpgradeButton(); 
+};
 </script>
+
 <script>
 let deferredPrompt = null;
 const installBtn = document.createElement("button");
 installBtn.innerText = "📲 تثبيت التطبيق";
 installBtn.className = "install-btn";
 installBtn.style.display = "none";
+installBtn.style.cssText = "position:fixed; bottom:100px; left:25px; background:var(--gradient); color:white; border:none; padding:12px 20px; border-radius:25px; cursor:pointer; z-index:998; font-weight:600;";
 document.body.appendChild(installBtn);
-window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); deferredPrompt = e; installBtn.style.display = "block"; });
+
+window.addEventListener("beforeinstallprompt", (e) => { 
+    e.preventDefault(); 
+    deferredPrompt = e; 
+    installBtn.style.display = "block"; 
+});
+
 installBtn.addEventListener("click", async () => {
-    if (deferredPrompt) { deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt = null; installBtn.style.display = "none"; }
-    else { alert(dict[lang]?.ui?.installHint || "Press from browser menu then 'Add to Home Screen'"); }
+    if (deferredPrompt) { 
+        deferredPrompt.prompt(); 
+        await deferredPrompt.userChoice; 
+        deferredPrompt = null; 
+        installBtn.style.display = "none"; 
+    }
 });
 </script>
+
 <script>
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js', { scope: './' })

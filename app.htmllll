@@ -1,0 +1,1923 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" id="main-html">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Findly Sage Ultimate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #8b5cf6;
+            --primary-glow: rgba(139, 92, 246, 0.5);
+            --secondary: #6366f1;
+            --bg-dark: #020617;
+            --bg-card: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --gradient: linear-gradient(135deg, #6366F1, #A855F7);
+        }
+        .light-mode {
+            --bg-dark: #f8fafc;
+            --bg-card: rgba(255, 255, 255, 0.9);
+            --glass-border: rgba(0, 0, 0, 0.05);
+            --text: #1e293b;
+            --text-muted: #64748b;
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        body {
+            background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at 50% 0%, #1e1b4b 0%, transparent 50%);
+            color: var(--text);
+            font-family: 'Readex Pro', sans-serif;
+            margin: 0;
+            transition: background 0.4s ease, color 0.4s ease;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 5%;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--glass-border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+            text-shadow: 0 0 20px rgba(168, 85, 247, 0.2);
+        }
+        .tagline { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+        .header-tools { display: flex; gap: 10px; }
+        .tool-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            color: var(--text);
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        .tool-btn:hover { transform: translateY(-2px); border-color: var(--primary); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .lang-menu {
+            display: none;
+            position: absolute;
+            top: 50px;
+            left: 0;
+            background: #1e293b;
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            width: 140px;
+            z-index: 2000;
+            box-shadow: 0 20px 40px -5px rgba(0,0,0,0.4);
+            overflow: hidden;
+            animation: fadeIn 0.2s ease;
+        }
+        .lang-item {
+            padding: 12px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            color: #e2e8f0;
+            text-align: center;
+            transition: 0.2s;
+        }
+        .lang-item:hover { background: var(--primary); color: white; }
+        .search-area { padding: 40px 5%; text-align: center; max-width: 800px; margin: 0 auto; }
+        .energy-box {
+            background: rgba(168, 85, 247, 0.08);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            padding: 8px 20px;
+            border-radius: 50px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.1);
+        }
+        h1#txt-title {
+            background: linear-gradient(to right, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 10px 0;
+            font-size: 2.5rem;
+            letter-spacing: -1px;
+        }
+        .light-mode h1#txt-title {
+            background: linear-gradient(to right, #1e293b, #475569);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .ai-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            color: var(--primary);
+            margin-bottom: 25px;
+            justify-content: center;
+            font-weight: 600;
+            background: rgba(139, 92, 246, 0.05);
+            padding: 8px 16px;
+            border-radius: 12px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .ai-toggle input { width: 20px; height: 20px; accent-color: var(--primary); cursor: pointer; }
+        .search-wrapper { position: relative; max-width: 600px; margin: 0 auto 20px; }
+        .search-input {
+            width: 100%;
+            padding: 18px 60px;
+            border-radius: 24px;
+            border: 2px solid var(--glass-border);
+            background: var(--bg-card);
+            color: var(--text);
+            font-size: 1.1rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .search-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15); }
+        .mic-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--secondary);
+            cursor: pointer;
+            font-size: 1.4rem;
+            transition: 0.3s;
+            z-index: 10;
+        }
+        .mic-active { color: #ef4444; text-shadow: 0 0 10px #ef4444; animation: pulse 1s infinite; }
+        .send-btn {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--gradient);
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 18px;
+            color: #fff;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+        .send-btn:hover { transform: translateY(-50%) scale(1.05); box-shadow: 0 0 15px var(--primary-glow); }
+        .ai-options { display: flex; justify-content: center; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+        .ai-tag {
+            font-size: 0.8rem; padding: 8px 16px; border-radius: 20px;
+            background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border);
+            cursor: pointer; color: var(--text-muted); display: flex; align-items: center; gap: 8px;
+            transition: 0.3s;
+        }
+        .ai-tag:hover { background: var(--bg-card); color: var(--primary); border-color: var(--primary); }
+        .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 600px; margin: 30px auto; }
+        .cat-card {
+            background: var(--bg-card); border: 1px solid var(--glass-border);
+            padding: 15px 10px; border-radius: 20px; cursor: pointer;
+            transition: 0.3s; display: flex; flex-direction: column; align-items: center; gap: 8px;
+        }
+        .cat-card:hover { transform: translateY(-5px); background: rgba(255,255,255,0.05); border-color: var(--primary); }
+        .cat-card i { font-size: 1.5rem; color: var(--secondary); }
+        .cat-card span { font-size: 0.75rem; font-weight: 600; }
+        .product-card {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 20px;
+            margin-top: 25px;
+            text-align: right;
+            max-width: 600px;
+            margin-left: auto; margin-right: auto;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+            animation: slideUp 0.5s ease;
+        }
+        .product-card img { width: 100%; height: 200px; object-fit: contain; background: #fff; border-radius: 16px; margin-bottom: 15px; padding: 10px; }
+        .product-card h3 { margin: 0 0 10px 0; font-size: 1.1rem; line-height: 1.5; color: var(--text); }
+        .product-card .price { font-size: 1.4rem; font-weight: 800; color: #10b981; margin-bottom: 10px; }
+        .analysis-engine {
+            background: rgba(99, 102, 241, 0.08);
+            border-right: 3px solid var(--primary);
+            padding: 12px; border-radius: 12px; margin: 15px 0;
+            font-size: 0.85rem; line-height: 1.6; color: var(--text-muted);
+        }
+        .analysis-label { font-weight: 700; color: var(--primary); display: block; margin-bottom: 5px; }
+        .btn-group { display: flex; gap: 12px; margin-top: 15px; flex-wrap: wrap; }
+        .action-btn {
+            flex: 1; padding: 12px; border-radius: 14px; font-weight: 700;
+            text-align: center; border: none; font-size: 0.9rem; cursor: pointer;
+            transition: 0.3s;
+        }
+        .buy-now { background: var(--gradient); color: #fff; text-decoration: none; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3); display: flex; justify-content: center; align-items: center; }
+        .buy-now:hover { filter: brightness(1.1); }
+        .analyze-btn { background: rgba(30, 41, 59, 0.7); border: 1px solid var(--primary); color: var(--primary); }
+        .analyze-btn:hover { background: var(--primary); color: white; }
+        .watch-btn { background: transparent; border: 1px solid var(--text-muted); color: var(--text); }
+        .watch-btn:hover { background: rgba(139, 92, 246, 0.1); border-color: var(--primary); }
+        .budget-error {
+            background: rgba(239, 68, 68, 0.15); color: #ef4444;
+            padding: 8px 12px; border-radius: 12px; font-size: 0.8rem;
+            margin-bottom: 10px; font-weight: bold; border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        .modal {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.8); z-index: 3000;
+            align-items: center; justify-content: center;
+            backdrop-filter: blur(12px);
+        }
+        .modal-box {
+            background: #0f172a; padding: 30px; border-radius: 30px;
+            width: 85%; max-width: 400px;
+            border: 1px solid var(--glass-border);
+            text-align: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        .modal-box input {
+            width: 100%; padding: 14px; margin: 10px 0; border-radius: 14px;
+            background: #1e293b; color: #fff; border: 1px solid var(--glass-border);
+            text-align: center; font-family: inherit;
+        }
+        .modal-box input:focus { border-color: var(--primary); }
+        .analysis-modal {
+            display: none; position: fixed; z-index: 10000;
+            left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
+            align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background: #0f172a; margin: auto; padding: 25px;
+            width: 85%; max-width: 450px; border-radius: 20px; text-align: right;
+            border: 1px solid var(--primary);
+            box-shadow: 0 0 30px rgba(139, 92, 247, 0.2);
+            color: white;
+            position: relative;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .over-budget { border: 2px solid #ff4d4d !important; background-color: rgba(255, 77, 77, 0.05) !important; }
+        .budget-alert { background: #ff4d4d; color: white; padding: 4px 10px; border-radius: 8px; font-size: 0.8rem; margin-bottom: 10px; display: inline-block; font-weight: bold; }
+        @keyframes pulse { 0% { opacity: 1; transform:translateY(-50%) scale(1); } 50% { opacity: 0.5; transform:translateY(-50%) scale(1.1); } 100% { opacity: 1; transform:translateY(-50%) scale(1); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .auth-overlay {
+            display: none !important;
+            position: fixed !important;
+            top: 0 !important; left: 0 !important;
+            width: 100vw !important; height: 100vh !important;
+            background: radial-gradient(circle at center, #1e1b4b 0%, #020617 100%) !important;
+            z-index: 2147483647 !important;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(15px);
+            overflow: hidden;
+            touch-action: none;
+        }
+        .auth-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            padding: 40px;
+            border-radius: 28px;
+            width: 90%;
+            max-width: 420px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(139, 92, 246, 0.2);
+            animation: fadeInScale 0.4s ease-out;
+        }
+        .auth-header h1 { font-size: 2.2rem; color: #fff; margin-bottom: 10px; font-weight: 700; }
+        .auth-header span { color: #a78bfa; text-shadow: 0 0 15px rgba(167, 139, 250, 0.5); }
+        .s-input {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.6) !important;
+            border: 1px solid rgba(139, 92, 246, 0.2) !important;
+            color: white !important;
+            padding: 14px 20px !important;
+            border-radius: 14px !important;
+            margin-bottom: 15px;
+            transition: 0.3s;
+        }
+        .s-input:focus { border-color: #8b5cf6 !important; box-shadow: 0 0 10px rgba(139, 92, 246, 0.3) !important; }
+        .action-btn.buy-now {
+            background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%) !important;
+            color: white !important;
+            font-weight: 600 !important;
+            letter-spacing: 0.5px;
+            border: none !important;
+            padding: 15px !important;
+            box-shadow: 0 10px 20px -5px rgba(139, 92, 246, 0.5) !important;
+        }
+        .google-btn {
+            background: white;
+            color: #1e293b;
+            width: 100%;
+            padding: 12px;
+            border-radius: 14px;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .google-btn:hover { background: #f8fafc; transform: translateY(-2px); }
+        .divider { display: flex; align-items: center; text-align: center; margin: 20px 0; color: #94a3b8; }
+        .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .divider span { padding: 0 10px; font-size: 0.8rem; }
+        @keyframes fadeInScale { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        .old-price { text-decoration: line-through; opacity: 0.6; margin-right: 6px; }
+        .new-price { color: #2ecc71; font-weight: bold; font-size: 1.1em; }
+        .actions { display: flex; gap: 12px; margin-top: 12px; }
+        .action-btn {
+            flex: 1;
+            height: 48px;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+        .action-btn.buy { background: linear-gradient(135deg, #7b61ff, #9b7bff); color: #fff; }
+        .action-btn.ghost { background: rgba(255,255,255,0.06); color: #cfc7ff; border: 1px solid rgba(255,255,255,0.12); }
+        .action-btn:hover { transform: translateY(-1px); opacity: 0.95; }
+        .sage-quick-brains { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 12px 0; }
+        .brain-item {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 8px 10px;
+            font-size: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+        .brain-item span { opacity: 0.85; }
+        .brain-item.good { border-color: #10b981; }
+        .brain-item.buy { border-color: #22c55e; }
+        .brain-item.wait { border-color: #f59e0b; }
+        .brain-item.safe { border-color: #3b82f6; }
+        .brain-item.risk { border-color: #ef4444; }
+        .brain-item.learn { border-color: #8b5cf6; }
+        .invite-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: linear-gradient(135deg, rgba(40, 32, 90, 0.85), rgba(28, 22, 60, 0.9));
+            border: 1px solid rgba(138, 99, 255, 0.35);
+            border-radius: 16px;
+            padding: 14px 16px;
+            margin-top: 14px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            justify-content: center;
+        }
+        .invite-card:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(138, 99, 255, 0.25), inset 0 0 0 1px rgba(138, 99, 255, 0.15); }
+        .invite-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+            background: radial-gradient(circle at top left, #9f8cff, #6f5cff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .invite-text { font-size: 14.5px; color: #e1dbff; line-height: 1.6; text-align: center; width: 100%; }
+        .layout-wrapper { display: flex; gap: 20px; }
+        #results { flex: 3; }
+        .affiliate-card { flex: 1; background: #111; color: white; padding: 15px; border-radius: 12px; position: sticky; top: 20px; }
+        .affiliate-card img { width: 100%; border-radius: 8px; }
+        .affiliate-btn { display: block; background: #ff4747; text-align: center; padding: 10px; border-radius: 8px; text-decoration: none; color: white; margin-top: 10px; }
+        .intel-section { background: rgba(255,255,255,0.03); padding: 12px; border-radius: 12px; margin: 10px 0; text-align: right; }
+        .intel-section h4 { margin: 0 0 8px 0; font-size: 0.9rem; color: var(--primary); }
+        .intel-section p { margin: 4px 0; font-size: 0.85rem; color: var(--text-muted); }
+        .intel-section ul { margin: 5px 0; padding-right: 20px; font-size: 0.85rem; }
+        .upgrade-section { background: #1b1b2f; border: 1px solid #ff4d4d; padding: 12px; border-radius: 8px; margin: 20px auto; max-width: 600px; }
+        .upgrade-section h3 { color: #ff4d4d; margin-bottom: 8px; }
+        .upgrade-btn { background: linear-gradient(135deg, #8b5cf6, #6366f1); color: white; padding: 12px 24px; border-radius: 14px; border: none; cursor: pointer; font-weight: 600; margin-top: 10px; transition: 0.3s; }
+        .upgrade-btn:hover { filter: brightness(1.1); transform: translateY(-2px); }
+        .coupon-box { margin: 10px 0; padding: 10px; background: rgba(16,185,129,0.1); border-radius: 10px; border: 1px dashed #10b981; }
+        @media (max-width: 768px) {
+            .cat-grid { grid-template-columns: repeat(3, 1fr); }
+            .layout-wrapper { flex-direction: row; }
+            #results { flex: 2; }
+            .affiliate-card { flex: 1; position: relative; top: auto; max-width: 140px; }
+        }
+
+:root { --primary-color: #2563eb; }
+
+#findly-chat-bubble {
+    position: fixed; bottom: 20px; right: 20px;
+    width: 60px; height: 60px; background: var(--primary-color);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    color: white; cursor: pointer; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+    z-index: 9999; transition: all 0.3s ease;
+}
+
+#findly-chat-bubble:hover { transform: scale(1.1); }
+
+#findly-chat-window {
+    position: fixed; bottom: 90px; right: 20px;
+    width: 350px; max-width: 90vw; height: 500px;
+    background: white; border-radius: 15px; display: none;
+    flex-direction: column; box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    z-index: 9999; overflow: hidden; font-family: sans-serif;
+}
+
+.chat-header { background: var(--primary-color); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+.status-dot { width: 8px; height: 8px; background: #4ade80; border-radius: 50%; margin-right: 8px; display: inline-block; }
+
+.chat-content { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #f8fafc; }
+.message { padding: 10px 14px; border-radius: 12px; font-size: 14px; line-height: 1.4; max-width: 80%; }
+.bot-msg { background: white; border: 1px solid #e2e8f0; align-self: flex-start; }
+.user-msg { background: var(--primary-color); color: white; align-self: flex-end; }
+
+.chat-input-container { padding: 15px; display: flex; gap: 8px; border-top: 1px solid #e2e8f0; }
+#chat-input { flex: 1; border: 1px solid #e2e8f0; padding: 10px; border-radius: 8px; outline: none; }
+#send-btn { background: var(--primary-color); border: none; color: white; padding: 8px; border-radius: 8px; cursor: pointer; }
+        
+</style>
+</head>
+<body>
+
+    <div id="findly-chat-bubble" onclick="toggleChatWindow()">
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+</div>
+
+<div id="findly-chat-window">
+    <div class="chat-header">
+        <div class="bot-info">
+            <div class="status-dot"></div>
+            <span>Findly AI Assistant</span>
+        </div>
+        <button onclick="toggleChatWindow()" class="close-btn" style="background:none;border:none;color:white;font-size:20px;cursor:pointer;">&times;</button>
+    </div>
+    <div id="chat-content" class="chat-content">
+        <div class="message bot-msg">مرحباً! كيف يمكنني مساعدتك اليوم في العثور على أفضل المنتجات؟</div>
+    </div>
+    <div class="chat-input-container">
+        <input type="text" id="chat-input" placeholder="اكتب رسالتك..." onkeypress="checkEnter(event)">
+        <button onclick="sendMessage()" id="send-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+        </button>
+    </div>
+</div>
+    
+    <div id="auth-overlay" class="auth-overlay">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1 class="logo-text">Findly <span>Sage</span></h1>
+            <p id="auth-title"></p>
+        </div>
+        <div id="auth-inputs">
+            <input type="email" id="auth-email" placeholder="">
+            <input type="password" id="auth-password" placeholder="">
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button onclick="handleLogin()" class="action-btn buy-now" style="flex: 1;" id="btn-login"></button>
+                <button onclick="handleRegister()" class="action-btn ghost" style="flex: 1; border: 1px solid var(--primary);" id="btn-register"></button>
+            </div>
+        </div>
+        <div class="divider"><span id="txt-or"></span></div>
+        <button onclick="loginWithGoogle()" class="google-btn" id="btn-google">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+            <span id="txt-google-btn"></span>
+        </button>
+        <div style="margin-top: 30px; font-size: 0.85rem;">
+            <a href="privacy.html" style="color:var(--text-muted); margin:0 5px;" id="link-privacy"></a>
+            <a href="terms.html" style="color:var(--text-muted); margin:0 5px;" id="link-terms"></a>
+            <a href="about.html" style="color:var(--text-muted); margin:0 5px;" id="link-about"></a>
+        </div>
+    </div>
+</div>
+<header>
+    <div class="logo-area">
+        <div class="logo">Findly <i class="fa-solid fa-wand-magic-sparkles"></i></div>
+        <div id="hero-tagline" class="hero-tagline"></div>
+        <link rel="manifest" href="./manifest.json">
+    </div>
+    <div class="header-tools">
+        <button class="tool-btn" onclick="toggleMode()"><i class="fa-solid fa-circle-half-stroke"></i></button>
+        <div style="position: relative;">
+            <button class="tool-btn" onclick="toggleLMenu()"><i class="fa-solid fa-language"></i></button>
+            <div id="l-menu" class="lang-menu">
+                <div class="lang-item" onclick="setLang('ar')">العربية</div>
+                <div class="lang-item" onclick="setLang('en')">English</div>
+                <div class="lang-item" onclick="setLang('fr')">Francais</div>
+                <div class="lang-item" onclick="setLang('de')">Deutsch</div>
+                <div class="lang-item" onclick="setLang('es')">Espanol</div>
+                <div class="lang-item" onclick="setLang('tr')">Turkce</div>
+            </div>
+        </div>
+        <button class="tool-btn" onclick="toggleWatchList()">
+            <i class="fa-solid fa-bell"></i>
+            <span id="watch-count" style="position:absolute; top:-5px; right:-5px; background:#ef4444; color:white; font-size:0.6rem; padding:2px 6px; border-radius:50%; display:none; border: 2px solid var(--bg-dark);">0</span>
+        </button>
+        <button class="tool-btn" onclick="openProfile()"><i class="fa-solid fa-user-gear"></i></button>
+        <button class="tool-btn" id="logout-btn" onclick="logoutUser()"><i class="fa-solid fa-right-from-bracket"></i></button>
+    </div>
+</header>
+<main class="search-area">
+    <div class="energy-box">
+        <span id="txt-energy"></span>
+        <span id="r-count" style="background:var(--primary); color:#fff; padding:3px 12px; border-radius:20px; font-weight:900; font-size: 0.9rem;">3</span>
+        <i class="fa-solid fa-bolt" style="color:#FFD700;"></i>
+    </div>
+    <h2 id="greeting" style="color: var(--primary); font-size: 1.1rem; margin-bottom: 5px; font-weight: 600;"></h2>
+    <h1 id="txt-title"></h1>
+    <p id="txt-sub" style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 30px;"></p>
+    <div class="ai-toggle">
+        <i class="fa-solid fa-brain"></i>
+        <span id="txt-deep"></span>
+        <input type="checkbox" id="ai-deep-mode">
+    </div>
+    <div class="search-wrapper">
+        <input type="text" id="s-input" class="search-input" placeholder="">
+        <i id="mic-btn" class="fa-solid fa-microphone-lines mic-icon" onclick="startVoice()"></i>
+        <button class="send-btn" onclick="runSearch()"><i class="fa-solid fa-magnifying-glass"></i></button>
+    </div>
+    <div class="invite-card" onclick="copyInvite()">
+        <div class="invite-icon">🚀</div>
+        <div class="invite-text" id="inviteText"></div>
+    </div>
+    <div class="ai-options">
+        <div class="ai-tag" onclick="quickFilter('cheap')"><i class="fa-solid fa-sack-dollar"></i> <span id="tag-cheap"></span></div>
+        <div class="ai-tag" onclick="quickFilter('top')"><i class="fa-solid fa-star"></i> <span id="tag-top"></span></div>
+        <div class="ai-tag" onclick="quickFilter('new')"><i class="fa-solid fa-fire"></i> <span id="tag-new"></span></div>
+    </div>
+    <div class="cat-grid">
+        <div class="cat-card" onclick="quickSearch('ألعاب')"><i class="fa-solid fa-gamepad"></i><span id="cat-game"></span></div>
+        <div class="cat-card" onclick="quickSearch('جمال')"><i class="fa-solid fa-sparkles"></i><span id="cat-beauty"></span></div>
+        <div class="cat-card" onclick="quickSearch('منزل ذكي')"><i class="fa-solid fa-house-laptop"></i><span id="cat-home"></span></div>
+        <div class="cat-card" onclick="quickSearch('هواتف')"><i class="fa-solid fa-mobile-screen-button"></i><span id="cat-c1"></span></div>
+        <div class="cat-card" onclick="quickSearch('لابتوب')"><i class="fa-solid fa-laptop"></i><span id="cat-c2"></span></div>
+        <div class="cat-card" onclick="quickSearch('ساعات')"><i class="fa-solid fa-stopwatch"></i><span id="cat-c4"></span></div>
+    </div>
+    <div id="status" style="display:none; color:var(--primary); font-weight:bold; margin-top:30px; font-size: 1.1rem; text-align: center;"></div>
+    <div class="layout-wrapper">
+        <div id="results"></div>
+        <div id="affiliateCard" class="affiliate-card" style="display:none;">
+            <img id="affImage" src="" />
+            <h3 id="affTitle"></h3>
+            <p id="aff-offer"></p>
+            <a id="affBtn" target="_blank" class="affiliate-btn"></a>
+        </div>
+    </div>
+    <div style="margin-top: 30px; font-size: 0.85rem; text-align: center;">
+        <a href="privacy.html" style="color:var(--text-muted); margin:0 5px;" id="footer-privacy"></a>
+        <a href="terms.html" style="color:var(--text-muted); margin:0 5px;" id="footer-terms"></a>
+        <a href="about.html" style="color:var(--text-muted); margin:0 5px;" id="footer-about"></a>
+    </div>
+</main>
+<div class="modal" id="w-modal">
+    <div class="modal-box">
+        <h3 style="color:var(--primary); margin-top:0;"><i class="fa-solid fa-bell"></i> <span id="txt-watch-title"></span></h3>
+        <div id="watch-list-content"></div>
+        <button onclick="toggleWatchList()" style="background:none; color:var(--text-muted); border:none; margin-top:20px; cursor:pointer; font-size:0.9rem;" id="btn-close-watch"></button>
+    </div>
+</div>
+<div class="modal" id="p-modal">
+    <div class="modal-box">
+        <h3 id="p-head" style="margin-top:0;"></h3>
+        <label id="lbl-name" style="font-size:0.85rem; display:block; margin-bottom:5px; opacity:0.7;"></label>
+        <input type="text" id="in-name" placeholder="">
+        <label id="lbl-budget" style="font-size:0.85rem; display:block; margin-top:15px; margin-bottom:5px; opacity:0.7;"></label>
+        <input type="number" id="in-budget" placeholder="">
+        <button class="action-btn buy-now" onclick="saveSet()" style="width:100%; margin-top:20px;" id="btn-save-settings"></button>
+        <button onclick="openProfile()" style="background:none; color:var(--text-muted); border:none; margin-top:15px; cursor:pointer; font-size:0.9rem;" id="btn-close-profile"></button>
+    </div>
+</div>
+<div id="analysis-modal" class="analysis-modal">
+    <div class="modal-content">
+        <h3 id="analysis-modal-title"></h3>
+        <div id="analysis-content-body"></div>
+        <button class="action-btn buy-now" style="margin-top:15px; width:100%" onclick="document.getElementById('analysis-modal').style.display='none'" id="btn-close-analysis"></button>
+    </div>
+</div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-analytics.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyCI_q5lkgRY4133ua4RlG5TeiCqJ5N5KTU",
+    authDomain: "findly-ede17.firebaseapp.com",
+    projectId: "findly-ede17",
+    storageBucket: "findly-ede17.firebasestorage.app",
+    messagingSenderId: "503212830017",
+    appId: "1:503212830017:web:9afb64c19822bbe7f645c0",
+    measurementId: "G-X1Q3WDP50N"
+};
+
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+
+onAuthStateChanged(auth, (user) => {
+    const overlay = document.getElementById('auth-overlay');
+    if (user) {
+        overlay.style.setProperty('display', 'none', 'important');
+        document.body.style.overflow = 'auto';
+        localStorage.setItem('findly_uid', user.uid);
+        if (!sessionStorage.getItem('welcome_shown')) {
+            sessionStorage.setItem('welcome_shown', 'true');
+        }
+    } else {
+        overlay.style.setProperty('display', 'flex', 'important');
+        document.body.style.overflow = 'hidden';
+    }
+});
+
+window.loginWithGoogle = async () => {
+    try { await signInWithPopup(auth, provider); } catch (error) { alert("Error: " + error.message); }
+};
+
+window.handleLogin = async () => {
+    const email = document.getElementById('auth-email').value;
+    const password = document.getElementById('auth-password').value;
+    const currentLang = localStorage.getItem('findly_lang') || 'ar';
+    const authDict = dict[currentLang]?.auth || dict.ar.auth;
+    if (!email || !password) return alert(authDict.fillFields);
+    try {
+        await signInWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+        let msg = authDict.loginFailed;
+        if (error.code === 'auth/user-not-found') msg = authDict.userNotFound;
+        else if (error.code === 'auth/wrong-password') msg = authDict.wrongPassword;
+        else if (error.code === 'auth/invalid-email') msg = authDict.invalidEmail;
+        else if (error.code === 'auth/invalid-credential') msg = authDict.invalidCredential;
+        else msg += " " + error.message;
+        alert(msg);
+    }
+};
+
+window.handleRegister = async () => {
+    const email = document.getElementById('auth-email').value;
+    const password = document.getElementById('auth-password').value;
+    const currentLang = localStorage.getItem('findly_lang') || 'ar';
+    const authDict = dict[currentLang]?.auth || dict.ar.auth;
+    if (!email || !password) return alert(authDict.fillFields);
+    if (password.length < 6) return alert(authDict.weakPassword);
+    try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        alert(authDict.registerSuccess);
+    } catch (error) {
+        let msg = authDict.registerFailed;
+        if (error.code === 'auth/email-already-in-use') msg = authDict.emailInUse;
+        else if (error.code === 'auth/weak-password') msg = authDict.weakPassword;
+        else if (error.code === 'auth/invalid-email') msg = authDict.invalidEmail;
+        else msg += " " + error.message;
+        alert(msg);
+    }
+};
+
+window.logoutUser = () => {
+    const currentLang = localStorage.getItem('findly_lang') || 'ar';
+    const authDict = dict[currentLang]?.auth || dict.ar.auth;
+    if (confirm(authDict.logoutConfirm)) {
+        signOut(auth).then(() => {
+            sessionStorage.removeItem('welcome_shown');
+            location.reload();
+        });
+    }
+};
+</script>
+<script>
+const API = "https://findly-api.onrender.com";
+
+// ============================================
+// دالة فتح/إغلاق نافذة الدردشة
+// ============================================
+function toggleChatWindow() {
+    const chatWindow = document.getElementById('findly-chat-window');
+    if (chatWindow.style.display === 'flex') {
+        chatWindow.style.display = 'none';
+    } else {
+        chatWindow.style.display = 'flex';
+    }
+}
+
+// ============================================
+// دالة إرسال رسالة للدردشة
+// ============================================
+async function sendMessage() {
+
+  const input = document.getElementById('chat-input');
+  const message = input.value.trim();
+
+  if (!message) return;
+
+  addMessage('user-msg', message);
+  input.value = '';
+
+  try {
+    const response = await fetch("https://findly-api.onrender.com/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        message: message,
+        userId: localStorage.getItem('findly_uid') || "guest"
+      })
+    });
+
+    const data = await response.json();
+
+    addMessage('bot-msg', data.reply || "⚠️ لا يوجد رد");
+
+  } catch (error) {
+    console.error("Chat Error:", error);
+    addMessage('bot-msg', "⚠️ حدث خطأ في الاتصال بالسيرفر");
+  }
+}
+        
+        const data = await response.json();
+        
+        // حذف رسالة التحميل
+        document.getElementById('loading-msg')?.remove();
+        
+        // إضافة رد البوت
+        if (data.reply) {
+            addMessage('bot-msg', data.reply);
+        } else {
+            addMessage('bot-msg', 'عذراً، لم أتمكن من فهم ذلك.');
+        }
+        
+    } catch (error) {
+        document.getElementById('loading-msg')?.remove();
+        addMessage('bot-msg', '❌ فشل الاتصال بالسيرفر.');
+        console.error('Chat Error:', error);
+    }
+}
+
+// ============================================
+// دالة إضافة رسالة للمحادثة
+// ============================================
+function addMessage(className, text) {
+    const container = document.getElementById('chat-content');
+    const div = document.createElement('div');
+    div.className = `message ${className}`;
+    div.innerText = text;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+}
+
+// ============================================
+// دالة Enter للإرسال
+// ============================================
+function checkEnter(event) {
+    if (event.key === 'Enter') {
+        sendMessage();
+    }
+}
+
+const dict = {
+    ar: {
+        ui: {
+            hero_tagline: "قرارات شراء أذكى تبدأ من هنا",
+            title: "مستشارك الحكيم",
+            sub: "دليلك الذكي للتسوق المثالي",
+            energy: "طاقة العقل",
+            welcome: "مرحباً،",
+            game: "ألعاب",
+            beauty: "جمال",
+            home: "منزل ذكي",
+            c1: "هواتف",
+            c2: "لابتوب",
+            c4: "ساعات",
+            p_head: "الملف الشخصي",
+            lbl_name: "اسم المستخدم",
+            lbl_budget: "الميزانية ($)",
+            buy: "شراء الآن 🛒",
+            watch: "راقب السعر 🔔",
+            over: "يتجاوز ميزانيتك",
+            cheap: "اقتصادي",
+            top: "الأعلى تقييماً",
+            new: "حديث جداً",
+            deep: "وضع التحليل الذكي",
+            watchTitle: "قائمة المراقبة",
+            why: "لماذا اخترنا هذا؟",
+            slow: "السيرفر يستيقظ.. انتظر ثوانٍ",
+            noAttempts: "⚠️ استنفدت محاولاتك!",
+            analyze: "📊 تحليل السعر",
+            close: "إغلاق",
+            saveChanges: "حفظ التغييرات ✅",
+            searchPlaceholder: "ابحث عن منتج...",
+            noResults: "لا توجد نتائج",
+            errorFetching: "❌ خطأ في جلب النتائج",
+            affiliateOffer: "🔥 عرض مميز مرتبط ببحثك",
+            buyNowAffiliate: "🛒 شراء الآن",
+            installApp: "📲 تثبيت التطبيق",
+            installHint: "اضغط من قائمة المتصفح ثم 'Add to Home Screen'",
+            namePlaceholder: "أدخل اسمك هنا...",
+            budgetPlaceholder: "أقصى ميزانية لديك...",
+            settingsSaved: "تم حفظ الإعدادات بنجاح!"
+        },
+        search: {
+            market: "السوق",
+            avg_price: "متوسط السعر",
+            competitors: "عدد المنافسين",
+            value: "قيمة الصفقة",
+            deal_score: "تقييم الصفقة",
+            learning_on: "سيتحسن التحليل مع الاستخدام",
+            learning_later: "التحليل قيد التعلم",
+            forecast: "التوقع السعري",
+            trend: { up: "قد يرتفع قريبًا", down: "قد ينخفض", stable: "مستقر" },
+            expected_price: "السعر المتوقع",
+            confidence: "الثقة",
+            trust: "الثقة والمخاطر",
+            no_risks: "لا توجد مخاطر واضحة",
+            buy: "اشترِ",
+            analyze: "تحليل",
+            watch: "راقب",
+            after_discount: "بعد الخصم",
+            copy_coupon: "نسخ الكوبون",
+            price: "السعر",
+            timing: "التوقيت",
+            behavior: "السلوك",
+            excellent: "ممتاز",
+            good: "جيد",
+            weak: "ضعيف",
+            wait: "انتظر",
+            mayRise: "قد يرتفع",
+            stableTxt: "مستقر",
+            risk: "مخاطرة",
+            safe: "آمن",
+            suitable: "مناسب لك",
+            general: "عام",
+            smartDecision: "قرار ذكي: اشترِ الآن",
+            preferWait: "يفضل الانتظار",
+            waitPriceDrop: "انتظر انخفاض السعر",
+            priceHigh: "السعر مرتفع",
+            saving: "التوفير",
+            bestStore: "أفضل متجر",
+            confidenceScore: "الثقة",
+            watchPrice: "مراقبة السعر",
+            linkUnavailable: "الرابط غير متوفر"
+        },
+        analysis: {
+            title: "🧠 تحليل Sage الذكي",
+            market: "السوق",
+            avgPrice: "متوسط السعر",
+            competitors: "عدد المنافسين",
+            deal: "الصفقة",
+            dealScore: "درجة الصفقة",
+            forecast: "التوقع",
+            trend: "الاتجاه",
+            expectedPrice: "سعر متوقع",
+            confidence: "ثقة",
+            trustRisks: "الثقة والمخاطر",
+            noClearRisks: "لا توجد مخاطر واضحة"
+        },
+        auth: {
+            title: "سجل دخولك لتبدأ البحث الذكي",
+            email: "البريد الإلكتروني",
+            password: "كلمة المرور",
+            login: "تسجيل دخول",
+            register: "إنشاء حساب",
+            or: "أو",
+            googleBtn: "متابعة باستخدام جوجل",
+            privacy: "سياسة الخصوصية",
+            terms: "شروط الاستخدام",
+            about: "من نحن",
+            logoutConfirm: "هل تريد تسجيل الخروج؟",
+            fillFields: "الرجاء إدخال البريد الإلكتروني وكلمة المرور",
+            loginFailed: "فشل تسجيل الدخول:",
+            userNotFound: "هذا الحساب غير موجود، يرجى إنشاء حساب جديد.",
+            wrongPassword: "كلمة المرور غير صحيحة.",
+            invalidEmail: "صيغة البريد الإلكتروني غير صحيحة.",
+            invalidCredential: "بيانات الاعتماد غير صالحة.",
+            registerFailed: "فشل إنشاء الحساب:",
+            emailInUse: "هذا البريد مسجل بالفعل، حاول تسجيل الدخول.",
+            weakPassword: "كلمة المرور يجب أن تكون 6 أحرف على الأقل",
+            registerSuccess: "تم إنشاء الحساب بنجاح! جاري الدخول..."
+        },
+        upgrade: {
+            title: "انتهت المحاولات المجانية",
+            message: "لقد استهلكت جميع عمليات البحث المجانية. يرجى تفعيل الاشتراك للمتابعة بدون حدود.",
+            upgradeBtn: "ترقية الآن",
+            successTitle: "🎉 تم تفعيل اشتراكك بنجاح!",
+            successMessage: "تم تفعيل اشتراك Findly Pro بنجاح. يمكنك الآن الوصول إلى جميع الميزات المتقدمة.",
+            thanks: "شكرًا لدعمك 🤍",
+            goToDashboard: "الانتقال إلى لوحة التحكم",
+            paymentUnavailable: "⚠️ خدمة الدفع غير متاحة",
+            paymentError: "❌ خطأ في خدمة الدفع"
+        },
+        voice: { notSupported: "متصفحك لا يدعم البحث الصوتي" },
+        invite: { text: "ادعُ أصدقاءك الآن ✨ — ميزات ومكافآت قادمة قريبًا 🎁 — كن من الأوائل 🚀", copied: "تم نسخ رابط الدعوة ✨", copyFailed: "لم يتم نسخ الرابط، انسخه يدويًا:\n" },
+        watch: { enterEmail: "أدخل إيميلك للتنبيه عند انخفاض السعر:", activated: "✅ تم تفعيل التنبيه بنجاح!", serverError: "❌ خطأ في السيرفر: ", connectionFailed: "❌ فشل الاتصال" }
+    },
+    en: {
+        ui: {
+            hero_tagline: "Smarter buying decisions start here",
+            title: "Sage Advisor",
+            sub: "Your smart shopping guide",
+            energy: "Sage Energy",
+            welcome: "Welcome,",
+            game: "Gaming",
+            beauty: "Beauty",
+            home: "Smart Home",
+            c1: "Phones",
+            c2: "Laptops",
+            c4: "Watches",
+            p_head: "Profile",
+            lbl_name: "Username",
+            lbl_budget: "Budget ($)",
+            buy: "Buy Now 🛒",
+            watch: "Watch Price 🔔",
+            over: "Over Budget!",
+            cheap: "Budget",
+            top: "Top Rated",
+            new: "Newest",
+            deep: "AI Deep Mode",
+            watchTitle: "Watch List",
+            why: "Why this choice?",
+            slow: "Server waking up.. wait",
+            noAttempts: "⚠️ No attempts left!",
+            analyze: "📊 Analysis",
+            close: "Close",
+            saveChanges: "Save Changes ✅",
+            searchPlaceholder: "Search for a product...",
+            noResults: "No results found",
+            errorFetching: "❌ Error fetching results",
+            affiliateOffer: "🔥 Special offer related to your search",
+            buyNowAffiliate: "🛒 Buy Now",
+            installApp: "📲 Install App",
+            installHint: "Press from browser menu then 'Add to Home Screen'",
+            namePlaceholder: "Enter your name...",
+            budgetPlaceholder: "Your maximum budget...",
+            settingsSaved: "Settings saved successfully!"
+        },
+        search: {
+            market: "Market",
+            avg_price: "Average price",
+            competitors: "Competitors",
+            value: "Deal value",
+            deal_score: "Deal score",
+            learning_on: "Analysis improves with usage",
+            learning_later: "Analysis is learning",
+            forecast: "Price forecast",
+            trend: { up: "Likely to rise", down: "Likely to drop", stable: "Stable" },
+            expected_price: "Expected price",
+            confidence: "Confidence",
+            trust: "Trust & risks",
+            no_risks: "No clear risks",
+            buy: "Buy",
+            analyze: "Analyze",
+            watch: "Watch",
+            after_discount: "After discount",
+            copy_coupon: "Copy coupon",
+            price: "Price",
+            timing: "Timing",
+            behavior: "Behavior",
+            excellent: "Excellent",
+            good: "Good",
+            weak: "Weak",
+            wait: "Wait",
+            mayRise: "May rise",
+            stableTxt: "Stable",
+            risk: "Risk",
+            safe: "Safe",
+            suitable: "Suitable",
+            general: "General",
+            smartDecision: "Smart decision: Buy now",
+            preferWait: "Better to wait",
+            waitPriceDrop: "Wait for price drop",
+            priceHigh: "Price is high",
+            saving: "Saving",
+            bestStore: "Best store",
+            confidenceScore: "Confidence",
+            watchPrice: "Watch Price",
+            linkUnavailable: "Link unavailable"
+        },
+        analysis: {
+            title: "🧠 Sage Smart Analysis",
+            market: "Market",
+            avgPrice: "Average price",
+            competitors: "Competitors",
+            deal: "Deal",
+            dealScore: "Deal score",
+            forecast: "Forecast",
+            trend: "Trend",
+            expectedPrice: "Expected price",
+            confidence: "Confidence",
+            trustRisks: "Trust & Risks",
+            noClearRisks: "No clear risks"
+        },
+        auth: {
+            title: "Sign in to start smart search",
+            email: "Email",
+            password: "Password",
+            login: "Sign In",
+            register: "Sign Up",
+            or: "or",
+            googleBtn: "Continue with Google",
+            privacy: "Privacy Policy",
+            terms: "Terms of Use",
+            about: "About Us",
+            logoutConfirm: "Do you want to logout?",
+            fillFields: "Please enter email and password",
+            loginFailed: "Login failed:",
+            userNotFound: "Account not found, please create a new account.",
+            wrongPassword: "Incorrect password.",
+            invalidEmail: "Invalid email format.",
+            invalidCredential: "Invalid credentials.",
+            registerFailed: "Registration failed:",
+            emailInUse: "This email is already registered, try signing in.",
+            weakPassword: "Password must be at least 6 characters",
+            registerSuccess: "Account created successfully! Signing in..."
+        },
+        upgrade: {
+            title: "Free searches exhausted",
+            message: "You have used all your free searches. Please upgrade to continue.",
+            upgradeBtn: "Upgrade now",
+            successTitle: "🎉 Subscription Activated!",
+            successMessage: "Your Findly Pro subscription is now active.",
+            thanks: "Thank you for supporting Findly 💙",
+            goToDashboard: "Go to Dashboard",
+            paymentUnavailable: "⚠️ Payment unavailable",
+            paymentError: "❌ Payment service error"
+        },
+        voice: { notSupported: "Your browser does not support voice search" },
+        invite: { text: "Invite your friends now ✨ — features & rewards coming soon 🎁 — be among the first 🚀", copied: "Invite link copied ✨", copyFailed: "Link not copied, copy manually:\n" },
+        watch: { enterEmail: "Enter your email for price alerts:", activated: "✅ Alert activated!", serverError: "❌ Server Error: ", connectionFailed: "❌ Connection failed" }
+    },
+    fr: {
+        ui: {
+            hero_tagline: "Des decisions d'achat plus intelligentes",
+            title: "Conseiller Sage",
+            sub: "Votre guide d'achat intelligent",
+            energy: "Energie Sage",
+            welcome: "Bienvenue,",
+            game: "Jeux",
+            beauty: "Beaute",
+            home: "Maison Intelligente",
+            c1: "Telephones",
+            c2: "Ordinateurs",
+            c4: "Montres",
+            p_head: "Profil",
+            lbl_name: "Nom d'utilisateur",
+            lbl_budget: "Budget ($)",
+            buy: "Acheter 🛒",
+            watch: "Surveiller 🔔",
+            over: "Hors budget!",
+            cheap: "Economique",
+            top: "Mieux notes",
+            new: "Nouveautes",
+            deep: "Mode IA Profonde",
+            watchTitle: "Liste de surveillance",
+            why: "Pourquoi ce choix?",
+            slow: "Le serveur se reveille..",
+            noAttempts: "⚠️ Plus d'essais!",
+            analyze: "📊 Analyse",
+            close: "Fermer",
+            saveChanges: "Enregistrer ✅",
+            searchPlaceholder: "Rechercher un produit...",
+            noResults: "Aucun resultat",
+            errorFetching: "❌ Erreur lors de la recuperation",
+            affiliateOffer: "🔥 Offre speciale",
+            buyNowAffiliate: "🛒 Acheter maintenant",
+            installApp: "📲 Installer l'application",
+            installHint: "Appuyez depuis le menu du navigateur puis 'Ajouter a l'ecran d'accueil'",
+            namePlaceholder: "Entrez votre nom...",
+            budgetPlaceholder: "Votre budget maximum...",
+            settingsSaved: "Parametres enregistres!"
+        },
+        search: {
+            market: "Marche",
+            avg_price: "Prix moyen",
+            competitors: "Concurrents",
+            value: "Valeur de l'offre",
+            deal_score: "Score de l'offre",
+            learning_on: "L'analyse s'ameliore",
+            learning_later: "Analyse en cours",
+            forecast: "Prevision de prix",
+            trend: { up: "Probablement hausse", down: "Probablement baisse", stable: "Stable" },
+            expected_price: "Prix attendu",
+            confidence: "Confiance",
+            trust: "Confiance et risques",
+            no_risks: "Aucun risque clair",
+            buy: "Acheter",
+            analyze: "Analyser",
+            watch: "Surveiller",
+            after_discount: "Apres remise",
+            copy_coupon: "Copier le coupon",
+            price: "Prix",
+            timing: "Timing",
+            behavior: "Comportement",
+            excellent: "Excellent",
+            good: "Bon",
+            weak: "Faible",
+            wait: "Attendre",
+            mayRise: "Peut augmenter",
+            stableTxt: "Stable",
+            risk: "Risque",
+            safe: "Sur",
+            suitable: "Adapte",
+            general: "General",
+            smartDecision: "Decision intelligente: Acheter",
+            preferWait: "Mieux vaut attendre",
+            waitPriceDrop: "Attendre une baisse",
+            priceHigh: "Prix eleve",
+            saving: "Economie",
+            bestStore: "Meilleur magasin",
+            confidenceScore: "Confiance",
+            watchPrice: "Surveiller le prix",
+            linkUnavailable: "Lien non disponible"
+        },
+        analysis: {
+            title: "🧠 Analyse Sage Intelligente",
+            market: "Marche",
+            avgPrice: "Prix moyen",
+            competitors: "Concurrents",
+            deal: "Offre",
+            dealScore: "Score de l'offre",
+            forecast: "Prevision",
+            trend: "Tendance",
+            expectedPrice: "Prix attendu",
+            confidence: "Confiance",
+            trustRisks: "Confiance et Risques",
+            noClearRisks: "Aucun risque clair"
+        },
+        auth: {
+            title: "Connectez-vous pour commencer",
+            email: "E-mail",
+            password: "Mot de passe",
+            login: "Se connecter",
+            register: "S'inscrire",
+            or: "ou",
+            googleBtn: "Continuer avec Google",
+            privacy: "Politique de confidentialite",
+            terms: "Conditions d'utilisation",
+            about: "A propos",
+            logoutConfirm: "Voulez-vous vous deconnecter?",
+            fillFields: "Veuillez entrer l'e-mail et le mot de passe",
+            loginFailed: "Echec de la connexion:",
+            userNotFound: "Compte non trouve.",
+            wrongPassword: "Mot de passe incorrect.",
+            invalidEmail: "Format d'e-mail invalide.",
+            invalidCredential: "Identifiants invalides.",
+            registerFailed: "Echec de l'inscription:",
+            emailInUse: "Cet e-mail est deja enregistre.",
+            weakPassword: "Le mot de passe doit contenir au moins 6 caracteres",
+            registerSuccess: "Compte cree avec succes!"
+        },
+        upgrade: {
+            title: "Recherches gratuites epuisees",
+            message: "Vous avez utilise toutes vos recherches gratuites.",
+            upgradeBtn: "Mettre a niveau",
+            successTitle: "🎉 Abonnement active!",
+            successMessage: "Votre abonnement Findly Pro est maintenant actif.",
+            thanks: "Merci pour votre soutien 💙",
+            goToDashboard: "Aller au tableau de bord",
+            paymentUnavailable: "⚠️ Paiement indisponible",
+            paymentError: "❌ Erreur du service de paiement"
+        },
+        voice: { notSupported: "Votre navigateur ne prend pas en charge la recherche vocale" },
+        invite: { text: "Invitez vos amis maintenant ✨ — fonctionnalites et recompenses bientot 🎁", copied: "Lien d'invitation copie ✨", copyFailed: "Lien non copie:\n" },
+        watch: { enterEmail: "Entrez votre e-mail pour les alertes:", activated: "✅ Alerte activee!", serverError: "❌ Erreur serveur: ", connectionFailed: "❌ Echec de la connexion" }
+    },
+    de: {
+        ui: {
+            hero_tagline: "Intelligentere Kaufentscheidungen",
+            title: "Weiser Berater",
+            sub: "Ihr intelligenter Einkaufsfuhrer",
+            energy: "Sage Energie",
+            welcome: "Willkommen,",
+            game: "Spiele",
+            beauty: "Schonheit",
+            home: "Smart Home",
+            c1: "Handys",
+            c2: "Laptops",
+            c4: "Uhren",
+            p_head: "Profil",
+            lbl_name: "Benutzername",
+            lbl_budget: "Budget ($)",
+            buy: "Jetzt kaufen 🛒",
+            watch: "Preis beobachten 🔔",
+            over: "Uber Budget!",
+            cheap: "Budget",
+            top: "Top bewertet",
+            new: "Neueste",
+            deep: "KI Tiefenmodus",
+            watchTitle: "Beobachtungsliste",
+            why: "Warum diese Wahl?",
+            slow: "Server startet..",
+            noAttempts: "⚠️ Keine Versuche mehr!",
+            analyze: "📊 Analyse",
+            close: "Schliessen",
+            saveChanges: "Speichern ✅",
+            searchPlaceholder: "Produkt suchen...",
+            noResults: "Keine Ergebnisse",
+            errorFetching: "❌ Fehler beim Abrufen",
+            affiliateOffer: "🔥 Sonderangebot",
+            buyNowAffiliate: "🛒 Jetzt kaufen",
+            installApp: "📲 App installieren",
+            installHint: "Drucken Sie im Browsermenue auf 'Zum Startbildschirm hinzufugen'",
+            namePlaceholder: "Geben Sie Ihren Namen ein...",
+            budgetPlaceholder: "Ihr maximales Budget...",
+            settingsSaved: "Einstellungen gespeichert!"
+        },
+        search: {
+            market: "Markt",
+            avg_price: "Durchschnittspreis",
+            competitors: "Wettbewerber",
+            value: "Angebotswert",
+            deal_score: "Angebotsbewertung",
+            learning_on: "Analyse verbessert sich",
+            learning_later: "Analyse lernt",
+            forecast: "Preisprognose",
+            trend: { up: "Wahrscheinlich steigend", down: "Wahrscheinlich fallend", stable: "Stabil" },
+            expected_price: "Erwarteter Preis",
+            confidence: "Vertrauen",
+            trust: "Vertrauen & Risiken",
+            no_risks: "Keine klaren Risiken",
+            buy: "Kaufen",
+            analyze: "Analysieren",
+            watch: "Beobachten",
+            after_discount: "Nach Rabatt",
+            copy_coupon: "Gutschein kopieren",
+            price: "Preis",
+            timing: "Zeitpunkt",
+            behavior: "Verhalten",
+            excellent: "Ausgezeichnet",
+            good: "Gut",
+            weak: "Schwach",
+            wait: "Warten",
+            mayRise: "Kann steigen",
+            stableTxt: "Stabil",
+            risk: "Risiko",
+            safe: "Sicher",
+            suitable: "Geeignet",
+            general: "Allgemein",
+            smartDecision: "Kluge Entscheidung: Jetzt kaufen",
+            preferWait: "Besser warten",
+            waitPriceDrop: "Auf Preissturz warten",
+            priceHigh: "Preis ist hoch",
+            saving: "Ersparnis",
+            bestStore: "Bester Laden",
+            confidenceScore: "Vertrauen",
+            watchPrice: "Preis beobachten",
+            linkUnavailable: "Link nicht verfugbar"
+        },
+        analysis: {
+            title: "🧠 Sage Intelligente Analyse",
+            market: "Markt",
+            avgPrice: "Durchschnittspreis",
+            competitors: "Wettbewerber",
+            deal: "Angebot",
+            dealScore: "Angebotsbewertung",
+            forecast: "Prognose",
+            trend: "Trend",
+            expectedPrice: "Erwarteter Preis",
+            confidence: "Vertrauen",
+            trustRisks: "Vertrauen & Risiken",
+            noClearRisks: "Keine klaren Risiken"
+        },
+        auth: {
+            title: "Anmelden um intelligentes Suchen zu starten",
+            email: "E-Mail",
+            password: "Passwort",
+            login: "Anmelden",
+            register: "Registrieren",
+            or: "oder",
+            googleBtn: "Mit Google fortfahren",
+            privacy: "Datenschutz",
+            terms: "Nutzungsbedingungen",
+            about: "Uber uns",
+            logoutConfirm: "Mochten Sie sich abmelden?",
+            fillFields: "Bitte E-Mail und Passwort eingeben",
+            loginFailed: "Anmeldung fehlgeschlagen:",
+            userNotFound: "Konto nicht gefunden.",
+            wrongPassword: "Falsches Passwort.",
+            invalidEmail: "Ungultiges E-Mail-Format.",
+            invalidCredential: "Ungultige Anmeldedaten.",
+            registerFailed: "Registrierung fehlgeschlagen:",
+            emailInUse: "Diese E-Mail ist bereits registriert.",
+            weakPassword: "Passwort muss mindestens 6 Zeichen haben",
+            registerSuccess: "Konto erfolgreich erstellt!"
+        },
+        upgrade: {
+            title: "Kostenlose Suchvorgange aufgebraucht",
+            message: "Sie haben alle kostenlosen Suchvorgange verwendet.",
+            upgradeBtn: "Jetzt upgraden",
+            successTitle: "🎉 Abonnement aktiviert!",
+            successMessage: "Ihr Findly Pro-Abonnement ist jetzt aktiv.",
+            thanks: "Danke fur Ihre Unterstutzung 💙",
+            goToDashboard: "Zum Dashboard",
+            paymentUnavailable: "⚠️ Zahlung nicht verfugbar",
+            paymentError: "❌ Zahlungsfehler"
+        },
+        voice: { notSupported: "Ihr Browser unterstutzt keine Sprachsuche" },
+        invite: { text: "Lade jetzt deine Freunde ein ✨ — neue Funktionen & Belohnungen bald 🎁", copied: "Einladungslink kopiert ✨", copyFailed: "Link nicht kopiert:\n" },
+        watch: { enterEmail: "E-Mail fur Preisalarm eingeben:", activated: "✅ Alarm aktiviert!", serverError: "❌ Serverfehler: ", connectionFailed: "❌ Verbindung fehlgeschlagen" }
+    },
+    es: {
+        ui: {
+            hero_tagline: "Las decisiones de compra mas inteligentes",
+            title: "Consejero Sabio",
+            sub: "Tu guia de compras inteligente",
+            energy: "Energia Sage",
+            welcome: "Bienvenido,",
+            game: "Juegos",
+            beauty: "Belleza",
+            home: "Hogar Inteligente",
+            c1: "Telefonos",
+            c2: "Laptops",
+            c4: "Relojes",
+            p_head: "Perfil",
+            lbl_name: "Nombre de usuario",
+            lbl_budget: "Presupuesto ($)",
+            buy: "Comprar ahora 🛒",
+            watch: "Vigilar precio 🔔",
+            over: "Fuera de presupuesto!",
+            cheap: "Economico",
+            top: "Mejor valorados",
+            new: "Mas nuevos",
+            deep: "Modo IA Profundo",
+            watchTitle: "Lista de seguimiento",
+            why: "Por que esta eleccion?",
+            slow: "El servidor se esta despertando..",
+            noAttempts: "⚠️ No quedan intentos!",
+            analyze: "📊 Analisis",
+            close: "Cerrar",
+            saveChanges: "Guardar cambios ✅",
+            searchPlaceholder: "Buscar un producto...",
+            noResults: "No se encontraron resultados",
+            errorFetching: "❌ Error al obtener resultados",
+            affiliateOffer: "🔥 Oferta especial",
+            buyNowAffiliate: "🛒 Comprar ahora",
+            installApp: "📲 Instalar app",
+            installHint: "Pulsa desde el menu del navegador luego 'Anadir a pantalla de inicio'",
+            namePlaceholder: "Ingresa tu nombre...",
+            budgetPlaceholder: "Tu presupuesto maximo...",
+            settingsSaved: "Configuracion guardada!"
+        },
+        search: {
+            market: "Mercado",
+            avg_price: "Precio promedio",
+            competitors: "Competidores",
+            value: "Valor de oferta",
+            deal_score: "Puntuacion de oferta",
+            learning_on: "El analisis mejora con el uso",
+            learning_later: "Analisis aprendiendo",
+            forecast: "Pronostico de precios",
+            trend: { up: "Probable subida", down: "Probable bajada", stable: "Estable" },
+            expected_price: "Precio esperado",
+            confidence: "Confianza",
+            trust: "Confianza y riesgos",
+            no_risks: "Sin riesgos claros",
+            buy: "Comprar",
+            analyze: "Analizar",
+            watch: "Vigilar",
+            after_discount: "Despues del descuento",
+            copy_coupon: "Copiar cupon",
+            price: "Precio",
+            timing: "Momento",
+            behavior: "Comportamiento",
+            excellent: "Excelente",
+            good: "Bueno",
+            weak: "Debil",
+            wait: "Esperar",
+            mayRise: "Puede subir",
+            stableTxt: "Estable",
+            risk: "Riesgo",
+            safe: "Seguro",
+            suitable: "Adecuado",
+            general: "General",
+            smartDecision: "Decision inteligente: Comprar ahora",
+            preferWait: "Mejor esperar",
+            waitPriceDrop: "Esperar bajada de precio",
+            priceHigh: "Precio alto",
+            saving: "Ahorro",
+            bestStore: "Mejor tienda",
+            confidenceScore: "Confianza",
+            watchPrice: "Vigilar precio",
+            linkUnavailable: "Enlace no disponible"
+        },
+        analysis: {
+            title: "🧠 Analisis Inteligente Sage",
+            market: "Mercado",
+            avgPrice: "Precio promedio",
+            competitors: "Competidores",
+            deal: "Oferta",
+            dealScore: "Puntuacion de oferta",
+            forecast: "Pronostico",
+            trend: "Tendencia",
+            expectedPrice: "Precio esperado",
+            confidence: "Confianza",
+            trustRisks: "Confianza y Riesgos",
+            noClearRisks: "Sin riesgos claros"
+        },
+        auth: {
+            title: "Inicia sesion para comenzar",
+            email: "Correo electronico",
+            password: "Contrasena",
+            login: "Iniciar sesion",
+            register: "Registrarse",
+            or: "o",
+            googleBtn: "Continuar con Google",
+            privacy: "Politica de privacidad",
+            terms: "Terminos de uso",
+            about: "Acerca de",
+            logoutConfirm: "Desea cerrar sesion?",
+            fillFields: "Por favor ingrese correo y contrasena",
+            loginFailed: "Error de inicio de sesion:",
+            userNotFound: "Cuenta no encontrada.",
+            wrongPassword: "Contrasena incorrecta.",
+            invalidEmail: "Formato de correo invalido.",
+            invalidCredential: "Credenciales invalidas.",
+            registerFailed: "Error de registro:",
+            emailInUse: "Este correo ya esta registrado.",
+            weakPassword: "La contrasena debe tener al menos 6 caracteres",
+            registerSuccess: "Cuenta creada exitosamente!"
+        },
+        upgrade: {
+            title: "Busquedas gratuitas agotadas",
+            message: "Has usado todas tus busquedas gratuitas.",
+            upgradeBtn: "Actualizar ahora",
+            successTitle: "🎉 Suscripcion activada!",
+            successMessage: "Tu suscripcion Findly Pro esta ahora activa.",
+            thanks: "Gracias por tu apoyo 💙",
+            goToDashboard: "Ir al panel",
+            paymentUnavailable: "⚠️ Pago no disponible",
+            paymentError: "❌ Error del servicio de pago"
+        },
+        voice: { notSupported: "Tu navegador no soporta busqueda por voz" },
+        invite: { text: "Invita a tus amigos ahora ✨ — funciones y recompensas proximamente 🎁", copied: "Enlace de invitacion copiado ✨", copyFailed: "Enlace no copiado:\n" },
+        watch: { enterEmail: "Ingresa tu email para alertas:", activated: "✅ Alerta activada!", serverError: "❌ Error del servidor: ", connectionFailed: "❌ Conexion fallida" }
+    },
+    tr: {
+        ui: {
+            hero_tagline: "Daha akilli satin alma kararları",
+            title: "Bilge Danisman",
+            sub: "Akilli alisveris rehberiniz",
+            energy: "Sage Enerjisi",
+            welcome: "Hos geldiniz,",
+            game: "Oyunlar",
+            beauty: "Guzellik",
+            home: "Akilli Ev",
+            c1: "Telefonlar",
+            c2: "Laptoplar",
+            c4: "Saatler",
+            p_head: "Profil",
+            lbl_name: "Kullanici adi",
+            lbl_budget: "Butce ($)",
+            buy: "Simdi al 🛒",
+            watch: "Fiyati izle 🔔",
+            over: "Butceyi asiyor!",
+            cheap: "Ekonomik",
+            top: "En cok oylanan",
+            new: "En yeniler",
+            deep: "YA Derin Modu",
+            watchTitle: "Izleme listesi",
+            why: "Neden bu secim?",
+            slow: "Sunucu uyanıyor..",
+            noAttempts: "⚠️ Deneme hakki kalmadi!",
+            analyze: "📊 Analiz",
+            close: "Kapat",
+            saveChanges: "Degisiklikleri kaydet ✅",
+            searchPlaceholder: "Urun ara...",
+            noResults: "Sonuc bulunamadi",
+            errorFetching: "❌ Sonuclar alinirken hata",
+            affiliateOffer: "🔥 Ozel teklif",
+            buyNowAffiliate: "🛒 Simdi al",
+            installApp: "📲 Uygulamayi yukle",
+            installHint: "Tarayici menusunden 'Ana ekrana ekle' secenegine basin",
+            namePlaceholder: "Adinizi girin...",
+            budgetPlaceholder: "Maksimum butceniz...",
+            settingsSaved: "Ayarlar kaydedildi!"
+        },
+        search: {
+            market: "Pazar",
+            avg_price: "Ortalama fiyat",
+            competitors: "Rakipler",
+            value: "Teklif degeri",
+            deal_score: "Teklif puani",
+            learning_on: "Analiz kullanimla gelisir",
+            learning_later: "Analiz ogreniyor",
+            forecast: "Fiyat tahmini",
+            trend: { up: "Muhtemelen artacak", down: "Muhtemelen dusecek", stable: "Kararli" },
+            expected_price: "Beklenen fiyat",
+            confidence: "Guven",
+            trust: "Guven ve riskler",
+            no_risks: "Acik risk yok",
+            buy: "Satin al",
+            analyze: "Analiz et",
+            watch: "Izle",
+            after_discount: "Indirim sonrasi",
+            copy_coupon: "Kuponu kopyala",
+            price: "Fiyat",
+            timing: "Zamanlama",
+            behavior: "Davranis",
+            excellent: "Mukemmel",
+            good: "Iyi",
+            weak: "Zayif",
+            wait: "Bekle",
+            mayRise: "Artabilir",
+            stableTxt: "Kararli",
+            risk: "Risk",
+            safe: "Guvenli",
+            suitable: "Uygun",
+            general: "Genel",
+            smartDecision: "Akilli karar: Simdi al",
+            preferWait: "Beklemek daha iyi",
+            waitPriceDrop: "Fiyat dususunu bekle",
+            priceHigh: "Fiyat yuksek",
+            saving: "Tasarruf",
+            bestStore: "En iyi magaza",
+            confidenceScore: "Guven",
+            watchPrice: "Fiyati izle",
+            linkUnavailable: "Baglanti mevcut degil"
+        },
+        analysis: {
+            title: "🧠 Sage Akilli Analiz",
+            market: "Pazar",
+            avgPrice: "Ortalama fiyat",
+            competitors: "Rakipler",
+            deal: "Teklif",
+            dealScore: "Teklif puani",
+            forecast: "Tahmin",
+            trend: "Trend",
+            expectedPrice: "Beklenen fiyat",
+            confidence: "Guven",
+            trustRisks: "Guven ve Riskler",
+            noClearRisks: "Acik risk yok"
+        },
+        auth: {
+            title: "Akilli aramayi baslatmak icin giris yapin",
+            email: "E-posta",
+            password: "Sifre",
+            login: "Giris yap",
+            register: "Kayit ol",
+            or: "veya",
+            googleBtn: "Google ile devam et",
+            privacy: "Gizlilik Politikasi",
+            terms: "Kullanim Sartlari",
+            about: "Hakkimizda",
+            logoutConfirm: "Cikis yapmak istiyor musunuz?",
+            fillFields: "Lutfen e-posta ve sifre girin",
+            loginFailed: "Giris basarisiz:",
+            userNotFound: "Hesap bulunamadi.",
+            wrongPassword: "Yanlis sifre.",
+            invalidEmail: "Gecersiz e-posta formati.",
+            invalidCredential: "Gecersiz kimlik bilgileri.",
+            registerFailed: "Kayit basarisiz:",
+            emailInUse: "Bu e-posta zaten kayitli.",
+            weakPassword: "Sifre en az 6 karakter olmali",
+            registerSuccess: "Hesap basariyla olusturuldu!"
+        },
+        upgrade: {
+            title: "Ucretsiz aramalar tukendi",
+            message: "Tum ucretsiz aramalarinizi kullandiniz.",
+            upgradeBtn: "Simdi yukselt",
+            successTitle: "🎉 Abonelik aktiflestirildi!",
+            successMessage: "Findly Pro aboneliginiz artik aktif.",
+            thanks: "Desteginiz icin tesekkurler 💙",
+            goToDashboard: "Kontrol paneline git",
+            paymentUnavailable: "⚠️ Odeme mevcut degil",
+            paymentError: "❌ Odeme servisi hatasi"
+        },
+        voice: { notSupported: "Tarayiciniz sesli aramayi desteklemiyor" },
+        invite: { text: "Arkadaslarinizi simdi davet edin ✨ — yakinda ozellikler ve oduller 🎁", copied: "Davet linki kopyalandi ✨", copyFailed: "Link kopyalanmadi:\n" },
+        watch: { enterEmail: "Fiyat uyarilari icin e-postanizi girin:", activated: "✅ Uyari aktiflestirildi!", serverError: "❌ Sunucu hatasi: ", connectionFailed: "❌ Baglanti basarisiz" }
+    }
+};
+
+let lang = localStorage.getItem('findly_lang') || 'ar';
+let savedAttempts = localStorage.getItem('findly_attempts');
+let attempts = (savedAttempts !== null) ? parseInt(savedAttempts) : 3;
+if (savedAttempts === null) localStorage.setItem('findly_attempts', 3);
+let watchList = JSON.parse(localStorage.getItem('findly_watch')) || [];
+
+function t(key) {
+    const keys = key.split('.');
+    let value = dict[lang];
+    for (const k of keys) { value = value?.[k]; }
+    return value || key;
+}
+
+function updateInviteText() {
+    const el = document.getElementById("inviteText");
+    if (el) el.textContent = t('invite.text');
+}
+
+async function openUpgrade() {
+    const uid = localStorage.getItem("findly_uid") || ("guest_" + Date.now());
+    const upgradeDict = dict[lang]?.upgrade || dict.ar.upgrade;
+    try {
+        const res = await fetch("https://findly-api.onrender.com/create-payment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ uid })
+        });
+        const data = await res.json();
+        if (data.url) { window.open(data.url, "_blank"); }
+        else { alert(upgradeDict.paymentUnavailable); }
+    } catch (e) { alert(upgradeDict.paymentError); }
+}
+
+function applyCoupon(price, coupon) {
+    if (!price || !coupon) return price;
+    let final = price;
+    if (coupon.type === 'percent') { final = price - (price * coupon.discount / 100); }
+    if (coupon.type === 'fixed') { final = price - coupon.discount; }
+    return Math.max(final, 0).toFixed(2);
+}
+
+function pickBestCoupon(price, coupons = []) {
+    if (!price || !coupons.length) return null;
+    let best = null;
+    let bestPrice = price;
+    coupons.forEach(c => {
+        const discounted = parseFloat(applyCoupon(price, c));
+        if (discounted < bestPrice) { bestPrice = discounted; best = c; }
+    });
+    return best;
+}
+
+async function runSearch() {
+    const q = document.getElementById('s-input').value.trim();
+    const status = document.getElementById('status');
+    const resultsBox = document.getElementById('results');
+    if (!q) return;
+    const T = dict[lang]?.search || dict.en.search;
+    const UI = dict[lang]?.ui || dict.en.ui;
+    status.style.display = 'block';
+    status.innerText = '🔍 ...';
+    resultsBox.innerHTML = '';
+    const userBudget = parseFloat(localStorage.getItem('user_budget')) || 0;
+    try {
+        const res = await fetch(`${API}/search?q=${encodeURIComponent(q)}&lang=${lang}&uid=${localStorage.getItem('findly_uid')}`);
+        const data = await res.json();
+        status.style.display = 'none';
+        if (data.error === 'ENERGY_EMPTY') {
+            const upgradeDict = dict[lang]?.upgrade || dict.ar.upgrade;
+            status.style.display = 'block';
+            status.innerHTML = `<div class="upgrade-section"><h3>${upgradeDict.title}</h3><p style="font-size:0.95rem; opacity:0.9">${upgradeDict.message}</p><button class="upgrade-btn" onclick="openUpgrade()">${upgradeDict.upgradeBtn}</button></div>`;
+            return;
+        }
+        if (!data.results) { status.style.display = 'block'; status.innerText = UI.noResults; return; }
+        if (data.results && data.results.length > 0) { updateAffiliateCard(data.results[0]); }
+        data.results.forEach(p => {
+            const intel = p.intelligence || {};
+            const verdict = intel.finalVerdict || {};
+            const priceIntel = intel.priceIntel || {};
+            const valueIntel = intel.valueIntel || {};
+            const forecast = intel.forecastIntel || {};
+            const trust = intel.trustIntel || {};
+            let strategicBadge = '';
+            let strategicColor = '#3b82f6';
+            if (verdict.decision === 'BUY_NOW') { strategicBadge = '🟢 ' + T.smartDecision; strategicColor = '#10b981'; }
+            else if (verdict.decision === 'WAIT') { strategicBadge = '⏳ ' + T.preferWait; strategicColor = '#f59e0b'; }
+            else if (verdict.decision === 'WAIT_PRICE_DROP') { strategicBadge = '📉 ' + T.waitPriceDrop; strategicColor = '#6366f1'; }
+            else if (verdict.decision === 'OVERPRICED') { strategicBadge = '🔴 ' + T.priceHigh; strategicColor = '#ef4444'; }
+            const bestLink = p.intelligence?.finalVerdict?.bestLink || p.link;
+            const safeLink = typeof bestLink === "string" && bestLink.startsWith("http") ? bestLink : null;
+            let budgetClass = '';
+            let budgetBadge = '';
+            const priceVal = parseFloat(String(p.price).replace(/[^\d.]/g, '')) || 0;
+            if (userBudget > 0 && priceVal > userBudget) { budgetClass = 'over-budget'; budgetBadge = `<div class="budget-alert">⚠️ ${UI.over}</div>`; }
+            const card = document.createElement('div');
+            card.className = `product-card ${budgetClass}`;
+            const coupons = p.coupons || [];
+            const numericPrice = priceVal;
+            const bestCoupon = (numericPrice && coupons.length) ? pickBestCoupon(numericPrice, coupons) : null;
+            const discountedPrice = (numericPrice && bestCoupon) ? applyCoupon(numericPrice, bestCoupon) : null;
+            let priceEval = T.weak;
+            if (priceIntel.score >= 70) priceEval = T.excellent;
+            else if (priceIntel.score >= 50) priceEval = T.good;
+            let timingEval = T.stableTxt;
+            if (forecast.trend === 'down') timingEval = T.wait;
+            else if (forecast.trend === 'up') timingEval = T.mayRise;
+            let trustEval = T.safe;
+            if ((trust.riskScore || 0) > 50) trustEval = T.risk;
+            let behaviorEval = T.general;
+            if ((valueIntel.learningBoost || 0) > 0) behaviorEval = T.suitable;
+            card.innerHTML = `
+            ${budgetBadge}
+            <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/200'">
+            <h3>${p.title || '—'}</h3>
+            <div class="price">${bestCoupon && discountedPrice ? `<span class="old-price">$${numericPrice}</span><span class="new-price">$${discountedPrice}</span>` : `$${numericPrice || '-'}`}</div>
+            <div class="sage-quick-brains">
+                <div class="brain-item good">💰 ${T.price} <span>${priceEval}</span></div>
+                <div class="brain-item ${forecast.trend === 'down' ? 'wait' : forecast.trend === 'up' ? 'buy' : 'neutral'}">📈 ${T.timing} <span>${timingEval}</span></div>
+                <div class="brain-item ${(trust.riskScore || 0) > 50 ? 'risk' : 'safe'}">🛡️ ${T.confidence} <span>${trustEval}</span></div>
+                <div class="brain-item learn">🧠 ${T.behavior} <span>${behaviorEval}</span></div>
+            </div>
+            <div class="analysis-engine"><span class="analysis-label">${verdict.emoji || '🤖'} ${verdict.title || ''}</span><div>${verdict.reason || ''}</div></div>
+            ${verdict.decision ? `<div style="margin-top:10px; padding:10px; border-radius:10px; background:rgba(255,255,255,0.05); border:1px solid ${strategicColor};"><div style="font-weight:bold; color:${strategicColor}; margin-bottom:6px;">${strategicBadge}</div><div style="font-size:0.9rem; opacity:0.9;">${verdict.reason || ''}</div>${verdict.savingPercent ? `<div style="margin-top:5px;">💰 ${T.saving}: <strong>${verdict.savingPercent}%</strong></div>` : ''}${verdict.bestStore ? `<div style="margin-top:5px;">🏪 ${T.bestStore}: <strong>${verdict.bestStore}</strong>${verdict.bestPrice ? ` - $${verdict.bestPrice}` : ''}</div>` : ''}<div style="margin-top:5px;">🎯 ${T.confidenceScore}: <strong>${verdict.confidence || 0}%</strong></div></div>` : ''}
+            ${bestCoupon ? `<div class="coupon-box">🎟️ <strong>${bestCoupon.code}</strong> (${bestCoupon.type === 'percent' ? `-${bestCoupon.discount}%` : `-$${bestCoupon.discount}`})<div style="font-size:0.9rem; margin-top:5px;">${T.after_discount}: <strong>$${discountedPrice}</strong></div><button class="action-btn" onclick="navigator.clipboard.writeText('${bestCoupon.code}')" style="background:#10b981; color:white; padding:5px 10px; font-size:0.8rem; margin-top:5px;">${T.copy_coupon}</button></div>` : ''}
+            <div class="intel-section"><h4>📊 ${T.market}</h4><p>${T.avg_price}: <strong>${priceIntel.average ? `$${priceIntel.average}` : '—'}</strong></p><p>${T.competitors}: <strong>${valueIntel.competitors || 0}</strong></p></div>
+            <div class="intel-section"><h4>💎 ${T.value}</h4><p>${T.deal_score}: <strong>${valueIntel.score || 0}%</strong></p><p>${valueIntel.learningBoost > 0 ? T.learning_on : T.learning_later}</p></div>
+            <div class="intel-section"><h4>🔮 ${T.forecast}</h4><p>${T.trend[forecast.trend] || T.trend.stable}</p><p>${T.expected_price}: <strong>$${forecast.expectedPrice || '—'}</strong></p><p>${T.confidence}: <strong>${Math.round((forecast.confidence || 0) * 100)}%</strong></p></div>
+            <div class="intel-section"><h4>⚠️ ${T.trust}</h4>${trust.warnings && trust.warnings.length ? `<ul>${trust.warnings.map(w => `<li>${w}</li>`).join('')}</ul>` : `<p>✅ ${T.no_risks}</p>`}</div>
+            <button class="action-btn watch" onclick="addToWatch('${p.title.replace(/'/g,"\\'")}','${numericPrice}','${safeLink || ""}')" style="width:100%; margin-top:10px; background:#f59e0b; color:white;">🔔 ${T.watchPrice}</button>
+            ${safeLink ? `<a class="action-btn buy-now" href="https://findly-api.onrender.com/go?url=${encodeURIComponent(safeLink)}" target="_blank" rel="noopener noreferrer" style="display:flex; margin-top:10px;">${T.buy}</a>` : `<button class="action-btn buy-now disabled" disabled style="margin-top:10px;">${T.linkUnavailable}</button>`}
+            <button class="action-btn analyze-btn" style="width:100%; margin-top:10px;" data-verdict="${encodeURIComponent(JSON.stringify(verdict))}" data-price="${encodeURIComponent(JSON.stringify(priceIntel))}" data-value="${encodeURIComponent(JSON.stringify(valueIntel))}" data-forecast="${encodeURIComponent(JSON.stringify(forecast))}" data-trust="${encodeURIComponent(JSON.stringify(trust))}" onclick="openAnalysisFromBtn(this)">${T.analyze}</button>`;
+            resultsBox.appendChild(card);
+        });
+    } catch (e) { console.error(e); status.style.display = 'block'; status.innerText = UI.errorFetching; }
+}
+
+async function addToWatch(name, price, link) {
+    const watchDict = dict[lang]?.watch || dict.ar.watch;
+    const userEmail = prompt(watchDict.enterEmail);
+    if (!userEmail || !userEmail.includes("@")) return;
+    let uid = localStorage.getItem('findly_uid') || 'guest';
+    let numericPrice = parseFloat(String(price).replace(/[^\d.]/g, '')) || 0;
+    let targetPrice = numericPrice * 0.9;
+    try {
+        const response = await fetch(`${API}/alerts`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: userEmail, productName: name, targetPrice: targetPrice, currentPrice: numericPrice, productLink: link, lang: lang, uid: uid }) });
+        if (response.ok) { alert(watchDict.activated); } else { alert(watchDict.serverError + response.status); }
+    } catch (error) { alert(watchDict.connectionFailed); }
+}
+
+function getInviteLink() { const uid = localStorage.getItem('findly_uid') || 'guest'; return `${location.origin}${location.pathname}?ref=${uid}`; }
+
+function copyInvite() {
+    const link = getInviteLink();
+    const inviteDict = dict[lang]?.invite || dict.ar.invite;
+    navigator.clipboard.writeText(link).then(() => { alert(inviteDict.copied); }).catch(() => { alert(inviteDict.copyFailed + link); });
+}
+
+function openAnalysisFromBtn(btn) {
+    try {
+        const data = { verdict: JSON.parse(decodeURIComponent(btn.dataset.verdict)), priceIntel: JSON.parse(decodeURIComponent(btn.dataset.price)), valueIntel: JSON.parse(decodeURIComponent(btn.dataset.value)), forecastIntel: JSON.parse(decodeURIComponent(btn.dataset.forecast)), trustIntel: JSON.parse(decodeURIComponent(btn.dataset.trust)) };
+        const AT = dict[lang]?.analysis || dict.ar.analysis;
+        const modal = document.getElementById('analysis-modal');
+        const body = document.getElementById('analysis-content-body');
+        body.innerHTML = `<h3>${AT.title}</h3><hr><p><strong>📊 ${AT.market}</strong></p><ul><li>${AT.avgPrice}: $${data.priceIntel.average ?? '—'}</li><li>${AT.competitors}: ${data.valueIntel.competitors ?? 0}</li></ul><p><strong>💎 ${AT.deal}</strong></p><ul><li>${AT.dealScore}: ${data.valueIntel.score ?? 0}%</li></ul><p><strong>🔮 ${AT.forecast}</strong></p><ul><li>${AT.trend}: ${data.forecastIntel.trend}</li><li>${AT.expectedPrice}: $${data.forecastIntel.expectedPrice}</li><li>${AT.confidence}: ${Math.round(data.forecastIntel.confidence * 100)}%</li></ul><p><strong>⚠️ ${AT.trustRisks}</strong></p>${data.trustIntel.warnings.length ? `<ul>${data.trustIntel.warnings.map(w => `<li>${w}</li>`).join('')}</ul>` : `<p>${AT.noClearRisks}</p>`}`;
+        modal.style.display = 'flex';
+    } catch (e) { console.error("Error parsing analysis data", e); }
+}
+
+function saveSet() {
+    localStorage.setItem('fn', document.getElementById('in-name').value);
+    localStorage.setItem('user_budget', document.getElementById('in-budget').value);
+    document.getElementById('p-modal').style.display = 'none';
+    update();
+}
+function toggleMode() { document.body.classList.toggle('light-mode'); }
+function toggleLMenu() { const m = document.getElementById('l-menu'); m.style.display = (m.style.display === 'block') ? 'none' : 'block'; }
+function setLang(l) { lang = l; localStorage.setItem('findly_lang', l); toggleLMenu(); update(); }
+function openProfile() { document.getElementById('p-modal').style.display = 'flex'; document.getElementById('in-name').value = localStorage.getItem('fn') || ''; document.getElementById('in-budget').value = localStorage.getItem('user_budget') || ''; }
+function quickSearch(q) { document.getElementById('s-input').value = q; runSearch(); }
+function quickFilter(type) { document.getElementById('s-input').value += " " + type; }
+function toggleWatchList() { const m = document.getElementById('w-modal'); m.style.display = (m.style.display === 'flex') ? 'none' : 'flex'; }
+
+function update() {
+    const d = dict[lang] || dict['en'] || dict['ar'];
+    if (!d) return;
+    const userName = localStorage.getItem('fn') || (lang === 'ar' ? 'أيها الباحث' : 'Seeker');
+    updateInviteText();
+    document.getElementById('txt-energy').innerText = d.ui.energy;
+    document.getElementById('greeting').innerText = d.ui.welcome + " " + userName;
+    document.getElementById('txt-title').innerText = d.ui.title;
+    document.getElementById('txt-sub').innerText = d.ui.sub;
+    document.getElementById('hero-tagline').innerText = d.ui.hero_tagline;
+    document.getElementById('txt-deep').innerText = d.ui.deep;
+    document.getElementById('tag-cheap').innerText = d.ui.cheap;
+    document.getElementById('tag-top').innerText = d.ui.top;
+    document.getElementById('tag-new').innerText = d.ui.new;
+    document.getElementById('p-head').innerText = d.ui.p_head;
+    document.getElementById('lbl-name').innerText = d.ui.lbl_name;
+    document.getElementById('lbl-budget').innerText = d.ui.lbl_budget;
+    document.getElementById('cat-game').innerText = d.ui.game;
+    document.getElementById('cat-beauty').innerText = d.ui.beauty;
+    document.getElementById('cat-home').innerText = d.ui.home;
+    document.getElementById('cat-c1').innerText = d.ui.c1;
+    document.getElementById('cat-c2').innerText = d.ui.c2;
+    document.getElementById('cat-c4').innerText = d.ui.c4;
+    document.getElementById('txt-watch-title').innerText = d.ui.watchTitle;
+    document.getElementById('s-input').placeholder = d.ui.searchPlaceholder;
+    document.getElementById('auth-title').innerText = d.auth.title;
+    document.getElementById('auth-email').placeholder = d.auth.email;
+    document.getElementById('auth-password').placeholder = d.auth.password;
+    document.getElementById('btn-login').innerText = d.auth.login;
+    document.getElementById('btn-register').innerText = d.auth.register;
+    document.getElementById('txt-or').innerText = d.auth.or;
+    document.getElementById('txt-google-btn').innerText = d.auth.googleBtn;
+    document.getElementById('link-privacy').innerText = d.auth.privacy;
+    document.getElementById('link-terms').innerText = d.auth.terms;
+    document.getElementById('link-about').innerText = d.auth.about;
+    document.getElementById('footer-privacy').innerText = d.auth.privacy;
+    document.getElementById('footer-terms').innerText = d.auth.terms;
+    document.getElementById('footer-about').innerText = d.auth.about;
+    document.getElementById('btn-save-settings').innerText = d.ui.saveChanges;
+    document.getElementById('btn-close-profile').innerText = d.ui.close;
+    document.getElementById('btn-close-watch').innerText = d.ui.close;
+    document.getElementById('btn-close-analysis').innerText = d.ui.close;
+    document.getElementById('analysis-modal-title').innerText = d.analysis.title;
+    document.getElementById('in-name').placeholder = d.ui.namePlaceholder;
+    document.getElementById('in-budget').placeholder = d.ui.budgetPlaceholder;
+    document.getElementById('aff-offer').innerText = d.ui.affiliateOffer;
+    document.getElementById('affBtn').innerText = d.ui.buyNowAffiliate;
+    document.getElementById('main-html').lang = lang;
+    document.getElementById('main-html').dir = (lang === 'ar') ? 'rtl' : 'ltr';
+}
+
+function updateAffiliateCard(product) {
+    const affiliateBase = "https://s.click.aliexpress.com/e/_c3Ol2SAb";
+    const safeLink = product.intelligence?.finalVerdict?.bestLink || product.link;
+    document.getElementById("affImage").src = product.thumbnail || product.image;
+    document.getElementById("affTitle").innerText = product.title;
+    document.getElementById("affBtn").href = affiliateBase + "?redirect=" + encodeURIComponent(safeLink);
+    document.getElementById("affiliateCard").style.display = "block";
+}
+
+function startVoice() {
+    const voiceDict = dict[lang]?.voice || dict.ar.voice;
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) { alert(voiceDict.notSupported); return; }
+    const recognition = new SpeechRecognition();
+    const micBtn = document.getElementById('mic-btn');
+    const input = document.getElementById('s-input');
+    recognition.lang = lang === 'ar' ? 'ar-SA' : 'en-US';
+    recognition.interimResults = false;
+    recognition.onstart = () => { micBtn.classList.add('mic-active'); };
+    recognition.onresult = (event) => { const transcript = event.results[0][0].transcript; input.value = transcript; micBtn.classList.remove('mic-active'); runSearch(); };
+    recognition.onerror = () => { micBtn.classList.remove('mic-active'); };
+    recognition.onend = () => { micBtn.classList.remove('mic-active'); };
+    recognition.start();
+}
+
+window.onclick = function(event) { if (event.target.classList.contains('modal') || event.target.classList.contains('analysis-modal')) { event.target.style.display = "none"; } }
+
+function showUpgradeSuccess() {
+    localStorage.setItem("findly_pro", "true");
+    const upgradeDict = dict[lang]?.upgrade || dict.ar.upgrade;
+    const overlay = document.createElement("div");
+    overlay.style = "position:fixed; inset:0; background:rgba(0,0,0,.6); display:flex; align-items:center; justify-content:center; z-index:9999;";
+    overlay.innerHTML = `<div style="background:#111; color:#fff; max-width:420px; width:90%; padding:24px; border-radius:14px; text-align:center; box-shadow:0 0 30px rgba(0,0,0,.4);"><h2 style="margin-bottom:12px;">${upgradeDict.successTitle}</h2><p style="opacity:.9; line-height:1.6;">${upgradeDict.successMessage}</p><p style="margin-top:10px; opacity:.7;">${upgradeDict.thanks}</p><button style="margin-top:18px; padding:12px 20px; border:none; border-radius:8px; background:#4f46e5; color:#fff; cursor:pointer; font-size:15px;" onclick="location.href='/'">${upgradeDict.goToDashboard}</button></div>`;
+    document.body.appendChild(overlay);
+}
+
+function handleUpgradeButton() { const isPro = localStorage.getItem("findly_pro") === "true"; const upgradeBtn = document.getElementById("upgradeBtn"); if (!upgradeBtn) return; upgradeBtn.style.display = isPro ? "none" : "inline-block"; }
+
+window.onload = () => {
+    update();
+    if (location.href.includes("upgrade-success")) { showUpgradeSuccess(); }
+    handleUpgradeButton();
+    updateInstallBtn();
+};
+
+function updateInstallBtn() {
+    const installBtn = document.getElementById("app-install-btn");
+    if (installBtn) installBtn.innerText = dict[lang]?.ui?.installApp || "📲 Install App";
+}
+</script>
+<script>
+let deferredPrompt = null;
+const installBtn = document.createElement("button");
+installBtn.id = "app-install-btn";
+installBtn.innerText = "📲 تثبيت التطبيق";
+installBtn.className = "install-btn";
+installBtn.style.display = "none";
+document.body.appendChild(installBtn);
+window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); deferredPrompt = e; installBtn.style.display = "block"; });
+installBtn.addEventListener("click", async () => {
+    if (deferredPrompt) { deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt = null; installBtn.style.display = "none"; }
+    else { const currentLang = localStorage.getItem('findly_lang') || 'ar'; const hint = dict[currentLang]?.ui?.installHint || "Press from browser menu then 'Add to Home Screen'"; alert(hint); }
+});
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js', { scope: './' })
+        .then(reg => console.log("SW Registered:", reg.scope))
+        .catch(err => console.log("SW Error:", err));
+}
+</script>
+</body>
+</html>

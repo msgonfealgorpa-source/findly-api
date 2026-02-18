@@ -921,7 +921,7 @@ app.post('/chat', async (req, res) => {
 
 // Smart Search Endpoint
 app.get('/search', async (req, res) => {
-    const { q, lang = 'ar', uid = 'guest' } = req.query;
+    const { q, lang = 'ar' } = req.query;
     
     if (!q) {
         return res.json({ results: [], error: 'no_query' });

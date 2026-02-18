@@ -1,7 +1,8 @@
 /* =========================================
-FINDLY SERVER v6.0 - COMPLETE WITH SAGE CORE v4
+FINDLY SERVER v6.1 - FIXED VERSION
 Ultimate Shopping Intelligence Platform
 + Reviews System Added
++ Chat Fixed (Works without Gemini)
 ========================================= */
 
 const express = require('express');
@@ -35,8 +36,8 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 const NOWPAYMENTS_IPN_SECRET = process.env.NOWPAYMENTS_IPN_SECRET || '';
 const NOWPAYMENTS_API_KEY = process.env.NOWPAYMENTS_API_KEY || '';
 
-console.log('🚀 Findly Sage Server v6.0 Starting...');
-console.log('🔑 GEMINI_API_KEY:', GEMINI_API_KEY ? '✅ Set' : '❌ Not Set');
+console.log('🚀 Findly Sage Server v6.1 Starting...');
+console.log('🔑 GEMINI_API_KEY:', GEMINI_API_KEY ? '✅ Set' : '❌ Not Set (Using Smart Fallback)');
 console.log('🔑 SEARCHAPI_KEY:', SEARCHAPI_KEY ? '✅ Set' : '❌ Not Set');
 console.log('🔑 MONGO_URI:', MONGO_URI ? '✅ Set' : '❌ Not Set');
 
@@ -157,7 +158,7 @@ const MerchantRatingSchema = new mongoose.Schema({
     lastUpdated: { type: Date, default: Date.now }
 });
 
-// ⭐ NEW: Review Schema
+// Review Schema
 const ReviewSchema = new mongoose.Schema({
     name: { type: String, required: true },
     text: { type: String, required: true },
@@ -176,7 +177,7 @@ const MerchantRating = mongoose.model('MerchantRating', MerchantRatingSchema);
 const Review = mongoose.model('Review', ReviewSchema);
 
 /* ================================
-   🔮 SAGE CORE v4.0 - EMBEDDED
+   🔮 SAGE CORE v4.1 - EMBEDDED & FIXED
 ================================ */
 
 // Translations
@@ -406,19 +407,20 @@ class PersonalityEngine {
         if (maxScore < 20) dominant = 'neutral';
 
         const traits = {
-            hunter: { description: 'يبحث عن أقل سعر ممكن', style: 'صياد الصفقات' },
-            analyst: { description: 'يفضل التحليل قبل الشراء', style: 'المحلل' },
-            impulse: { description: 'يتخذ قرارات سريعة', style: 'المتسرع' },
-            premium: { description: 'يهتم بالجودة', style: 'محب الجودة' },
-            budget: { description: 'محدود الميزانية', style: 'المخطط' },
-            neutral: { description: 'سلوك متوازن', style: 'متوازن' }
+            hunter: { description: 'يبحث عن أقل سعر ممكن', style: 'صياد الصفقات', icon: '🎯' },
+            analyst: { description: 'يفضل التحليل قبل الشراء', style: 'المحلل', icon: '🔬' },
+            impulse: { description: 'يتخذ قرارات سريعة', style: 'المتسرع', icon: '⚡' },
+            premium: { description: 'يهتم بالجودة', style: 'محب الجودة', icon: '💎' },
+            budget: { description: 'محدود الميزانية', style: 'المخطط', icon: '💰' },
+            neutral: { description: 'سلوك متوازن', style: 'متوازن', icon: '🎯' }
         };
 
         return {
             type: dominant,
             scores,
             confidence: Math.min(100, maxScore),
-            traits: traits[dominant]
+            traits: traits[dominant],
+            icon: traits[dominant]?.icon || '🎯'
         };
     }
 
@@ -540,7 +542,6 @@ class MerchantTrustEngine {
         const factors = [], warnings = [];
 
         const trustedStores = ['amazon', 'ebay', 'walmart', 'aliexpress', 'noon', 'jarir', 'extra', 'apple', 'samsung', 'nike'];
-        const suspiciousPatterns = ['free money', 'guaranteed', 'act now'];
 
         if (trustedStores.some(s => store.toLowerCase().includes(s))) {
             trustScore += 25;
@@ -557,7 +558,7 @@ class MerchantTrustEngine {
                       trustScore >= 50 ? { level: 'bronze', icon: '🥉' } :
                       { level: 'warning', icon: '⚠️' };
 
-        return { store, trustScore: Math.max(0, Math.min(100, trustScore)), badge, factors, warnings };
+        return { store, trustScore: Math.max(0, Math.min(100, trustScore)), badge, factors, warnings, verified: trustScore >= 70 };
     }
 }
 
@@ -594,7 +595,7 @@ class FakeDealDetector {
     }
 }
 
-// Main Sage Core Function
+// Main Sage Core Function - FIXED TO RETURN ALL DATA
 async function SageCore(product, marketProducts = [], priceHistory = [], userEvents = {}, userId = 'guest', userHistory = {}, lang = 'ar') {
     const currentPrice = cleanPrice(product.price);
     const ai = new SageAIEngine();
@@ -604,7 +605,14 @@ async function SageCore(product, marketProducts = [], priceHistory = [], userEve
     if (!priceAnalysis.hasEnoughData) {
         return {
             ...priceAnalysis,
-            finalVerdict: { decision: 'INSUFFICIENT_DATA', confidence: 30, recommendation: t(lang, 'insufficient_data') }
+            finalVerdict: { 
+                decision: 'INSUFFICIENT_DATA', 
+                confidence: 30, 
+                recommendation: t(lang, 'insufficient_data'),
+                emoji: '⚠️',
+                title: t(lang, 'insufficient_data'),
+                reason: t(lang, 'insufficient_data')
+            }
         };
     }
 
@@ -654,55 +662,156 @@ async function SageCore(product, marketProducts = [], priceHistory = [], userEve
         ((trendIntel?.confidence || 50) * 0.10)
     );
 
-    let strategicDecision = 'WAIT', strategicReason = '', strategicColor = '#f59e0b';
+    let strategicDecision = 'WAIT', strategicReason = '', strategicColor = '#f59e0b', emoji = '⏳', title = '';
 
     if (fakeDealCheck.riskScore >= 60) {
-        strategicDecision = 'AVOID'; strategicReason = 'عرض مشبوه'; strategicColor = '#ef4444';
+        strategicDecision = 'AVOID'; strategicReason = 'عرض مشبوه'; strategicColor = '#ef4444'; emoji = '🚫'; title = 'تجنب الشراء';
     } else if (merchantTrust.trustScore < 30) {
-        strategicDecision = 'CAUTION'; strategicReason = 'تاجر غير موثوق'; strategicColor = '#f59e0b';
+        strategicDecision = 'CAUTION'; strategicReason = 'تاجر غير موثوق'; strategicColor = '#f59e0b'; emoji = '⚠️'; title = 'كن حذراً';
     } else if (priceIntel.score >= 75 && fakeDealCheck.riskScore < 30) {
-        strategicDecision = 'BUY_NOW'; strategicReason = `صفقة ممتازة - وفر ${savingsPercent}%`; strategicColor = '#10b981';
+        strategicDecision = 'BUY_NOW'; strategicReason = `صفقة ممتازة - وفر ${savingsPercent}%`; strategicColor = '#10b981'; emoji = '🎯'; title = 'اشترِ الآن';
     } else if (priceIntel.score >= 60 && trendIntel?.trend !== 'falling') {
-        strategicDecision = 'BUY'; strategicReason = t(lang, 'good_deal'); strategicColor = '#22c55e';
+        strategicDecision = 'BUY'; strategicReason = t(lang, 'good_deal'); strategicColor = '#22c55e'; emoji = '✅'; title = 'صفقة جيدة';
     } else if (trendIntel?.trend === 'falling' && priceIntel.score < 70) {
-        strategicDecision = 'WAIT'; strategicReason = t(lang, 'price_drop_expected'); strategicColor = '#3b82f6';
+        strategicDecision = 'WAIT'; strategicReason = t(lang, 'price_drop_expected'); strategicColor = '#3b82f6'; emoji = '📉'; title = 'انتظر';
     } else if (priceIntel.score <= 40) {
-        strategicDecision = 'WAIT'; strategicReason = t(lang, 'overpriced'); strategicColor = '#ef4444';
+        strategicDecision = 'WAIT'; strategicReason = t(lang, 'overpriced'); strategicColor = '#ef4444'; emoji = '🔴'; title = 'السعر مرتفع';
     } else {
-        strategicDecision = 'CONSIDER'; strategicReason = t(lang, 'fair_price'); strategicColor = '#3b82f6';
+        strategicDecision = 'CONSIDER'; strategicReason = t(lang, 'fair_price'); strategicColor = '#3b82f6'; emoji = '🤔'; title = 'فكر فيه';
     }
 
     if (personalizedRec.action === 'buy_now' && strategicDecision !== 'AVOID') {
         strategicDecision = 'BUY_NOW';
         strategicReason = personalizedRec.reason;
+        emoji = '🎯';
+        title = 'اشترِ الآن';
     }
 
+    // 9. Deal Quality
+    const dealQuality = {
+        score: Math.round((priceIntel.score * 0.5) + ((100 - fakeDealCheck.riskScore) * 0.3) + (merchantTrust.trustScore * 0.2)),
+        label: priceIntel.score >= 70 ? 'ممتازة' : priceIntel.score >= 50 ? 'جيدة' : 'ضعيفة'
+    };
+
+    // 10. Recommendations (alternatives)
+    const recommendations = [];
+    if (marketProducts.length > 1) {
+        marketProducts.slice(0, 3).forEach(p => {
+            const pPrice = cleanPrice(p.product_price || p.price);
+            if (pPrice < currentPrice && p.title !== product.title) {
+                recommendations.push({
+                    title: p.title,
+                    price: pPrice,
+                    image: p.thumbnail || p.product_image,
+                    savings: currentPrice - pPrice,
+                    reason: 'أرخص بـ $' + (currentPrice - pPrice).toFixed(2)
+                });
+            }
+        });
+    }
+
+    // RETURN COMPLETE DATA
     return {
-        priceIntel,
+        // Price Intelligence
+        priceIntel: {
+            current: currentPrice,
+            average: priceIntel.average,
+            median: priceIntel.median,
+            min: priceIntel.min,
+            max: priceIntel.max,
+            score: priceIntel.score,
+            decision: priceIntel.decision,
+            label: priceIntel.label,
+            color: priceIntel.color,
+            confidence: priceIntel.confidence
+        },
+
+        // Value Intelligence
         valueIntel: {
             score: priceIntel.score,
             competitors: marketStats.competitors,
             savingsPercent,
-            savingsAmount: priceIntel.median ? Math.round((priceIntel.median - currentPrice) * 100) / 100 : 0
+            savingsAmount: priceIntel.median ? Math.round((priceIntel.median - currentPrice) * 100) / 100 : 0,
+            learningBoost: userEvents?.clickedAnalysis ? 10 : 0
         },
-        trendIntel: trendIntel || { trend: 'unknown', confidence: 0 },
-        trustIntel: { merchantTrust, fakeDealCheck, overallRisk: fakeDealCheck.riskScore },
-        personalityIntel: { type: personality.type, confidence: personality.confidence, traits: personality.traits },
-        recommendationIntel: { aiInsights },
+
+        // Trend Intelligence
+        trendIntel: trendIntel || {
+            trend: 'unknown',
+            confidence: 0,
+            predictedPrice: null
+        },
+
+        // Trust Intelligence
+        trustIntel: {
+            merchantTrust: merchantTrust,
+            fakeDealCheck: fakeDealCheck,
+            riskScore: fakeDealCheck.riskScore,
+            riskLevel: fakeDealCheck.riskLevel,
+            warnings: fakeDealCheck.warnings
+        },
+
+        // Personality Intelligence
+        personalityIntel: {
+            type: personality.type,
+            confidence: personality.confidence,
+            traits: personality.traits,
+            icon: personality.icon,
+            personalizedTip: personalizedRec.tip
+        },
+
+        // Recommendations
+        recommendationIntel: {
+            alternatives: recommendations.slice(0, 3),
+            aiInsights: aiInsights
+        },
+
+        // Deal Quality
+        dealQuality: dealQuality,
+
+        // Merchant Trust
+        merchantTrust: {
+            name: merchantTrust.store,
+            score: merchantTrust.trustScore,
+            badge: merchantTrust.badge,
+            verified: merchantTrust.verified,
+            warnings: merchantTrust.warnings
+        },
+
+        // Fake Deal
+        fakeDeal: {
+            isSuspicious: fakeDealCheck.isSuspicious,
+            riskScore: fakeDealCheck.riskScore,
+            riskLevel: fakeDealCheck.riskLevel,
+            reasons: fakeDealCheck.warnings
+        },
+
+        // Forecast
+        forecastIntel: {
+            trend: trendIntel?.trend || 'stable',
+            confidence: trendIntel?.confidence || 0,
+            expectedPrice: trendIntel?.predictedPrice || currentPrice
+        },
+
+        // Final Verdict
         finalVerdict: {
             decision: strategicDecision,
             confidence: confidenceScore,
             reason: strategicReason,
             color: strategicColor,
+            emoji,
+            title,
             savingsPercent,
             savingsAmount: priceIntel.median ? Math.round((priceIntel.median - currentPrice) * 100) / 100 : 0,
-            bestStore, bestPrice, bestLink
+            bestStore,
+            bestPrice,
+            bestLink
         }
     };
 }
 
 /* ================================
-   💬 CHAT ENGINE
+   💬 SMART CHAT ENGINE - NO API REQUIRED
 ================================ */
 
 const CHAT_RESPONSES = {
@@ -711,56 +820,207 @@ const CHAT_RESPONSES = {
         search: ['سأبحث لك عن أفضل الأسعار. ما المنتج الذي تريده؟', 'دعني أساعدك في العثور على أفضل عرض!'],
         price: ['هذا سعر جيد! 💰', 'أنصحك بالمقارنة مع متاجر أخرى', 'يمكنك انتظار العروض للحصول على سعر أفضل'],
         deal: ['صفقة ممتازة! 🎉 أنصحك بالشراء الآن', 'هذا عرض رائع! لا تفوته'],
-        general: ['كيف يمكنني مساعدتك في التسوق اليوم؟', 'أنا هنا لمساعدتك في العثور على أفضل الصفقات 🛍️']
+        help: ['يمكنني مساعدتك في:\n• البحث عن المنتجات\n• مقارنة الأسعار\n• العثور على أفضل الصفقات\n• تحليل جودة العروض\n\nما الذي تحتاجه؟'],
+        thanks: ['العفو! 😊 سعيد بمساعدتك', 'لا شكر على واجب! 💜'],
+        goodbye: ['مع السلامة! 👋 نتمنى لك تسوقاً سعيداً', 'إلى اللقاء! 🌟'],
+        general: ['كيف يمكنني مساعدتك في التسوق اليوم؟', 'أنا هنا لمساعدتك في العثور على أفضل الصفقات 🛍️'],
+        unknown: ['لم أفهم سؤالك جيداً. هل يمكنك توضيح أكثر؟', 'هل يمكنك إعادة صياغة سؤالك؟']
     },
     en: {
         greeting: ['Hello! 👋 I\'m Sage, your smart shopping assistant. How can I help?', 'Hi! 🔮 I\'m here to help you find the best deals!'],
         search: ['I\'ll search for the best prices. What product do you need?', 'Let me help you find the best offer!'],
         price: ['That\'s a good price! 💰', 'I recommend comparing with other stores'],
         deal: ['Excellent deal! 🎉 I recommend buying now', 'This is a great offer! Don\'t miss it'],
-        general: ['How can I help you shop today?', 'I\'m here to help you find the best deals 🛍️']
+        help: ['I can help you with:\n• Product search\n• Price comparison\n• Finding best deals\n• Analyzing offers\n\nWhat do you need?'],
+        thanks: ['You\'re welcome! 😊 Happy to help', 'No problem! 💜'],
+        goodbye: ['Goodbye! 👋 Happy shopping!', 'See you later! 🌟'],
+        general: ['How can I help you shop today?', 'I\'m here to help you find the best deals 🛍️'],
+        unknown: ['I didn\'t understand your question. Can you clarify?', 'Could you rephrase your question?']
+    },
+    fr: {
+        greeting: ['Bonjour! 👋 Je suis Sage, votre assistant shopping. Comment puis-je vous aider?'],
+        search: ['Je vais chercher les meilleurs prix. Quel produit cherchez-vous?'],
+        price: ['C\'est un bon prix! 💰'],
+        deal: ['Excellente affaire! 🎉'],
+        help: ['Je peux vous aider à:\n• Rechercher des produits\n• Comparer les prix\n• Trouver les meilleures offres'],
+        thanks: ['De rien! 😊'],
+        goodbye: ['Au revoir! 👋'],
+        general: ['Comment puis-je vous aider?'],
+        unknown: ['Je n\'ai pas compris. Pouvez-vous préciser?']
     }
 };
 
-async function processChatMessage(message, userId, lang = 'ar') {
-    const lowerMessage = message.toLowerCase();
-    let intent = 'general', sentiment = 'neutral';
+// Smart Intent Detection
+function detectIntent(message, lang = 'ar') {
+    const lower = message.toLowerCase();
     
+    // Greeting patterns
+    const greetings = {
+        ar: ['مرحبا', 'اهلا', 'السلام', 'هلا', 'صباح', 'مساء'],
+        en: ['hello', 'hi', 'hey', 'good morning', 'good evening'],
+        fr: ['bonjour', 'salut', 'bonsoir']
+    };
+    
+    // Search patterns
+    const searches = {
+        ar: ['ابحث', 'بحث', 'دور', 'اوجد', 'احتاج', 'اريد', 'أبحث'],
+        en: ['search', 'find', 'look', 'need', 'want', 'looking for'],
+        fr: ['chercher', 'trouver', 'besoin', 'veux']
+    };
+    
+    // Price patterns
+    const prices = {
+        ar: ['سعر', 'كم', 'بكم', 'غالي', 'رخيص', 'خصم', 'عرض'],
+        en: ['price', 'cost', 'much', 'cheap', 'expensive', 'discount', 'deal'],
+        fr: ['prix', 'coût', 'cher', 'pas cher', 'réduction']
+    };
+    
+    // Deal patterns
+    const deals = {
+        ar: ['صفقة', 'عرض', 'تخفيض', 'خصم', 'افضل', 'أفضل'],
+        en: ['deal', 'offer', 'sale', 'discount', 'best', 'bargain'],
+        fr: ['offre', 'soldes', 'réduction', 'meilleur']
+    };
+    
+    // Thanks patterns
+    const thanks = {
+        ar: ['شكرا', 'شكراً', 'مشكور', 'ممتن'],
+        en: ['thanks', 'thank', 'thx', 'appreciate'],
+        fr: ['merci', 'remercie']
+    };
+    
+    // Goodbye patterns
+    const goodbyes = {
+        ar: ['وداع', 'مع السلامة', 'باي', 'الى اللقاء'],
+        en: ['bye', 'goodbye', 'see you', 'later'],
+        fr: ['au revoir', 'adieu', 'bye']
+    };
+    
+    // Help patterns
+    const helps = {
+        ar: ['مساعدة', 'ساعد', 'كيف', 'ماذا', 'ماهو'],
+        en: ['help', 'how', 'what', 'can you'],
+        fr: ['aide', 'comment', 'quoi']
+    };
+    
+    const langPatterns = greetings[lang] || greetings.en;
+    const searchPatterns = searches[lang] || searches.en;
+    const pricePatterns = prices[lang] || prices.en;
+    const dealPatterns = deals[lang] || deals.en;
+    const thanksPatterns = thanks[lang] || thanks.en;
+    const goodbyePatterns = goodbyes[lang] || goodbyes.en;
+    const helpPatterns = helps[lang] || helps.en;
+    
+    // Check patterns
+    if (langPatterns.some(p => lower.includes(p))) return 'greeting';
+    if (thanksPatterns.some(p => lower.includes(p))) return 'thanks';
+    if (goodbyePatterns.some(p => lower.includes(p))) return 'goodbye';
+    if (helpPatterns.some(p => lower.includes(p))) return 'help';
+    if (searchPatterns.some(p => lower.includes(p))) return 'search';
+    if (pricePatterns.some(p => lower.includes(p))) return 'price';
+    if (dealPatterns.some(p => lower.includes(p))) return 'deal';
+    
+    return 'general';
+}
+
+// Generate Smart Response
+function generateSmartResponse(message, lang = 'ar', context = {}) {
+    const intent = detectIntent(message, lang);
     const responses = CHAT_RESPONSES[lang] || CHAT_RESPONSES.ar;
-
-    // Intent detection
-    if (lowerMessage.match(/مرحبا|اهلا|hello|hi|hey/)) {
-        intent = 'greeting';
-    } else if (lowerMessage.match(/ابحث|بحث|search|find|lookup/)) {
-        intent = 'search';
-    } else if (lowerMessage.match(/سعر|price|cost|كم/)) {
-        intent = 'price';
-    } else if (lowerMessage.match(/صفقة|deal|offer|discount|خصم/)) {
-        intent = 'deal';
+    
+    // Get random response for the intent
+    const intentResponses = responses[intent] || responses.general;
+    const baseResponse = intentResponses[Math.floor(Math.random() * intentResponses.length)];
+    
+    // Add context-aware enhancements
+    let enhancedResponse = baseResponse;
+    
+    // If user mentioned a product, add helpful suggestion
+    const productKeywords = ['هاتف', 'phone', 'laptop', 'لابتوب', 'ساعة', 'watch', 'سماعات', 'headphones'];
+    const mentionedProduct = productKeywords.find(kw => message.toLowerCase().includes(kw));
+    
+    if (mentionedProduct && intent === 'search') {
+        const suggestion = lang === 'ar' 
+            ? `\n\n💡 نصيحة: استخدم شريط البحث أعلاه للحصول على أفضل الأسعار والتقييمات!`
+            : `\n\n💡 Tip: Use the search bar above to get the best prices and ratings!`;
+        enhancedResponse += suggestion;
     }
+    
+    return {
+        reply: enhancedResponse,
+        response: enhancedResponse,
+        intent,
+        sentiment: 'neutral',
+        language: lang,
+        suggestions: generateSuggestions(intent, lang)
+    };
+}
 
-    // Get response
-    const responseArray = responses[intent] || responses.general;
-    const reply = responseArray[Math.floor(Math.random() * responseArray.length)];
+// Generate Suggestions
+function generateSuggestions(intent, lang) {
+    const suggestionMap = {
+        ar: {
+            greeting: ['ابحث عن هاتف', 'أفضل العروض', 'ساعدني في الاختيار'],
+            search: ['مقارنة الأسعار', 'أفضل المتاجر', 'عروض اليوم'],
+            price: ['ابحث عن أرخص', 'مقارنة الأسعار', 'انتظار الخصومات'],
+            deal: ['شراء الآن', 'مقارنة مع أخرى', 'تقييم المنتج'],
+            help: ['البحث عن منتج', 'تحليل السعر', 'العثور على صفقات'],
+            general: ['ابحث عن منتج', 'ما هي العروض؟', 'ساعدني']
+        },
+        en: {
+            greeting: ['Search for phone', 'Best deals', 'Help me choose'],
+            search: ['Compare prices', 'Best stores', 'Today\'s offers'],
+            price: ['Find cheaper', 'Price comparison', 'Wait for sales'],
+            deal: ['Buy now', 'Compare options', 'Product review'],
+            help: ['Search product', 'Price analysis', 'Find deals'],
+            general: ['Search product', 'What deals?', 'Help me']
+        }
+    };
+    
+    const langSuggestions = suggestionMap[lang] || suggestionMap.en;
+    return langSuggestions[intent] || langSuggestions.general;
+}
 
-    // Try Gemini AI if available
+// Main Chat Processor - WORKS WITHOUT API
+async function processChatMessage(message, userId, lang = 'ar') {
+    const cleanMessage = message.trim();
+    
+    if (!cleanMessage) {
+        return {
+            reply: CHAT_RESPONSES[lang]?.greeting?.[0] || CHAT_RESPONSES.ar.greeting[0],
+            response: CHAT_RESPONSES[lang]?.greeting?.[0] || CHAT_RESPONSES.ar.greeting[0],
+            intent: 'greeting',
+            sentiment: 'neutral',
+            language: lang
+        };
+    }
+    
+    // Try Gemini if available (optional enhancement)
     if (GEMINI_API_KEY) {
         try {
             const ai = new SageAIEngine();
-            const prompt = `You are Sage, a smart shopping assistant. User says: "${message}". Language: ${lang}.
-            Respond helpfully about shopping, deals, prices. Keep response brief and friendly.
-            Return JSON: {"reply": "your response", "intent": "${intent}", "suggestions": ["suggestion1", "suggestion2"]}`;
+            const prompt = `You are Sage, a smart shopping assistant. User says: "${cleanMessage}". Language: ${lang}.
+            Respond helpfully about shopping, deals, prices. Keep response brief (max 100 words).
+            Return JSON: {"reply": "your response", "intent": "${detectIntent(cleanMessage, lang)}", "suggestions": ["suggestion1", "suggestion2"]}`;
             
             const aiResult = await ai.callGemini(prompt);
             if (aiResult && aiResult.reply) {
-                return { reply: aiResult.reply, response: aiResult.reply, intent, sentiment, language: lang, suggestions: aiResult.suggestions };
+                return {
+                    reply: aiResult.reply,
+                    response: aiResult.reply,
+                    intent: aiResult.intent || detectIntent(cleanMessage, lang),
+                    sentiment: 'neutral',
+                    language: lang,
+                    suggestions: aiResult.suggestions
+                };
             }
         } catch (e) {
-            console.log('AI chat fallback:', e.message);
+            console.log('AI chat fallback to smart response:', e.message);
         }
     }
-
-    return { reply, response: reply, intent, sentiment, language: lang };
+    
+    // Use smart fallback (NO API NEEDED)
+    return generateSmartResponse(cleanMessage, lang);
 }
 
 /* ================= HELPER FUNCTIONS ================= */
@@ -791,7 +1051,6 @@ async function trackUserBehavior(userId, eventType, data) {
             metadata: data.metadata
         });
 
-        // Update user profile
         await UserProfile.findOneAndUpdate(
             { userId },
             { 
@@ -834,7 +1093,6 @@ async function getUserHistory(userId) {
 
         const profile = await UserProfile.findOne({ userId }).lean();
 
-        // Aggregate events
         const userEvents = {
             searches: behaviors.filter(b => b.eventType === 'search').length,
             views: behaviors.filter(b => b.eventType === 'view').length,
@@ -855,12 +1113,13 @@ async function getUserHistory(userId) {
 app.get('/health', (req, res) => {
     res.json({
         status: 'ok',
-        version: '6.0.0',
+        version: '6.1.0',
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
-        gemini: GEMINI_API_KEY ? 'configured' : 'not_configured',
+        gemini: GEMINI_API_KEY ? 'configured' : 'not_configured (smart_fallback_active)',
         database: dbConnected ? 'connected' : 'disconnected',
-        features: ['ai_chat', 'price_intelligence', 'personality_engine', 'merchant_trust', 'fake_deal_detection', 'price_alerts', 'behavior_tracking', 'reviews']
+        chat: 'active (works without API)',
+        features: ['ai_chat', 'smart_fallback_chat', 'price_intelligence', 'personality_engine', 'merchant_trust', 'fake_deal_detection', 'price_alerts', 'behavior_tracking', 'reviews']
     });
 });
 
@@ -868,12 +1127,13 @@ app.get('/health', (req, res) => {
 app.get('/', (req, res) => {
     res.json({
         name: 'Findly Sage API',
-        version: '6.0.0',
+        version: '6.1.0',
         status: 'running',
-        ai: GEMINI_API_KEY ? '✅ Gemini Active' : '⚠️ Gemini Not Configured',
+        ai: GEMINI_API_KEY ? '✅ Gemini Active' : '✅ Smart Fallback Active',
         database: dbConnected ? '✅ Connected' : '⚠️ Not Connected',
+        chat: '✅ Works Without API',
         endpoints: {
-            chat: 'POST /chat - AI Shopping Assistant',
+            chat: 'POST /chat - AI Shopping Assistant (Works without API!)',
             search: 'GET /search?q=product - Smart Product Search',
             analyze: 'POST /analyze - Deep Product Analysis',
             alerts: 'POST /alerts - Price Alerts',
@@ -887,24 +1147,28 @@ app.get('/', (req, res) => {
     });
 });
 
-// Chat Endpoint
+// Chat Endpoint - FIXED
 app.post('/chat', async (req, res) => {
     try {
-        const { message, userId, lang = 'ar' } = req.body;
+        const { message, userId, lang = 'ar', history } = req.body;
         
-        console.log('📩 Chat:', { message: message?.substring(0, 50), userId });
+        console.log('📩 Chat:', { message: message?.substring(0, 50), userId, lang });
         
         if (!message || typeof message !== 'string' || message.trim() === '') {
+            const greetingResponses = CHAT_RESPONSES[lang]?.greeting || CHAT_RESPONSES.ar.greeting;
             return res.json({
-                reply: '👋 مرحباً! كيف يمكنني مساعدتك؟',
-                response: '👋 مرحباً! كيف يمكنني مساعدتك؟',
-                error: 'empty_message'
+                reply: greetingResponses[0],
+                response: greetingResponses[0],
+                intent: 'greeting',
+                sentiment: 'neutral',
+                language: lang
             });
         }
         
         // Track chat
         await trackUserBehavior(userId, 'chat', { query: message });
         
+        // Process message
         const result = await processChatMessage(message.trim(), userId, lang);
         
         res.json({
@@ -926,9 +1190,8 @@ app.post('/chat', async (req, res) => {
     }
 });
 
-// Smart Search Endpoint 
-    app.get('/search', async (req, res) => {
-
+// Smart Search Endpoint
+app.get('/search', async (req, res) => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -936,7 +1199,6 @@ app.post('/chat', async (req, res) => {
     }
 
     const token = authHeader.split("Bearer ")[1];
-
     let uid;
 
     try {
@@ -1071,6 +1333,7 @@ app.post('/chat', async (req, res) => {
         const responseData = {
             query: q,
             results: results,
+            personality: results[0]?.intelligence?.personalityIntel || null,
             energy: {
                 used: energy.searchesUsed,
                 limit: energy.hasFreePass ? '∞' : 3,
@@ -1266,7 +1529,6 @@ app.get('/profile/:userId', async (req, res) => {
 app.get('/reviews', async (req, res) => {
     try {
         if (!dbConnected) {
-            // Return demo data if no database
             return res.json({
                 success: true,
                 reviews: [],
@@ -1275,13 +1537,11 @@ app.get('/reviews', async (req, res) => {
             });
         }
 
-        // Get all reviews sorted by newest first
         const reviews = await Review.find()
             .sort({ createdAt: -1 })
             .limit(100)
             .lean();
 
-        // Calculate today's reviews count
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         
@@ -1311,7 +1571,6 @@ app.post('/reviews', async (req, res) => {
     try {
         const { name, text, rating } = req.body;
 
-        // Validation
         if (!name || !text || !rating) {
             return res.status(400).json({
                 success: false,
@@ -1320,31 +1579,12 @@ app.post('/reviews', async (req, res) => {
             });
         }
 
-        // Validate rating
         const ratingNum = parseInt(rating);
         if (isNaN(ratingNum) || ratingNum < 1 || ratingNum > 5) {
             return res.status(400).json({
                 success: false,
                 error: 'INVALID_RATING',
                 message: 'Rating must be between 1 and 5'
-            });
-        }
-
-        // Validate name length
-        if (name.trim().length < 2 || name.trim().length > 50) {
-            return res.status(400).json({
-                success: false,
-                error: 'INVALID_NAME',
-                message: 'Name must be between 2 and 50 characters'
-            });
-        }
-
-        // Validate text length
-        if (text.trim().length < 10 || text.trim().length > 1000) {
-            return res.status(400).json({
-                success: false,
-                error: 'INVALID_TEXT',
-                message: 'Review must be between 10 and 1000 characters'
             });
         }
 
@@ -1363,7 +1603,6 @@ app.post('/reviews', async (req, res) => {
             });
         }
 
-        // Create review
         const review = await Review.create({
             name: name.trim(),
             text: text.trim(),
@@ -1534,9 +1773,9 @@ const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, '0.0.0.0', () => {
     console.log('=================================');
-    console.log(`🚀 Findly Sage Server v6.0 running on port ${PORT}`);
+    console.log(`🚀 Findly Sage Server v6.1 running on port ${PORT}`);
     console.log(`🔮 Sage Core: ✅ Active`);
-    console.log(`💬 AI Chat: ${GEMINI_API_KEY ? '✅ Gemini Active' : '⚠️ Fallback Mode'}`);
+    console.log(`💬 AI Chat: ${GEMINI_API_KEY ? '✅ Gemini + Smart Fallback' : '✅ Smart Fallback Active (No API needed)'}`);
     console.log(`🔍 Search: ${SEARCHAPI_KEY ? '✅ SearchAPI Active' : '❌ Not Configured'}`);
     console.log(`💾 Database: ${dbConnected ? '✅ Connected' : '⚠️ Not Connected'}`);
     console.log(`⭐ Reviews: ✅ Active`);

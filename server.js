@@ -9,6 +9,14 @@ const cors = require('cors');
 const axios = require('axios');
 const mongoose = require('mongoose');
 const crypto = require('crypto');
+const admin = require('firebase-admin');
+const admin = require('firebase-admin');
+
+if (!admin.apps.length) {
+    admin.initializeApp({
+        credential: admin.credential.applicationDefault()
+    });
+}
 
 const app = express();
 
@@ -919,8 +927,26 @@ app.post('/chat', async (req, res) => {
     }
 });
 
-// Smart Search Endpoint
-app.get('/search', async (req, res) => {
+// Smart Search Endpoint 
+    app.get('/search', async (req, res) => {
+
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const token = authHeader.split("Bearer ")[1];
+
+    let uid;
+
+    try {
+        const decoded = await admin.auth().verifyIdToken(token);
+        uid = decoded.uid;
+    } catch (err) {
+        return res.status(401).json({ error: "Invalid token" });
+    }
+  
     const { q, lang = 'ar' } = req.query;
     
     if (!q) {
@@ -930,7 +956,7 @@ app.get('/search', async (req, res) => {
     // Check energy
     let energy = { searchesUsed: 0, hasFreePass: true };
     
-    if (dbConnected && uid !== 'guest') {
+    if (dbConnected) {
         try {
             energy = await Energy.findOne({ uid }) || await Energy.create({ uid });
             if (!energy.hasFreePass && energy.searchesUsed >= 3) {

@@ -835,7 +835,7 @@ const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
-
+    
 window.loginWithGoogle = async () => {
     try { await signInWithPopup(auth, provider); } catch (error) { alert("Error: " + error.message); }
 };
@@ -901,6 +901,30 @@ onAuthStateChanged(auth, (user) => {
         document.body.style.overflow = 'hidden';
     }
 });
+
+
+
+// جعل auth متاح globally
+window.firebaseAuth = auth;
+window.firebaseApp = app;
+
+// دالة للحصول على التوكن
+window.getAuthToken = async function() {
+    const user = auth.currentUser;
+    if (!user) return null;
+    try {
+        return await user.getIdToken();
+    } catch (e) {
+        console.error('Token error:', e);
+        return null;
+    }
+};
+
+// دالة للحصول على المستخدم الحالي
+window.getCurrentUser = function() {
+    return auth.currentUser;
+};
+
 </script>
 
 <script>
@@ -1411,20 +1435,31 @@ async function runSearch() {
     const userBudget = parseFloat(localStorage.getItem('user_budget')) || 0;
     
     try {
-        const user = firebase.auth().currentUser;
-
-if (!user) {
-    alert("يجب تسجيل الدخول أولاً");
-    return;
-}
-
-const token = await user.getIdToken();
-
-const res = await fetch(API + '/search?q=' + encodeURIComponent(q) + '&lang=' + lang, {
-    headers: {
-        Authorization: `Bearer ${token}`
-    }
-});
+        // ✅ الإصلاح: استخدام الدالة الجديدة
+        const user = window.getCurrentUser ? window.getCurrentUser() : null;
+        
+        if (!user) {
+            status.style.display = 'block';
+            status.innerText = dict[lang]?.auth?.title || 'يرجى تسجيل الدخول';
+            return;
+        }
+        
+        // ✅ الحصول على التوكن
+        const token = await window.getAuthToken();
+        
+        if (!token) {
+            status.style.display = 'block';
+            status.innerText = 'يرجى تسجيل الدخول أولاً';
+            return;
+        }
+        
+        const res = await fetch(API + '/search?q=' + encodeURIComponent(q) + '&lang=' + lang, {
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+        });
+        
+        // ... باقي الكود كما هو
         const data = await res.json();
         
         status.style.display = 'none';

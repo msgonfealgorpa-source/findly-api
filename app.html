@@ -1420,6 +1420,17 @@ if (!user) {
 
 const token = await user.getIdToken();
 
+
+
+        const user = firebase.auth().currentUser;
+
+if (!user) {
+    alert("يجب تسجيل الدخول أولاً");
+    return;
+}
+
+const token = await user.getIdToken();
+
 const res = await fetch(API + '/search?q=' + encodeURIComponent(q) + '&lang=' + lang, {
     headers: {
         Authorization: `Bearer ${token}`

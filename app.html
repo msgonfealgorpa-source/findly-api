@@ -1411,7 +1411,20 @@ async function runSearch() {
     const userBudget = parseFloat(localStorage.getItem('user_budget')) || 0;
     
     try {
-        const res = await fetch(API + '/search?q=' + encodeURIComponent(q) + '&lang=' + lang + '&uid=' + (localStorage.getItem('findly_uid') || 'guest'));
+        const user = firebase.auth().currentUser;
+
+if (!user) {
+    alert("يجب تسجيل الدخول أولاً");
+    return;
+}
+
+const token = await user.getIdToken();
+
+const res = await fetch(API + '/search?q=' + encodeURIComponent(q) + '&lang=' + lang, {
+    headers: {
+        Authorization: `Bearer ${token}`
+    }
+});
         const data = await res.json();
         
         status.style.display = 'none';

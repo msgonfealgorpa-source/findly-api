@@ -1044,16 +1044,16 @@ app.get('/search', async (req, res) => {
         }
 
         const searchPromise = (async () => {
-            return await axios.get('https://www.searchapi.io/api/v1/search', {
-                params: {
-                    api_key: SEARCHAPI_KEY,
-                    engine: 'google_shopping',
-                    q: q,
-                    hl: lang === 'ar' ? 'ar' : 'en',
-                },
-                timeout: 15000
-            });
-        })();
+    return await axios.get('https://www.searchapi.io/api/v1/search', {
+        params: {
+            api_key: SEARCHAPI_KEY,
+            engine: 'google',
+            q: q,
+            hl: lang === 'ar' ? 'ar' : 'en',
+        },
+        timeout: 15000
+    });
+})();
 
         pendingSearches.set(cacheKey, searchPromise);
 
@@ -1064,7 +1064,7 @@ app.get('/search', async (req, res) => {
             pendingSearches.delete(cacheKey);
         }
 
-        const rawResults = apiRes.data?.shopping_results?.slice(0, 10) || [];
+        const rawResults = apiRes.data?.organic_results?.slice(0, 10) || [];
         const baseResults = rawResults.filter(item => item.title?.toLowerCase().includes(q.toLowerCase())).length ? 
             rawResults.filter(item => item.title?.toLowerCase().includes(q.toLowerCase())) : rawResults;
 

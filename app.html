@@ -1,0 +1,1542 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" id="main-html">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Findly Sage Ultimate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #8b5cf6;
+            --primary-glow: rgba(139, 92, 246, 0.5);
+            --secondary: #6366f1;
+            --bg-dark: #020617;
+            --bg-card: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --gradient: linear-gradient(135deg, #6366F1, #A855F7);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+        .light-mode {
+            --bg-dark: #f8fafc;
+            --bg-card: rgba(255, 255, 255, 0.9);
+            --glass-border: rgba(0, 0, 0, 0.05);
+            --text: #1e293b;
+            --text-muted: #64748b;
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        body {
+            background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at 50% 0%, #1e1b4b 0%, transparent 50%);
+            color: var(--text);
+            font-family: 'Readex Pro', sans-serif;
+            margin: 0;
+            transition: background 0.4s ease, color 0.4s ease;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 5%;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--glass-border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header-tools { display: flex; gap: 10px; }
+        .tool-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            color: var(--text);
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        .tool-btn:hover { transform: translateY(-2px); border-color: var(--primary); }
+        .lang-menu {
+            display: none;
+            position: absolute;
+            top: 50px;
+            left: 0;
+            background: #1e293b;
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            width: 140px;
+            z-index: 2000;
+            box-shadow: 0 20px 40px -5px rgba(0,0,0,0.4);
+            overflow: hidden;
+        }
+        .lang-item {
+            padding: 12px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            color: #e2e8f0;
+            text-align: center;
+            transition: 0.2s;
+        }
+        .lang-item:hover { background: var(--primary); color: white; }
+        .search-area { padding: 40px 5%; text-align: center; max-width: 800px; margin: 0 auto; }
+        .energy-box {
+            background: rgba(168, 85, 247, 0.08);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            padding: 8px 20px;
+            border-radius: 50px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        h1#txt-title {
+            background: linear-gradient(to right, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 10px 0;
+            font-size: 2.5rem;
+        }
+        .light-mode h1#txt-title {
+            background: linear-gradient(to right, #1e293b, #475569);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .ai-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            color: var(--primary);
+            margin-bottom: 25px;
+            justify-content: center;
+            font-weight: 600;
+            background: rgba(139, 92, 246, 0.05);
+            padding: 8px 16px;
+            border-radius: 12px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .ai-toggle input { width: 20px; height: 20px; accent-color: var(--primary); cursor: pointer; }
+        .search-wrapper { position: relative; max-width: 600px; margin: 0 auto 20px; }
+        .search-input {
+            width: 100%;
+            padding: 18px 70px;
+            border-radius: 24px;
+            border: 2px solid var(--glass-border);
+            background: var(--bg-card);
+            color: var(--text);
+            font-size: 1.1rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+            text-align: center;
+        }
+        .search-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15); }
+        .mic-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--secondary);
+            cursor: pointer;
+            font-size: 1.4rem;
+            background: none;
+            border: none;
+            padding: 10px;
+            border-radius: 50%;
+            transition: 0.3s;
+            z-index: 10;
+        }
+        .mic-icon:hover { background: rgba(139, 92, 246, 0.1); }
+        .mic-active { color: #ef4444 !important; background: rgba(239, 68, 68, 0.1) !important; animation: pulse 1s infinite; }
+        .send-btn {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--gradient);
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 18px;
+            color: #fff;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+        .send-btn:hover { transform: translateY(-50%) scale(1.05); }
+        .ai-options { display: flex; justify-content: center; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+        .ai-tag {
+            font-size: 0.8rem; padding: 8px 16px; border-radius: 20px;
+            background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border);
+            cursor: pointer; color: var(--text-muted); display: flex; align-items: center; gap: 8px;
+            transition: 0.3s;
+        }
+        .ai-tag:hover { background: var(--bg-card); color: var(--primary); border-color: var(--primary); }
+        .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 600px; margin: 30px auto; }
+        .cat-card {
+            background: var(--bg-card); border: 1px solid var(--glass-border);
+            padding: 15px 10px; border-radius: 20px; cursor: pointer;
+            transition: 0.3s; display: flex; flex-direction: column; align-items: center; gap: 8px;
+        }
+        .cat-card:hover { transform: translateY(-5px); border-color: var(--primary); }
+        .cat-card i { font-size: 1.5rem; color: var(--secondary); }
+        .cat-card span { font-size: 0.75rem; font-weight: 600; }
+        .product-card {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 20px;
+            margin-top: 25px;
+            text-align: right;
+            max-width: 600px;
+            margin-left: auto; margin-right: auto;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+            animation: slideUp 0.5s ease;
+        }
+        .product-card img { width: 100%; height: 200px; object-fit: contain; background: #fff; border-radius: 16px; margin-bottom: 15px; padding: 10px; }
+        .product-card h3 { margin: 0 0 10px 0; font-size: 1.1rem; line-height: 1.5; color: var(--text); }
+        .product-card .price { font-size: 1.4rem; font-weight: 800; color: #10b981; margin-bottom: 10px; }
+        .analysis-engine {
+            background: rgba(99, 102, 241, 0.08);
+            border-right: 3px solid var(--primary);
+            padding: 12px; border-radius: 12px; margin: 15px 0;
+            font-size: 0.85rem; line-height: 1.6; color: var(--text-muted);
+        }
+        .analysis-label { font-weight: 700; color: var(--primary); display: block; margin-bottom: 5px; }
+        .action-btn {
+            flex: 1; padding: 12px; border-radius: 14px; font-weight: 700;
+            text-align: center; border: none; font-size: 0.9rem; cursor: pointer;
+            transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .buy-now { background: var(--gradient); color: #fff; text-decoration: none; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3); }
+        .buy-now:hover { filter: brightness(1.1); }
+        .analyze-btn { background: rgba(30, 41, 59, 0.7); border: 1px solid var(--primary); color: var(--primary); }
+        .analyze-btn:hover { background: var(--primary); color: white; }
+        .modal {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.8); z-index: 3000;
+            align-items: center; justify-content: center;
+            backdrop-filter: blur(12px);
+        }
+        .modal-box {
+            background: #0f172a; padding: 30px; border-radius: 30px;
+            width: 85%; max-width: 450px;
+            border: 1px solid var(--glass-border);
+            text-align: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            max-height: 80vh; overflow-y: auto;
+        }
+        .modal-box input {
+            width: 100%; padding: 14px; margin: 10px 0; border-radius: 14px;
+            background: #1e293b; color: #fff; border: 1px solid var(--glass-border);
+            text-align: center; font-family: inherit;
+        }
+        .modal-box input:focus { border-color: var(--primary); }
+        .analysis-modal {
+            display: none; position: fixed; z-index: 10000;
+            left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
+            align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background: #0f172a; margin: auto; padding: 25px;
+            width: 85%; max-width: 450px; border-radius: 20px; text-align: right;
+            border: 1px solid var(--primary);
+            box-shadow: 0 0 30px rgba(139, 92, 247, 0.2);
+            color: white;
+            position: relative;
+            top: 50%;
+            transform: translateY(-50%);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .over-budget { border: 2px solid #ff4d4d !important; }
+        .budget-alert { background: #ff4d4d; color: white; padding: 4px 10px; border-radius: 8px; font-size: 0.8rem; margin-bottom: 10px; display: inline-block; font-weight: bold; }
+        @keyframes pulse { 0%, 100% { transform: translateY(-50%) scale(1); } 50% { transform: translateY(-50%) scale(1.1); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .auth-overlay {
+            display: none !important;
+            position: fixed !important;
+            top: 0 !important; left: 0 !important;
+            width: 100vw !important; height: 100vh !important;
+            background: radial-gradient(circle at center, #1e1b4b 0%, #020617 100%) !important;
+            z-index: 2147483647 !important;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(15px);
+        }
+        .auth-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            padding: 40px;
+            border-radius: 28px;
+            width: 90%;
+            max-width: 420px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        .auth-header h1 { font-size: 2.2rem; color: #fff; margin-bottom: 10px; font-weight: 700; }
+        .auth-header span { color: #a78bfa; }
+        .google-btn {
+            background: white;
+            color: #1e293b;
+            width: 100%;
+            padding: 12px;
+            border-radius: 14px;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+        .google-btn:hover { background: #f8fafc; transform: translateY(-2px); }
+        .divider { display: flex; align-items: center; text-align: center; margin: 20px 0; color: #94a3b8; }
+        .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .divider span { padding: 0 10px; font-size: 0.8rem; }
+        .old-price { text-decoration: line-through; opacity: 0.6; margin-right: 6px; }
+        .new-price { color: #2ecc71; font-weight: bold; font-size: 1.1em; }
+        .sage-quick-brains { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 12px 0; }
+        .brain-item {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 8px 10px;
+            font-size: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+        .brain-item span { opacity: 0.85; }
+        .brain-item.good { border-color: #10b981; }
+        .brain-item.wait { border-color: #f59e0b; }
+        .brain-item.safe { border-color: #3b82f6; }
+        .brain-item.risk { border-color: #ef4444; }
+        .brain-item.learn { border-color: #8b5cf6; }
+        .invite-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: linear-gradient(135deg, rgba(40, 32, 90, 0.85), rgba(28, 22, 60, 0.9));
+            border: 1px solid rgba(138, 99, 255, 0.35);
+            border-radius: 16px;
+            padding: 14px 16px;
+            margin-top: 14px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            justify-content: center;
+        }
+        .invite-card:hover { transform: translateY(-2px); }
+        .invite-text { font-size: 14.5px; color: #e1dbff; line-height: 1.6; text-align: center; width: 100%; }
+        .layout-wrapper { display: flex; gap: 20px; }
+        #results { flex: 3; }
+        .intel-section { background: rgba(255,255,255,0.03); padding: 12px; border-radius: 12px; margin: 10px 0; text-align: right; }
+        .intel-section h4 { margin: 0 0 8px 0; font-size: 0.9rem; color: var(--primary); }
+        .intel-section p { margin: 4px 0; font-size: 0.85rem; color: var(--text-muted); }
+        .intel-section ul { margin: 5px 0; padding-right: 20px; font-size: 0.85rem; }
+        .upgrade-section { background: #1b1b2f; border: 1px solid #ff4d4d; padding: 12px; border-radius: 8px; margin: 20px auto; max-width: 600px; }
+        .upgrade-section h3 { color: #ff4d4d; margin-bottom: 8px; }
+        .upgrade-btn { background: linear-gradient(135deg, #8b5cf6, #6366f1); color: white; padding: 12px 24px; border-radius: 14px; border: none; cursor: pointer; font-weight: 600; margin-top: 10px; transition: 0.3s; }
+        .upgrade-btn:hover { filter: brightness(1.1); transform: translateY(-2px); }
+        
+        /* Chat Bot Styles */
+        .chat-fab {
+            position: fixed;
+            bottom: 25px;
+            left: 25px;
+            width: 60px;
+            height: 60px;
+            background: var(--gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+            z-index: 999;
+            transition: all 0.3s ease;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+        }
+        .chat-fab:hover { transform: scale(1.1); }
+        .chat-window {
+            position: fixed;
+            bottom: 100px;
+            left: 25px;
+            width: 380px;
+            max-width: calc(100vw - 50px);
+            height: 520px;
+            max-height: 70vh;
+            background: #0f172a;
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            display: none;
+            flex-direction: column;
+            z-index: 998;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+        .chat-window.active { display: flex; animation: slideUp 0.3s ease; }
+        .chat-header {
+            background: var(--gradient);
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .chat-avatar {
+            width: 42px;
+            height: 42px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+        .chat-title-area { flex: 1; }
+        .chat-title-area h4 { margin: 0; font-size: 1rem; }
+        .chat-title-area span { font-size: 0.75rem; opacity: 0.8; }
+        .chat-close {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .chat-message {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            animation: slideUp 0.2s ease;
+            white-space: pre-wrap;
+        }
+        .chat-message.user {
+            align-self: flex-end;
+            background: var(--gradient);
+            color: white;
+            border-bottom-left-radius: 6px;
+        }
+        .chat-message.assistant {
+            align-self: flex-start;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--glass-border);
+            border-bottom-right-radius: 6px;
+        }
+        .chat-typing {
+            display: flex;
+            gap: 4px;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 18px;
+            width: fit-content;
+        }
+        .chat-typing span {
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: bounce 1s infinite;
+        }
+        .chat-typing span:nth-child(2) { animation-delay: 0.2s; }
+        .chat-typing span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+        .chat-input-area {
+            padding: 16px;
+            border-top: 1px solid var(--glass-border);
+            display: flex;
+            gap: 10px;
+        }
+        .chat-input {
+            flex: 1;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+        .chat-input:focus { border-color: var(--primary); outline: none; }
+        .chat-send {
+            width: 48px;
+            height: 48px;
+            background: var(--gradient);
+            border: none;
+            border-radius: 14px;
+            color: white;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: 0.3s;
+        }
+        .chat-send:hover { transform: scale(1.05); }
+        .chat-send:disabled { opacity: 0.5; cursor: not-allowed; }
+        .chat-suggestions {
+            display: flex;
+            gap: 8px;
+            padding: 0 16px 16px;
+            flex-wrap: wrap;
+        }
+        .chat-suggestion {
+            background: rgba(139, 92, 246, 0.15);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #a78bfa;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .chat-suggestion:hover { background: var(--primary); color: white; }
+        
+        /* V4 Features */
+        .personality-badge {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(99, 102, 241, 0.2));
+            border: 1px solid rgba(139, 92, 246, 0.4);
+            border-radius: 16px;
+            padding: 12px 16px;
+            margin: 15px auto;
+            max-width: 600px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .personality-icon {
+            width: 45px;
+            height: 45px;
+            background: var(--gradient);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+        .personality-info { flex: 1; }
+        .personality-type { font-weight: 700; font-size: 0.95rem; color: var(--primary); }
+        .personality-desc { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
+        .merchant-trust {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 14px;
+            padding: 12px;
+            margin: 10px 0;
+        }
+        .merchant-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+        .merchant-name { font-weight: 600; font-size: 0.9rem; }
+        .trust-score { display: flex; align-items: center; gap: 6px; }
+        .trust-score-value { font-weight: 800; font-size: 1.1rem; }
+        .trust-score-value.high { color: #10b981; }
+        .trust-score-value.medium { color: #f59e0b; }
+        .trust-score-value.low { color: #ef4444; }
+        .trust-bar { height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
+        .trust-bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+        .trust-bar-fill.high { background: linear-gradient(90deg, #10b981, #22c55e); }
+        .trust-bar-fill.medium { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+        .trust-bar-fill.low { background: linear-gradient(90deg, #ef4444, #f87171); }
+        .fake-deal-alert {
+            background: rgba(239, 68, 68, 0.15);
+            border: 2px solid rgba(239, 68, 68, 0.5);
+            border-radius: 14px;
+            padding: 14px;
+            margin: 12px 0;
+        }
+        .fake-deal-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .fake-deal-icon { font-size: 1.5rem; }
+        .fake-deal-title { font-weight: 700; color: #ef4444; }
+        .fake-deal-reasons { font-size: 0.85rem; color: var(--text-muted); }
+        .recommendations-section {
+            background: rgba(99, 102, 241, 0.08);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 16px;
+            padding: 16px;
+            margin: 15px 0;
+        }
+        .rec-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+        .rec-title { font-weight: 700; color: var(--primary); }
+        .rec-items { display: flex; flex-direction: column; gap: 10px; }
+        .rec-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 12px;
+            padding: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .rec-item:hover { background: rgba(255,255,255,0.06); }
+        .rec-item-img { width: 50px; height: 50px; border-radius: 10px; object-fit: cover; background: white; }
+        .rec-item-info { flex: 1; }
+        .rec-item-title { font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; }
+        .rec-item-price { font-size: 0.9rem; color: #10b981; font-weight: 700; }
+        .deal-quality {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(6, 182, 212, 0.1));
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 14px;
+            padding: 14px;
+            margin: 12px 0;
+            text-align: center;
+        }
+        .deal-quality-score {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #10b981, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .deal-quality-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
+        .deal-quality-meter { display: flex; justify-content: center; gap: 4px; margin-top: 10px; }
+        .meter-bar { width: 30px; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; }
+        .meter-bar.filled { background: linear-gradient(90deg, #10b981, #06b6d4); }
+        .score-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; }
+        .score-item { background: rgba(255,255,255,0.03); border-radius: 10px; padding: 10px; text-align: center; }
+        .score-item-value { font-size: 1.2rem; font-weight: 800; }
+        .score-item-label { font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; }
+        .score-item.value .score-item-value { color: #10b981; }
+        .score-item.trust .score-item-value { color: #3b82f6; }
+        .score-item.deal .score-item-value { color: #f59e0b; }
+        .verdict-box {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 14px;
+            border: 2px solid;
+            text-align: center;
+        }
+        .verdict-buy { border-color: #10b981; background: rgba(16, 185, 129, 0.1); }
+        .verdict-wait { border-color: #f59e0b; background: rgba(245, 158, 11, 0.1); }
+        .verdict-avoid { border-color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+        .verdict-decision { font-size: 1.3rem; font-weight: 800; margin-bottom: 8px; }
+        .verdict-reason { font-size: 0.9rem; opacity: 0.9; }
+        .verdict-savings { margin-top: 10px; font-size: 0.85rem; }
+        
+        @media (max-width: 768px) {
+            .cat-grid { grid-template-columns: repeat(3, 1fr); }
+            .score-grid { grid-template-columns: repeat(2, 1fr); }
+            .chat-window { left: 10px; right: 10px; bottom: 80px; width: auto; height: 60vh; }
+            .chat-fab { bottom: 20px; left: 20px; }
+        }
+    </style>
+</head>
+<body>
+<div id="auth-overlay" class="auth-overlay">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1 class="logo-text">Findly <span>Sage</span></h1>
+            <p id="auth-title"></p>
+        </div>
+        <div id="auth-inputs">
+            <input type="email" id="auth-email" placeholder="">
+            <input type="password" id="auth-password" placeholder="">
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button onclick="handleLogin()" class="action-btn buy-now" style="flex: 1;" id="btn-login"></button>
+                <button onclick="handleRegister()" class="action-btn buy-now" style="flex: 1; background: rgba(30, 41, 59, 0.7); border: 1px solid var(--primary); color: var(--primary);" id="btn-register"></button>
+            </div>
+        </div>
+        <div class="divider"><span id="txt-or"></span></div>
+        <button onclick="loginWithGoogle()" class="google-btn" id="btn-google">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+            <span id="txt-google-btn"></span>
+        </button>
+    </div>
+</div>
+
+<header>
+    <div class="logo-area">
+        <div class="logo">Findly <i class="fa-solid fa-wand-magic-sparkles"></i></div>
+    </div>
+    <div class="header-tools">
+        <button class="tool-btn" onclick="toggleMode()" title="Toggle Theme"><i class="fa-solid fa-circle-half-stroke"></i></button>
+        <div style="position: relative;">
+            <button class="tool-btn" onclick="toggleLMenu()" title="Language"><i class="fa-solid fa-language"></i></button>
+            <div id="l-menu" class="lang-menu">
+                <div class="lang-item" onclick="setLang('ar')">العربية</div>
+                <div class="lang-item" onclick="setLang('en')">English</div>
+                <div class="lang-item" onclick="setLang('fr')">Francais</div>
+                <div class="lang-item" onclick="setLang('de')">Deutsch</div>
+                <div class="lang-item" onclick="setLang('es')">Espanol</div>
+                <div class="lang-item" onclick="setLang('tr')">Turkce</div>
+            </div>
+        </div>
+        <button class="tool-btn" onclick="openProfile()" title="Profile"><i class="fa-solid fa-user-gear"></i></button>
+        <button class="tool-btn" id="logout-btn" onclick="logoutUser()" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></button>
+    </div>
+</header>
+
+<main class="search-area">
+    <div class="energy-box">
+        <span id="txt-energy"></span>
+        <span id="r-count" style="background:var(--primary); color:#fff; padding:3px 12px; border-radius:20px; font-weight:900; font-size: 0.9rem;">∞</span>
+        <i class="fa-solid fa-bolt" style="color:#FFD700;"></i>
+    </div>
+    <h2 id="greeting" style="color: var(--primary); font-size: 1.1rem; margin-bottom: 5px; font-weight: 600;"></h2>
+    <h1 id="txt-title"></h1>
+    <p id="txt-sub" style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 30px;"></p>
+    <div class="ai-toggle">
+        <i class="fa-solid fa-brain"></i>
+        <span id="txt-deep"></span>
+        <input type="checkbox" id="ai-deep-mode">
+    </div>
+    <div class="search-wrapper">
+        <input type="text" id="s-input" class="search-input" placeholder="" onkeypress="if(event.key==='Enter')runSearch()">
+        <button id="mic-btn" class="mic-icon" type="button"><i class="fa-solid fa-microphone"></i></button>
+        <button class="send-btn" onclick="runSearch()"><i class="fa-solid fa-magnifying-glass"></i></button>
+    </div>
+    <div class="invite-card" onclick="copyInvite()">
+        <div class="invite-text" id="inviteText"></div>
+    </div>
+    <div class="ai-options">
+        <div class="ai-tag" onclick="quickFilter('cheap')"><i class="fa-solid fa-sack-dollar"></i> <span id="tag-cheap"></span></div>
+        <div class="ai-tag" onclick="quickFilter('top')"><i class="fa-solid fa-star"></i> <span id="tag-top"></span></div>
+        <div class="ai-tag" onclick="quickFilter('new')"><i class="fa-solid fa-fire"></i> <span id="tag-new"></span></div>
+    </div>
+    <div class="cat-grid">
+        <div class="cat-card" onclick="quickSearch('ألعاب')"><i class="fa-solid fa-gamepad"></i><span id="cat-game"></span></div>
+        <div class="cat-card" onclick="quickSearch('جمال')"><i class="fa-solid fa-sparkles"></i><span id="cat-beauty"></span></div>
+        <div class="cat-card" onclick="quickSearch('منزل ذكي')"><i class="fa-solid fa-house-laptop"></i><span id="cat-home"></span></div>
+        <div class="cat-card" onclick="quickSearch('هواتف')"><i class="fa-solid fa-mobile-screen-button"></i><span id="cat-c1"></span></div>
+        <div class="cat-card" onclick="quickSearch('لابتوب')"><i class="fa-solid fa-laptop"></i><span id="cat-c2"></span></div>
+        <div class="cat-card" onclick="quickSearch('ساعات')"><i class="fa-solid fa-stopwatch"></i><span id="cat-c4"></span></div>
+    </div>
+    <div id="status" style="display:none; color:var(--primary); font-weight:bold; margin-top:30px; font-size: 1.1rem; text-align: center;"></div>
+    <div id="personality-container" style="display: none;"></div>
+    <div id="results"></div>
+    <div style="margin-top: 30px; font-size: 0.85rem; text-align: center;">
+        <a href="#" style="color:var(--text-muted); margin:0 5px;" id="footer-privacy"></a>
+        <a href="#" style="color:var(--text-muted); margin:0 5px;" id="footer-terms"></a>
+        <a href="#" style="color:var(--text-muted); margin:0 5px;" id="footer-about"></a>
+    </div>
+</main>
+
+<!-- Chat Bot -->
+<button id="chat-fab" class="chat-fab" type="button">
+    <i class="fa-solid fa-comments" id="chat-fab-icon"></i>
+</button>
+
+<div id="chat-window" class="chat-window">
+    <div class="chat-header">
+        <div class="chat-avatar">🔮</div>
+        <div class="chat-title-area">
+            <h4 id="chat-title">Sage AI</h4>
+            <span id="chat-status">Online</span>
+        </div>
+        <button class="chat-close" type="button" id="chat-close-btn">✕</button>
+    </div>
+    <div class="chat-messages" id="chat-messages">
+        <div class="chat-message assistant" id="chat-welcome"></div>
+    </div>
+    <div class="chat-suggestions" id="chat-suggestions"></div>
+    <div class="chat-input-area">
+        <input type="text" id="chat-input" class="chat-input" placeholder="" onkeypress="if(event.key==='Enter')sendChatMessage()">
+        <button class="chat-send" id="chat-send" type="button"><i class="fa-solid fa-paper-plane"></i></button>
+    </div>
+</div>
+
+<!-- Modals -->
+<div class="modal" id="p-modal">
+    <div class="modal-box">
+        <h3 id="p-head" style="margin-top:0;"></h3>
+        <label id="lbl-name" style="font-size:0.85rem; display:block; margin-bottom:5px; opacity:0.7;"></label>
+        <input type="text" id="in-name" placeholder="">
+        <label id="lbl-budget" style="font-size:0.85rem; display:block; margin-top:15px; margin-bottom:5px; opacity:0.7;"></label>
+        <input type="number" id="in-budget" placeholder="">
+        <button class="action-btn buy-now" onclick="saveSet()" style="width:100%; margin-top:20px;" id="btn-save-settings"></button>
+        <button onclick="openProfile()" style="background:none; color:var(--text-muted); border:none; margin-top:15px; cursor:pointer; font-size:0.9rem;" id="btn-close-profile"></button>
+    </div>
+</div>
+
+<div id="analysis-modal" class="analysis-modal">
+    <div class="modal-content">
+        <h3 id="analysis-modal-title"></h3>
+        <div id="analysis-content-body"></div>
+        <button class="action-btn buy-now" style="margin-top:15px; width:100%" onclick="closeAnalysisModal()" id="btn-close-analysis"></button>
+    </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyCI_q5lkgRY4133ua4RlG5TeiCqJ5N5KTU",
+    authDomain: "findly-ede17.firebaseapp.com",
+    projectId: "findly-ede17",
+    storageBucket: "findly-ede17.firebasestorage.app",
+    messagingSenderId: "503212830017",
+    appId: "1:503212830017:web:9afb64c19822bbe7f645c0"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+
+window.loginWithGoogle = async () => {
+    try { await signInWithPopup(auth, provider); } catch (error) { alert("Error: " + error.message); }
+};
+
+window.handleLogin = async () => {
+    const email = document.getElementById('auth-email').value;
+    const password = document.getElementById('auth-password').value;
+    if (!email || !password) return alert('Please fill all fields');
+    try {
+        await signInWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+        alert("Login failed: " + error.message);
+    }
+};
+
+window.handleRegister = async () => {
+    const email = document.getElementById('auth-email').value;
+    const password = document.getElementById('auth-password').value;
+    if (!email || !password) return alert('Please fill all fields');
+    if (password.length < 6) return alert('Password must be at least 6 characters');
+    try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        alert('Account created successfully!');
+    } catch (error) {
+        alert("Registration failed: " + error.message);
+    }
+};
+
+window.logoutUser = () => {
+    if (confirm('Do you want to logout?')) {
+        signOut(auth).then(() => location.reload());
+    }
+};
+
+onAuthStateChanged(auth, (user) => {
+    const overlay = document.getElementById('auth-overlay');
+    if (user) {
+        overlay.style.setProperty('display', 'none', 'important');
+        document.body.style.overflow = 'auto';
+        localStorage.setItem('findly_uid', user.uid);
+    } else {
+        overlay.style.setProperty('display', 'flex', 'important');
+        document.body.style.overflow = 'hidden';
+    }
+});
+
+// Make auth available globally
+window.firebaseAuth = auth;
+</script>
+
+<script>
+const API = "https://findly-api-production.up.railway.app";
+
+// Global dictionary for translations
+const dict = {
+    ar: {
+        ui: {
+            title: "مستشارك الحكيم", sub: "دليلك الذكي للتسوق المثالي", energy: "طاقة العقل",
+            welcome: "مرحباً،", game: "ألعاب", beauty: "جمال", home: "منزل ذكي", c1: "هواتف", c2: "لابتوب", c4: "ساعات",
+            p_head: "الملف الشخصي", lbl_name: "اسم المستخدم", lbl_budget: "الميزانية ($)",
+            buy: "شراء الآن 🛒", watch: "راقب السعر 🔔", over: "يتجاوز ميزانيتك",
+            cheap: "اقتصادي", top: "الأعلى تقييماً", new: "حديث جداً", deep: "وضع التحليل الذكي",
+            slow: "جاري البحث...", noAttempts: "⚠️ استنفدت محاولاتك!", analyze: "📊 تحليل السعر", close: "إغلاق",
+            saveChanges: "حفظ التغييرات ✅", searchPlaceholder: "ابحث عن منتج...",
+            noResults: "لا توجد نتائج", errorFetching: "❌ خطأ في جلب النتائج"
+        },
+        search: {
+            market: "السوق", avg_price: "متوسط السعر", competitors: "عدد المنافسين", value: "قيمة الصفقة",
+            deal_score: "تقييم الصفقة", learning_on: "سيتحسن التحليل مع الاستخدام", learning_later: "التحليل قيد التعلم",
+            forecast: "التوقع السعري", trend_up: "قد يرتفع قريبًا", trend_down: "قد ينخفض", trend_stable: "مستقر",
+            expected_price: "السعر المتوقع", confidence: "الثقة", trust: "الثقة والمخاطر", no_risks: "لا توجد مخاطر واضحة",
+            buy: "اشترِ", analyze: "تحليل", watch: "راقب", price: "السعر", timing: "التوقيت", behavior: "السلوك",
+            excellent: "ممتاز", good: "جيد", weak: "ضعيف", wait: "انتظر", mayRise: "قد يرتفع", stableTxt: "مستقر",
+            risk: "مخاطرة", safe: "آمن", suitable: "مناسب لك", general: "عام",
+            smartDecision: "قرار ذكي: اشترِ الآن", preferWait: "يفضل الانتظار", waitPriceDrop: "انتظر انخفاض السعر",
+            priceHigh: "السعر مرتفع", saving: "التوفير", bestStore: "أفضل متجر", confidenceScore: "الثقة",
+            watchPrice: "مراقبة السعر", linkUnavailable: "الرابط غير متوفر"
+        },
+        analysis: {
+            title: "🧠 تحليل Sage الذكي", market: "السوق", avgPrice: "متوسط السعر", competitors: "عدد المنافسين",
+            deal: "الصفقة", dealScore: "درجة الصفقة", forecast: "التوقع", trend: "الاتجاه",
+            expectedPrice: "سعر متوقع", confidence: "ثقة", trustRisks: "الثقة والمخاطر", noClearRisks: "لا توجد مخاطر واضحة"
+        },
+        auth: {
+            title: "سجل دخولك لتبدأ البحث الذكي", email: "البريد الإلكتروني", password: "كلمة المرور",
+            login: "تسجيل دخول", register: "إنشاء حساب", or: "أو", googleBtn: "متابعة باستخدام جوجل"
+        },
+        upgrade: {
+            title: "انتهت المحاولات المجانية", message: "لقد استهلكت جميع عمليات البحث المجانية.",
+            upgradeBtn: "ترقية الآن"
+        },
+        invite: { text: "ادعُ أصدقاءك الآن ✨ — مكافآت قادمة قريبًا 🎁", copied: "تم نسخ رابط الدعوة ✨" },
+        watch: { enterEmail: "أدخل إيميلك للتنبيه:", activated: "✅ تم تفعيل التنبيه!" },
+        chat: {
+            title: "Sage AI", status: "متصل",
+            welcome: "مرحباً! 👋 أنا Sage، مساعدك الذكي للتسوق. كيف يمكنني مساعدتك؟",
+            placeholder: "اكتب رسالتك...",
+            suggestions: ["ابحث عن أفضل الأسعار", "قارن بين منتجين", "ما هي العروض الحالية؟", "ساعدني في اختيار هاتف"]
+        },
+        v4: {
+            personality: "شخصية التسوق",
+            personalityTypes: {
+                hunter: { name: "صياد الصفقات", desc: "تبحث عن أفضل الصفقات", icon: "🎯" },
+                analyst: { name: "المحلل", desc: "تفضل التحليل قبل الشراء", icon: "🔬" },
+                impulse: { name: "المتسرع", desc: "تتخذ قرارات سريعة", icon: "⚡" },
+                premium: { name: "محب الجودة", desc: "تهتم بالجودة", icon: "💎" },
+                budget: { name: "المخطط", desc: "محدود الميزانية", icon: "💰" },
+                neutral: { name: "متوازن", desc: "سلوك متوازن", icon: "⚖️" }
+            },
+            merchantTrust: "ثقة التاجر", merchantScore: "تقييم المتجر", verified: "موثوق",
+            fakeDealAlert: "⚠️ تنبيه: صفقة مشبوهة!", recommendations: "💡 توصيات ذكية",
+            dealQuality: "جودة الصفقة", priceAnalysis: "تحليل السعر", valueForMoney: "القيمة مقابل السعر", reliability: "الموثوقية"
+        }
+    },
+    en: {
+        ui: {
+            title: "Sage Advisor", sub: "Your smart shopping guide", energy: "Sage Energy",
+            welcome: "Welcome,", game: "Gaming", beauty: "Beauty", home: "Smart Home", c1: "Phones", c2: "Laptops", c4: "Watches",
+            p_head: "Profile", lbl_name: "Username", lbl_budget: "Budget ($)",
+            buy: "Buy Now 🛒", watch: "Watch Price 🔔", over: "Over Budget!",
+            cheap: "Budget", top: "Top Rated", new: "Newest", deep: "AI Deep Mode",
+            slow: "Searching...", noAttempts: "⚠️ No attempts left!", analyze: "📊 Analysis", close: "Close",
+            saveChanges: "Save Changes ✅", searchPlaceholder: "Search for a product...",
+            noResults: "No results found", errorFetching: "❌ Error fetching results"
+        },
+        search: {
+            market: "Market", avg_price: "Average price", competitors: "Competitors", value: "Deal value",
+            deal_score: "Deal score", learning_on: "Analysis improves with usage", learning_later: "Analysis is learning",
+            forecast: "Price forecast", trend_up: "Likely to rise", trend_down: "Likely to drop", trend_stable: "Stable",
+            expected_price: "Expected price", confidence: "Confidence", trust: "Trust & risks", no_risks: "No clear risks",
+            buy: "Buy", analyze: "Analyze", watch: "Watch", price: "Price", timing: "Timing", behavior: "Behavior",
+            excellent: "Excellent", good: "Good", weak: "Weak", wait: "Wait", mayRise: "May rise", stableTxt: "Stable",
+            risk: "Risk", safe: "Safe", suitable: "Suitable", general: "General",
+            smartDecision: "Smart decision: Buy now", preferWait: "Better to wait", waitPriceDrop: "Wait for price drop",
+            priceHigh: "Price is high", saving: "Saving", bestStore: "Best store", confidenceScore: "Confidence",
+            watchPrice: "Watch Price", linkUnavailable: "Link unavailable"
+        },
+        analysis: {
+            title: "🧠 Sage Smart Analysis", market: "Market", avgPrice: "Average price", competitors: "Competitors",
+            deal: "Deal", dealScore: "Deal score", forecast: "Forecast", trend: "Trend",
+            expectedPrice: "Expected price", confidence: "Confidence", trustRisks: "Trust & Risks", noClearRisks: "No clear risks"
+        },
+        auth: {
+            title: "Sign in to start smart search", email: "Email", password: "Password",
+            login: "Sign In", register: "Sign Up", or: "or", googleBtn: "Continue with Google"
+        },
+        upgrade: { title: "Free searches exhausted", message: "You have used all your free searches.", upgradeBtn: "Upgrade now" },
+        invite: { text: "Invite your friends now ✨ — rewards coming soon 🎁", copied: "Invite link copied ✨" },
+        watch: { enterEmail: "Enter your email for alerts:", activated: "✅ Alert activated!" },
+        chat: {
+            title: "Sage AI", status: "Online",
+            welcome: "Hello! 👋 I'm Sage, your smart shopping assistant. How can I help you?",
+            placeholder: "Type your message...",
+            suggestions: ["Find best prices", "Compare products", "What are current deals?", "Help me choose a phone"]
+        },
+        v4: {
+            personality: "Shopping Personality",
+            personalityTypes: {
+                hunter: { name: "Deal Hunter", desc: "You hunt for the best deals", icon: "🎯" },
+                analyst: { name: "Analyst", desc: "You prefer analysis before buying", icon: "🔬" },
+                impulse: { name: "Impulse Buyer", desc: "You make quick decisions", icon: "⚡" },
+                premium: { name: "Quality Lover", desc: "You care about quality", icon: "💎" },
+                budget: { name: "Budget Planner", desc: "Limited budget", icon: "💰" },
+                neutral: { name: "Balanced", desc: "Balanced behavior", icon: "⚖️" }
+            },
+            merchantTrust: "Merchant Trust", merchantScore: "Store Rating", verified: "Verified",
+            fakeDealAlert: "⚠️ Alert: Suspicious Deal!", recommendations: "💡 Smart Recommendations",
+            dealQuality: "Deal Quality", priceAnalysis: "Price Analysis", valueForMoney: "Value for Money", reliability: "Reliability"
+        }
+    }
+};
+
+// Add more languages as needed...
+['fr', 'de', 'es', 'tr'].forEach(l => { dict[l] = JSON.parse(JSON.stringify(dict.en)); });
+
+let lang = localStorage.getItem('findly_lang') || 'ar';
+let chatHistory = [];
+let isChatOpen = false;
+
+// Translation helper
+function t(key) {
+    const keys = key.split('.');
+    let value = dict[lang];
+    for (const k of keys) { value = value?.[k]; }
+    return value || key;
+}
+
+// ===== CHAT BOT =====
+function initChat() {
+    const chatFab = document.getElementById('chat-fab');
+    const chatCloseBtn = document.getElementById('chat-close-btn');
+    const chatSendBtn = document.getElementById('chat-send');
+    
+    chatFab.addEventListener('click', toggleChat);
+    chatCloseBtn.addEventListener('click', toggleChat);
+    chatSendBtn.addEventListener('click', sendChatMessage);
+    
+    updateChatUI();
+}
+
+function toggleChat() {
+    isChatOpen = !isChatOpen;
+    const chatWindow = document.getElementById('chat-window');
+    const fabIcon = document.getElementById('chat-fab-icon');
+    
+    if (isChatOpen) {
+        chatWindow.classList.add('active');
+        fabIcon.className = 'fa-solid fa-times';
+    } else {
+        chatWindow.classList.remove('active');
+        fabIcon.className = 'fa-solid fa-comments';
+    }
+}
+
+function updateChatUI() {
+    const chatDict = dict[lang]?.chat || dict.ar.chat;
+    document.getElementById('chat-title').textContent = chatDict.title;
+    document.getElementById('chat-status').textContent = chatDict.status;
+    document.getElementById('chat-welcome').textContent = chatDict.welcome;
+    document.getElementById('chat-input').placeholder = chatDict.placeholder;
+    
+    const suggestionsContainer = document.getElementById('chat-suggestions');
+    if (chatDict.suggestions) {
+        suggestionsContainer.innerHTML = chatDict.suggestions.map(s => 
+            '<div class="chat-suggestion" onclick="sendSuggestion(\'' + s.replace(/'/g, "\\'") + '\')">' + s + '</div>'
+        ).join('');
+    }
+}
+
+window.sendSuggestion = function(text) {
+    document.getElementById('chat-input').value = text;
+    sendChatMessage();
+};
+
+async function sendChatMessage() {
+    const input = document.getElementById('chat-input');
+    const message = input.value.trim();
+    if (!message) return;
+    
+    const messagesContainer = document.getElementById('chat-messages');
+    
+    // Add user message
+    const userMsg = document.createElement('div');
+    userMsg.className = 'chat-message user';
+    userMsg.textContent = message;
+    messagesContainer.appendChild(userMsg);
+    
+    input.value = '';
+    
+    // Show typing
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'chat-typing';
+    typingDiv.id = 'chat-typing';
+    typingDiv.innerHTML = '<span></span><span></span><span></span>';
+    messagesContainer.appendChild(typingDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    
+    document.getElementById('chat-send').disabled = true;
+    
+    try {
+        const response = await fetch(API + '/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                message: message,
+                history: chatHistory.slice(-10),
+                lang: lang,
+                uid: localStorage.getItem('findly_uid') || 'guest'
+            })
+        });
+        
+        const data = await response.json();
+        
+        const typing = document.getElementById('chat-typing');
+        if (typing) typing.remove();
+        
+        const aiMsg = document.createElement('div');
+        aiMsg.className = 'chat-message assistant';
+        
+        // Handle response
+        let responseText = data.response || data.reply || data.message || '🤔 Sorry, I could not process that. Try again!';
+        aiMsg.textContent = responseText;
+        messagesContainer.appendChild(aiMsg);
+        
+        // Update suggestions if provided
+        if (data.suggestions && data.suggestions.length > 0) {
+            const suggestionsContainer = document.getElementById('chat-suggestions');
+            suggestionsContainer.innerHTML = data.suggestions.map(s => 
+                '<div class="chat-suggestion" onclick="sendSuggestion(\'' + s.replace(/'/g, "\\'") + '\')">' + s + '</div>'
+            ).join('');
+        }
+        
+        chatHistory.push({ role: 'user', content: message });
+        chatHistory.push({ role: 'assistant', content: responseText });
+        
+    } catch (error) {
+        console.error('Chat error:', error);
+        const typing = document.getElementById('chat-typing');
+        if (typing) typing.remove();
+        
+        // Smart fallback
+        const fallbacks = {
+            ar: 'أنا هنا للمساعدة! 🛒 جرب البحث عن منتج أو اسألني عن الأسعار!',
+            en: 'I\'m here to help! 🛒 Try searching for a product or ask me about prices!'
+        };
+        
+        const errorMsg = document.createElement('div');
+        errorMsg.className = 'chat-message assistant';
+        errorMsg.textContent = fallbacks[lang] || fallbacks.en;
+        messagesContainer.appendChild(errorMsg);
+    }
+    
+    document.getElementById('chat-send').disabled = false;
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+// ===== VOICE SEARCH =====
+function initVoiceSearch() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const micBtn = document.getElementById('mic-btn');
+
+    if (!SpeechRecognition) return;
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = lang === 'ar' ? 'ar-SA' : 'en-US';
+    recognition.interimResults = false;
+    recognition.continuous = false;
+
+    micBtn.addEventListener('click', () => recognition.start());
+    recognition.onstart = () => micBtn.classList.add('mic-active');
+    recognition.onresult = (event) => {
+        document.getElementById('s-input').value = event.results[0][0].transcript;
+        runSearch();
+    };
+    recognition.onerror = (e) => console.log("Voice error:", e.error);
+    recognition.onend = () => micBtn.classList.remove('mic-active');
+}
+
+// ===== RENDER FUNCTIONS =====
+function renderPersonalityBadge(personality) {
+    if (!personality || !personality.type) return '';
+    const V4 = dict[lang]?.v4 || dict.ar.v4;
+    const typeInfo = V4.personalityTypes[personality.type] || V4.personalityTypes.neutral;
+    
+    return '<div class="personality-badge">' +
+        '<div class="personality-icon">' + typeInfo.icon + '</div>' +
+        '<div class="personality-info">' +
+        '<div class="personality-type">' + typeInfo.name + '</div>' +
+        '<div class="personality-desc">' + typeInfo.desc + '</div></div></div>';
+}
+
+function renderMerchantTrust(merchantTrust) {
+    if (!merchantTrust) return '';
+    const V4 = dict[lang]?.v4 || dict.ar.v4;
+    const score = merchantTrust.score || merchantTrust.trustScore || 50;
+    const scoreClass = score >= 70 ? 'high' : score >= 40 ? 'medium' : 'low';
+    
+    return '<div class="merchant-trust">' +
+        '<div class="merchant-header">' +
+        '<span class="merchant-name">🏪 ' + (merchantTrust.name || merchantTrust.store || V4.merchantTrust) + '</span>' +
+        '<div class="trust-score">' +
+        '<span class="trust-score-value ' + scoreClass + '">' + score + '%</span>' +
+        (merchantTrust.verified ? '<span style="color:#10b981;font-size:0.8rem;">✓ ' + V4.verified + '</span>' : '') +
+        '</div></div>' +
+        '<div class="trust-bar"><div class="trust-bar-fill ' + scoreClass + '" style="width:' + score + '%"></div></div></div>';
+}
+
+function renderFakeDealAlert(fakeDeal) {
+    if (!fakeDeal || !fakeDeal.isSuspicious) return '';
+    const V4 = dict[lang]?.v4 || dict.ar.v4;
+    const reasons = fakeDeal.reasons || fakeDeal.warnings || [];
+    
+    return '<div class="fake-deal-alert">' +
+        '<div class="fake-deal-header">' +
+        '<span class="fake-deal-icon">🚨</span>' +
+        '<span class="fake-deal-title">' + V4.fakeDealAlert + '</span></div>' +
+        '<ul class="fake-deal-reasons">' + reasons.map(function(r) { return '<li>• ' + r + '</li>'; }).join('') + '</ul></div>';
+}
+
+function renderRecommendations(recommendations) {
+    if (!recommendations || !recommendations.length) return '';
+    const V4 = dict[lang]?.v4 || dict.ar.v4;
+    
+    return '<div class="recommendations-section">' +
+        '<div class="rec-header"><span class="rec-title">' + V4.recommendations + '</span></div>' +
+        '<div class="rec-items">' + recommendations.slice(0, 3).map(function(rec) {
+            return '<div class="rec-item" onclick="document.getElementById(\'s-input\').value=\'' + (rec.title || '').replace(/'/g, "\\'") + '\'; runSearch();">' +
+                '<div class="rec-item-info" style="flex:1">' +
+                '<div class="rec-item-title">' + (rec.title || 'Product') + '</div>' +
+                '<div class="rec-item-price">$' + (rec.price || '---') + '</div>' +
+                (rec.savingsPercent ? '<div style="font-size:0.75rem;color:#10b981">وفر ' + rec.savingsPercent + '%</div>' : '') +
+                '</div></div>';
+        }).join('') + '</div></div>';
+}
+
+function renderDealQuality(dealQuality) {
+    if (!dealQuality) return '';
+    const V4 = dict[lang]?.v4 || dict.ar.v4;
+    const score = dealQuality.score || 50;
+    const filledBars = Math.round(score / 10);
+    
+    let barsHtml = '';
+    for (let i = 0; i < 10; i++) {
+        barsHtml += '<div class="meter-bar' + (i < filledBars ? ' filled' : '') + '"></div>';
+    }
+    
+    return '<div class="deal-quality">' +
+        '<div class="deal-quality-score">' + score + '%</div>' +
+        '<div class="deal-quality-label">' + (dealQuality.label || V4.dealQuality) + '</div>' +
+        '<div class="deal-quality-meter">' + barsHtml + '</div></div>';
+}
+
+function renderScoreGrid(intel) {
+    const V4 = dict[lang]?.v4 || dict.ar.v4;
+    const priceIntel = intel.priceIntel || {};
+    const trustIntel = intel.trustIntel || {};
+    const dealQuality = intel.dealQuality || {};
+    
+    return '<div class="score-grid">' +
+        '<div class="score-item value"><div class="score-item-value">' + (priceIntel.score || 50) + '%</div>' +
+        '<div class="score-item-label">' + V4.priceAnalysis + '</div></div>' +
+        '<div class="score-item trust"><div class="score-item-value">' + (100 - (trustIntel.riskScore || trustIntel.overallRisk || 0)) + '%</div>' +
+        '<div class="score-item-label">' + V4.reliability + '</div></div>' +
+        '<div class="score-item deal"><div class="score-item-value">' + (dealQuality.score || 50) + '%</div>' +
+        '<div class="score-item-label">' + V4.valueForMoney + '</div></div></div>';
+}
+
+// ===== SEARCH FUNCTION =====
+async function runSearch() {
+    const q = document.getElementById('s-input').value.trim();
+    const status = document.getElementById('status');
+    const resultsBox = document.getElementById('results');
+    const personalityContainer = document.getElementById('personality-container');
+    
+    if (!q) return;
+    
+    const T = dict[lang]?.search || dict.en.search;
+    const UI = dict[lang]?.ui || dict.en.ui;
+    
+    status.style.display = 'block';
+    status.innerText = '🔍 ' + UI.slow;
+    resultsBox.innerHTML = '';
+    personalityContainer.style.display = 'none';
+    
+    try {
+        // Check for Firebase auth
+        let headers = { 'Content-Type': 'application/json' };
+        
+        if (window.firebaseAuth && window.firebaseAuth.currentUser) {
+            const token = await window.firebaseAuth.currentUser.getIdToken();
+            headers['Authorization'] = 'Bearer ' + token;
+        }
+        
+        const res = await fetch(API + '/search?q=' + encodeURIComponent(q) + '&lang=' + lang, { headers });
+        const data = await res.json();
+        
+        status.style.display = 'none';
+        
+        if (data.error === 'ENERGY_EMPTY') {
+            const upgradeDict = dict[lang]?.upgrade || dict.ar.upgrade;
+            status.style.display = 'block';
+            status.innerHTML = '<div class="upgrade-section"><h3>' + upgradeDict.title + '</h3><p>' + upgradeDict.message + '</p></div>';
+            return;
+        }
+        
+        if (!data.results || !data.results.length) {
+            status.style.display = 'block';
+            status.innerText = UI.noResults;
+            return;
+        }
+        
+        // Show personality
+        if (data.personality || (data.results[0] && data.results[0].intelligence && data.results[0].intelligence.personalityIntel)) {
+            const personality = data.personality || data.results[0].intelligence.personalityIntel;
+            personalityContainer.innerHTML = renderPersonalityBadge(personality);
+            personalityContainer.style.display = 'block';
+        }
+        
+        // Update energy
+        if (data.energy) {
+            document.getElementById('r-count').textContent = data.energy.left || '∞';
+        }
+        
+        // Render products
+        data.results.forEach(function(p) {
+            const intel = p.intelligence || {};
+            const verdict = intel.finalVerdict || {};
+            const priceIntel = intel.priceIntel || {};
+            const valueIntel = intel.valueIntel || {};
+            const forecastIntel = intel.forecastIntel || intel.trendIntel || {};
+            const trustIntel = intel.trustIntel || {};
+            
+            const priceVal = parseFloat(String(p.price).replace(/[^\d.]/g, '')) || 0;
+            
+            // Determine verdict class
+            let verdictClass = 'verdict-wait';
+            if (verdict.decision === 'BUY_NOW' || verdict.decision === 'BUY') verdictClass = 'verdict-buy';
+            else if (verdict.decision === 'AVOID') verdictClass = 'verdict-avoid';
+            
+            // Trend text
+            const trendText = forecastIntel.trend === 'up' ? T.trend_up : 
+                             (forecastIntel.trend === 'down' ? T.trend_down : T.trend_stable);
+            
+            // Price evaluation
+            let priceEval = T.weak;
+            if (priceIntel.score >= 70) priceEval = T.excellent;
+            else if (priceIntel.score >= 50) priceEval = T.good;
+            
+            // Timing evaluation
+            let timingEval = T.stableTxt;
+            if (forecastIntel.trend === 'down') timingEval = T.wait;
+            else if (forecastIntel.trend === 'up') timingEval = T.mayRise;
+            
+            // Trust evaluation
+            let trustEval = T.safe;
+            if ((trustIntel.riskScore || trustIntel.overallRisk || 0) > 50) trustEval = T.risk;
+            
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            
+            // Build product card HTML
+            let cardHtml = 
+                '<img src="' + (p.thumbnail || '') + '" onerror="this.src=\'https://via.placeholder.com/200\'">' +
+                '<h3>' + (p.title || '—') + '</h3>' +
+                '<div class="price">$' + (priceVal || '—') + '</div>';
+            
+            // Deal Quality
+            if (intel.dealQuality) {
+                cardHtml += renderDealQuality(intel.dealQuality);
+            }
+            
+            // Score Grid
+            cardHtml += renderScoreGrid(intel);
+            
+            // Quick Brains
+            cardHtml += '<div class="sage-quick-brains">' +
+                '<div class="brain-item good">💰 ' + T.price + ' <span>' + priceEval + '</span></div>' +
+                '<div class="brain-item ' + (forecastIntel.trend === 'down' ? 'wait' : 'safe') + '">📈 ' + T.timing + ' <span>' + timingEval + '</span></div>' +
+                '<div class="brain-item ' + (trustEval === T.risk ? 'risk' : 'safe') + '">🛡️ ' + T.confidence + ' <span>' + trustEval + '</span></div>' +
+                '<div class="brain-item learn">🧠 ' + T.behavior + ' <span>' + (valueIntel.learningBoost > 0 ? T.suitable : T.general) + '</span></div></div>';
+            
+            // Fake Deal Alert
+            if (intel.fakeDeal && intel.fakeDeal.isSuspicious) {
+                cardHtml += renderFakeDealAlert(intel.fakeDeal);
+            }
+            
+            // Merchant Trust
+            if (intel.merchantTrust) {
+                cardHtml += renderMerchantTrust(intel.merchantTrust);
+            }
+            
+            // Verdict Box
+            cardHtml += '<div class="verdict-box ' + verdictClass + '">' +
+                '<div class="verdict-decision">' + (verdict.emoji || '🟡') + ' ' + (verdict.title || verdict.decision) + '</div>' +
+                '<div class="verdict-reason">' + (verdict.reason || '') + '</div>' +
+                (verdict.savingsPercent ? '<div class="verdict-savings">💰 ' + T.saving + ': <strong>' + verdict.savingsPercent + '%</strong></div>' : '') +
+                (verdict.bestStore ? '<div class="verdict-savings">🏪 ' + T.bestStore + ': <strong>' + verdict.bestStore + '</strong></div>' : '') +
+                '<div class="verdict-savings">🎯 ' + T.confidenceScore + ': <strong>' + (verdict.confidence || 50) + '%</strong></div></div>';
+            
+            // Intel Sections
+            cardHtml += '<div class="intel-section"><h4>📊 ' + T.market + '</h4>' +
+                '<p>' + T.avg_price + ': <strong>$' + (priceIntel.average || '—') + '</strong></p>' +
+                '<p>' + T.competitors + ': <strong>' + (valueIntel.competitors || 0) + '</strong></p></div>';
+            
+            cardHtml += '<div class="intel-section"><h4>💎 ' + T.value + '</h4>' +
+                '<p>' + T.deal_score + ': <strong>' + (valueIntel.score || 50) + '%</strong></p></div>';
+            
+            cardHtml += '<div class="intel-section"><h4>🔮 ' + T.forecast + '</h4>' +
+                '<p>' + trendText + '</p>' +
+                '<p>' + T.expected_price + ': <strong>$' + (forecastIntel.expectedPrice || '—') + '</strong></p></div>';
+            
+            // Warnings
+            if (trustIntel.warnings && trustIntel.warnings.length) {
+                cardHtml += '<div class="intel-section"><h4>⚠️ ' + T.trust + '</h4>' +
+                    '<ul>' + trustIntel.warnings.map(function(w) { return '<li>' + w + '</li>'; }).join('') + '</ul></div>';
+            }
+            
+            // Recommendations
+            if (intel.recommendations && intel.recommendations.length) {
+                cardHtml += renderRecommendations(intel.recommendations);
+            }
+            
+            // Watch button
+            cardHtml += '<button class="action-btn" onclick="addToWatch(\'' + p.title.replace(/'/g, "\\'") + '\',\'' + priceVal + '\')" style="width:100%;margin-top:10px;background:#f59e0b;color:white">🔔 ' + T.watchPrice + '</button>';
+            
+            // Buy button
+            const safeLink = verdict.bestLink || p.link;
+            if (safeLink && safeLink.startsWith('http')) {
+                cardHtml += '<a class="action-btn buy-now" href="' + API + '/go?url=' + encodeURIComponent(safeLink) + '" target="_blank" style="display:flex;margin-top:10px">' + T.buy + '</a>';
+            } else {
+                cardHtml += '<button class="action-btn buy-now" disabled style="margin-top:10px;opacity:0.5">' + T.linkUnavailable + '</button>';
+            }
+            
+            card.innerHTML = cardHtml;
+            resultsBox.appendChild(card);
+        });
+        
+    } catch (e) {
+        console.error(e);
+        status.style.display = 'block';
+        status.innerText = UI.errorFetching;
+    }
+}
+
+// Watch function
+window.addToWatch = async function(name, price) {
+    const watchDict = dict[lang]?.watch || dict.ar.watch;
+    const userEmail = prompt(watchDict.enterEmail);
+    if (!userEmail) return;
+    
+    alert(watchDict.activated);
+};
+
+// Other functions
+window.copyInvite = function() {
+    const uid = localStorage.getItem('findly_uid') || 'guest';
+    const link = location.origin + '?ref=' + uid;
+    const inviteDict = dict[lang]?.invite || dict.ar.invite;
+    
+    navigator.clipboard.writeText(link).then(function() {
+        alert(inviteDict.copied);
+    }).catch(function() {
+        alert(link);
+    });
+};
+
+window.saveSet = function() {
+    localStorage.setItem('fn', document.getElementById('in-name').value);
+    localStorage.setItem('user_budget', document.getElementById('in-budget').value);
+    document.getElementById('p-modal').style.display = 'none';
+    update();
+};
+
+window.toggleMode = function() {
+    document.body.classList.toggle('light-mode');
+};
+
+window.toggleLMenu = function() {
+    const m = document.getElementById('l-menu');
+    m.style.display = m.style.display === 'block' ? 'none' : 'block';
+};
+
+window.setLang = function(l) {
+    lang = l;
+    localStorage.setItem('findly_lang', l);
+    document.getElementById('l-menu').style.display = 'none';
+    update();
+    updateChatUI();
+    initVoiceSearch();
+};
+
+window.openProfile = function() {
+    document.getElementById('p-modal').style.display = 'flex';
+    document.getElementById('in-name').value = localStorage.getItem('fn') || '';
+    document.getElementById('in-budget').value = localStorage.getItem('user_budget') || '';
+};
+
+window.quickSearch = function(q) {
+    document.getElementById('s-input').value = q;
+    runSearch();
+};
+
+window.quickFilter = function(type) {
+    document.getElementById('s-input').value += ' ' + type;
+};
+
+window.closeAnalysisModal = function() {
+    document.getElementById('analysis-modal').style.display = 'none';
+};
+
+function update() {
+    const d = dict[lang] || dict.en || dict.ar;
+    if (!d) return;
+    
+    const userName = localStorage.getItem('fn') || (lang === 'ar' ? 'أيها الباحث' : 'Seeker');
+    
+    document.getElementById('txt-energy').innerText = d.ui.energy;
+    document.getElementById('greeting').innerText = d.ui.welcome + ' ' + userName;
+    document.getElementById('txt-title').innerText = d.ui.title;
+    document.getElementById('txt-sub').innerText = d.ui.sub;
+    document.getElementById('txt-deep').innerText = d.ui.deep;
+    document.getElementById('tag-cheap').innerText = d.ui.cheap;
+    document.getElementById('tag-top').innerText = d.ui.top;
+    document.getElementById('tag-new').innerText = d.ui.new;
+    document.getElementById('p-head').innerText = d.ui.p_head;
+    document.getElementById('lbl-name').innerText = d.ui.lbl_name;
+    document.getElementById('lbl-budget').innerText = d.ui.lbl_budget;
+    document.getElementById('cat-game').innerText = d.ui.game;
+    document.getElementById('cat-beauty').innerText = d.ui.beauty;
+    document.getElementById('cat-home').innerText = d.ui.home;
+    document.getElementById('cat-c1').innerText = d.ui.c1;
+    document.getElementById('cat-c2').innerText = d.ui.c2;
+    document.getElementById('cat-c4').innerText = d.ui.c4;
+    document.getElementById('s-input').placeholder = d.ui.searchPlaceholder;
+    document.getElementById('auth-title').innerText = d.auth.title;
+    document.getElementById('auth-email').placeholder = d.auth.email;
+    document.getElementById('auth-password').placeholder = d.auth.password;
+    document.getElementById('btn-login').innerText = d.auth.login;
+    document.getElementById('btn-register').innerText = d.auth.register;
+    document.getElementById('txt-or').innerText = d.auth.or;
+    document.getElementById('txt-google-btn').innerText = d.auth.googleBtn;
+    document.getElementById('btn-save-settings').innerText = d.ui.saveChanges;
+    document.getElementById('btn-close-profile').innerText = d.ui.close;
+    document.getElementById('btn-close-analysis').innerText = d.ui.close;
+    document.getElementById('analysis-modal-title').innerText = d.analysis.title;
+    document.getElementById('inviteText').innerText = d.invite.text;
+    
+    document.getElementById('main-html').lang = lang;
+    document.getElementById('main-html').dir = lang === 'ar' ? 'rtl' : 'ltr';
+}
+
+// Close modals on overlay click
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('modal') || e.target.classList.contains('analysis-modal')) {
+        e.target.style.display = 'none';
+    }
+});
+
+// Initialize on load
+window.onload = function() {
+    update();
+    initVoiceSearch();
+    initChat();
+};
+</script>
+</body>
+</html>

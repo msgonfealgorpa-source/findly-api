@@ -10,8 +10,6 @@ const axios = require('axios');
 const mongoose = require('mongoose');
 const crypto = require('crypto');
 const admin = require('firebase-admin');
-const admin = require('firebase-admin');
-
 if (!admin.apps.length) {
     admin.initializeApp({
         credential: admin.credential.applicationDefault()

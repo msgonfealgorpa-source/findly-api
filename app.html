@@ -1322,174 +1322,231 @@ async function runSearch() {
     const status = document.getElementById('status');
     const resultsBox = document.getElementById('results');
     const personalityContainer = document.getElementById('personality-container');
-    
+
     if (!q) return;
-    
+
     const T = dict[lang]?.search || dict.en.search;
     const UI = dict[lang]?.ui || dict.en.ui;
-    
+
     status.style.display = 'block';
     status.innerText = '🔍 ' + UI.slow;
     resultsBox.innerHTML = '';
     personalityContainer.style.display = 'none';
-    
+
     const userBudget = parseFloat(localStorage.getItem('user_budget')) || 0;
-    
+
     try {
-        // ✅ استخدام الدوال الجديدة للتحقق من المستخدم
-        const user = window.getCurrentUser ? window.getCurrentUser() : null;
-        
-        if (!user) {
-            status.style.display = 'block';
-            status.innerText = UI.loginRequired || 'يرجى تسجيل الدخول أولاً';
-            return;
-        }
-        
-        // ✅ الحصول على التوكن
-        const token = await window.getAuthToken();
-        
-        if (!token) {
-            status.style.display = 'block';
-            status.innerText = UI.loginRequired || 'يرجى تسجيل الدخول أولاً';
-            return;
-        }
-        
         console.log('🔍 Searching for:', q);
-        
-        const res = await fetch(API + '/search?q=' + encodeURIComponent(q) + '&lang=' + lang, {
-            headers: { 'Authorization': 'Bearer ' + token }
-        });
-        
-        if (!res.ok) {
-            throw new Error('Server error: ' + res.status);
+
+        // ✅ نحاول جلب التوكن لكن لا نوقف البحث إذا فشل
+        let token = null;
+        try {
+            if (window.getAuthToken) {
+                token = await window.getAuthToken();
+            }
+        } catch (e) {
+            console.warn('Token fetch failed, continuing as guest');
         }
-        
-        const data = await res.json();
-        
-        status.style.display = 'none';
-        
-        if (data.error === 'ENERGY_EMPTY') {
+
+        // ✅ بناء الهيدر بمرونة
+        const headers = {};
+        if (token) headers['Authorization'] = 'Bearer ' + token;
+
+        const res = await fetch(
+            API + '/search?q=' + encodeURIComponent(q) + '&lang=' + lang,
+            { headers }
+        );
+
+        // ✅ اقرأ الرد دائماً حتى لو 429
+        const data = await res.json().catch(() => ({}));
+
+        // 🔴 معالجة نفاد الطاقة (الأهم)
+        if (res.status === 429 || data.error === 'ENERGY_EMPTY') {
             const upgradeDict = dict[lang]?.upgrade || dict.ar.upgrade;
             status.style.display = 'block';
-            status.innerHTML = '<div class="upgrade-section"><h3>' + upgradeDict.title + '</h3><p style="font-size:0.95rem;opacity:0.9">' + upgradeDict.message + '</p><button class="upgrade-btn" onclick="openUpgrade()">' + upgradeDict.upgradeBtn + '</button></div>';
+            status.innerHTML =
+                '<div class="upgrade-section">' +
+                '<h3>' + upgradeDict.title + '</h3>' +
+                '<p style="font-size:0.95rem;opacity:0.9">' + upgradeDict.message + '</p>' +
+                '<button class="upgrade-btn" onclick="openUpgrade()">' +
+                upgradeDict.upgradeBtn +
+                '</button></div>';
             return;
         }
-        
+
+        if (!res.ok) {
+            throw new Error(data.message || ('Server error: ' + res.status));
+        }
+
+        status.style.display = 'none';
+
         if (!data.results || !data.results.length) {
             status.style.display = 'block';
             status.innerText = UI.noResults;
             return;
         }
-        
+
+        // الشخصية
         if (data.personality) {
             personalityContainer.innerHTML = renderPersonalityBadge(data.personality);
             personalityContainer.style.display = 'block';
         }
-        
+
+        // بطاقة الأفلييت
         if (data.results[0]) updateAffiliateCard(data.results[0]);
-        
-        data.results.forEach(function(p) {
+
+        // ================= المنتجات =================
+        data.results.forEach(function (p) {
             const intel = p.intelligence || {};
             const verdict = intel.finalVerdict || {};
             const priceIntel = intel.priceIntel || {};
             const valueIntel = intel.valueIntel || {};
             const forecast = intel.forecastIntel || {};
             const trust = intel.trustIntel || {};
-            
+
             let strategicBadge = '';
             let strategicColor = '#3b82f6';
-            
-            if (verdict.decision === 'BUY_NOW') { strategicBadge = '🟢 ' + T.smartDecision; strategicColor = '#10b981'; }
-            else if (verdict.decision === 'WAIT') { strategicBadge = '⏳ ' + T.preferWait; strategicColor = '#f59e0b'; }
-            else if (verdict.decision === 'WAIT_PRICE_DROP') { strategicBadge = '📉 ' + T.waitPriceDrop; strategicColor = '#6366f1'; }
-            else if (verdict.decision === 'OVERPRICED') { strategicBadge = '🔴 ' + T.priceHigh; strategicColor = '#ef4444'; }
-            
+
+            if (verdict.decision === 'BUY_NOW') {
+                strategicBadge = '🟢 ' + T.smartDecision;
+                strategicColor = '#10b981';
+            } else if (verdict.decision === 'WAIT') {
+                strategicBadge = '⏳ ' + T.preferWait;
+                strategicColor = '#f59e0b';
+            } else if (verdict.decision === 'WAIT_PRICE_DROP') {
+                strategicBadge = '📉 ' + T.waitPriceDrop;
+                strategicColor = '#6366f1';
+            } else if (verdict.decision === 'OVERPRICED') {
+                strategicBadge = '🔴 ' + T.priceHigh;
+                strategicColor = '#ef4444';
+            }
+
             const bestLink = verdict.bestLink || p.link;
             const safeLink = bestLink && bestLink.startsWith('http') ? bestLink : null;
-            
+
             const priceVal = parseFloat(String(p.price).replace(/[^\d.]/g, '')) || 0;
+
             let budgetClass = '';
             let budgetBadge = '';
-            
-            if (userBudget > 0 && priceVal > userBudget) { budgetClass = 'over-budget'; budgetBadge = '<div class="budget-alert">⚠️ ' + UI.over + '</div>'; }
-            
+            if (userBudget > 0 && priceVal > userBudget) {
+                budgetClass = 'over-budget';
+                budgetBadge = '<div class="budget-alert">⚠️ ' + UI.over + '</div>';
+            }
+
             let priceEval = T.weak;
             if (priceIntel.score >= 70) priceEval = T.excellent;
             else if (priceIntel.score >= 50) priceEval = T.good;
-            
+
             let timingEval = T.stableTxt;
             if (forecast.trend === 'down') timingEval = T.wait;
             else if (forecast.trend === 'up') timingEval = T.mayRise;
-            
+
             let trustEval = T.safe;
-            if ((trust.riskScore || 0) > 50) trustEval = T.risk;
-            
+            if ((trust.overallRisk || trust.riskScore || 0) > 50) trustEval = T.risk;
+
             let behaviorEval = T.general;
             if ((valueIntel.learningBoost || 0) > 0) behaviorEval = T.suitable;
-            
-            const trendText = forecast.trend === 'up' ? T.trend_up : (forecast.trend === 'down' ? T.trend_down : T.trend_stable);
-            
+
+            const trendText =
+                forecast.trend === 'up'
+                    ? T.trend_up
+                    : (forecast.trend === 'down' ? T.trend_down : T.trend_stable);
+
             const card = document.createElement('div');
             card.className = 'product-card ' + budgetClass;
-            
-            let cardHtml = budgetBadge + '<img src="' + (p.thumbnail || '') + '" onerror="this.src=\'https://via.placeholder.com/200\'"><h3>' + (p.title || '—') + '</h3><div class="price">$' + (priceVal || '—') + '</div>';
-            
-            if (intel.dealQuality) { cardHtml += renderDealQuality(intel.dealQuality); }
+
+            let cardHtml =
+                budgetBadge +
+                '<img src="' + (p.thumbnail || '') + '" onerror="this.src=\'https://via.placeholder.com/200\'">' +
+                '<h3>' + (p.title || '—') + '</h3>' +
+                '<div class="price">$' + (priceVal || '—') + '</div>';
+
+            if (intel.dealQuality) cardHtml += renderDealQuality(intel.dealQuality);
+
             cardHtml += renderScoreGrid(intel);
-            cardHtml += '<div class="sage-quick-brains"><div class="brain-item good">💰 ' + T.price + ' <span>' + priceEval + '</span></div><div class="brain-item ' + (forecast.trend === 'down' ? 'wait' : 'safe') + '">📈 ' + T.timing + ' <span>' + timingEval + '</span></div><div class="brain-item ' + ((trust.riskScore || 0) > 50 ? 'risk' : 'safe') + '">🛡️ ' + T.confidence + ' <span>' + trustEval + '</span></div><div class="brain-item learn">🧠 ' + T.behavior + ' <span>' + behaviorEval + '</span></div></div>';
-            
-            if (intel.fakeDeal && intel.fakeDeal.isSuspicious) { cardHtml += renderFakeDealAlert(intel.fakeDeal); }
-            if (intel.merchantTrust) { cardHtml += renderMerchantTrust(intel.merchantTrust); }
-            
-            cardHtml += '<div class="analysis-engine"><span class="analysis-label">' + (verdict.emoji || '🤖') + ' ' + (verdict.title || '') + '</span><div>' + (verdict.reason || '') + '</div></div>';
-            
+
+            cardHtml +=
+                '<div class="sage-quick-brains">' +
+                '<div class="brain-item good">💰 ' + T.price + ' <span>' + priceEval + '</span></div>' +
+                '<div class="brain-item ' + (forecast.trend === 'down' ? 'wait' : 'safe') + '">📈 ' + T.timing + ' <span>' + timingEval + '</span></div>' +
+                '<div class="brain-item ' + ((trust.overallRisk || trust.riskScore || 0) > 50 ? 'risk' : 'safe') + '">🛡️ ' + T.confidence + ' <span>' + trustEval + '</span></div>' +
+                '<div class="brain-item learn">🧠 ' + T.behavior + ' <span>' + behaviorEval + '</span></div>' +
+                '</div>';
+
+            if (intel.fakeDeal && intel.fakeDeal.isSuspicious)
+                cardHtml += renderFakeDealAlert(intel.fakeDeal);
+
+            if (intel.merchantTrust)
+                cardHtml += renderMerchantTrust(intel.merchantTrust);
+
+            cardHtml +=
+                '<div class="analysis-engine">' +
+                '<span class="analysis-label">' + (verdict.emoji || '🤖') + ' ' + (verdict.title || '') + '</span>' +
+                '<div>' + (verdict.reason || '') + '</div>' +
+                '</div>';
+
             if (verdict.decision) {
-                cardHtml += '<div style="margin-top:10px;padding:10px;border-radius:10px;background:rgba(255,255,255,0.05);border:1px solid ' + strategicColor + '"><div style="font-weight:bold;color:' + strategicColor + '">' + strategicBadge + '</div><div style="font-size:0.9rem;opacity:0.9">' + (verdict.reason || '') + '</div>' + (verdict.savingPercent ? '<div style="margin-top:5px">💰 ' + T.saving + ': <strong>' + verdict.savingPercent + '%</strong></div>' : '') + (verdict.bestStore ? '<div style="margin-top:5px">🏪 ' + T.bestStore + ': <strong>' + verdict.bestStore + '</strong>' + (verdict.bestPrice ? ' - $' + verdict.bestPrice : '') + '</div>' : '') + '<div style="margin-top:5px">🎯 ' + T.confidenceScore + ': <strong>' + (verdict.confidence || 0) + '%</strong></div></div>';
+                cardHtml +=
+                    '<div style="margin-top:10px;padding:10px;border-radius:10px;background:rgba(255,255,255,0.05);border:1px solid ' + strategicColor + '">' +
+                    '<div style="font-weight:bold;color:' + strategicColor + '">' + strategicBadge + '</div>' +
+                    '<div style="font-size:0.9rem;opacity:0.9">' + (verdict.reason || '') + '</div>' +
+                    (verdict.savingsPercent ? '<div style="margin-top:5px">💰 ' + T.saving + ': <strong>' + verdict.savingsPercent + '%</strong></div>' : '') +
+                    (verdict.bestStore ? '<div style="margin-top:5px">🏪 ' + T.bestStore + ': <strong>' + verdict.bestStore + '</strong>' + (verdict.bestPrice ? ' - $' + verdict.bestPrice : '') + '</div>' : '') +
+                    '<div style="margin-top:5px">🎯 ' + T.confidenceScore + ': <strong>' + (verdict.confidence || 0) + '%</strong></div>' +
+                    '</div>';
             }
-            
-            cardHtml += '<div class="intel-section"><h4>📊 ' + T.market + '</h4><p>' + T.avg_price + ': <strong>' + (priceIntel.average ? '$' + priceIntel.average : '—') + '</strong></p><p>' + T.competitors + ': <strong>' + (valueIntel.competitors || 0) + '</strong></p></div>';
-            cardHtml += '<div class="intel-section"><h4>💎 ' + T.value + '</h4><p>' + T.deal_score + ': <strong>' + (valueIntel.score || 0) + '%</strong></p><p>' + (valueIntel.learningBoost > 0 ? T.learning_on : T.learning_later) + '</p></div>';
-            cardHtml += '<div class="intel-section"><h4>🔮 ' + T.forecast + '</h4><p>' + trendText + '</p><p>' + T.expected_price + ': <strong>$' + (forecast.expectedPrice || '—') + '</strong></p><p>' + T.confidence + ': <strong>' + Math.round((forecast.confidence || 0) * 100) + '%</strong></p></div>';
-            cardHtml += '<div class="intel-section"><h4>⚠️ ' + T.trust + '</h4>' + (trust.warnings && trust.warnings.length ? '<ul>' + trust.warnings.map(function(w) { return '<li>' + w + '</li>'; }).join('') + '</ul>' : '<p>✅ ' + T.no_risks + '</p>') + '</div>';
-            
-            if (intel.recommendations && intel.recommendations.length) { cardHtml += renderRecommendations(intel.recommendations); }
-            
-            cardHtml += '<button class="action-btn" onclick="addToWatch(\'' + p.title.replace(/'/g, "\\'") + '\',\'' + priceVal + '\',\'' + (safeLink || '') + '\')" style="width:100%;margin-top:10px;background:#f59e0b;color:white">🔔 ' + T.watchPrice + '</button>';
-            
-            if (safeLink) { cardHtml += '<a class="action-btn buy-now" href="' + API + '/go?url=' + encodeURIComponent(safeLink) + '" target="_blank" style="display:flex;margin-top:10px">' + T.buy + '</a>'; }
-            else { cardHtml += '<button class="action-btn buy-now" disabled style="margin-top:10px;opacity:0.5">' + T.linkUnavailable + '</button>'; }
-            
-            const analyzeData = { verdict: verdict, priceIntel: priceIntel, valueIntel: valueIntel, forecastIntel: forecast, trustIntel: trust, merchantTrust: intel.merchantTrust || {}, fakeDeal: intel.fakeDeal || {} };
-            cardHtml += '<button class="action-btn analyze-btn" style="width:100%;margin-top:10px" onclick="openAnalysis(' + htmlspecialchars(JSON.stringify(analyzeData)) + ')">' + T.analyze + '</button>';
-            
+
+            // الأزرار
+            cardHtml +=
+                '<button class="action-btn" onclick="addToWatch(\'' +
+                p.title.replace(/'/g, "\\'") +
+                '\',\'' + priceVal +
+                '\',\'' + (safeLink || '') +
+                '\')" style="width:100%;margin-top:10px;background:#f59e0b;color:white">🔔 ' +
+                T.watchPrice +
+                '</button>';
+
+            if (safeLink) {
+                cardHtml +=
+                    '<a class="action-btn buy-now" href="' +
+                    API + '/go?url=' + encodeURIComponent(safeLink) +
+                    '" target="_blank" style="display:flex;margin-top:10px">' +
+                    T.buy +
+                    '</a>';
+            } else {
+                cardHtml +=
+                    '<button class="action-btn buy-now" disabled style="margin-top:10px;opacity:0.5">' +
+                    T.linkUnavailable +
+                    '</button>';
+            }
+
+            const analyzeData = {
+                verdict,
+                priceIntel,
+                valueIntel,
+                forecastIntel: forecast,
+                trustIntel: trust,
+                merchantTrust: intel.merchantTrust || {},
+                fakeDeal: intel.fakeDeal || {}
+            };
+
+            cardHtml +=
+                '<button class="action-btn analyze-btn" style="width:100%;margin-top:10px" onclick="openAnalysis(' +
+                htmlspecialchars(JSON.stringify(analyzeData)) +
+                ')">' +
+                T.analyze +
+                '</button>';
+
             card.innerHTML = cardHtml;
             resultsBox.appendChild(card);
         });
-        
+
     } catch (e) {
         console.error('Search error:', e);
         status.style.display = 'block';
         status.innerText = UI.errorFetching + ': ' + e.message;
     }
 }
-
-// ===== ANALYSIS MODAL =====
-window.openAnalysis = function(data) {
-    try {
-        const AT = dict[lang]?.analysis || dict.ar.analysis;
-        const V4 = dict[lang]?.v4 || dict.ar.v4;
-        const modal = document.getElementById('analysis-modal');
-        const body = document.getElementById('analysis-content-body');
-        const trendText = data.forecastIntel.trend === 'up' ? (lang === 'ar' ? 'ارتفاع' : 'Rising') : (data.forecastIntel.trend === 'down' ? (lang === 'ar' ? 'انخفاض' : 'Falling') : (lang === 'ar' ? 'مستقر' : 'Stable'));
-        let html = '<h3>' + AT.title + '</h3><hr><p><strong>📊 ' + AT.market + '</strong></p><ul><li>' + AT.avgPrice + ': $' + (data.priceIntel.average || '—') + '</li><li>' + AT.competitors + ': ' + (data.valueIntel.competitors || 0) + '</li></ul><p><strong>💎 ' + AT.deal + '</strong></p><ul><li>' + AT.dealScore + ': ' + (data.valueIntel.score || 0) + '%</li></ul><p><strong>🔮 ' + AT.forecast + '</strong></p><ul><li>' + AT.trend + ': ' + trendText + '</li><li>' + AT.expectedPrice + ': $' + (data.forecastIntel.expectedPrice || '—') + '</li><li>' + AT.confidence + ': ' + Math.round((data.forecastIntel.confidence || 0) * 100) + '%</li></ul><p><strong>⚠️ ' + AT.trustRisks + '</strong></p>';
-        if (data.trustIntel.warnings && data.trustIntel.warnings.length) { html += '<ul>' + data.trustIntel.warnings.map(function(w) { return '<li>' + w + '</li>'; }).join('') + '</ul>'; } else { html += '<p>' + AT.noClearRisks + '</p>'; }
-        if (data.merchantTrust && data.merchantTrust.score) { html += '<p><strong>🏪 ' + V4.merchantTrust + '</strong></p><ul><li>' + V4.merchantScore + ': ' + data.merchantTrust.score + '%</li></ul>'; }
-        if (data.fakeDeal && data.fakeDeal.isSuspicious) { html += '<p><strong>🚨 ' + V4.fakeDealAlert + '</strong></p><ul>' + data.fakeDeal.reasons.map(function(r) { return '<li>' + r + '</li>'; }).join('') + '</ul>'; }
-        body.innerHTML = html;
-        modal.style.display = 'flex';
-    } catch (e) { console.error('Analysis error:', e); }
-};
-
 window.closeAnalysisModal = function() { document.getElementById('analysis-modal').style.display = 'none'; };
 
 // ===== WATCH FUNCTIONS =====

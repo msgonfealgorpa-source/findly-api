@@ -42,7 +42,13 @@ if (MONGO_URI) {
 }
 
 /* ================= SCHEMAS ================= */
-const EnergySchema = new mongoose.Schema({ uid: { type: String, unique: true, required: true }, searchesUsed: { type: Number, default: 0 }, hasFreePass: { type: Boolean, default: false } });
+const EnergySchema = new mongoose.Schema({
+  uid: { type: String, unique: true, required: true },
+  searchesUsed: { type: Number, default: 0 },
+  hasFreePass: { type: Boolean, default: false },
+  wasPro: { type: Boolean, default: false },
+  proExpiresAt: { type: Date, default: null }
+});
 const ReviewSchema = new mongoose.Schema({ name: String, text: String, rating: { type: Number, min: 1, max: 5 }, helpful: { type: Number, default: 0 }, createdAt: { type: Date, default: Date.now } });
 const PriceHistorySchema = new mongoose.Schema({ productId: String, title: String, price: Number, store: String, source: String, thumbnail: String, link: String, timestamp: { type: Date, default: Date.now } });
 
@@ -181,10 +187,34 @@ app.get('/search', async (req, res) => {
 
     if (dbConnected) { 
         energy = await Energy.findOne({ uid: auth.uid }) || await Energy.create({ uid: auth.uid });
-        if (!energy.hasFreePass && energy.searchesUsed >= 3) {
-            return res.status(429).json({ error: 'ENERGY_EMPTY', message: 'Free searches exhausted', energy: { left: 0, limit: 3 } });
-        }
+
+// ⭐ فحص انتهاء الاشتراك
+if (energy.hasFreePass && energy.proExpiresAt) {
+    if (new Date() > energy.proExpiresAt) {
+        energy.hasFreePass = false;
+        await Energy.updateOne(
+            { uid: energy.uid },
+            { $set: { hasFreePass: false } }
+        );
     }
+}
+
+// ⭐ فحص الحصة
+if (!energy.hasFreePass && energy.searchesUsed >= 3) {
+    if (energy.wasPro) {
+        return res.status(429).json({
+            error: 'PRO_EXPIRED',
+            message: 'Subscription expired',
+            energy: { left: 0, limit: 3 }
+        });
+    }
+
+    return res.status(429).json({
+        error: 'ENERGY_EMPTY',
+        message: 'Free searches exhausted',
+        energy: { left: 0, limit: 3 }
+    });
+}
 
     const cacheKey = q.toLowerCase() + '_' + lang;
     const cached = searchCache.get(cacheKey);
@@ -305,9 +335,22 @@ app.post('/nowpayments/webhook', express.raw({ type: 'application/json' }), asyn
     try {
         const data = JSON.parse(req.body.toString());
         if (data.payment_status === 'finished' && dbConnected) {
-            await Energy.findOneAndUpdate({ uid: data.order_id }, { hasFreePass: true, searchesUsed: 0 }, { upsert: true });
-        }
-        res.json({ success: true });
+            const now = new Date();
+const expires = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 يوم
+
+await Energy.findOneAndUpdate(
+  { uid: data.order_id },
+  {
+    hasFreePass: true,
+    wasPro: true,
+    searchesUsed: 0,
+    proExpiresAt: expires
+  },
+  { upsert: true }
+);
+      
+            
+            res.json({ success: true });
     } catch { res.status(500).json({ error: 'WEBHOOK_ERROR' }); }
 });
 

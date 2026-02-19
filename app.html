@@ -881,11 +881,53 @@
 }
 
 
-        
+        .btn-google-modern {
+    width: 100%;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: white;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-bottom: 20px;
+}
+
+.btn-google-modern:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--primary);
+}
+
+.btn-google-modern img {
+    width: 20px;
+}
+
+.auth-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 20px 0;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+.auth-divider::before, .auth-divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.auth-divider span {
+    padding: 0 10px;
+}
     </style>
 </head>
 <body>
-
 
 <div id="auth-modal" class="modal auth-modal-modern">
     <div class="modal-content glass-card premium-auth-card">
@@ -900,14 +942,23 @@
             <div class="auth-form">
                 <div class="input-group-modern">
                     <i class="fa-regular fa-envelope input-icon"></i>
-                    <input type="email" placeholder="البريد الإلكتروني" required>
+                    <input type="email" id="login-email" placeholder="البريد الإلكتروني" required>
                 </div>
                 <div class="input-group-modern">
                     <i class="fa-solid fa-lock input-icon"></i>
-                    <input type="password" placeholder="كلمة المرور" required>
+                    <input type="password" id="login-password" placeholder="كلمة المرور" required>
                 </div>
                 
-                <button class="btn-primary-modern">تسجيل الدخول</button>
+                <button onclick="handleLogin()" class="btn-primary-modern">تسجيل الدخول</button>
+            </div>
+
+            <div class="auth-divider"><span>أو عبر جوجل</span></div>
+            
+            <div class="social-logins">
+                <button onclick="loginWithGoogle()" class="btn-google-modern">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+                    استمر باستخدام جوجل
+                </button>
             </div>
 
             <div class="auth-footer">
@@ -925,26 +976,26 @@
             <div class="auth-form">
                 <div class="input-group-modern">
                     <i class="fa-regular fa-user input-icon"></i>
-                    <input type="text" placeholder="الاسم الكامل" required>
+                    <input type="text" id="signup-name" placeholder="الاسم الكامل" required>
                 </div>
                 <div class="input-group-modern">
                     <i class="fa-regular fa-envelope input-icon"></i>
-                    <input type="email" placeholder="البريد الإلكتروني" required>
+                    <input type="email" id="signup-email" placeholder="البريد الإلكتروني" required>
                 </div>
                 <div class="input-group-modern">
                     <i class="fa-solid fa-lock input-icon"></i>
-                    <input type="password" placeholder="كلمة المرور" required>
+                    <input type="password" id="signup-password" placeholder="كلمة المرور" required>
                 </div>
                 
-                <button class="btn-primary-modern">إنشاء الحساب</button>
+                <button onclick="handleRegister()" class="btn-primary-modern">إنشاء الحساب</button>
             </div>
 
             <div class="auth-footer">
                 <p>لديك حساب بالفعل؟ <a href="#" id="go-to-login">تسجيل الدخول</a></p>
             </div>
         </div>
+    </div>
 </div>
-
 <header>
     <div class="logo-area">
         <div class="logo">Findly <i class="fa-solid fa-wand-magic-sparkles"></i></div>

@@ -22,24 +22,16 @@ const admin = require('firebase-admin');
 // تهيئة Firebase Admin
 if (!admin.apps.length) {
     try {
-        // جلب المتغير كما هو من ريلوي
-        const rawKey = process.env.FIREBASE_SERVICE_ACCOUNT || "";
+        // هذه الطريقة ستقرأ المتغير من ريلوي كأنه ملف
+        const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
         
-        // إذا كان المتغير موجوداً، سنقوم بتنظيفه يدوياً داخل الكود
-        if (rawKey) {
-            // تحويل النص إلى كائن مع إصلاح كسر السطور في المفتاح الخاص
-            const serviceAccount = JSON.parse(rawKey.replace(/\\n/g, '\n'));
-            
-            admin.initializeApp({
-                credential: admin.credential.cert(serviceAccount)
-            });
-            console.log("✅ [Firebase] System Active and Ready!");
-        } else {
-            console.error("❌ [Firebase] Error: FIREBASE_SERVICE_ACCOUNT variable is empty");
-        }
-    } catch (e) {
-        console.error("⚠️ [Firebase] Setup failed, but server will keep running:", e.message);
-        // ملاحظة: هذا السطر يمنع السيرفر من الانهيار حتى لو المفتاح خطأ
+        admin.initializeApp({
+            credential: admin.credential.cert(serviceAccount)
+        });
+        console.log("✅ [Firebase] Connected Successfully!");
+    } catch (error) {
+        console.error("❌ [Firebase Error]:", error.message);
+        // السيرفر سيعمل ولن يتوقف، لكن البحث سيعطي خطأ حتى تضع المفتاح صح
     }
 }
 

@@ -14,24 +14,35 @@ const admin = require('firebase-admin');
 // Initialize Firebase Admin
 // تهيئة Firebase Admin باستخدام متغيرات البيئة
 // تهيئة Firebase Admin بطريقة متوافقة مع Railway
+/* =========================================
+   تعديل تهيئة Firebase لتناسب Railway
+   ========================================= */
+const admin = require('firebase-admin');
+
 if (!admin.apps.length) {
     try {
-        const serviceAccountVar = process.env.FIREBASE_SERVICE_ACCOUNT;
-        
-        if (serviceAccountVar) {
-            // تحويل النص القادم من Railway إلى كائن JSON
-            const serviceAccount = JSON.parse(serviceAccountVar);
+        // قراءة المتغير من Railway
+        const serviceAccountRaw = process.env.FIREBASE_SERVICE_ACCOUNT;
+
+        if (serviceAccountRaw) {
+            // تحويل النص إلى كائن JSON
+            const serviceAccount = JSON.parse(serviceAccountRaw);
             
             admin.initializeApp({
                 credential: admin.credential.cert(serviceAccount)
             });
-            console.log("✅ Firebase Admin initialized successfully!");
+            console.log("✅ [Firebase] تم الاتصال بنجاح في بيئة Railway");
         } else {
-            throw new Error("Missing FIREBASE_SERVICE_ACCOUNT environment variable");
+            // إذا لم يجد المتغير، يحاول الطريقة الافتراضية
+            console.warn("⚠️ [Firebase] لم يتم العثور على المتغير FIREBASE_SERVICE_ACCOUNT، يحاول الوضع الافتراضي...");
+            admin.initializeApp({
+                credential: admin.credential.applicationDefault()
+            });
         }
     } catch (error) {
-        console.error("❌ FIREBASE INIT ERROR:", error.message);
-        // التوقف هنا لأن السيرفر لن يعمل بدون صلاحيات
+        console.error("❌ [Firebase Error] فشل في تشغيل النظام:");
+        console.error(error.message);
+        // ملاحظة: إذا ظهر خطأ JSON parse، يعني أنك نسخت النص بشكل خاطئ في Railway
     }
 }
 

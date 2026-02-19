@@ -186,10 +186,36 @@ app.get('/search', async (req, res) => {
     let energy = { searchesUsed: 0, hasFreePass: false };
 
     if (dbConnected) { 
+
         energy = await Energy.findOne({ uid: auth.uid }) || await Energy.create({ uid: auth.uid });
-        if (!energy.hasFreePass && energy.searchesUsed >= 3) {
-            return res.status(429).json({ error: 'ENERGY_EMPTY', message: 'Free searches exhausted', energy: { left: 0, limit: 3 } });
-        }
+
+// ⭐ فحص انتهاء الاشتراك
+if (energy.hasFreePass && energy.proExpiresAt) {
+    if (new Date() > energy.proExpiresAt) {
+        energy.hasFreePass = false;
+        await Energy.updateOne(
+            { uid: energy.uid },
+            { $set: { hasFreePass: false } }
+        );
+    }
+}
+
+// ⭐ فحص الحصة
+if (!energy.hasFreePass && energy.searchesUsed >= 3) {
+    if (energy.wasPro) {
+        return res.status(429).json({
+            error: 'PRO_EXPIRED',
+            message: 'Subscription expired',
+            energy: { left: 0, limit: 3 }
+        });
+    }
+
+    return res.status(429).json({
+        error: 'ENERGY_EMPTY',
+        message: 'Free searches exhausted',
+        energy: { left: 0, limit: 3 }
+    });
+}
     }
 
     const cacheKey = q.toLowerCase() + '_' + lang;

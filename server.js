@@ -1,6 +1,5 @@
 /* =========================================
-FINDLY SERVER v6.2 - FIXED VERSION
-Ultimate Shopping Intelligence Platform
+FINDLY SERVER v6.3 - COMPLETE STANDALONE
 ========================================= */
 
 const express = require('express');
@@ -10,31 +9,10 @@ const mongoose = require('mongoose');
 const crypto = require('crypto');
 const admin = require('firebase-admin');
 
-// ✅ استدعاء العقل الذكي من ملف خارجي
-const SageCore = require('./sageCore');
-
-// Initialize Firebase Admin
-let firebaseInitialized = false;
-try {
-    if (!admin.apps.length) {
-        admin.initializeApp({
-            credential: admin.credential.applicationDefault()
-        });
-        firebaseInitialized = true;
-        console.log('✅ Firebase Admin Initialized');
-    }
-} catch (error) {
-    console.log('⚠️ Firebase running in guest mode');
-}
-
 const app = express();
 
 /* ================= BASIC MIDDLEWARE ================= */
-app.use(cors({
-    origin: "*",
-    methods: ["GET", "POST", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"]
-}));
+app.use(cors({ origin: "*", methods: ["GET", "POST", "OPTIONS"], allowedHeaders: ["Content-Type", "Authorization"] }));
 app.options("*", cors());
 app.use(express.json({ limit: '10mb' }));
 
@@ -42,576 +20,304 @@ app.use(express.json({ limit: '10mb' }));
 const MONGO_URI = process.env.MONGO_URI || '';
 const SEARCHAPI_KEY = process.env.SEARCHAPI_KEY || '';
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
-const NOWPAYMENTS_IPN_SECRET = process.env.NOWPAYMENTS_IPN_SECRET || '';
 const NOWPAYMENTS_API_KEY = process.env.NOWPAYMENTS_API_KEY || '';
 
-console.log('🚀 Findly Server v6.2 Starting...');
+console.log('🚀 Findly Server Starting...');
 
-/* ================= CACHE SYSTEM ================= */
-const searchCache = new Map();
-const CACHE_TTL = 1000 * 60 * 60 * 24 * 2;
-
-const getCache = (key) => {
-    const cached = searchCache.get(key);
-    if (!cached) return null;
-    if (Date.now() - cached.time > CACHE_TTL) {
-        searchCache.delete(key);
-        return null;
+/* ================= FIREBASE ================= */
+let firebaseInitialized = false;
+try {
+    if (!admin.apps.length) {
+        admin.initializeApp({ credential: admin.credential.applicationDefault() });
+        firebaseInitialized = true;
     }
-    return cached.data;
-};
+} catch (e) {
+    console.log('⚠️ Firebase guest mode');
+}
 
-const setCache = (key, data) => {
-    searchCache.set(key, { time: Date.now(), data });
-};
-
-/* ================= DATABASE CONNECTION ================= */
+/* ================= DATABASE ================= */
 let dbConnected = false;
-
 if (MONGO_URI) {
-    mongoose.connect(MONGO_URI)
-        .then(() => {
-            console.log('✅ MongoDB Connected');
-            dbConnected = true;
-        })
-        .catch(e => console.log('❌ MongoDB Error:', e.message));
-} else {
-    console.log('⚠️ No MONGO_URI - running without database');
+    mongoose.connect(MONGO_URI).then(() => { dbConnected = true; console.log('✅ MongoDB Connected'); }).catch(e => console.log('❌ MongoDB:', e.message));
 }
 
-/* ================= DATABASE SCHEMAS ================= */
+/* ================= SCHEMAS ================= */
+const EnergySchema = new mongoose.Schema({ uid: { type: String, unique: true, required: true }, searchesUsed: { type: Number, default: 0 }, hasFreePass: { type: Boolean, default: false } });
+const ReviewSchema = new mongoose.Schema({ name: String, text: String, rating: { type: Number, min: 1, max: 5 }, helpful: { type: Number, default: 0 }, createdAt: { type: Date, default: Date.now } });
+const PriceHistorySchema = new mongoose.Schema({ productId: String, title: String, price: Number, store: String, source: String, thumbnail: String, link: String, timestamp: { type: Date, default: Date.now } });
 
-const EnergySchema = new mongoose.Schema({
-    uid: { type: String, unique: true, required: true },
-    searchesUsed: { type: Number, default: 0 },
-    hasFreePass: { type: Boolean, default: false },
-    createdAt: { type: Date, default: Date.now }
-});
-
-const PriceHistorySchema = new mongoose.Schema({
-    productId: { type: String, index: true },
-    title: String,
-    price: Number,
-    currency: { type: String, default: 'USD' },
-    store: String,
-    source: String,
-    thumbnail: String,
-    link: String,
-    inStock: { type: Boolean, default: true },
-    timestamp: { type: Date, default: Date.now, index: true }
-});
-
-const UserBehaviorSchema = new mongoose.Schema({
-    userId: { type: String, index: true },
-    eventType: { 
-        type: String, 
-        enum: ['search', 'view', 'click', 'wishlist', 'purchase', 'abandon', 'analysis', 'chat'] 
-    },
-    productId: String,
-    query: String,
-    price: Number,
-    metadata: mongoose.Schema.Types.Mixed,
-    timestamp: { type: Date, default: Date.now, index: true }
-});
-
-const PriceAlertSchema = new mongoose.Schema({
-    userId: { type: String, index: true },
-    productId: { type: String, index: true },
-    productTitle: String,
-    productImage: String,
-    productLink: String,
-    targetPrice: Number,
-    currentPrice: Number,
-    notifyOn: { type: String, enum: ['drop', 'percentage', 'specific'], default: 'drop' },
-    threshold: { type: Number, default: 10 },
-    active: { type: Boolean, default: true },
-    notified: { type: Boolean, default: false },
-    createdAt: { type: Date, default: Date.now },
-    lastChecked: Date
-});
-
-const UserProfileSchema = new mongoose.Schema({
-    userId: { type: String, unique: true, required: true },
-    personality: { type: String, default: 'neutral' },
-    preferences: {
-        categories: [String],
-        brands: [String],
-        priceRange: { min: Number, max: Number }
-    },
-    stats: {
-        totalSearches: { type: Number, default: 0 },
-        totalPurchases: { type: Number, default: 0 },
-        totalSaved: { type: Number, default: 0 },
-        averageSpent: Number
-    },
-    createdAt: { type: Date, default: Date.now },
-    lastActive: { type: Date, default: Date.now }
-});
-
-// ✅ Schema المراجعات
-const ReviewSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    text: { type: String, required: true },
-    rating: { type: Number, required: true, min: 1, max: 5 },
-    helpful: { type: Number, default: 0 },
-    createdAt: { type: Date, default: Date.now, index: true }
-});
-
-// Models
 const Energy = mongoose.model('Energy', EnergySchema);
-const PriceHistory = mongoose.model('PriceHistory', PriceHistorySchema);
-const UserBehavior = mongoose.model('UserBehavior', UserBehaviorSchema);
-const PriceAlert = mongoose.model('PriceAlert', PriceAlertSchema);
-const UserProfile = mongoose.model('UserProfile', UserProfileSchema);
 const Review = mongoose.model('Review', ReviewSchema);
+const PriceHistory = mongoose.model('PriceHistory', PriceHistorySchema);
 
-/* ================= CHAT RESPONSES ================= */
+/* ================= CACHE ================= */
+const searchCache = new Map();
+const CACHE_TTL = 1000 * 60 * 60 * 24;
 
-const CHAT_RESPONSES = {
-    ar: {
-        greeting: ['مرحباً! 👋 أنا Sage، مساعدك الذكي للتسوق. كيف يمكنني مساعدتك؟', 'أهلاً! 🔮 أنا هنا لمساعدتك في العثور على أفضل الصفقات!'],
-        search: ['سأبحث لك عن أفضل الأسعار. ما المنتج الذي تريده؟', 'دعني أساعدك في العثور على أفضل عرض!'],
-        price: ['هذا سعر جيد! 💰', 'أنصحك بالمقارنة مع متاجر أخرى', 'يمكنك انتظار العروض للحصول على سعر أفضل'],
-        deal: ['صفقة ممتازة! 🎉 أنصحك بالشراء الآن', 'هذا عرض رائع! لا تفوته'],
-        general: ['كيف يمكنني مساعدتك في التسوق اليوم؟', 'أنا هنا لمساعدتك في العثور على أفضل الصفقات 🛍️']
-    },
-    en: {
-        greeting: ['Hello! 👋 I\'m Sage, your smart shopping assistant.', 'Hi! 🔮 I\'m here to help you find the best deals!'],
-        search: ['I\'ll search for the best prices. What product do you need?'],
-        price: ['That\'s a good price! 💰', 'I recommend comparing with other stores'],
-        deal: ['Excellent deal! 🎉 I recommend buying now'],
-        general: ['How can I help you shop today?', 'I\'m here to help you find the best deals 🛍️']
-    }
+/* ================= SAGE CORE (EMBEDDED) ================= */
+function cleanPrice(p) { return p ? parseFloat(p.toString().replace(/[^0-9.]/g, '')) || 0 : 0; }
+
+const translations = {
+    ar: { buy_now: "اشتري الآن", wait: "انتظر", overpriced: "السعر مرتفع", fair_price: "سعر عادل", excellent_deal: "صفقة ممتازة", good_deal: "صفقة جيدة", insufficient_data: "بيانات غير كافية" },
+    en: { buy_now: "Buy Now", wait: "Wait", overpriced: "Overpriced", fair_price: "Fair Price", excellent_deal: "Excellent Deal", good_deal: "Good Deal", insufficient_data: "Insufficient data" }
 };
 
-async function processChatMessage(message, userId, lang = 'ar') {
-    if (!message || typeof message !== 'string' || message.trim() === '') {
-        const defaultResponses = CHAT_RESPONSES[lang] || CHAT_RESPONSES.ar;
-        return { reply: defaultResponses.greeting[0], intent: 'general', sentiment: 'neutral', language: lang };
-    }
+function t(lang, key) { return translations[lang]?.[key] || translations.en[key] || key; }
 
-    const lowerMessage = message.toLowerCase();
-    let intent = 'general';
+function analyzePrice(product, marketProducts, lang) {
+    const currentPrice = cleanPrice(product.price);
+    const marketPrices = marketProducts.map(p => cleanPrice(p.product_price || p.price)).filter(p => p > 0);
     
-    const responses = CHAT_RESPONSES[lang] || CHAT_RESPONSES.ar;
-
-    if (lowerMessage.match(/مرحبا|اهلا|hello|hi|hey|السلام/)) {
-        intent = 'greeting';
-    } else if (lowerMessage.match(/ابحث|بحث|search|find|lookup|دور/)) {
-        intent = 'search';
-    } else if (lowerMessage.match(/سعر|price|cost|كم|بكم/)) {
-        intent = 'price';
-    } else if (lowerMessage.match(/صفقة|deal|offer|discount|خصم|عرض/)) {
-        intent = 'deal';
+    if (marketPrices.length < 3) {
+        return { score: 50, decision: t(lang, 'insufficient_data'), average: null, median: null, confidence: 30 };
     }
-
-    const responseArray = responses[intent] || responses.general;
-    const reply = responseArray[Math.floor(Math.random() * responseArray.length)];
-
-    return { reply, response: reply, intent, sentiment: 'neutral', language: lang };
+    
+    const sorted = [...marketPrices].sort((a, b) => a - b);
+    const average = marketPrices.reduce((a, b) => a + b, 0) / marketPrices.length;
+    const median = sorted[Math.floor(sorted.length / 2)];
+    const min = Math.min(...sorted);
+    const max = Math.max(...sorted);
+    
+    let score = 50, decision = t(lang, 'fair_price'), color = '#3b82f6';
+    
+    if (currentPrice < median * 0.85) { score = 85; decision = t(lang, 'excellent_deal'); color = '#10b981'; }
+    else if (currentPrice < median * 0.95) { score = 70; decision = t(lang, 'good_deal'); color = '#22c55e'; }
+    else if (currentPrice > median * 1.15) { score = 25; decision = t(lang, 'overpriced'); color = '#ef4444'; }
+    else if (currentPrice > median * 1.05) { score = 40; decision = t(lang, 'wait'); color = '#f59e0b'; }
+    
+    return { current: currentPrice, average: Math.round(average * 100) / 100, median: Math.round(median * 100) / 100, min, max, score, decision, color, confidence: Math.min(100, 40 + marketPrices.length * 3) };
 }
 
-/* ================= HELPER FUNCTIONS ================= */
+function analyzeMerchant(product) {
+    const store = product.source || product.store || 'Unknown';
+    let trustScore = 50;
+    const trusted = ['amazon', 'ebay', 'walmart', 'aliexpress', 'noon', 'jarir', 'extra', 'apple', 'samsung'];
+    if (trusted.some(s => store.toLowerCase().includes(s))) trustScore += 30;
+    return { store, trustScore: Math.min(100, trustScore) };
+}
 
-const finalizeUrl = (url) => {
-    if (!url) return '#';
-    if (url.startsWith('//')) return 'https:' + url;
-    if (!url.startsWith('http')) return 'https://' + url;
-    return url;
-};
+function SageCore(product, marketProducts, lang) {
+    const priceIntel = analyzePrice(product, marketProducts, lang);
+    const merchantTrust = analyzeMerchant(product);
+    const currentPrice = cleanPrice(product.price);
+    
+    let decision = 'CONSIDER', reason = priceIntel.decision, color = priceIntel.color;
+    
+    if (priceIntel.score >= 75) { decision = 'BUY_NOW'; reason = 'صفقة ممتازة'; color = '#10b981'; }
+    else if (priceIntel.score >= 60) { decision = 'BUY'; reason = 'صفقة جيدة'; color = '#22c55e'; }
+    else if (priceIntel.score <= 40) { decision = 'WAIT'; reason = 'انتظر'; color = '#f59e0b'; }
+    
+    let bestStore = null, bestPrice = currentPrice, bestLink = product.link;
+    if (marketProducts.length > 0) {
+        const cheapest = marketProducts.reduce((min, item) => {
+            const p = cleanPrice(item.product_price || item.price);
+            if (!p) return min;
+            if (!min || p < min.price) return { price: p, store: item.source || 'Unknown', link: item.link };
+            return min;
+        }, null);
+        if (cheapest && cheapest.price < currentPrice) {
+            bestStore = cheapest.store;
+            bestPrice = cheapest.price;
+            bestLink = cheapest.link;
+        }
+    }
+    
+    const savingsPercent = priceIntel.median ? Math.round((1 - currentPrice / priceIntel.median) * 100) : 0;
+    
+    return {
+        priceIntel,
+        valueIntel: { score: priceIntel.score, competitors: marketProducts.length, savingsPercent },
+        trustIntel: { merchantTrust, overallRisk: merchantTrust.trustScore < 50 ? 50 : 20 },
+        finalVerdict: { decision, reason, color, confidence: priceIntel.confidence, savingsPercent, bestStore, bestPrice, bestLink }
+    };
+}
 
-const normalizeQuery = (q) => q.trim().toLowerCase().replace(/\s+/g, ' ');
-
-const pendingSearches = new Map();
-
-/* ================= AUTHENTICATION HELPER ================= */
+/* ================= AUTH HELPER ================= */
 async function authenticateUser(req) {
     const authHeader = req.headers.authorization;
-    
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return { uid: 'guest', isGuest: true };
-    }
-
-    const token = authHeader.split('Bearer ')[1];
-    
-    if (!firebaseInitialized) {
-        return { uid: 'guest', isGuest: true };
-    }
-
+    if (!authHeader || !authHeader.startsWith('Bearer ') || !firebaseInitialized) return { uid: 'guest', isGuest: true };
     try {
-        const decoded = await admin.auth().verifyIdToken(token);
+        const decoded = await admin.auth().verifyIdToken(authHeader.split('Bearer ')[1]);
         return { uid: decoded.uid, isGuest: false };
-    } catch (err) {
-        return { uid: 'guest', isGuest: true };
-    }
+    } catch { return { uid: 'guest', isGuest: true }; }
 }
 
-/* ================= TRACKING FUNCTIONS ================= */
+/* ================= CHAT ================= */
+const chatResponses = {
+    ar: { greeting: ['مرحباً! 👋 أنا Sage، كيف أقدر أساعدك؟', 'أهلاً! 🔮 اسألني عن أي منتج!'], search: ['سأبحث لك. ما المنتج؟'], price: ['سعر جيد 💰', 'قارن مع متاجر أخرى'], general: ['كيف أساعدك؟', 'أنا هنا لمساعدتك 🛍️'] },
+    en: { greeting: ['Hello! 👋 I\'m Sage, how can I help?'], search: ['I\'ll search for you. What product?'], price: ['Good price 💰'], general: ['How can I help?'] }
+};
 
-async function trackUserBehavior(userId, eventType, data) {
-    if (!dbConnected || !userId || userId === 'guest') return;
-    
-    try {
-        await UserBehavior.create({
-            userId,
-            eventType,
-            productId: data.productId,
-            query: data.query,
-            price: data.price,
-            metadata: data.metadata
-        });
-
-        await UserProfile.findOneAndUpdate(
-            { userId },
-            { 
-                $inc: { 'stats.totalSearches': eventType === 'search' ? 1 : 0 },
-                $set: { lastActive: new Date() }
-            },
-            { upsert: true }
-        );
-    } catch (e) {
-        console.log('Tracking error:', e.message);
-    }
+async function processChat(message, lang) {
+    const lower = (message || '').toLowerCase();
+    let intent = 'general';
+    if (lower.match(/مرحبا|اهلا|hello|hi/)) intent = 'greeting';
+    else if (lower.match(/ابحث|بحث|search|find/)) intent = 'search';
+    else if (lower.match(/سعر|price|كم/)) intent = 'price';
+    const arr = chatResponses[lang]?.[intent] || chatResponses.ar[intent] || chatResponses.ar.general;
+    return { reply: arr[Math.floor(Math.random() * arr.length)] };
 }
 
-async function savePriceHistory(product) {
-    if (!dbConnected) return;
-    
-    try {
-        await PriceHistory.create({
-            productId: product.id || crypto.createHash('md5').update(product.title).digest('hex'),
-            title: product.title,
-            price: parseFloat(String(product.price).replace(/[^0-9.]/g, '')) || 0,
-            store: product.source,
-            source: product.source,
-            thumbnail: product.thumbnail,
-            link: product.link
-        });
-    } catch (e) {
-        console.log('Price history error:', e.message);
-    }
-}
+/* ================= ENDPOINTS ================= */
 
-async function getUserHistory(userId) {
-    if (!dbConnected || !userId || userId === 'guest') return {};
-    
-    try {
-        const behaviors = await UserBehavior.find({ userId })
-            .sort({ timestamp: -1 })
-            .limit(100)
-            .lean();
+app.get('/health', (req, res) => res.json({ status: 'ok', version: '6.3', database: dbConnected ? 'connected' : 'disconnected' }));
 
-        const profile = await UserProfile.findOne({ userId }).lean();
+app.get('/', (req, res) => res.json({ name: 'Findly API', version: '6.3', endpoints: ['GET /search?q=product', 'POST /chat', 'GET /reviews', 'POST /reviews'] }));
 
-        const userEvents = {
-            searches: behaviors.filter(b => b.eventType === 'search').length,
-            views: behaviors.filter(b => b.eventType === 'view').length,
-            wishlistAdditions: behaviors.filter(b => b.eventType === 'wishlist').length,
-            purchases: behaviors.filter(b => b.eventType === 'purchase').length,
-            clickedAnalysis: behaviors.some(b => b.eventType === 'analysis')
-        };
-
-        return { userEvents, profile };
-    } catch (e) {
-        return {};
-    }
-}
-
-/* ================= API ENDPOINTS ================= */
-
-// Health Check
-app.get('/health', (req, res) => {
-    res.json({
-        status: 'ok',
-        version: '6.2.0',
-        timestamp: new Date().toISOString(),
-        uptime: process.uptime(),
-        gemini: GEMINI_API_KEY ? 'configured' : 'not_configured',
-        database: dbConnected ? 'connected' : 'disconnected',
-        firebase: firebaseInitialized ? 'initialized' : 'not_initialized'
-    });
-});
-
-// Root
-app.get('/', (req, res) => {
-    res.json({
-        name: 'Findly Sage API',
-        version: '6.2.0',
-        status: 'running',
-        endpoints: {
-            chat: 'POST /chat',
-            search: 'GET /search?q=product',
-            analyze: 'POST /analyze',
-            alerts: 'POST /alerts',
-            reviews: 'GET /reviews, POST /reviews'
-        }
-    });
-});
-
-// Chat Endpoint
+// Chat
 app.post('/chat', async (req, res) => {
-    try {
-        const { message, userId, lang = 'ar' } = req.body;
-        
-        if (userId && userId !== 'guest') {
-            await trackUserBehavior(userId, 'chat', { query: message });
-        }
-        
-        const result = await processChatMessage(message, userId || 'guest', lang);
-        
-        res.json({
-            success: true,
-            reply: result.reply,
-            response: result.response,
-            intent: result.intent,
-            sentiment: result.sentiment,
-            language: result.language
-        });
-        
-    } catch (error) {
-        res.json({
-            success: true,
-            reply: '🤔 عذراً، حدث خطأ بسيط. كيف يمكنني مساعدتك؟',
-            response: '🤔 عذراً، حدث خطأ بسيط. كيف يمكنني مساعدتك؟',
-            intent: 'general',
-            sentiment: 'neutral'
-        });
-    }
+    const { message, lang = 'ar' } = req.body;
+    const result = await processChat(message, lang);
+    res.json({ success: true, reply: result.reply, response: result.reply });
 });
 
-// ✅ Smart Search Endpoint - مع إرجاع الطاقة
+// Search
 app.get('/search', async (req, res) => {
     const { q, lang = 'ar' } = req.query;
-    
-    if (!q || q.trim() === '') {
-        return res.json({ 
-            success: false,
-            results: [], 
-            error: 'no_query'
-        });
-    }
+    if (!q || !q.trim()) return res.json({ success: false, results: [], error: 'no_query' });
 
     const auth = await authenticateUser(req);
-    const uid = auth.uid;
-    
-    // ✅ التحقق من الطاقة
     let energy = { searchesUsed: 0, hasFreePass: false };
-    
+
     if (dbConnected && !auth.isGuest) {
-        try {
-            energy = await Energy.findOne({ uid }) || await Energy.create({ uid });
-            if (!energy.hasFreePass && energy.searchesUsed >= 3) {
-                return res.status(429).json({ 
-                    error: 'ENERGY_EMPTY',
-                    message: 'Free searches exhausted'
-                });
-            }
-        } catch (e) {}
+        energy = await Energy.findOne({ uid: auth.uid }) || await Energy.create({ uid: auth.uid });
+        if (!energy.hasFreePass && energy.searchesUsed >= 3) {
+            return res.status(429).json({ error: 'ENERGY_EMPTY', message: 'Free searches exhausted', energy: { left: 0, limit: 3 } });
+        }
     }
 
-    // Check cache
-    const cacheKey = normalizeQuery(q) + "_" + lang;
-    const cached = getCache(cacheKey);
-    if (cached) {
-        cached.energy = {
-            used: energy.searchesUsed,
-            limit: energy.hasFreePass ? '∞' : 3,
-            left: energy.hasFreePass ? '∞' : Math.max(0, 3 - energy.searchesUsed)
-        };
-        cached.cached = true;
-        return res.json(cached);
+    const cacheKey = q.toLowerCase() + '_' + lang;
+    const cached = searchCache.get(cacheKey);
+    if (cached && Date.now() - cached.time < CACHE_TTL) {
+        cached.data.energy = { left: energy.hasFreePass ? '∞' : Math.max(0, 3 - energy.searchesUsed), limit: energy.hasFreePass ? '∞' : 3 };
+        return res.json(cached.data);
     }
+
+    if (!SEARCHAPI_KEY) return res.status(503).json({ success: false, error: 'SEARCH_NOT_CONFIGURED', results: [], energy: { left: 3, limit: 3 } });
 
     try {
-        if (!SEARCHAPI_KEY) {
-            return res.status(503).json({ 
-                success: false,
-                error: 'SEARCH_NOT_CONFIGURED',
-                results: [] 
-            });
-        }
-
         const apiRes = await axios.get('https://www.searchapi.io/api/v1/search', {
-            params: {
-                api_key: SEARCHAPI_KEY,
-                engine: 'google_shopping',
-                q: q,
-                hl: lang === 'ar' ? 'ar' : 'en',
-            },
+            params: { api_key: SEARCHAPI_KEY, engine: 'google_shopping', q, hl: lang === 'ar' ? 'ar' : 'en' },
             timeout: 15000
         });
 
         const rawResults = apiRes.data?.shopping_results?.slice(0, 10) || [];
 
-        // Track search
-        if (!auth.isGuest) {
-            await trackUserBehavior(uid, 'search', { query: q });
-        }
-
-        const userHistory = await getUserHistory(uid);
-
-        // Build results with intelligence
-        const results = await Promise.all(rawResults.map(async (item) => {
-            const price = parseFloat(String(item.price || item.extracted_price).replace(/[^0-9.]/g, '')) || 0;
+        const results = rawResults.map(item => {
             const product = {
                 id: crypto.createHash('md5').update(item.title + item.source).digest('hex'),
-                title: item.title || 'Unknown Product',
+                title: item.title || 'Unknown',
                 price: item.price || '$0',
-                numericPrice: price,
-                link: finalizeUrl(item.product_link || item.link),
+                link: item.product_link || item.link || '',
                 thumbnail: item.thumbnail || item.product_image || '',
-                source: item.source || 'Google Shopping' // ✅ اسم المتجر
+                source: item.source || 'Google Shopping'
             };
-
-            await savePriceHistory(product);
-
-            let priceHistory = [];
-            if (dbConnected) {
-                try {
-                    priceHistory = await PriceHistory.find({ title: { $regex: item.title?.substring(0, 30), $options: 'i' } })
-                        .sort({ timestamp: -1 })
-                        .limit(30)
-                        .lean();
-                } catch (e) {}
-            }
-
-            // ✅ استدعاء SageCore
-            let intelligence = {};
-            try {
-                intelligence = await SageCore(
-                    product,
-                    rawResults,
-                    priceHistory,
-                    userHistory.userEvents,
-                    uid,
-                    userHistory.profile,
-                    lang
-                );
-            } catch (e) {
-                console.log('SageCore error:', e.message);
-            }
-
+            const intelligence = SageCore(product, rawResults, lang);
             return { ...product, intelligence };
-        }));
+        });
 
-        // ✅ تحديث الطاقة
         if (dbConnected && !auth.isGuest && !energy.hasFreePass) {
-            try {
-                energy.searchesUsed += 1;
-                await energy.save();
-            } catch (e) {}
+            await Energy.updateOne({ uid: auth.uid }, { $inc: { searchesUsed: 1 } });
+            energy.searchesUsed++;
         }
 
-        const responseData = {
-            success: true,
-            query: q,
-            results: results,
-            // ✅ إرجاع بيانات الطاقة
-            energy: {
-                used: energy.searchesUsed,
-                limit: energy.hasFreePass ? '∞' : 3,
-                left: energy.hasFreePass ? '∞' : Math.max(0, 3 - energy.searchesUsed)
-            },
-            user: {
-                isGuest: auth.isGuest,
-                uid: auth.isGuest ? 'guest' : uid
-            }
+        const response = {
+            success: true, query: q, results,
+            energy: { left: energy.hasFreePass ? '∞' : Math.max(0, 3 - energy.searchesUsed), limit: energy.hasFreePass ? '∞' : 3 },
+            user: { isGuest: auth.isGuest, uid: auth.isGuest ? 'guest' : auth.uid }
         };
 
-        setCache(cacheKey, responseData);
-        res.json(responseData);
-
+        searchCache.set(cacheKey, { time: Date.now(), data: response });
+        res.json(response);
     } catch (error) {
-        console.error('❌ SEARCH ERROR:', error.message);
-        res.status(500).json({ 
-            success: false,
-            error: 'SEARCH_FAILED', 
-            message: error.message,
-            results: [],
-            energy: { used: 0, limit: 3, left: 3 }
-        });
+        console.error('Search error:', error.message);
+        res.status(500).json({ success: false, error: 'SEARCH_FAILED', message: error.message, results: [], energy: { left: 3, limit: 3 } });
     }
 });
 
-// ✅ Deep Analysis Endpoint - مع اسم المتجر
-app.post('/analyze', async (req, res) => {
+// ================= REVIEWS =================
+
+app.get('/reviews', async (req, res) => {
     try {
-        const { product, marketProducts, userId, lang = 'ar' } = req.body;
+        if (!dbConnected) return res.json({ success: true, reviews: [], todayCount: 0 });
         
-        if (!product) {
-            return res.status(400).json({ success: false, error: 'product_required' });
-        }
+        const reviews = await Review.find().sort({ createdAt: -1 }).limit(50).lean();
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        const todayCount = await Review.countDocuments({ createdAt: { $gte: today } });
 
-        if (userId && userId !== 'guest') {
-            await trackUserBehavior(userId, 'analysis', { 
-                productId: product.id, 
-                price: parseFloat(String(product.price).replace(/[^0-9.]/g, '')) || 0 
-            });
-        }
-
-        let priceHistory = [];
-        if (dbConnected && product.title) {
-            try {
-                priceHistory = await PriceHistory.find({ 
-                    title: { $regex: product.title?.substring(0, 30), $options: 'i' } 
-                })
-                .sort({ timestamp: -1 })
-                .limit(30)
-                .lean();
-            } catch (e) {}
-        }
-
-        const userHistory = await getUserHistory(userId);
-
-        const intelligence = await SageCore(
-            product,
-            marketProducts || [],
-            priceHistory,
-            userHistory.userEvents,
-            userId || 'guest',
-            userHistory.profile,
-            lang
-        );
-
-        // ✅ إضافة اسم المتجر للنتيجة
-        res.json({
-            success: true,
-            product: {
-                ...product,
-                store: product.source || product.store || 'Unknown' // ✅ اسم المتجر
-            },
-            intelligence
-        });
-
-    } catch (error) {
-        res.status(500).json({ success: false, error: 'ANALYSIS_FAILED', message: error.message });
+        res.json({ success: true, reviews, todayCount, total: await Review.countDocuments() });
+    } catch (e) {
+        res.status(500).json({ success: false, error: 'FETCH_FAILED', message: e.message });
     }
 });
 
-// Price Alert Endpoint
-app.post('/alerts', async (req, res) => {
+app.post('/reviews', async (req, res) => {
     try {
-        const { userId, productId, productTitle, productImage, productLink, targetPrice, currentPrice, notifyOn = 'drop' } = req.body;
+        const { name, text, rating } = req.body;
+
+        if (!name || !text || !rating) return res.status(400).json({ success: false, error: 'MISSING_FIELDS' });
         
-        if (!userId || !productId || !targetPrice) {
-            return res.status(400).json({ success: false, error: 'missing_required_fields' });
+        const ratingNum = parseInt(rating);
+        if (isNaN(ratingNum) || ratingNum < 1 || ratingNum > 5) return res.status(400).json({ success: false, error: 'INVALID_RATING' });
+
+        if (!dbConnected) return res.json({ success: true, message: 'Review received (demo)', review: { name, text, rating: ratingNum } });
+
+        const review = await Review.create({ name: name.trim(), text: text.trim(), rating: ratingNum });
+        res.status(201).json({ success: true, message: 'Review submitted', review });
+    } catch (e) {
+        res.status(500).json({ success: false, error: 'CREATE_FAILED', message: e.message });
+    }
+});
+
+app.post('/reviews/:id/helpful', async (req, res) => {
+    try {
+        if (!dbConnected) return res.json({ success: true });
+        const review = await Review.findByIdAndUpdate(req.params.id, { $inc: { helpful: 1 } }, { new: true });
+        if (!review) return res.status(404).json({ success: false, error: 'NOT_FOUND' });
+        res.json({ success: true, helpful: review.helpful });
+    } catch (e) {
+        res.status(500).json({ success: false, error: 'FAILED' });
+    }
+});
+
+// ================= PAYMENT =================
+
+app.post('/create-payment', async (req, res) => {
+    const { uid } = req.body;
+    if (!uid) return res.status(400).json({ success: false, error: 'UID_REQUIRED' });
+    if (!NOWPAYMENTS_API_KEY) return res.status(503).json({ success: false, error: 'PAYMENT_NOT_CONFIGURED' });
+
+    try {
+        const response = await axios.post('https://api.nowpayments.io/v1/invoice', {
+            price_amount: 10, price_currency: 'usd', pay_currency: 'usdttrc20',
+            order_id: uid, order_description: 'Findly Pro',
+            success_url: 'https://findly.source.github.io/?upgrade=success',
+            cancel_url: 'https://findly.source.github.io/?upgrade=cancel'
+        }, { headers: { 'x-api-key': NOWPAYMENTS_API_KEY, 'Content-Type': 'application/json' }, timeout: 10000 });
+
+        res.json({ success: true, url: response.data.invoice_url });
+    } catch (e) {
+        res.status(500).json({ success: false, error: 'PAYMENT_FAILED' });
+    }
+});
+
+app.post('/nowpayments/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+    try {
+        const data = JSON.parse(req.body.toString());
+        if (data.payment_status === 'finished' && dbConnected) {
+            await Energy.findOneAndUpdate({ uid: data.order_id }, { hasFreePass: true, searchesUsed: 0 }, { upsert: true });
         }
+        res.json({ success: true });
+    } catch { res.status(500).json({ error: 'WEBHOOK_ERROR' }); }
+});
 
-        if (!dbConnected) {
-            return res.json({ success: true, message: 'Alert created (demo mode)' });
-        }
+// Redirect
+app.get('/go', (req, res) => {
+    const { url } = req.query;
+    if (!url) return res.status(400).send('No URL');
+    try { res.redirect(decodeURIComponent(url)); } catch { res.status(500).send('Error'); }
+});
 
-        const alert = await PriceAlert.create({
-            userId,
-            productId,
-            productTitle,
-            productImage,
-            productLink,
-            targetPrice,
-            currentPrice,
-            notifyOn
-        });
-
-        res.json({ success: true, message: 'Alert created successfully', alertId: alert._id });
-    } catch (error) {
-        
+// ================= START =================
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Findly Server running on port ${PORT}`));

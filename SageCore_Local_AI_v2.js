@@ -943,16 +943,17 @@ async function SageCore(product, marketPrices, priceHistory, userBehavior, userI
 // 📤 EXPORTS
 // ================================
 
-module.exports = SageCore;
-module.exports.SageCore = SageCore;
-module.exports.TechnicalAnalysis = TechnicalAnalysis;
-module.exports.PricePredictionEngine = PricePredictionEngine;
-module.exports.PatternRecognition = PatternRecognition;
-module.exports.AnomalyDetector = AnomalyDetector;
-module.exports.PersonalityEngine = PersonalityEngine;
-module.exports.PriceIntelligence = PriceIntelligence;
-module.exports.MerchantTrustEngine = MerchantTrustEngine;
-module.exports.ScoringEngine = ScoringEngine;
-module.exports.SAGE_TRANSLATIONS = SAGE_TRANSLATIONS;
-module.exports.t = t;
-module.exports.cleanPrice = cleanPrice;
+module.exports = {
+    SageCore,
+    TechnicalAnalysis,
+    PricePredictionEngine,
+    PatternRecognition,
+    AnomalyDetector,
+    PersonalityEngine,
+    PriceIntelligence,
+    MerchantTrustEngine,
+    ScoringEngine,
+    SAGE_TRANSLATIONS,
+    t,
+    cleanPrice
+};

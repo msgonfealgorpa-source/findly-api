@@ -653,34 +653,296 @@
             .chat-window { left: 10px; right: 10px; bottom: 80px; width: auto; height: 60vh; }
             .chat-fab { bottom: 20px; left: 20px; }
         }
+    
+    
+    /* --- تنسيقات صفحة تسجيل الدخول الاحترافية --- */
+
+.premium-auth-card {
+    background: rgba(15, 23, 42, 0.65); /* خلفية داكنة شفافة */
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 28px; /* حواف ناعمة جداً */
+    padding: 2.5rem 2rem;
+    max-width: 420px;
+    width: 90%;
+    margin: 10% auto;
+    box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    text-align: center;
+    direction: rtl;
+}
+
+.auth-logo-wrapper {
+    width: 75px;
+    height: 75px;
+    background: var(--gradient);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    font-size: 2.2rem;
+    color: white;
+    box-shadow: 0 10px 25px var(--primary-glow);
+}
+
+.auth-header h2 {
+    font-weight: 700;
+    font-size: 1.8rem;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.5px;
+}
+
+.auth-subtitle {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 2rem;
+}
+
+.input-group-modern {
+    position: relative;
+    margin-bottom: 1.2rem;
+}
+
+.input-group-modern .input-icon {
+    position: absolute;
+    right: 18px; /* موضع الأيقونة في اليمين لأن اللغة عربية */
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    transition: 0.3s ease;
+}
+
+.input-group-modern input {
+    width: 100%;
+    padding: 16px 45px 16px 16px; /* توفير مساحة للأيقونة */
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.input-group-modern input:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
+}
+
+/* تلوين الأيقونة عند التركيز على الحقل */
+.input-group-modern input:focus + .input-icon,
+.input-group-modern input:not(:placeholder-shown) + .input-icon {
+    color: var(--primary);
+}
+
+.auth-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    margin-bottom: 1.8rem;
+    color: var(--text-muted);
+}
+
+.auth-options input[type="checkbox"] {
+    accent-color: var(--primary);
+    margin-left: 5px;
+}
+
+.forgot-password {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.forgot-password:hover {
+    color: #a855f7;
+    text-decoration: underline;
+}
+
+.btn-primary-modern {
+    width: 100%;
+    padding: 16px;
+    background: var(--gradient);
+    border: none;
+    border-radius: 14px;
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.btn-primary-modern:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 25px var(--primary-glow);
+}
+
+.auth-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 2rem 0 1.5rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.auth-divider::before, .auth-divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.auth-divider span {
+    padding: 0 15px;
+}
+
+/* تحويل الأزرار الاجتماعية لأيقونات عصرية */
+.social-logins-modern {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 2rem;
+}
+
+.btn-social {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-social:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-3px);
+}
+
+.btn-social.google:hover { color: #ea4335; border-color: #ea4335; box-shadow: 0 5px 15px rgba(234, 67, 53, 0.2); }
+.btn-social.apple:hover { color: #fff; border-color: #fff; box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1); }
+.btn-social.microsoft:hover { color: #00a4ef; border-color: #00a4ef; box-shadow: 0 5px 15px rgba(0, 164, 239, 0.2); }
+.btn-social.linkedin:hover { color: #0077b5; border-color: #0077b5; box-shadow: 0 5px 15px rgba(0, 119, 181, 0.2); }
+
+.auth-footer p {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+}
+
+.auth-footer a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 700;
+    margin-right: 5px;
+}
+
+.auth-footer a:hover {
+    text-decoration: underline;
+}
+    
+
+        /* إخفاء وإظهار الأقسام بنعومة */
+.auth-view {
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.hidden-view {
+    display: none;
+    opacity: 0;
+    transform: scale(0.95);
+}
+
+.active-view {
+    display: block;
+    opacity: 1;
+    transform: scale(1);
+    animation: fadeIn 0.4s ease forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+
+        
     </style>
 </head>
 <body>
-<div id="auth-overlay" class="auth-overlay">
-    <div class="auth-card">
-        <div class="auth-header">
-            <h1 class="logo-text">Findly <span>Sage</span></h1>
-            <p id="auth-title"></p>
-        </div>
-        <div id="auth-inputs">
-            <input type="email" id="auth-email" placeholder="">
-            <input type="password" id="auth-password" placeholder="">
-            <div style="display: flex; gap: 10px; margin-top: 10px;">
-                <button onclick="handleLogin()" class="action-btn buy-now" style="flex: 1;" id="btn-login"></button>
-                <button onclick="handleRegister()" class="action-btn buy-now" style="flex: 1; background: rgba(30, 41, 59, 0.7); border: 1px solid var(--primary); color: var(--primary);" id="btn-register"></button>
+
+
+<div id="auth-modal" class="modal auth-modal-modern">
+    <div class="modal-content glass-card premium-auth-card">
+        
+        <div id="login-view" class="auth-view active-view">
+            <div class="auth-header">
+                <div class="auth-logo-wrapper"><i class="fa-solid fa-user-astronaut"></i></div>
+                <h2>Findly Sage</h2>
+                <p class="auth-subtitle">مرحباً بك مجدداً! قم بتسجيل الدخول</p>
+            </div>
+
+            <div class="auth-form">
+                <div class="input-group-modern">
+                    <i class="fa-regular fa-envelope input-icon"></i>
+                    <input type="email" placeholder="البريد الإلكتروني" required>
+                </div>
+                <div class="input-group-modern">
+                    <i class="fa-solid fa-lock input-icon"></i>
+                    <input type="password" placeholder="كلمة المرور" required>
+                </div>
+                
+                <button class="btn-primary-modern">تسجيل الدخول</button>
+            </div>
+
+            <div class="auth-footer">
+                <p>ليس لديك حساب؟ <a href="#" id="go-to-signup">أنشئ حساباً جديداً</a></p>
             </div>
         </div>
-        <div class="divider"><span id="txt-or"></span></div>
-        <button onclick="loginWithGoogle()" class="google-btn" id="btn-google">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
-            <span id="txt-google-btn"></span>
-        </button>
-        <div style="margin-top: 30px; font-size: 0.85rem;">
-            <a href="#" style="color:var(--text-muted); margin:0 5px;" id="link-privacy"></a>
-            <a href="#" style="color:var(--text-muted); margin:0 5px;" id="link-terms"></a>
-            <a href="#" style="color:var(--text-muted); margin:0 5px;" id="link-about"></a>
+
+        <div id="signup-view" class="auth-view hidden-view">
+            <div class="auth-header">
+                <div class="auth-logo-wrapper"><i class="fa-solid fa-user-plus"></i></div>
+                <h2>حساب جديد</h2>
+                <p class="auth-subtitle">انضم إلينا وابدأ رحلتك الآن</p>
+            </div>
+
+            <div class="auth-form">
+                <div class="input-group-modern">
+                    <i class="fa-regular fa-user input-icon"></i>
+                    <input type="text" placeholder="الاسم الكامل" required>
+                </div>
+                <div class="input-group-modern">
+                    <i class="fa-regular fa-envelope input-icon"></i>
+                    <input type="email" placeholder="البريد الإلكتروني" required>
+                </div>
+                <div class="input-group-modern">
+                    <i class="fa-solid fa-lock input-icon"></i>
+                    <input type="password" placeholder="كلمة المرور" required>
+                </div>
+                
+                <button class="btn-primary-modern">إنشاء الحساب</button>
+            </div>
+
+            <div class="auth-footer">
+                <p>لديك حساب بالفعل؟ <a href="#" id="go-to-login">تسجيل الدخول</a></p>
+            </div>
         </div>
-    </div>
 </div>
 
 <header>
@@ -1673,6 +1935,35 @@ window.onload = function() {
         alert(upgradeDict.successTitle + '\n' + upgradeDict.successMessage);
     }
 };
+
+document.addEventListener("DOMContentLoaded", function() {
+    const loginView = document.getElementById("login-view");
+    const signupView = document.getElementById("signup-view");
+    
+    const btnGoToSignup = document.getElementById("go-to-signup");
+    const btnGoToLogin = document.getElementById("go-to-login");
+
+    // عند الضغط على "أنشئ حساباً جديداً"
+    btnGoToSignup.addEventListener("click", function(e) {
+        e.preventDefault();
+        loginView.classList.remove("active-view");
+        loginView.classList.add("hidden-view");
+        
+        signupView.classList.remove("hidden-view");
+        signupView.classList.add("active-view");
+    });
+
+    // عند الضغط على "تسجيل الدخول"
+    btnGoToLogin.addEventListener("click", function(e) {
+        e.preventDefault();
+        signupView.classList.remove("active-view");
+        signupView.classList.add("hidden-view");
+        
+        loginView.classList.remove("hidden-view");
+        loginView.classList.add("active-view");
+    });
+});
+
 </script>
 </body>
 </html>

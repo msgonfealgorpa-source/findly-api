@@ -42,7 +42,13 @@ if (MONGO_URI) {
 }
 
 /* ================= SCHEMAS ================= */
-const EnergySchema = new mongoose.Schema({ uid: { type: String, unique: true, required: true }, searchesUsed: { type: Number, default: 0 }, hasFreePass: { type: Boolean, default: false } });
+const EnergySchema = new mongoose.Schema({
+  uid: { type: String, unique: true, required: true },
+  searchesUsed: { type: Number, default: 0 },
+  hasFreePass: { type: Boolean, default: false },
+  wasPro: { type: Boolean, default: false },
+  proExpiresAt: { type: Date, default: null }
+});
 const ReviewSchema = new mongoose.Schema({ name: String, text: String, rating: { type: Number, min: 1, max: 5 }, helpful: { type: Number, default: 0 }, createdAt: { type: Date, default: Date.now } });
 const PriceHistorySchema = new mongoose.Schema({ productId: String, title: String, price: Number, store: String, source: String, thumbnail: String, link: String, timestamp: { type: Date, default: Date.now } });
 

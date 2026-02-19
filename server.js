@@ -19,27 +19,30 @@ const admin = require('firebase-admin');
    ========================================= */
 const admin = require('firebase-admin');
 
+// تهيئة Firebase Admin
 if (!admin.apps.length) {
     try {
-        let serviceAccountVar = process.env.FIREBASE_SERVICE_ACCOUNT;
-
-        if (serviceAccountVar) {
-            // حل مشكلة السطور الجديدة والمفتاح الخاص بشكل آلي
-            // هذا السطر يضمن أن النص سيتحول لـ JSON صحيح مهما كان شكل النسخ
-            const serviceAccount = JSON.parse(serviceAccountVar.replace(/\\n/g, '\n'));
+        // جلب المتغير كما هو من ريلوي
+        const rawKey = process.env.FIREBASE_SERVICE_ACCOUNT || "";
+        
+        // إذا كان المتغير موجوداً، سنقوم بتنظيفه يدوياً داخل الكود
+        if (rawKey) {
+            // تحويل النص إلى كائن مع إصلاح كسر السطور في المفتاح الخاص
+            const serviceAccount = JSON.parse(rawKey.replace(/\\n/g, '\n'));
             
             admin.initializeApp({
                 credential: admin.credential.cert(serviceAccount)
             });
-            console.log("✅ [Firebase] Connected using FIREBASE_SERVICE_ACCOUNT");
+            console.log("✅ [Firebase] System Active and Ready!");
         } else {
-            console.error("❌ [Firebase] Variable FIREBASE_SERVICE_ACCOUNT is missing!");
+            console.error("❌ [Firebase] Error: FIREBASE_SERVICE_ACCOUNT variable is empty");
         }
-    } catch (error) {
-        console.error("❌ [Firebase Error]:", error.message);
-        // هذا السطر يمنع السيرفر من الانهيار التام ويطبع المشكلة بوضوح في الـ Logs
+    } catch (e) {
+        console.error("⚠️ [Firebase] Setup failed, but server will keep running:", e.message);
+        // ملاحظة: هذا السطر يمنع السيرفر من الانهيار حتى لو المفتاح خطأ
     }
 }
+
 const app = express();
 
 /* ================= BASIC MIDDLEWARE ================= */

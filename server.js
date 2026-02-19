@@ -12,10 +12,28 @@ const crypto = require('crypto');
 const admin = require('firebase-admin');
 
 // Initialize Firebase Admin
+// تهيئة Firebase Admin باستخدام متغيرات البيئة
 if (!admin.apps.length) {
-    admin.initializeApp({
-        credential: admin.credential.applicationDefault()
-    });
+    try {
+        const serviceAccountVar = process.env.FIREBASE_SERVICE_ACCOUNT;
+        
+        if (serviceAccountVar) {
+            // إذا كان المتغير موجوداً، نقوم بتحويله من نص إلى JSON
+            const serviceAccount = JSON.parse(serviceAccountVar);
+            admin.initializeApp({
+                credential: admin.credential.cert(serviceAccount)
+            });
+            console.log("✅ Firebase Admin initialized using Environment Variable");
+        } else {
+            // كود احتياطي في حال عدم وجود المتغير (للتشغيل المحلي مثلاً)
+            admin.initializeApp({
+                credential: admin.credential.applicationDefault()
+            });
+            console.log("⚠️ Firebase Admin: No variable found, using applicationDefault");
+        }
+    } catch (error) {
+        console.error("❌ Firebase Initialization Error:", error.message);
+    }
 }
 
 const app = express();

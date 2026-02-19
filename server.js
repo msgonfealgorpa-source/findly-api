@@ -21,31 +21,25 @@ const admin = require('firebase-admin');
 
 if (!admin.apps.length) {
     try {
-        // قراءة المتغير من Railway
-        const serviceAccountRaw = process.env.FIREBASE_SERVICE_ACCOUNT;
+        let serviceAccountVar = process.env.FIREBASE_SERVICE_ACCOUNT;
 
-        if (serviceAccountRaw) {
-            // تحويل النص إلى كائن JSON
-            const serviceAccount = JSON.parse(serviceAccountRaw);
+        if (serviceAccountVar) {
+            // حل مشكلة السطور الجديدة والمفتاح الخاص بشكل آلي
+            // هذا السطر يضمن أن النص سيتحول لـ JSON صحيح مهما كان شكل النسخ
+            const serviceAccount = JSON.parse(serviceAccountVar.replace(/\\n/g, '\n'));
             
             admin.initializeApp({
                 credential: admin.credential.cert(serviceAccount)
             });
-            console.log("✅ [Firebase] تم الاتصال بنجاح في بيئة Railway");
+            console.log("✅ [Firebase] Connected using FIREBASE_SERVICE_ACCOUNT");
         } else {
-            // إذا لم يجد المتغير، يحاول الطريقة الافتراضية
-            console.warn("⚠️ [Firebase] لم يتم العثور على المتغير FIREBASE_SERVICE_ACCOUNT، يحاول الوضع الافتراضي...");
-            admin.initializeApp({
-                credential: admin.credential.applicationDefault()
-            });
+            console.error("❌ [Firebase] Variable FIREBASE_SERVICE_ACCOUNT is missing!");
         }
     } catch (error) {
-        console.error("❌ [Firebase Error] فشل في تشغيل النظام:");
-        console.error(error.message);
-        // ملاحظة: إذا ظهر خطأ JSON parse، يعني أنك نسخت النص بشكل خاطئ في Railway
+        console.error("❌ [Firebase Error]:", error.message);
+        // هذا السطر يمنع السيرفر من الانهيار التام ويطبع المشكلة بوضوح في الـ Logs
     }
 }
-
 const app = express();
 
 /* ================= BASIC MIDDLEWARE ================= */

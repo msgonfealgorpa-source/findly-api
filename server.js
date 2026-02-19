@@ -311,7 +311,19 @@ app.post('/nowpayments/webhook', express.raw({ type: 'application/json' }), asyn
     try {
         const data = JSON.parse(req.body.toString());
         if (data.payment_status === 'finished' && dbConnected) {
-            await Energy.findOneAndUpdate({ uid: data.order_id }, { hasFreePass: true, searchesUsed: 0 }, { upsert: true });
+            const now = new Date();
+const expires = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 يوم
+
+await Energy.findOneAndUpdate(
+  { uid: data.order_id },
+  {
+    hasFreePass: true,
+    wasPro: true,
+    searchesUsed: 0,
+    proExpiresAt: expires
+  },
+  { upsert: true }
+);
         }
         res.json({ success: true });
     } catch { res.status(500).json({ error: 'WEBHOOK_ERROR' }); }

@@ -19,19 +19,25 @@ const admin = require('firebase-admin');
    ========================================= */
 const admin = require('firebase-admin');
 
-// تهيئة Firebase Admin
 if (!admin.apps.length) {
     try {
-        // هذه الطريقة ستقرأ المتغير من ريلوي كأنه ملف
-        const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-        
-        admin.initializeApp({
-            credential: admin.credential.cert(serviceAccount)
-        });
-        console.log("✅ [Firebase] Connected Successfully!");
+        const serviceAccountRaw = process.env.FIREBASE_SERVICE_ACCOUNT;
+
+        if (serviceAccountRaw) {
+            // تحويل النص إلى كائن JSON مع معالجة السطور الجديدة آلياً
+            // هذه الطريقة تمنع خطأ الـ JSON.parse الذي يوقف النشر
+            const serviceAccount = JSON.parse(serviceAccountRaw.replace(/\\n/g, '\n'));
+            
+            admin.initializeApp({
+                credential: admin.credential.cert(serviceAccount)
+            });
+            console.log("✅ [Firebase] Connected Safely via Environment Variables");
+        } else {
+            console.warn("⚠️ [Firebase] FIREBASE_SERVICE_ACCOUNT is not set.");
+        }
     } catch (error) {
-        console.error("❌ [Firebase Error]:", error.message);
-        // السيرفر سيعمل ولن يتوقف، لكن البحث سيعطي خطأ حتى تضع المفتاح صح
+        // في حال وجود خطأ في المفتاح، يطبع الخطأ ويستمر السيرفر في العمل بدلاً من الانهيار
+        console.error("❌ [Firebase Init Error]:", error.message);
     }
 }
 

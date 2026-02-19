@@ -216,6 +216,7 @@ if (!energy.hasFreePass && energy.searchesUsed >= 3) {
     });
 }
 
+        
     const cacheKey = q.toLowerCase() + '_' + lang;
     const cached = searchCache.get(cacheKey);
     if (cached && Date.now() - cached.time < CACHE_TTL) {
@@ -246,6 +247,7 @@ if (!energy.hasFreePass && energy.searchesUsed >= 3) {
             return { ...product, intelligence };
         });
 
+    }
         if (dbConnected && !energy.hasFreePass) {
             await Energy.updateOne({ uid: auth.uid }, { $inc: { searchesUsed: 1 } });
             energy.searchesUsed++;
@@ -265,6 +267,7 @@ if (!energy.hasFreePass && energy.searchesUsed >= 3) {
     }
 });
 
+}
 // ================= REVIEWS =================
 
 app.get('/reviews', async (req, res) => {
@@ -349,7 +352,7 @@ await Energy.findOneAndUpdate(
   { upsert: true }
 );
       
-            
+        }      
             res.json({ success: true });
     } catch { res.status(500).json({ error: 'WEBHOOK_ERROR' }); }
 });

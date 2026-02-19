@@ -179,7 +179,7 @@ app.get('/search', async (req, res) => {
     const auth = await authenticateUser(req);
     let energy = { searchesUsed: 0, hasFreePass: false };
 
-    if (dbConnected && !auth.isGuest) {
+    if (dbConnected) { 
         energy = await Energy.findOne({ uid: auth.uid }) || await Energy.create({ uid: auth.uid });
         if (!energy.hasFreePass && energy.searchesUsed >= 3) {
             return res.status(429).json({ error: 'ENERGY_EMPTY', message: 'Free searches exhausted', energy: { left: 0, limit: 3 } });
@@ -216,7 +216,7 @@ app.get('/search', async (req, res) => {
             return { ...product, intelligence };
         });
 
-        if (dbConnected && !auth.isGuest && !energy.hasFreePass) {
+        if (dbConnected && !energy.hasFreePass) {
             await Energy.updateOne({ uid: auth.uid }, { $inc: { searchesUsed: 1 } });
             energy.searchesUsed++;
         }

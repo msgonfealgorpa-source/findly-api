@@ -13,26 +13,25 @@ const admin = require('firebase-admin');
 
 // Initialize Firebase Admin
 // تهيئة Firebase Admin باستخدام متغيرات البيئة
+// تهيئة Firebase Admin بطريقة متوافقة مع Railway
 if (!admin.apps.length) {
     try {
         const serviceAccountVar = process.env.FIREBASE_SERVICE_ACCOUNT;
         
         if (serviceAccountVar) {
-            // إذا كان المتغير موجوداً، نقوم بتحويله من نص إلى JSON
+            // تحويل النص القادم من Railway إلى كائن JSON
             const serviceAccount = JSON.parse(serviceAccountVar);
+            
             admin.initializeApp({
                 credential: admin.credential.cert(serviceAccount)
             });
-            console.log("✅ Firebase Admin initialized using Environment Variable");
+            console.log("✅ Firebase Admin initialized successfully!");
         } else {
-            // كود احتياطي في حال عدم وجود المتغير (للتشغيل المحلي مثلاً)
-            admin.initializeApp({
-                credential: admin.credential.applicationDefault()
-            });
-            console.log("⚠️ Firebase Admin: No variable found, using applicationDefault");
+            throw new Error("Missing FIREBASE_SERVICE_ACCOUNT environment variable");
         }
     } catch (error) {
-        console.error("❌ Firebase Initialization Error:", error.message);
+        console.error("❌ FIREBASE INIT ERROR:", error.message);
+        // التوقف هنا لأن السيرفر لن يعمل بدون صلاحيات
     }
 }
 

@@ -14,28 +14,25 @@ const crypto = require('crypto');
 // ================================
 // 🔮 IMPORT SAGE CORE v5.0
 // ================================
-let SageCore, TechnicalAnalysis, PricePredictionEngine, PatternRecognition, AnomalyDetector;
-let PersonalityEngine, PriceIntelligence, MerchantTrustEngine, ScoringEngine;
-let SAGE_TRANSLATIONS, t, cleanPrice;
+// ================================
+// 🔮 IMPORT SAGE CORE v5.0
+// ================================
+const SageCoreModule = require('./SageCore_Local_AI_v2.js');
 
-try {
-    const SageCoreModule = require('./SageCore_Local_AI_v2.js');
-    SageCore = SageCoreModule.SageCore || SageCoreModule;
-    TechnicalAnalysis = SageCoreModule.TechnicalAnalysis || {};
-    PricePredictionEngine = SageCoreModule.PricePredictionEngine || {};
-    PatternRecognition = SageCoreModule.PatternRecognition || {};
-    AnomalyDetector = SageCoreModule.AnomalyDetector || {};
-    PersonalityEngine = SageCoreModule.PersonalityEngine || {};
-    PriceIntelligence = SageCoreModule.PriceIntelligence || {};
-    MerchantTrustEngine = SageCoreModule.MerchantTrustEngine || {};
-    ScoringEngine = SageCoreModule.ScoringEngine || {};
-    SAGE_TRANSLATIONS = SageCoreModule.SAGE_TRANSLATIONS || {};
-    t = SageCoreModule.t || function(lang, key) { return key; };
-    cleanPrice = SageCoreModule.cleanPrice || function(p) { return parseFloat(String(p).replace(/[^\d.]/g, '')) || 0; };
-    console.log('✅ Sage Core v5.0 Loaded Successfully');
-} catch (err) {
-    console.log('⚠️ Sage Core not found, using fallback functions');
-    
+const {
+    SageCore,
+    TechnicalAnalysis,
+    PricePredictionEngine,
+    PatternRecognition,
+    AnomalyDetector,
+    PersonalityEngine,
+    PriceIntelligence,
+    MerchantTrustEngine,
+    ScoringEngine,
+    SAGE_TRANSLATIONS,
+    t,
+    cleanPrice
+} = SageCoreModule;
     // Fallback functions
     cleanPrice = function(price) {
         if (typeof price === 'number') return price;

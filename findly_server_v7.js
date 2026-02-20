@@ -17,22 +17,31 @@ const crypto = require('crypto');
 // ================================
 // 🔮 IMPORT SAGE CORE v5.0
 // ================================
+// ================================
+// 🔮 IMPORT SAGE CORE v5.0
+// ================================
 const SageCoreModule = require('./SageCore_Local_AI_v2.js');
 
-const {
-    SageCore,
-    TechnicalAnalysis,
-    PricePredictionEngine,
-    PatternRecognition,
-    AnomalyDetector,
-    PersonalityEngine,
-    PriceIntelligence,
-    MerchantTrustEngine,
-    ScoringEngine,
-    SAGE_TRANSLATIONS,
-    t,
-    cleanPrice
-} = SageCoreModule;
+// استخراج الدوال مع التأكد من وجودها
+const SageCore = SageCoreModule.SageCore;
+const TechnicalAnalysis = SageCoreModule.TechnicalAnalysis;
+const PricePredictionEngine = SageCoreModule.PricePredictionEngine;
+const PatternRecognition = SageCoreModule.PatternRecognition;
+const AnomalyDetector = SageCoreModule.AnomalyDetector;
+const PersonalityEngine = SageCoreModule.PersonalityEngine;
+const PriceIntelligence = SageCoreModule.PriceIntelligence;
+const MerchantTrustEngine = SageCoreModule.MerchantTrustEngine;
+const ScoringEngine = SageCoreModule.ScoringEngine;
+const SAGE_TRANSLATIONS = SageCoreModule.SAGE_TRANSLATIONS;
+const t = SageCoreModule.t;
+const cleanPrice = SageCoreModule.cleanPrice;
+
+// فحص سريع للتأكد أن الاستيراد تم بنجاح
+if (!SageCore) {
+    console.error("❌ خطأ: لم يتم تحميل SageCore بشكل صحيح من الملف!");
+} else {
+    console.log("✅ تم تحميل SageCore بنجاح!");
+}
     // Fallback functions
     cleanPrice = function(price) {
         if (typeof price === 'number') return price;

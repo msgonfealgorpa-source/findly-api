@@ -1,0 +1,3217 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" id="main-html">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Findly Sage Ultimate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #8b5cf6;
+            --primary-glow: rgba(139, 92, 246, 0.5);
+            --secondary: #6366f1;
+            --bg-dark: #020617;
+            --bg-card: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --gradient: linear-gradient(135deg, #6366F1, #A855F7);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+        .light-mode {
+            --bg-dark: #f8fafc;
+            --bg-card: rgba(255, 255, 255, 0.9);
+            --glass-border: rgba(0, 0, 0, 0.05);
+            --text: #1e293b;
+            --text-muted: #64748b;
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        body {
+            background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at 50% 0%, #1e1b4b 0%, transparent 50%);
+            color: var(--text);
+            font-family: 'Readex Pro', sans-serif;
+            margin: 0;
+            transition: background 0.4s ease, color 0.4s ease;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 5%;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--glass-border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header-tools { display: flex; gap: 10px; }
+        .tool-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            color: var(--text);
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        .tool-btn:hover { transform: translateY(-2px); border-color: var(--primary); }
+        .lang-menu {
+            display: none;
+            position: absolute;
+            top: 50px;
+            left: 0;
+            background: #1e293b;
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            width: 140px;
+            z-index: 2000;
+            box-shadow: 0 20px 40px -5px rgba(0,0,0,0.4);
+            overflow: hidden;
+        }
+        .lang-item {
+            padding: 12px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            color: #e2e8f0;
+            text-align: center;
+            transition: 0.2s;
+        }
+        .lang-item:hover { background: var(--primary); color: white; }
+        .search-area { padding: 40px 5%; text-align: center; max-width: 800px; margin: 0 auto; }
+        .energy-box {
+            background: rgba(168, 85, 247, 0.08);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            padding: 8px 20px;
+            border-radius: 50px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        h1#txt-title {
+            background: linear-gradient(to right, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 10px 0;
+            font-size: 2.5rem;
+        }
+        .light-mode h1#txt-title {
+            background: linear-gradient(to right, #1e293b, #475569);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .ai-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            color: var(--primary);
+            margin-bottom: 25px;
+            justify-content: center;
+            font-weight: 600;
+            background: rgba(139, 92, 246, 0.05);
+            padding: 8px 16px;
+            border-radius: 12px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .ai-toggle input { width: 20px; height: 20px; accent-color: var(--primary); cursor: pointer; }
+        .search-wrapper { position: relative; max-width: 600px; margin: 0 auto 20px; }
+        .search-input {
+            width: 100%;
+            padding: 18px 70px;
+            border-radius: 24px;
+            border: 2px solid var(--glass-border);
+            background: var(--bg-card);
+            color: var(--text);
+            font-size: 1.1rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+            text-align: center;
+        }
+        .search-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15); }
+        .mic-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--secondary);
+            cursor: pointer;
+            font-size: 1.4rem;
+            background: none;
+            border: none;
+            padding: 10px;
+            border-radius: 50%;
+            transition: 0.3s;
+            z-index: 10;
+        }
+        .mic-icon:hover { background: rgba(139, 92, 246, 0.1); }
+        .mic-active { color: #ef4444 !important; background: rgba(239, 68, 68, 0.1) !important; animation: pulse 1s infinite; }
+        .send-btn {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--gradient);
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 18px;
+            color: #fff;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+        .send-btn:hover { transform: translateY(-50%) scale(1.05); }
+        .ai-options { display: flex; justify-content: center; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+        .ai-tag {
+            font-size: 0.8rem; padding: 8px 16px; border-radius: 20px;
+            background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border);
+            cursor: pointer; color: var(--text-muted); display: flex; align-items: center; gap: 8px;
+            transition: 0.3s;
+        }
+        .ai-tag:hover { background: var(--bg-card); color: var(--primary); border-color: var(--primary); }
+        .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 600px; margin: 30px auto; }
+        .cat-card {
+            background: var(--bg-card); border: 1px solid var(--glass-border);
+            padding: 15px 10px; border-radius: 20px; cursor: pointer;
+            transition: 0.3s; display: flex; flex-direction: column; align-items: center; gap: 8px;
+        }
+        .cat-card:hover { transform: translateY(-5px); border-color: var(--primary); }
+        .cat-card i { font-size: 1.5rem; color: var(--secondary); }
+        .cat-card span { font-size: 0.75rem; font-weight: 600; }
+        .product-card {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 20px;
+            margin-top: 25px;
+            text-align: right;
+            max-width: 600px;
+            margin-left: auto; margin-right: auto;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+            animation: slideUp 0.5s ease;
+        }
+        .product-card img { width: 100%; height: 200px; object-fit: contain; background: #fff; border-radius: 16px; margin-bottom: 15px; padding: 10px; }
+        .product-card h3 { margin: 0 0 10px 0; font-size: 1.1rem; line-height: 1.5; color: var(--text); }
+        .product-card .price { font-size: 1.4rem; font-weight: 800; color: #10b981; margin-bottom: 10px; }
+        .analysis-engine {
+            background: rgba(99, 102, 241, 0.08);
+            border-right: 3px solid var(--primary);
+            padding: 12px; border-radius: 12px; margin: 15px 0;
+            font-size: 0.85rem; line-height: 1.6; color: var(--text-muted);
+        }
+        .analysis-label { font-weight: 700; color: var(--primary); display: block; margin-bottom: 5px; }
+        .action-btn {
+            flex: 1; padding: 12px; border-radius: 14px; font-weight: 700;
+            text-align: center; border: none; font-size: 0.9rem; cursor: pointer;
+            transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .buy-now { background: var(--gradient); color: #fff; text-decoration: none; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3); }
+        .buy-now:hover { filter: brightness(1.1); }
+        .analyze-btn { background: rgba(30, 41, 59, 0.7); border: 1px solid var(--primary); color: var(--primary); }
+        .analyze-btn:hover { background: var(--primary); color: white; }
+        .modal {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.8); z-index: 3000;
+            align-items: center; justify-content: center;
+            backdrop-filter: blur(12px);
+        }
+        .modal-box {
+            background: #0f172a; padding: 30px; border-radius: 30px;
+            width: 85%; max-width: 450px;
+            border: 1px solid var(--glass-border);
+            text-align: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            max-height: 80vh; overflow-y: auto;
+        }
+        .modal-box input {
+            width: 100%; padding: 14px; margin: 10px 0; border-radius: 14px;
+            background: #1e293b; color: #fff; border: 1px solid var(--glass-border);
+            text-align: center; font-family: inherit;
+        }
+        .modal-box input:focus { border-color: var(--primary); }
+        .analysis-modal {
+            display: none; position: fixed; z-index: 10000;
+            left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
+            align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background: #0f172a; margin: auto; padding: 25px;
+            width: 85%; max-width: 550px; border-radius: 20px; text-align: right;
+            border: 1px solid var(--primary);
+            box-shadow: 0 0 30px rgba(139, 92, 247, 0.2);
+            color: white;
+            position: relative;
+            top: 50%;
+            transform: translateY(-50%);
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .over-budget { border: 2px solid #ff4d4d !important; }
+        .budget-alert { background: #ff4d4d; color: white; padding: 4px 10px; border-radius: 8px; font-size: 0.8rem; margin-bottom: 10px; display: inline-block; font-weight: bold; }
+        @keyframes pulse { 0%, 100% { transform: translateY(-50%) scale(1); } 50% { transform: translateY(-50%) scale(1.1); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        
+        /* ========== تنسيقات صفحة تسجيل الدخول الاحترافية ========== */
+        .auth-overlay {
+            display: none !important;
+            position: fixed !important;
+            top: 0 !important; left: 0 !important;
+            width: 100vw !important; height: 100vh !important;
+            background: radial-gradient(circle at center, #1e1b4b 0%, #020617 100%) !important;
+            z-index: 2147483647 !important;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(15px);
+            overflow-y: auto;
+            padding: 15px 0;
+        }
+        
+        .auth-container {
+            position: relative;
+            width: 100%;
+            max-width: 420px;
+            padding: 0 15px;
+            margin: auto;
+        }
+        
+        .auth-card {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            border-radius: 28px;
+            padding: 35px 28px;
+            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.7),
+                        0 0 80px rgba(139, 92, 246, 0.15),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            margin: 10px auto;
+        }
+        
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient);
+            border-radius: 28px 28px 0 0;
+        }
+        
+        .auth-logo-wrapper {
+            width: 70px;
+            height: 70px;
+            background: var(--gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 18px;
+            font-size: 2rem;
+            color: white;
+            box-shadow: 0 12px 30px var(--primary-glow);
+            position: relative;
+        }
+        
+        .auth-logo-wrapper::after {
+            content: '';
+            position: absolute;
+            inset: -3px;
+            border-radius: 50%;
+            border: 2px solid rgba(139, 92, 246, 0.3);
+            animation: pulse-ring 2s infinite;
+        }
+        
+        @keyframes pulse-ring {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1.15); opacity: 0; }
+        }
+        
+        .auth-card h2 {
+            font-size: 1.7rem;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 6px;
+            letter-spacing: -0.5px;
+        }
+        
+        .auth-card .auth-subtitle {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 25px;
+        }
+        
+        .input-group-modern {
+            position: relative;
+            margin-bottom: 14px;
+        }
+        
+        .input-group-modern .input-icon {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 1rem;
+            transition: 0.3s ease;
+            pointer-events: none;
+        }
+        
+        .input-group-modern input {
+            width: 100%;
+            padding: 14px 45px 14px 14px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+        
+        .input-group-modern input::placeholder {
+            color: var(--text-muted);
+        }
+        
+        .input-group-modern input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(139, 92, 246, 0.08);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+        }
+        
+        .input-group-modern input:focus + .input-icon {
+            color: var(--primary);
+        }
+        
+        /* أزرار احترافية */
+        .btn-primary {
+            width: 100%;
+            padding: 15px;
+            background: var(--gradient);
+            border: none;
+            border-radius: 14px;
+            color: white;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 8px;
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.35);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.45);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(-1px);
+        }
+        
+        .btn-primary i {
+            font-size: 1.1rem;
+        }
+        
+        /* فاصل */
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 20px 0;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+        
+        .auth-divider::before, .auth-divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .auth-divider span {
+            padding: 0 15px;
+        }
+        
+        /* زر جوجل */
+        .btn-google {
+            width: 100%;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px solid rgba(255, 255, 255, 0.15);
+            border-radius: 14px;
+            color: var(--text);
+            font-size: 0.95rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+        
+        .btn-google:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+        
+        .btn-google img {
+            width: 20px;
+            height: 20px;
+        }
+        
+        /* روابط التنقل بين الصفحات */
+        .auth-switch {
+            margin-top: 22px;
+            padding-top: 18px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        .auth-switch p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+        
+        .auth-switch a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .auth-switch a:hover {
+            color: #a855f7;
+        }
+        
+        .auth-switch a i {
+            font-size: 0.8rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .auth-switch a:hover i {
+            transform: translateX(-4px);
+        }
+        
+        /* أنيميشن الانتقال بين الصفحات */
+        .auth-view {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateX(30px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .auth-view.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(0);
+            position: relative;
+        }
+        
+        .auth-view.exit-left {
+            transform: translateX(-30px);
+            opacity: 0;
+        }
+        
+        /* ========== باقي التنسيقات ========== */
+        .old-price { text-decoration: line-through; opacity: 0.6; margin-right: 6px; }
+        .new-price { color: #2ecc71; font-weight: bold; font-size: 1.1em; }
+        .sage-quick-brains { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 12px 0; }
+        .brain-item {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 8px 10px;
+            font-size: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+        .brain-item span { opacity: 0.85; }
+        .brain-item.good { border-color: #10b981; }
+        .brain-item.wait { border-color: #f59e0b; }
+        .brain-item.safe { border-color: #3b82f6; }
+        .brain-item.risk { border-color: #ef4444; }
+        .brain-item.learn { border-color: #8b5cf6; }
+        .invite-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: linear-gradient(135deg, rgba(40, 32, 90, 0.85), rgba(28, 22, 60, 0.9));
+            border: 1px solid rgba(138, 99, 255, 0.35);
+            border-radius: 16px;
+            padding: 14px 16px;
+            margin-top: 14px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            justify-content: center;
+        }
+        .invite-card:hover { transform: translateY(-2px); }
+        .invite-text { font-size: 14.5px; color: #e1dbff; line-height: 1.6; text-align: center; width: 100%; }
+        .layout-wrapper { display: flex; gap: 20px; }
+        #results { flex: 3; }
+        .affiliate-card { flex: 1; background: #111; color: white; padding: 15px; border-radius: 12px; position: sticky; top: 20px; }
+        .affiliate-card img { width: 100%; border-radius: 8px; }
+        .affiliate-btn { display: block; background: #ff4747; text-align: center; padding: 10px; border-radius: 8px; text-decoration: none; color: white; margin-top: 10px; }
+        .intel-section { background: rgba(255,255,255,0.03); padding: 12px; border-radius: 12px; margin: 10px 0; text-align: right; }
+        .intel-section h4 { margin: 0 0 8px 0; font-size: 0.9rem; color: var(--primary); }
+        .intel-section p { margin: 4px 0; font-size: 0.85rem; color: var(--text-muted); }
+        .intel-section ul { margin: 5px 0; padding-right: 20px; font-size: 0.85rem; }
+        .upgrade-section { background: #1b1b2f; border: 1px solid #ff4d4d; padding: 12px; border-radius: 8px; margin: 20px auto; max-width: 600px; }
+        .upgrade-section h3 { color: #ff4d4d; margin-bottom: 8px; }
+        .upgrade-btn { background: linear-gradient(135deg, #8b5cf6, #6366f1); color: white; padding: 12px 24px; border-radius: 14px; border: none; cursor: pointer; font-weight: 600; margin-top: 10px; transition: 0.3s; }
+        .upgrade-btn:hover { filter: brightness(1.1); transform: translateY(-2px); }
+        .coupon-box { margin: 10px 0; padding: 10px; background: rgba(16,185,129,0.1); border-radius: 10px; border: 1px dashed #10b981; }
+        
+        /* Chat Bot Styles */
+        .chat-fab {
+            position: fixed;
+            bottom: 25px;
+            left: 25px;
+            width: 60px;
+            height: 60px;
+            background: var(--gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+            z-index: 999;
+            transition: all 0.3s ease;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+        }
+        .chat-fab:hover { transform: scale(1.1); }
+        .chat-window {
+            position: fixed;
+            bottom: 100px;
+            left: 25px;
+            width: 380px;
+            max-width: calc(100vw - 50px);
+            height: 520px;
+            max-height: 70vh;
+            background: #0f172a;
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            display: none;
+            flex-direction: column;
+            z-index: 998;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+        .chat-window.active { display: flex; animation: slideUp 0.3s ease; }
+        .chat-header {
+            background: var(--gradient);
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .chat-avatar {
+            width: 42px;
+            height: 42px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+        .chat-title-area { flex: 1; }
+        .chat-title-area h4 { margin: 0; font-size: 1rem; }
+        .chat-title-area span { font-size: 0.75rem; opacity: 0.8; }
+        .chat-close {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .chat-message {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            animation: slideUp 0.2s ease;
+        }
+        .chat-message.user {
+            align-self: flex-end;
+            background: var(--gradient);
+            color: white;
+            border-bottom-left-radius: 6px;
+        }
+        .chat-message.assistant {
+            align-self: flex-start;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--glass-border);
+            border-bottom-right-radius: 6px;
+        }
+        .chat-typing {
+            display: flex;
+            gap: 4px;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 18px;
+            width: fit-content;
+        }
+        .chat-typing span {
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: bounce 1s infinite;
+        }
+        .chat-typing span:nth-child(2) { animation-delay: 0.2s; }
+        .chat-typing span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+        .chat-input-area {
+            padding: 16px;
+            border-top: 1px solid var(--glass-border);
+            display: flex;
+            gap: 10px;
+        }
+        .chat-input {
+            flex: 1;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+        .chat-input:focus { border-color: var(--primary); outline: none; }
+        .chat-send {
+            width: 48px;
+            height: 48px;
+            background: var(--gradient);
+            border: none;
+            border-radius: 14px;
+            color: white;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: 0.3s;
+        }
+        .chat-send:hover { transform: scale(1.05); }
+        .chat-send:disabled { opacity: 0.5; cursor: not-allowed; }
+        .chat-suggestions {
+            display: flex;
+            gap: 8px;
+            padding: 0 16px 16px;
+            flex-wrap: wrap;
+        }
+        .chat-suggestion {
+            background: rgba(139, 92, 246, 0.15);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #a78bfa;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .chat-suggestion:hover { background: var(--primary); color: white; }
+        
+        /* V4 Features */
+        .personality-badge {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(99, 102, 241, 0.2));
+            border: 1px solid rgba(139, 92, 246, 0.4);
+            border-radius: 16px;
+            padding: 12px 16px;
+            margin: 15px auto;
+            max-width: 600px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .personality-icon {
+            width: 45px;
+            height: 45px;
+            background: var(--gradient);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+        .personality-info { flex: 1; }
+        .personality-type { font-weight: 700; font-size: 0.95rem; color: var(--primary); }
+        .personality-desc { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
+        .merchant-trust {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 14px;
+            padding: 12px;
+            margin: 10px 0;
+        }
+        .merchant-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+        .merchant-name { font-weight: 600; font-size: 0.9rem; }
+        .trust-score { display: flex; align-items: center; gap: 6px; }
+        .trust-score-value { font-weight: 800; font-size: 1.1rem; }
+        .trust-score-value.high { color: #10b981; }
+        .trust-score-value.medium { color: #f59e0b; }
+        .trust-score-value.low { color: #ef4444; }
+        .trust-bar { height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
+        .trust-bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+        .trust-bar-fill.high { background: linear-gradient(90deg, #10b981, #22c55e); }
+        .trust-bar-fill.medium { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+        .trust-bar-fill.low { background: linear-gradient(90deg, #ef4444, #f87171); }
+        .fake-deal-alert {
+            background: rgba(239, 68, 68, 0.15);
+            border: 2px solid rgba(239, 68, 68, 0.5);
+            border-radius: 14px;
+            padding: 14px;
+            margin: 12px 0;
+        }
+        .fake-deal-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .fake-deal-icon { font-size: 1.5rem; }
+        .fake-deal-title { font-weight: 700; color: #ef4444; }
+        .fake-deal-reasons { font-size: 0.85rem; color: var(--text-muted); }
+        .recommendations-section {
+            background: rgba(99, 102, 241, 0.08);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 16px;
+            padding: 16px;
+            margin: 15px 0;
+        }
+        .rec-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+        .rec-title { font-weight: 700; color: var(--primary); }
+        .rec-items { display: flex; flex-direction: column; gap: 10px; }
+        .rec-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 12px;
+            padding: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .rec-item:hover { background: rgba(255,255,255,0.06); }
+        .rec-item-img { width: 50px; height: 50px; border-radius: 10px; object-fit: cover; background: white; }
+        .rec-item-info { flex: 1; }
+        .rec-item-title { font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; }
+        .rec-item-price { font-size: 0.9rem; color: #10b981; font-weight: 700; }
+        .deal-quality {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(6, 182, 212, 0.1));
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 14px;
+            padding: 14px;
+            margin: 12px 0;
+            text-align: center;
+        }
+        .deal-quality-score {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #10b981, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .deal-quality-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
+        .deal-quality-meter { display: flex; justify-content: center; gap: 4px; margin-top: 10px; }
+        .meter-bar { width: 30px; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; }
+        .meter-bar.filled { background: linear-gradient(90deg, #10b981, #06b6d4); }
+        .score-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; }
+        .score-item { background: rgba(255,255,255,0.03); border-radius: 10px; padding: 10px; text-align: center; }
+        .score-item-value { font-size: 1.2rem; font-weight: 800; }
+        .score-item-label { font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; }
+        .score-item.value .score-item-value { color: #10b981; }
+        .score-item.trust .score-item-value { color: #3b82f6; }
+        .score-item.deal .score-item-value { color: #f59e0b; }
+        
+        /* ========== تنسيقات Sage Core v5.0 جديدة ========== */
+        
+        /* Score Circle */
+        .sage-score-circle {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .sage-score-circle svg {
+            transform: rotate(-90deg);
+        }
+        .sage-score-circle .score-value {
+            position: absolute;
+            font-size: 1.2rem;
+            font-weight: 800;
+        }
+        .sage-score-circle .score-label {
+            position: absolute;
+            bottom: -20px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+        
+        /* Technical Indicators */
+        .technical-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 12px 0;
+        }
+        .tech-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+        }
+        .tech-card-title {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+        .tech-card-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+        .tech-card-badge {
+            display: inline-block;
+            font-size: 0.65rem;
+            padding: 3px 8px;
+            border-radius: 20px;
+            margin-top: 4px;
+        }
+        
+        /* Trend Section */
+        .trend-section {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(99, 102, 241, 0.1));
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 14px;
+            padding: 14px;
+            margin: 12px 0;
+        }
+        .trend-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .trend-icon {
+            font-size: 1.8rem;
+        }
+        .trend-info {
+            flex: 1;
+        }
+        .trend-direction {
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+        .trend-strength {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        /* Risk Meter */
+        .risk-meter {
+            background: rgba(255,255,255,0.03);
+            border-radius: 12px;
+            padding: 12px;
+            margin: 10px 0;
+        }
+        .risk-meter-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .risk-meter-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        .risk-meter-value {
+            font-weight: 700;
+        }
+        .risk-meter-bar {
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .risk-meter-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        /* Value Grade */
+        .value-grade {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #8b5cf6, #6366f1);
+            border-radius: 12px;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: white;
+        }
+        
+        /* Historical Badge */
+        .historical-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(6, 182, 212, 0.15));
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #10b981;
+        }
+        
+        /* Market Health */
+        .market-health {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+            margin: 8px 0;
+        }
+        .market-health-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        .market-health-indicator.stable { background: #10b981; }
+        .market-health-indicator.moderate { background: #f59e0b; }
+        .market-health-indicator.volatile { background: #ef4444; }
+        
+        /* Action Items */
+        .action-items {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .action-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 0.85rem;
+        }
+        .action-item-number {
+            width: 24px;
+            height: 24px;
+            background: var(--gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: white;
+        }
+        
+        /* Personalized Tips */
+        .personalized-tips {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .tip-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            padding: 8px 10px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+        }
+        .tip-icon {
+            font-size: 1rem;
+        }
+        
+        /* AI Insights Box */
+        .ai-insights-box {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(99, 102, 241, 0.1));
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 14px;
+            padding: 14px;
+            margin: 12px 0;
+        }
+        .ai-insights-label {
+            font-size: 0.75rem;
+            color: var(--primary);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .ai-insights-text {
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        /* Stats Row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin: 12px 0;
+        }
+        .stat-item {
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 1rem;
+            font-weight: 700;
+        }
+        .stat-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+        
+        /* Collapsible Section */
+        .collapsible-section {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        .collapsible-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .collapsible-header:hover {
+            background: rgba(255,255,255,0.03);
+        }
+        .collapsible-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .collapsible-title-icon {
+            font-size: 1.1rem;
+        }
+        .collapsible-arrow {
+            transition: transform 0.3s;
+        }
+        .collapsible-section.open .collapsible-arrow {
+            transform: rotate(180deg);
+        }
+        .collapsible-content {
+            display: none;
+            padding: 0 14px 14px;
+        }
+        .collapsible-section.open .collapsible-content {
+            display: block;
+        }
+        
+        /* Price Range Bar */
+        .price-range-bar {
+            position: relative;
+            height: 24px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            margin: 15px 0;
+        }
+        .price-range-fill {
+            position: absolute;
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #22c55e);
+            border-radius: 12px;
+        }
+        .price-range-indicator {
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            background: var(--gradient);
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .price-range-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        
+        /* Green/Red Flags */
+        .flags-container {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .flag-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            font-size: 0.8rem;
+            padding: 8px 10px;
+            border-radius: 8px;
+        }
+        .flag-item.green {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #10b981;
+        }
+        .flag-item.red {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+        .flag-icon {
+            flex-shrink: 0;
+        }
+        
+        /* ========== تنسيقات خاصة بالشاشات الصغيرة ========== */
+        @media (max-width: 480px) {
+            .auth-overlay {
+                padding: 10px 0;
+                align-items: flex-start;
+            }
+            
+            .auth-container {
+                padding: 0 10px;
+            }
+            
+            .auth-card {
+                padding: 25px 20px;
+                border-radius: 24px;
+                margin: 5px auto;
+            }
+            
+            .auth-logo-wrapper {
+                width: 60px;
+                height: 60px;
+                font-size: 1.6rem;
+                margin-bottom: 12px;
+            }
+            
+            .auth-card h2 {
+                font-size: 1.4rem;
+                margin-bottom: 4px;
+            }
+            
+            .auth-card .auth-subtitle {
+                font-size: 0.85rem;
+                margin-bottom: 18px;
+            }
+            
+            .input-group-modern {
+                margin-bottom: 12px;
+            }
+            
+            .input-group-modern input {
+                padding: 12px 40px 12px 12px;
+                font-size: 0.9rem;
+                border-radius: 12px;
+            }
+            
+            .input-group-modern .input-icon {
+                font-size: 0.9rem;
+                right: 14px;
+            }
+            
+            .btn-primary {
+                padding: 13px;
+                font-size: 1rem;
+                border-radius: 12px;
+            }
+            
+            .auth-divider {
+                margin: 16px 0;
+                font-size: 0.75rem;
+            }
+            
+            .btn-google {
+                padding: 12px;
+                font-size: 0.9rem;
+                border-radius: 12px;
+            }
+            
+            .btn-google img {
+                width: 18px;
+                height: 18px;
+            }
+            
+            .auth-switch {
+                margin-top: 18px;
+                padding-top: 14px;
+            }
+            
+            .auth-switch p {
+                font-size: 0.85rem;
+            }
+            
+            .auth-switch a {
+                font-size: 0.85rem;
+            }
+            
+            .technical-grid { grid-template-columns: repeat(2, 1fr); }
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+        }
+        
+        @media (max-width: 768px) {
+            .cat-grid { grid-template-columns: repeat(3, 1fr); }
+            .layout-wrapper { flex-direction: row; }
+            #results { flex: 2; }
+            .affiliate-card { flex: 1; position: relative; top: auto; max-width: 140px; }
+            .score-grid { grid-template-columns: repeat(2, 1fr); }
+            .chat-window { left: 10px; right: 10px; bottom: 80px; width: auto; height: 60vh; }
+            .chat-fab { bottom: 20px; left: 20px; }
+            .technical-grid { grid-template-columns: repeat(2, 1fr); }
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ========== صفحة تسجيل الدخول الاحترافية ========== -->
+<div id="auth-modal" class="modal auth-overlay">
+    <div class="auth-container">
+        <div class="auth-card">
+            
+            <!-- صفحة تسجيل الدخول -->
+            <div id="login-view" class="auth-view active">
+                <div class="auth-logo-wrapper">
+                    <i class="fa-solid fa-user-astronaut"></i>
+                </div>
+                <h2>Findly Sage</h2>
+                <p class="auth-subtitle" id="login-subtitle">مرحباً بك مجدداً! قم بتسجيل الدخول للمتابعة</p>
+                
+                <div class="auth-form">
+                    <div class="input-group-modern">
+                        <input type="email" id="login-email" placeholder="البريد الإلكتروني" required>
+                        <i class="fa-regular fa-envelope input-icon"></i>
+                    </div>
+                    <div class="input-group-modern">
+                        <input type="password" id="login-password" placeholder="كلمة المرور" required>
+                        <i class="fa-solid fa-lock input-icon"></i>
+                    </div>
+                    
+                    <button onclick="handleLogin()" class="btn-primary" id="btn-login">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        <span>تسجيل الدخول</span>
+                    </button>
+                </div>
+                
+                <div class="auth-divider">
+                    <span id="txt-or">أو</span>
+                </div>
+                
+                <button onclick="loginWithGoogle()" class="btn-google" id="btn-google">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+                    <span id="txt-google-btn">المتابعة باستخدام جوجل</span>
+                </button>
+                
+                <div class="auth-switch">
+                    <p id="login-footer-text">
+                        ليس لديك حساب؟
+                        <a id="go-to-signup">
+                            إنشاء حساب جديد
+                            <i class="fa-solid fa-arrow-left"></i>
+                        </a>
+                    </p>
+                </div>
+            </div>
+            
+            <!-- صفحة إنشاء الحساب -->
+            <div id="signup-view" class="auth-view">
+                <div class="auth-logo-wrapper">
+                    <i class="fa-solid fa-user-plus"></i>
+                </div>
+                <h2 id="signup-title">حساب جديد</h2>
+                <p class="auth-subtitle" id="signup-subtitle">انضم إلينا واستمتع بتجربة تسوق ذكية</p>
+                
+                <div class="auth-form">
+                    <div class="input-group-modern">
+                        <input type="text" id="signup-name" placeholder="الاسم الكامل" required>
+                        <i class="fa-regular fa-user input-icon"></i>
+                    </div>
+                    <div class="input-group-modern">
+                        <input type="email" id="signup-email" placeholder="البريد الإلكتروني" required>
+                        <i class="fa-regular fa-envelope input-icon"></i>
+                    </div>
+                    <div class="input-group-modern">
+                        <input type="password" id="signup-password" placeholder="كلمة المرور" required>
+                        <i class="fa-solid fa-lock input-icon"></i>
+                    </div>
+                    
+                    <button onclick="handleRegister()" class="btn-primary" id="btn-register">
+                        <i class="fa-solid fa-user-plus"></i>
+                        <span>إنشاء الحساب</span>
+                    </button>
+                </div>
+                
+                <div class="auth-divider">
+                    <span id="txt-or-signup">أو</span>
+                </div>
+                
+                <button onclick="loginWithGoogle()" class="btn-google" id="btn-google-signup">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+                    <span id="txt-google-btn-signup">التسجيل باستخدام جوجل</span>
+                </button>
+                
+                <div class="auth-switch">
+                    <p id="signup-footer-text">
+                        لديك حساب بالفعل؟
+                        <a id="go-to-login">
+                            تسجيل الدخول
+                            <i class="fa-solid fa-arrow-left"></i>
+                        </a>
+                    </p>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<header>
+    <div class="logo-area">
+        <div class="logo">Findly <i class="fa-solid fa-wand-magic-sparkles"></i></div>
+        <div id="hero-tagline" class="tagline"></div>
+    </div>
+    <div class="header-tools">
+        <button class="tool-btn" onclick="toggleMode()" title="Toggle Theme"><i class="fa-solid fa-circle-half-stroke"></i></button>
+        <div style="position: relative;">
+            <button class="tool-btn" onclick="toggleLMenu()" title="Language"><i class="fa-solid fa-language"></i></button>
+            <div id="l-menu" class="lang-menu">
+                <div class="lang-item" onclick="setLang('ar')">العربية</div>
+                <div class="lang-item" onclick="setLang('en')">English</div>
+                <div class="lang-item" onclick="setLang('fr')">Francais</div>
+                <div class="lang-item" onclick="setLang('de')">Deutsch</div>
+                <div class="lang-item" onclick="setLang('es')">Espanol</div>
+                <div class="lang-item" onclick="setLang('tr')">Turkce</div>
+            </div>
+        </div>
+        <button class="tool-btn" onclick="toggleWatchList()" title="Watchlist">
+            <i class="fa-solid fa-bell"></i>
+            <span id="watch-count" style="position:absolute; top:-5px; right:-5px; background:#ef4444; color:white; font-size:0.6rem; padding:2px 6px; border-radius:50%; display:none; border: 2px solid var(--bg-dark);">0</span>
+        </button>
+        <button class="tool-btn" onclick="openProfile()" title="Profile"><i class="fa-solid fa-user-gear"></i></button>
+        <button class="tool-btn" id="logout-btn" onclick="logoutUser()" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></button>
+    </div>
+</header>
+
+<main class="search-area">
+    <div class="energy-box">
+        <span id="txt-energy"></span>
+        <span id="r-count" style="background:var(--primary); color:#fff; padding:3px 12px; border-radius:20px; font-weight:900; font-size: 0.9rem;">3</span>
+        <i class="fa-solid fa-bolt" style="color:#FFD700;"></i>
+    </div>
+    <h2 id="greeting" style="color: var(--primary); font-size: 1.1rem; margin-bottom: 5px; font-weight: 600;"></h2>
+    <h1 id="txt-title"></h1>
+    <p id="txt-sub" style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 30px;"></p>
+    <div class="ai-toggle">
+        <i class="fa-solid fa-brain"></i>
+        <span id="txt-deep"></span>
+        <input type="checkbox" id="ai-deep-mode">
+    </div>
+    <div class="search-wrapper">
+        <input type="text" id="s-input" class="search-input" placeholder="" onkeypress="if(event.key==='Enter')runSearch()">
+        <button id="mic-btn" class="mic-icon" type="button"><i class="fa-solid fa-microphone"></i></button>
+        <button class="send-btn" onclick="runSearch()"><i class="fa-solid fa-magnifying-glass"></i></button>
+    </div>
+    <div class="invite-card" onclick="copyInvite()">
+        <div class="invite-text" id="inviteText"></div>
+    </div>
+    <div class="ai-options">
+        <div class="ai-tag" onclick="quickFilter('cheap')"><i class="fa-solid fa-sack-dollar"></i> <span id="tag-cheap"></span></div>
+        <div class="ai-tag" onclick="quickFilter('top')"><i class="fa-solid fa-star"></i> <span id="tag-top"></span></div>
+        <div class="ai-tag" onclick="quickFilter('new')"><i class="fa-solid fa-fire"></i> <span id="tag-new"></span></div>
+    </div>
+    <div class="cat-grid">
+        <div class="cat-card" onclick="quickSearch('ألعاب')"><i class="fa-solid fa-gamepad"></i><span id="cat-game"></span></div>
+        <div class="cat-card" onclick="quickSearch('جمال')"><i class="fa-solid fa-sparkles"></i><span id="cat-beauty"></span></div>
+        <div class="cat-card" onclick="quickSearch('منزل ذكي')"><i class="fa-solid fa-house-laptop"></i><span id="cat-home"></span></div>
+        <div class="cat-card" onclick="quickSearch('هواتف')"><i class="fa-solid fa-mobile-screen-button"></i><span id="cat-c1"></span></div>
+        <div class="cat-card" onclick="quickSearch('لابتوب')"><i class="fa-solid fa-laptop"></i><span id="cat-c2"></span></div>
+        <div class="cat-card" onclick="quickSearch('ساعات')"><i class="fa-solid fa-stopwatch"></i><span id="cat-c4"></span></div>
+    </div>
+    <div id="status" style="display:none; color:var(--primary); font-weight:bold; margin-top:30px; font-size: 1.1rem; text-align: center;"></div>
+    <div id="personality-container" style="display: none;"></div>
+    <div class="layout-wrapper">
+        <div id="results"></div>
+        <div id="affiliateCard" class="affiliate-card" style="display:none;">
+            <img id="affImage" src="" />
+            <h3 id="affTitle"></h3>
+            <p id="aff-offer"></p>
+            <a id="affBtn" target="_blank" class="affiliate-btn"></a>
+        </div>
+    </div>
+    <div style="margin-top: 30px; font-size: 0.85rem; text-align: center;">
+        <a href="#" style="color:var(--text-muted); margin:0 5px;" id="footer-privacy"></a>
+        <a href="#" style="color:var(--text-muted); margin:0 5px;" id="footer-terms"></a>
+        <a href="#" style="color:var(--text-muted); margin:0 5px;" id="footer-about"></a>
+    </div>
+</main>
+
+<!-- Chat Bot -->
+<button id="chat-fab" class="chat-fab" type="button">
+    <i class="fa-solid fa-comments" id="chat-fab-icon"></i>
+</button>
+
+<div id="chat-window" class="chat-window">
+    <div class="chat-header">
+        <div class="chat-avatar">🤖</div>
+        <div class="chat-title-area">
+            <h4 id="chat-title">Sage AI</h4>
+            <span id="chat-status">Online</span>
+        </div>
+        <button class="chat-close" type="button" id="chat-close-btn">✕</button>
+    </div>
+    <div class="chat-messages" id="chat-messages">
+        <div class="chat-message assistant" id="chat-welcome"></div>
+    </div>
+    <div class="chat-suggestions" id="chat-suggestions"></div>
+    <div class="chat-input-area">
+        <input type="text" id="chat-input" class="chat-input" placeholder="" onkeypress="if(event.key==='Enter')sendChatMessage()">
+        <button class="chat-send" id="chat-send" type="button"><i class="fa-solid fa-paper-plane"></i></button>
+    </div>
+</div>
+
+<!-- Modals -->
+<div class="modal" id="w-modal">
+    <div class="modal-box">
+        <h3 style="color:var(--primary); margin-top:0;"><i class="fa-solid fa-bell"></i> <span id="txt-watch-title"></span></h3>
+        <div id="watch-list-content"></div>
+        <button onclick="toggleWatchList()" style="background:none; color:var(--text-muted); border:none; margin-top:20px; cursor:pointer; font-size:0.9rem;" id="btn-close-watch"></button>
+    </div>
+</div>
+
+<div class="modal" id="p-modal">
+    <div class="modal-box">
+        <h3 id="p-head" style="margin-top:0;"></h3>
+        <label id="lbl-name" style="font-size:0.85rem; display:block; margin-bottom:5px; opacity:0.7;"></label>
+        <input type="text" id="in-name" placeholder="">
+        <label id="lbl-budget" style="font-size:0.85rem; display:block; margin-top:15px; margin-bottom:5px; opacity:0.7;"></label>
+        <input type="number" id="in-budget" placeholder="">
+        <button class="action-btn buy-now" onclick="saveSet()" style="width:100%; margin-top:20px;" id="btn-save-settings"></button>
+        <button onclick="openProfile()" style="background:none; color:var(--text-muted); border:none; margin-top:15px; cursor:pointer; font-size:0.9rem;" id="btn-close-profile"></button>
+    </div>
+</div>
+
+<div id="analysis-modal" class="analysis-modal">
+    <div class="modal-content">
+        <h3 id="analysis-modal-title"></h3>
+        <div id="analysis-content-body"></div>
+        <button class="action-btn buy-now" style="margin-top:15px; width:100%" onclick="closeAnalysisModal()" id="btn-close-analysis"></button>
+    </div>
+</div>
+
+
+<!-- Firebase Module Script -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-analytics.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyCI_q5lkgRY4133ua4RlG5TeiCqJ5N5KTU",
+    authDomain: "findly-ede17.firebaseapp.com",
+    projectId: "findly-ede17",
+    storageBucket: "findly-ede17.firebasestorage.app",
+    messagingSenderId: "503212830017",
+    appId: "1:503212830017:web:9afb64c19822bbe7f645c0",
+    measurementId: "G-X1Q3WDP50N"
+};
+
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+
+// ===== AUTH FUNCTIONS =====
+window.loginWithGoogle = async () => {
+    try { 
+        await signInWithPopup(auth, provider); 
+    } catch (error) { 
+        alert("Error: " + error.message); 
+    }
+};
+
+window.handleLogin = async () => {
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
+    const currentLang = localStorage.getItem('findly_lang') || 'ar';
+    const authDict = window.dict[currentLang]?.auth || window.dict.ar.auth;
+    if (!email || !password) return alert(authDict.fillFields);
+    try {
+        await signInWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+        let msg = authDict.loginFailed;
+        if (error.code === 'auth/user-not-found') msg = authDict.userNotFound;
+        else if (error.code === 'auth/wrong-password') msg = authDict.wrongPassword;
+        else if (error.code === 'auth/invalid-email') msg = authDict.invalidEmail;
+        else if (error.code === 'auth/invalid-credential') msg = authDict.invalidCredential;
+        else msg += " " + error.message;
+        alert(msg);
+    }
+};
+
+window.handleRegister = async () => {
+    const email = document.getElementById('signup-email').value;
+    const password = document.getElementById('signup-password').value;
+    const currentLang = localStorage.getItem('findly_lang') || 'ar';
+    const authDict = window.dict[currentLang]?.auth || window.dict.ar.auth;
+    if (!email || !password) return alert(authDict.fillFields);
+    if (password.length < 6) return alert(authDict.weakPassword);
+    try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        alert(authDict.registerSuccess);
+    } catch (error) {
+        let msg = authDict.registerFailed;
+        if (error.code === 'auth/email-already-in-use') msg = authDict.emailInUse;
+        else if (error.code === 'auth/weak-password') msg = authDict.weakPassword;
+        else if (error.code === 'auth/invalid-email') msg = authDict.invalidEmail;
+        else msg += " " + error.message;
+        alert(msg);
+    }
+};
+
+window.logoutUser = () => {
+    const currentLang = localStorage.getItem('findly_lang') || 'ar';
+    const authDict = window.dict[currentLang]?.auth || window.dict.ar.auth;
+    if (confirm(authDict.logoutConfirm)) {
+        signOut(auth).then(() => {
+            sessionStorage.removeItem('welcome_shown');
+            location.reload();
+        });
+    }
+};
+
+// ===== AUTH STATE LISTENER =====
+onAuthStateChanged(auth, (user) => {
+    const overlay = document.getElementById('auth-modal');
+    if (user) {
+        overlay.style.setProperty('display', 'none', 'important');
+        document.body.style.overflow = 'auto';
+        localStorage.setItem('findly_uid', user.uid);
+        console.log('✅ User logged in:', user.uid);
+    } else {
+        overlay.style.setProperty('display', 'flex', 'important');
+        document.body.style.overflow = 'hidden';
+        console.log('❌ No user logged in');
+    }
+});
+
+// ===== GLOBAL AUTH FUNCTIONS =====
+window.firebaseAuth = auth;
+window.firebaseApp = app;
+
+window.getAuthToken = async function() {
+    const user = auth.currentUser;
+    if (!user) {
+        console.log('❌ No current user');
+        return null;
+    }
+    try {
+        const token = await user.getIdToken();
+        console.log('✅ Token obtained');
+        return token;
+    } catch (e) {
+        console.error('❌ Token error:', e);
+        return null;
+    }
+};
+
+window.getCurrentUser = function() {
+    return auth.currentUser;
+};
+
+console.log('🔥 Firebase initialized successfully');
+</script>
+
+<!-- Main Application Script -->
+<script>
+const API = "https://findly-api-production.up.railway.app";
+
+// Global dictionary for translations
+const dict = {
+    ar: {
+        ui: {
+            hero_tagline: "قرارات شراء أذكى تبدأ من هنا",
+            title: "مستشارك الحكيم", sub: "دليلك الذكي للتسوق المثالي", energy: "طاقة العقل",
+            welcome: "مرحباً،", game: "ألعاب", beauty: "جمال", home: "منزل ذكي", c1: "هواتف", c2: "لابتوب", c4: "ساعات",
+            p_head: "الملف الشخصي", lbl_name: "اسم المستخدم", lbl_budget: "الميزانية ($)",
+            buy: "شراء الآن 🛒", watch: "راقب السعر 🔔", over: "يتجاوز ميزانيتك",
+            cheap: "اقتصادي", top: "الأعلى تقييماً", new: "حديث جداً", deep: "وضع التحليل الذكي",
+            watchTitle: "قائمة المراقبة", slow: "جاري البحث...",
+            noAttempts: "⚠️ استنفدت محاولاتك!", analyze: "📊 تحليل مفصل", close: "إغلاق",
+            saveChanges: "حفظ التغييرات ✅", searchPlaceholder: "ابحث عن منتج...",
+            noResults: "لا توجد نتائج", errorFetching: "❌ خطأ في جلب النتائج",
+            affiliateOffer: "🔥 عرض مميز", buyNowAffiliate: "🛒 شراء الآن",
+            loginRequired: "يرجى تسجيل الدخول أولاً"
+        },
+        search: {
+            market: "السوق", avg_price: "متوسط السعر", competitors: "عدد المنافسين", value: "قيمة الصفقة",
+            deal_score: "تقييم الصفقة", learning_on: "سيتحسن التحليل مع الاستخدام", learning_later: "التحليل قيد التعلم",
+            forecast: "التوقع السعري", trend_up: "قد يرتفع قريبًا", trend_down: "قد ينخفض", trend_stable: "مستقر",
+            expected_price: "السعر المتوقع", confidence: "الثقة", trust: "الثقة والمخاطر", no_risks: "لا توجد مخاطر واضحة",
+            buy: "اشترِ", analyze: "تحليل", watch: "راقب", after_discount: "بعد الخصم", copy_coupon: "نسخ الكوبون",
+            price: "السعر", timing: "التوقيت", behavior: "السلوك",
+            excellent: "ممتاز", good: "جيد", weak: "ضعيف", wait: "انتظر", mayRise: "قد يرتفع", stableTxt: "مستقر",
+            risk: "مخاطرة", safe: "آمن", suitable: "مناسب لك", general: "عام",
+            smartDecision: "قرار ذكي: اشترِ الآن", preferWait: "يفضل الانتظار", waitPriceDrop: "انتظر انخفاض السعر",
+            priceHigh: "السعر مرتفع", saving: "التوفير", bestStore: "أفضل متجر", confidenceScore: "الثقة",
+            watchPrice: "مراقبة السعر", linkUnavailable: "الرابط غير متوفر"
+        },
+        analysis: {
+            title: "🧠 تحليل Sage الذكي المتقدم", market: "السوق", avgPrice: "متوسط السعر", competitors: "عدد المنافسين",
+            deal: "الصفقة", dealScore: "درجة الصفقة", forecast: "التوقع", trend: "الاتجاه",
+            expectedPrice: "سعر متوقع", confidence: "ثقة", trustRisks: "الثقة والمخاطر", noClearRisks: "لا توجد مخاطر واضحة",
+            priceIntel: "تحليل السعر",
+            valueIntel: "تحليل القيمة",
+            trendIntel: "تحليل الاتجاه",
+            trustIntel: "تحليل الثقة",
+            personalityIntel: "تحليل الشخصية",
+            recommendationIntel: "التوصيات",
+            historicalIntel: "التحليل التاريخي",
+            marketIntel: "تحليل السوق",
+            technicalIndicators: "المؤشرات الفنية",
+            finalVerdict: "القرار النهائي"
+        },
+        auth: {
+            title: "سجل دخولك لتبدأ البحث الذكي", email: "البريد الإلكتروني", password: "كلمة المرور",
+            login: "تسجيل الدخول", register: "إنشاء الحساب", or: "أو", googleBtn: "المتابعة باستخدام جوجل",
+            googleBtnSignup: "التسجيل باستخدام جوجل",
+            privacy: "سياسة الخصوصية", terms: "شروط الاستخدام", about: "من نحن",
+            logoutConfirm: "هل تريد تسجيل الخروج؟", fillFields: "الرجاء إدخال البريد الإلكتروني وكلمة المرور",
+            loginFailed: "فشل تسجيل الدخول:", userNotFound: "هذا الحساب غير موجود.",
+            wrongPassword: "كلمة المرور غير صحيحة.", invalidEmail: "صيغة البريد غير صحيحة.",
+            invalidCredential: "بيانات الاعتماد غير صالحة.", registerFailed: "فشل إنشاء الحساب:",
+            emailInUse: "هذا البريد مسجل بالفعل.", weakPassword: "كلمة المرور يجب أن تكون 6 أحرف على الأقل",
+            registerSuccess: "تم إنشاء الحساب بنجاح!",
+            loginSubtitle: "مرحباً بك مجدداً! قم بتسجيل الدخول للمتابعة",
+            signupSubtitle: "انضم إلينا واستمتع بتجربة تسوق ذكية",
+            signupTitle: "حساب جديد",
+            noAccount: "ليس لديك حساب؟",
+            createAccount: "إنشاء حساب جديد",
+            haveAccount: "لديك حساب بالفعل؟",
+            loginNow: "تسجيل الدخول",
+            fullName: "الاسم الكامل"
+        },
+        upgrade: {
+            title: "انتهت المحاولات المجانية",
+            message: "لقد استهلكت جميع عمليات البحث المجانية.",
+            upgradeBtn: "ترقية الآن", successTitle: "🎉 تم تفعيل اشتراكك بنجاح!",
+            successMessage: "تم تفعيل اشتراك Findly Pro بنجاح.",
+            thanks: "شكرًا لدعمك 🤍", goToDashboard: "الانتقال للوحة التحكم",
+            paymentUnavailable: "⚠️ خدمة الدفع غير متاحة", paymentError: "❌ خطأ في خدمة الدفع"
+        },
+        voice: { notSupported: "متصفحك لا يدعم البحث الصوتي", listening: "جاري الاستماع...", speakNow: "تحدث الآن" },
+        invite: { text: "ادعُ أصدقاءك الآن ✨ — مكافآت قادمة قريبًا 🎁", copied: "تم نسخ رابط الدعوة ✨", copyFailed: "لم يتم النسخ:\n" },
+        watch: { enterEmail: "أدخل إيميلك للتنبيه:", activated: "✅ تم تفعيل التنبيه!", serverError: "❌ خطأ: ", connectionFailed: "❌ فشل الاتصال" },
+        chat: {
+            title: "Sage AI", status: "متصل",
+            welcome: "مرحباً! 👋 أنا Sage، مساعدك الذكي للتسوق. كيف يمكنني مساعدتك؟",
+            placeholder: "اكتب رسالتك...",
+            suggestions: ["ابحث عن أفضل الأسعار", "قارن بين منتجين", "ما هي العروض الحالية؟", "ساعدني في اختيار هاتف"],
+            thinking: "جاري التفكير...",
+            error: "عذراً، حدث خطأ. حاول مرة أخرى."
+        },
+        v4: {
+            personality: "شخصية التسوق",
+            personalityTypes: {
+                smartHunter: { name: "صياد ذكي", desc: "تبحث عن أفضل الصفقات", icon: "🎯" },
+                brandLover: { name: "محب العلامات", desc: "تفضل العلامات الموثوقة", icon: "💎" },
+                budgetSaver: { name: "موفر ذكي", desc: "تركز على توفير المال", icon: "💰" },
+                impulsive: { name: "متسوق عفوي", desc: "تتخذ قرارات سريعة", icon: "⚡" },
+                researcher: { name: "باحث دقيق", desc: "تقارن قبل كل شراء", icon: "🔬" }
+            },
+            merchantTrust: "ثقة التاجر", merchantScore: "تقييم المتجر", verified: "موثق",
+            fakeDealAlert: "⚠️ تنبيه: صفقة مشبوهة!", recommendations: "💡 توصيات ذكية",
+            recReason: "السبب", dealQuality: "جودة الصفقة",
+            priceAnalysis: "تحليل السعر", valueForMoney: "القيمة مقابل السعر", reliability: "الموثوقية"
+        },
+        v5: {
+            // Sage Core v5.0 Translations
+            priceRange: "نطاق السعر",
+            percentile: "المئين",
+            standardDeviation: "الانحراف المعياري",
+            variance: "التباين",
+            skewness: "الالتواء",
+            kurtosis: "التفرط",
+            rsi: "مؤشر القوة النسبية",
+            rsiOversold: "تشبع بيعي",
+            rsiOverbought: "تشبع شرائي",
+            rsiNeutral: "محايد",
+            macd: "MACD",
+            macdBullish: "صعودي",
+            macdBearish: "هبوطي",
+            bollingerBands: "نطاقات بولينجر",
+            bollingerAbove: "أعلى النطاق",
+            bollingerBelow: "أسفل النطاق",
+            bollingerWithin: "داخل النطاق",
+            volatility: "التقلب",
+            volatilityHigh: "عالي",
+            volatilityMedium: "متوسط",
+            volatilityLow: "منخفض",
+            prediction: "التوقع",
+            predictionUp: "صعود",
+            predictionDown: "هبوط",
+            trendStrength: "قوة الاتجاه",
+            optimalBuyTime: "أفضل وقت للشراء",
+            seasonality: "النمط الموسمي",
+            weekly: "أسبوعي",
+            monthly: "شهري",
+            riskLevel: "مستوى المخاطرة",
+            riskMinimal: "ضئيلة",
+            riskLow: "منخفضة",
+            riskMedium: "متوسطة",
+            riskHigh: "عالية",
+            riskCritical: "حرجة",
+            greenFlags: "إشارات إيجابية",
+            redFlags: "إشارات سلبية",
+            warnings: "تحذيرات",
+            trustSignals: "إشارات الثقة",
+            securePayment: "دفع آمن",
+            returnPolicy: "سياسة إرجاع",
+            customerSupport: "دعم العملاء",
+            verifiedReviews: "تقييمات موثقة",
+            valueGrade: "درجة القيمة",
+            historicalLow: "أقل سعر تاريخي",
+            historicalHigh: "أعلى سعر تاريخي",
+            historicalAverage: "المتوسط التاريخي",
+            isHistoricalLow: "🏆 أقل أو قريب من أقل سعر تاريخي",
+            marketHealth: "صحة السوق",
+            marketPosition: "الموقع في السوق",
+            alternatives: "البدائل المتاحة",
+            primaryRecommendation: "التوصية الرئيسية",
+            aiInsights: "رؤى الذكاء الاصطناعي",
+            actionItems: "خطوات مقترحة",
+            urgency: "الأولوية",
+            processingTime: "وقت المعالجة",
+            engines: "المحركات",
+            // Decision Types
+            STRONG_BUY: "🟢 شراء قوي",
+            BUY_NOW: "🟢 اشتري الآن",
+            BUY: "🟡 شراء",
+            CONSIDER: "🔵 فكر في الشراء",
+            WAIT: "🟠 انتظر",
+            SMART_WAIT: "🔵 انتظار ذكي",
+            CAUTION: "⚠️ حذر",
+            AVOID: "🔴 تجنب"
+        }
+    },
+    en: {
+        ui: {
+            hero_tagline: "Smarter buying decisions start here",
+            title: "Sage Advisor", sub: "Your smart shopping guide", energy: "Sage Energy",
+            welcome: "Welcome,", game: "Gaming", beauty: "Beauty", home: "Smart Home", c1: "Phones", c2: "Laptops", c4: "Watches",
+            p_head: "Profile", lbl_name: "Username", lbl_budget: "Budget ($)",
+            buy: "Buy Now 🛒", watch: "Watch Price 🔔", over: "Over Budget!",
+            cheap: "Budget", top: "Top Rated", new: "Newest", deep: "AI Deep Mode",
+            watchTitle: "Watch List", slow: "Searching...",
+            noAttempts: "⚠️ No attempts left!", analyze: "📊 Analysis", close: "Close",
+            saveChanges: "Save Changes ✅", searchPlaceholder: "Search for a product...",
+            noResults: "No results found", errorFetching: "❌ Error fetching results",
+            affiliateOffer: "🔥 Special Offer", buyNowAffiliate: "🛒 Buy Now",
+            loginRequired: "Please sign in first"
+        },
+        search: {
+            market: "Market", avg_price: "Average price", competitors: "Competitors", value: "Deal value",
+            deal_score: "Deal score", learning_on: "Analysis improves with usage", learning_later: "Analysis is learning",
+            forecast: "Price forecast", trend_up: "Likely to rise", trend_down: "Likely to drop", trend_stable: "Stable",
+            expected_price: "Expected price", confidence: "Confidence", trust: "Trust & risks", no_risks: "No clear risks",
+            buy: "Buy", analyze: "Analyze", watch: "Watch", after_discount: "After discount", copy_coupon: "Copy coupon",
+            price: "Price", timing: "Timing", behavior: "Behavior",
+            excellent: "Excellent", good: "Good", weak: "Weak", wait: "Wait", mayRise: "May rise", stableTxt: "Stable",
+            risk: "Risk", safe: "Safe", suitable: "Suitable", general: "General",
+            smartDecision: "Smart decision: Buy now", preferWait: "Better to wait", waitPriceDrop: "Wait for price drop",
+            priceHigh: "Price is high", saving: "Saving", bestStore: "Best store", confidenceScore: "Confidence",
+            watchPrice: "Watch Price", linkUnavailable: "Link unavailable"
+        },
+        analysis: {
+            title: "🧠 Sage Advanced Smart Analysis", market: "Market", avgPrice: "Average price", competitors: "Competitors",
+            deal: "Deal", dealScore: "Deal score", forecast: "Forecast", trend: "Trend",
+            expectedPrice: "Expected price", confidence: "Confidence", trustRisks: "Trust & Risks", noClearRisks: "No clear risks"
+        },
+        auth: {
+            title: "Sign in to start smart search", email: "Email", password: "Password",
+            login: "Sign In", register: "Create Account", or: "or", googleBtn: "Continue with Google",
+            googleBtnSignup: "Sign up with Google",
+            privacy: "Privacy Policy", terms: "Terms of Use", about: "About Us",
+            logoutConfirm: "Do you want to logout?", fillFields: "Please enter email and password",
+            loginFailed: "Login failed:", userNotFound: "Account not found.",
+            wrongPassword: "Incorrect password.", invalidEmail: "Invalid email format.",
+            invalidCredential: "Invalid credentials.", registerFailed: "Registration failed:",
+            emailInUse: "This email is already registered.", weakPassword: "Password must be at least 6 characters",
+            registerSuccess: "Account created successfully!",
+            loginSubtitle: "Welcome back! Sign in to continue",
+            signupSubtitle: "Join us for a smart shopping experience",
+            signupTitle: "Create Account",
+            noAccount: "Don't have an account?",
+            createAccount: "Create new account",
+            haveAccount: "Already have an account?",
+            loginNow: "Sign In",
+            fullName: "Full Name"
+        },
+        upgrade: {
+            title: "Free searches exhausted", message: "You have used all your free searches.",
+            upgradeBtn: "Upgrade now", successTitle: "🎉 Subscription Activated!",
+            successMessage: "Your Findly Pro subscription is now active.", thanks: "Thank you for supporting Findly 💙",
+            goToDashboard: "Go to Dashboard", paymentUnavailable: "⚠️ Payment unavailable", paymentError: "❌ Payment service error"
+        },
+        voice: { notSupported: "Your browser does not support voice search", listening: "Listening...", speakNow: "Speak now" },
+        invite: { text: "Invite your friends now ✨ — rewards coming soon 🎁", copied: "Invite link copied ✨", copyFailed: "Link not copied:\n" },
+        watch: { enterEmail: "Enter your email for alerts:", activated: "✅ Alert activated!", serverError: "❌ Server Error: ", connectionFailed: "❌ Connection failed" },
+        chat: {
+            title: "Sage AI", status: "Online",
+            welcome: "Hello! 👋 I'm Sage, your smart shopping assistant. How can I help you?",
+            placeholder: "Type your message...",
+            suggestions: ["Find best prices", "Compare products", "What are current deals?", "Help me choose a phone"],
+            thinking: "Thinking...",
+            error: "Sorry, an error occurred. Please try again."
+        },
+        v4: {
+            personality: "Shopping Personality",
+            personalityTypes: {
+                smartHunter: { name: "Smart Hunter", desc: "You hunt for the best deals", icon: "🎯" },
+                brandLover: { name: "Brand Lover", desc: "You prefer trusted brands", icon: "💎" },
+                budgetSaver: { name: "Budget Saver", desc: "You focus on saving money", icon: "💰" },
+                impulsive: { name: "Impulsive Shopper", desc: "You make quick decisions", icon: "⚡" },
+                researcher: { name: "Deep Researcher", desc: "You compare before every purchase", icon: "🔬" }
+            },
+            merchantTrust: "Merchant Trust", merchantScore: "Store Rating", verified: "Verified",
+            fakeDealAlert: "⚠️ Alert: Suspicious Deal!", recommendations: "💡 Smart Recommendations",
+            recReason: "Reason", dealQuality: "Deal Quality",
+            priceAnalysis: "Price Analysis", valueForMoney: "Value for Money", reliability: "Reliability"
+        },
+        v5: {
+            STRONG_BUY: "🟢 Strong Buy",
+            BUY_NOW: "🟢 Buy Now",
+            BUY: "🟡 Buy",
+            CONSIDER: "🔵 Consider",
+            WAIT: "🟠 Wait",
+            SMART_WAIT: "🔵 Smart Wait",
+            CAUTION: "⚠️ Caution",
+            AVOID: "🔴 Avoid"
+        }
+    },
+    fr: {
+        ui: { hero_tagline: "Des decisions d'achat plus intelligentes", title: "Conseiller Sage", sub: "Votre guide d'achat intelligent", energy: "Energie Sage", welcome: "Bienvenue,", game: "Jeux", beauty: "Beaute", home: "Maison", c1: "Telephones", c2: "PC", c4: "Montres", p_head: "Profil", lbl_name: "Nom", lbl_budget: "Budget ($)", buy: "Acheter 🛒", watch: "Surveiller 🔔", over: "Hors budget!", cheap: "Economique", top: "Top notes", new: "Nouveautes", deep: "Mode IA", watchTitle: "Liste surveillance", slow: "Recherche...", noAttempts: "⚠️ Plus d'essais!", analyze: "📊 Analyse", close: "Fermer", saveChanges: "Enregistrer ✅", searchPlaceholder: "Rechercher...", noResults: "Aucun resultat", errorFetching: "❌ Erreur", affiliateOffer: "🔥 Offre speciale", buyNowAffiliate: "🛒 Acheter", loginRequired: "Veuillez vous connecter" },
+        search: { market: "Marche", avg_price: "Prix moyen", competitors: "Concurrents", value: "Valeur", deal_score: "Score", learning_on: "S'amelior", learning_later: "Apprend", forecast: "Prevision", trend_up: "Hausse", trend_down: "Baisse", trend_stable: "Stable", expected_price: "Prix attendu", confidence: "Confiance", trust: "Confiance et risques", no_risks: "Aucun risque", buy: "Acheter", analyze: "Analyser", watch: "Surveiller", after_discount: "Apres remise", copy_coupon: "Copier", price: "Prix", timing: "Timing", behavior: "Comportement", excellent: "Excellent", good: "Bon", weak: "Faible", wait: "Attendre", mayRise: "Hausse", stableTxt: "Stable", risk: "Risque", safe: "Sur", suitable: "Adapte", general: "General", smartDecision: "Acheter maintenant", preferWait: "Attendre", waitPriceDrop: "Attendre baisse", priceHigh: "Prix eleve", saving: "Economie", bestStore: "Meilleur magasin", confidenceScore: "Confiance", watchPrice: "Surveiller", linkUnavailable: "Lien indisponible" },
+        analysis: { title: "🧠 Analyse Sage", market: "Marche", avgPrice: "Prix moyen", competitors: "Concurrents", deal: "Offre", dealScore: "Score", forecast: "Prevision", trend: "Tendance", expectedPrice: "Prix attendu", confidence: "Confiance", trustRisks: "Risques", noClearRisks: "Aucun risque" },
+        auth: { title: "Connectez-vous", email: "E-mail", password: "Mot de passe", login: "Connexion", register: "Creer un compte", or: "ou", googleBtn: "Continuer avec Google", googleBtnSignup: "S'inscrire avec Google", privacy: "Confidentialite", terms: "Conditions", about: "A propos", logoutConfirm: "Deconnexion?", fillFields: "Remplissez les champs", loginFailed: "Echec:", userNotFound: "Compte introuvable", wrongPassword: "Mot de passe incorrect", invalidEmail: "Email invalide", invalidCredential: "Identifiants invalides", registerFailed: "Echec inscription:", emailInUse: "Email deja utilise", weakPassword: "6 caracteres minimum", registerSuccess: "Compte cree!", loginSubtitle: "Bon retour! Connectez-vous pour continuer", signupSubtitle: "Rejoignez-nous pour une experience intelligente", signupTitle: "Nouveau Compte", noAccount: "Pas de compte?", createAccount: "Creer un compte", haveAccount: "Deja un compte?", loginNow: "Se connecter", fullName: "Nom complet" },
+        upgrade: { title: "Recherches epuisees", message: "Vous avez utilise toutes vos recherches.", upgradeBtn: "Mettre a niveau", successTitle: "🎉 Abonnement active!", successMessage: "Abonnement Pro actif.", thanks: "Merci 💙", goToDashboard: "Tableau de bord", paymentUnavailable: "⚠️ Paiement indisponible", paymentError: "❌ Erreur paiement" },
+        voice: { notSupported: "Recherche vocale non supportee", listening: "Ecoute...", speakNow: "Parlez" },
+        invite: { text: "Invitez vos amis ✨", copied: "Lien copie ✨", copyFailed: "Copie echouee:\n" },
+        watch: { enterEmail: "Email pour alertes:", activated: "✅ Alerte activee!", serverError: "❌ Erreur: ", connectionFailed: "❌ Echec connexion" },
+        chat: { title: "Sage AI", status: "En ligne", welcome: "Bonjour! 👋 Je suis Sage. Comment puis-je vous aider?", placeholder: "Votre message...", suggestions: ["Trouver meilleurs prix", "Comparer produits", "Offres actuelles?", "Aide choix telephone"], thinking: "Reflexion...", error: "Desole, une erreur s'est produite." },
+        v4: { personality: "Personnalite", personalityTypes: { smartHunter: { name: "Chasseur", desc: "Meilleures offres", icon: "🎯" }, brandLover: { name: "Marcas", desc: "Marques de confiance", icon: "💎" }, budgetSaver: { name: "Econome", desc: "Economies", icon: "💰" }, impulsive: { name: "Impulsif", desc: "Decisions rapides", icon: "⚡" }, researcher: { name: "Chercheur", desc: "Compare avant achat", icon: "🔬" } }, merchantTrust: "Confiance", merchantScore: "Note", verified: "Verifie", fakeDealAlert: "⚠️ Offre suspecte!", recommendations: "💡 Recommandations", recReason: "Raison", dealQuality: "Qualite", priceAnalysis: "Analyse prix", valueForMoney: "Qualite-Prix", reliability: "Fiabilite" },
+        v5: { STRONG_BUY: "🟢 Achat Fort", BUY_NOW: "🟢 Acheter", BUY: "🟡 Acheter", CONSIDER: "🔵 Considerer", WAIT: "🟠 Attendre", SMART_WAIT: "🔵 Attendre", CAUTION: "⚠️ Attention", AVOID: "🔴 Eviter" }
+    },
+    de: {
+        ui: { hero_tagline: "Intelligentere Kaufentscheidungen", title: "Weiser Berater", sub: "Ihr Einkaufsfuhrer", energy: "Energie", welcome: "Willkommen,", game: "Spiele", beauty: "Schonheit", home: "Heim", c1: "Handys", c2: "Laptops", c4: "Uhren", p_head: "Profil", lbl_name: "Name", lbl_budget: "Budget ($)", buy: "Kaufen 🛒", watch: "Beobachten 🔔", over: "Uber Budget!", cheap: "Budget", top: "Top", new: "Neu", deep: "KI Modus", watchTitle: "Beobachtungsliste", slow: "Suche...", noAttempts: "⚠️ Keine Versuche!", analyze: "📊 Analyse", close: "Schliessen", saveChanges: "Speichern ✅", searchPlaceholder: "Produkt suchen...", noResults: "Keine Ergebnisse", errorFetching: "❌ Fehler", affiliateOffer: "🔥 Angebot", buyNowAffiliate: "🛒 Kaufen", loginRequired: "Bitte anmelden" },
+        search: { market: "Markt", avg_price: "Durchschnittspreis", competitors: "Wettbewerber", value: "Wert", deal_score: "Score", learning_on: "Verbessert sich", learning_later: "Lernt", forecast: "Prognose", trend_up: "Steigend", trend_down: "Fallend", trend_stable: "Stabil", expected_price: "Erwarteter Preis", confidence: "Vertrauen", trust: "Risiken", no_risks: "Keine Risiken", buy: "Kaufen", analyze: "Analysieren", watch: "Beobachten", after_discount: "Nach Rabatt", copy_coupon: "Kopieren", price: "Preis", timing: "Zeitpunkt", behavior: "Verhalten", excellent: "Ausgezeichnet", good: "Gut", weak: "Schwach", wait: "Warten", mayRise: "Steigt", stableTxt: "Stabil", risk: "Risiko", safe: "Sicher", suitable: "Geeignet", general: "Allgemein", smartDecision: "Jetzt kaufen", preferWait: "Warten", waitPriceDrop: "Auf Preisfall warten", priceHigh: "Hoher Preis", saving: "Ersparnis", bestStore: "Bester Laden", confidenceScore: "Vertrauen", watchPrice: "Preis beobachten", linkUnavailable: "Link nicht verfugbar" },
+        analysis: { title: "🧠 Sage Analyse", market: "Markt", avgPrice: "Durchschnitt", competitors: "Wettbewerber", deal: "Angebot", dealScore: "Score", forecast: "Prognose", trend: "Trend", expectedPrice: "Erwarteter Preis", confidence: "Vertrauen", trustRisks: "Risiken", noClearRisks: "Keine Risiken" },
+        auth: { title: "Anmelden", email: "E-Mail", password: "Passwort", login: "Anmelden", register: "Konto erstellen", or: "oder", googleBtn: "Mit Google fortfahren", googleBtnSignup: "Mit Google registrieren", privacy: "Datenschutz", terms: "AGB", about: "Uber", logoutConfirm: "Abmelden?", fillFields: "Felder ausfullen", loginFailed: "Fehlgeschlagen:", userNotFound: "Konto nicht gefunden", wrongPassword: "Falsches Passwort", invalidEmail: "Ungultige E-Mail", invalidCredential: "Ungultige Daten", registerFailed: "Registrierung fehlgeschlagen:", emailInUse: "E-Mail bereits registriert", weakPassword: "Mindestens 6 Zeichen", registerSuccess: "Konto erstellt!", loginSubtitle: "Willkommen zuruck! Anmelden um fortzufahren", signupSubtitle: "Machen Sie mit fur ein intelligenteres Einkaufen", signupTitle: "Neues Konto", noAccount: "Kein Konto?", createAccount: "Neues Konto erstellen", haveAccount: "Bereits ein Konto?", loginNow: "Anmelden", fullName: "Vollstandiger Name" },
+        upgrade: { title: "Kostenlose Suchen aufgebraucht", message: "Alle kostenlosen Suchen verwendet.", upgradeBtn: "Jetzt upgraden", successTitle: "🎉 Abonnement aktiviert!", successMessage: "Pro Abonnement aktiv.", thanks: "Danke 💙", goToDashboard: "Dashboard", paymentUnavailable: "⚠️ Zahlung nicht verfugbar", paymentError: "❌ Zahlungsfehler" },
+        voice: { notSupported: "Sprachsuche nicht unterstutzt", listening: "Horen...", speakNow: "Sprechen" },
+        invite: { text: "Freunde einladen ✨", copied: "Link kopiert ✨", copyFailed: "Kopieren fehlgeschlagen:\n" },
+        watch: { enterEmail: "E-Mail fur Alarme:", activated: "✅ Alarm aktiviert!", serverError: "❌ Fehler: ", connectionFailed: "❌ Verbindung fehlgeschlagen" },
+        chat: { title: "Sage AI", status: "Online", welcome: "Hallo! 👋 Ich bin Sage. Wie kann ich helfen?", placeholder: "Nachricht...", suggestions: ["Beste Preise finden", "Produkte vergleichen", "Aktuelle Angebote?", "Handy finden"], thinking: "Denke...", error: "Entschuldigung, ein Fehler ist aufgetreten." },
+        v4: { personality: "Personlichkeit", personalityTypes: { smartHunter: { name: "Jaeger", desc: "Beste Angebote", icon: "🎯" }, brandLover: { name: "Markenfan", desc: "Vertrauenswurdige Marken", icon: "💎" }, budgetSaver: { name: "Sparer", desc: "Geld sparen", icon: "💰" }, impulsive: { name: "Impulsiv", desc: "Schnelle Entscheidungen", icon: "⚡" }, researcher: { name: "Forscher", desc: "Vorher vergleichen", icon: "🔬" } }, merchantTrust: "Handler-Vertrauen", merchantScore: "Bewertung", verified: "Verifiziert", fakeDealAlert: "⚠️ Verdachtiges Angebot!", recommendations: "💡 Empfehlungen", recReason: "Grund", dealQuality: "Qualitat", priceAnalysis: "Preisanalyse", valueForMoney: "Preis-Leistung", reliability: "Zuverlassigkeit" },
+        v5: { STRONG_BUY: "🟢 Starker Kauf", BUY_NOW: "🟢 Jetzt Kaufen", BUY: "🟡 Kaufen", CONSIDER: "🔵 Erwägen", WAIT: "🟠 Warten", SMART_WAIT: "🔵 Cleveres Warten", CAUTION: "⚠️ Vorsicht", AVOID: "🔴 Vermeiden" }
+    },
+    es: {
+        ui: { hero_tagline: "Decisiones de compra mas inteligentes", title: "Consejero Sabio", sub: "Tu guia de compras", energy: "Energia", welcome: "Bienvenido,", game: "Juegos", beauty: "Belleza", home: "Hogar", c1: "Telefonos", c2: "Laptops", c4: "Relojes", p_head: "Perfil", lbl_name: "Nombre", lbl_budget: "Presupuesto ($)", buy: "Comprar 🛒", watch: "Vigilar 🔔", over: "Fuera de presupuesto!", cheap: "Economico", top: "Top", new: "Nuevo", deep: "Modo IA", watchTitle: "Lista de seguimiento", slow: "Buscando...", noAttempts: "⚠️ Sin intentos!", analyze: "📊 Analisis", close: "Cerrar", saveChanges: "Guardar ✅", searchPlaceholder: "Buscar producto...", noResults: "Sin resultados", errorFetching: "❌ Error", affiliateOffer: "🔥 Oferta", buyNowAffiliate: "🛒 Comprar", loginRequired: "Por favor inicie sesion" },
+        search: { market: "Mercado", avg_price: "Precio promedio", competitors: "Competidores", value: "Valor", deal_score: "Puntuacion", learning_on: "Mejora con uso", learning_later: "Aprendiendo", forecast: "Pronostico", trend_up: "Subira", trend_down: "Bajara", trend_stable: "Estable", expected_price: "Precio esperado", confidence: "Confianza", trust: "Riesgos", no_risks: "Sin riesgos", buy: "Comprar", analyze: "Analizar", watch: "Vigilar", after_discount: "Despues descuento", copy_coupon: "Copiar", price: "Precio", timing: "Momento", behavior: "Comportamiento", excellent: "Excelente", good: "Bueno", weak: "Debil", wait: "Esperar", mayRise: "Subira", stableTxt: "Estable", risk: "Riesgo", safe: "Seguro", suitable: "Adecuado", general: "General", smartDecision: "Comprar ahora", preferWait: "Esperar", waitPriceDrop: "Esperar bajada", priceHigh: "Precio alto", saving: "Ahorro", bestStore: "Mejor tienda", confidenceScore: "Confianza", watchPrice: "Vigilar precio", linkUnavailable: "Enlace no disponible" },
+        analysis: { title: "🧠 Analisis Sage", market: "Mercado", avgPrice: "Precio promedio", competitors: "Competidores", deal: "Oferta", dealScore: "Puntuacion", forecast: "Pronostico", trend: "Tendencia", expectedPrice: "Precio esperado", confidence: "Confianza", trustRisks: "Riesgos", noClearRisks: "Sin riesgos" },
+        auth: { title: "Iniciar sesion", email: "Correo", password: "Contrasena", login: "Entrar", register: "Crear cuenta", or: "o", googleBtn: "Continuar con Google", googleBtnSignup: "Registrarse con Google", privacy: "Privacidad", terms: "Terminos", about: "Acerca de", logoutConfirm: "Cerrar sesion?", fillFields: "Complete los campos", loginFailed: "Error:", userNotFound: "Cuenta no encontrada", wrongPassword: "Contrasena incorrecta", invalidEmail: "Email invalido", invalidCredential: "Credenciales invalidas", registerFailed: "Error registro:", emailInUse: "Email ya registrado", weakPassword: "Minimo 6 caracteres", registerSuccess: "Cuenta creada!", loginSubtitle: "Bienvenido de nuevo! Inicia sesion para continuar", signupSubtitle: "Unete para una experiencia inteligente", signupTitle: "Nueva Cuenta", noAccount: "Sin cuenta?", createAccount: "Crear cuenta nueva", haveAccount: "Ya tienes cuenta?", loginNow: "Iniciar sesion", fullName: "Nombre completo" },
+        upgrade: { title: "Busquedas agotadas", message: "Has usado todas tus busquedas.", upgradeBtn: "Actualizar", successTitle: "🎉 Suscripcion activada!", successMessage: "Suscripcion Pro activa.", thanks: "Gracias 💙", goToDashboard: "Panel", paymentUnavailable: "⚠️ Pago no disponible", paymentError: "❌ Error de pago" },
+        voice: { notSupported: "Busqueda por voz no soportada", listening: "Escuchando...", speakNow: "Habla" },
+        invite: { text: "Invita amigos ✨", copied: "Enlace copiado ✨", copyFailed: "Error al copiar:\n" },
+        watch: { enterEmail: "Email para alertas:", activated: "✅ Alerta activada!", serverError: "❌ Error: ", connectionFailed: "❌ Conexion fallida" },
+        chat: { title: "Sage AI", status: "En linea", welcome: "Hola! 👋 Soy Sage. Como puedo ayudarte?", placeholder: "Tu mensaje...", suggestions: ["Buscar mejores precios", "Comparar productos", "Ofertas actuales?", "Ayuda con telefono"], thinking: "Pensando...", error: "Lo siento, ocurrio un error." },
+        v4: { personality: "Personalidad", personalityTypes: { smartHunter: { name: "Cazador", desc: "Mejores ofertas", icon: "🎯" }, brandLover: { name: "Marcas", desc: "Marcas de confianza", icon: "💎" }, budgetSaver: { name: "Ahorrador", desc: "Ahorrar dinero", icon: "💰" }, impulsive: { name: "Impulsivo", desc: "Decisiones rapidas", icon: "⚡" }, researcher: { name: "Investigador", desc: "Comparar antes", icon: "🔬" } }, merchantTrust: "Confianza", merchantScore: "Calificacion", verified: "Verificado", fakeDealAlert: "⚠️ Oferta sospechosa!", recommendations: "💡 Recomendaciones", recReason: "Razon", dealQuality: "Calidad", priceAnalysis: "Analisis precio", valueForMoney: "Calidad-Precio", reliability: "Fiabilidad" },
+        v5: { STRONG_BUY: "🟢 Compra Fuerte", BUY_NOW: "🟢 Comprar Ahora", BUY: "🟡 Comprar", CONSIDER: "🔵 Considerar", WAIT: "🟠 Esperar", SMART_WAIT: "🔵 Esperar", CAUTION: "⚠️ Precaucion", AVOID: "🔴 Evitar" }
+    },
+    tr: {
+        ui: { hero_tagline: "Daha akilli satin alma kararları", title: "Bilge Danisman", sub: "Akilli alisveris rehberiniz", energy: "Enerji", welcome: "Hos geldiniz,", game: "Oyunlar", beauty: "Guzellik", home: "Ev", c1: "Telefonlar", c2: "Laptoplar", c4: "Saatler", p_head: "Profil", lbl_name: "Isim", lbl_budget: "Butce ($)", buy: "Al 🛒", watch: "Izle 🔔", over: "Butceyi asti!", cheap: "Ekonomik", top: "En iyi", new: "Yeni", deep: "AI Modu", watchTitle: "Izleme listesi", slow: "Araniyor...", noAttempts: "⚠️ Hak kalmadi!", analyze: "📊 Analiz", close: "Kapat", saveChanges: "Kaydet ✅", searchPlaceholder: "Urun ara...", noResults: "Sonuc yok", errorFetching: "❌ Hata", affiliateOffer: "🔥 Teklif", buyNowAffiliate: "🛒 Al", loginRequired: "Lutfen giris yapin" },
+        search: { market: "Pazar", avg_price: "Ortalama fiyat", competitors: "Rakipler", value: "Deger", deal_score: "Puan", learning_on: "Kullanimla gelisir", learning_later: "Ogreniyor", forecast: "Tahmin", trend_up: "Yukselir", trend_down: "Duser", trend_stable: "Kararli", expected_price: "Beklenen fiyat", confidence: "Guven", trust: "Riskler", no_risks: "Risk yok", buy: "Al", analyze: "Analiz et", watch: "Izle", after_discount: "Indirim sonrasi", copy_coupon: "Kopyala", price: "Fiyat", timing: "Zamanlama", behavior: "Davranis", excellent: "Mukemmel", good: "Iyi", weak: "Zayif", wait: "Bekle", mayRise: "Yukselir", stableTxt: "Kararli", risk: "Risk", safe: "Guvenli", suitable: "Uygun", general: "Genel", smartDecision: "Simdi al", preferWait: "Bekle", waitPriceDrop: "Fiyat dusunu bekle", priceHigh: "Fiyat yuksek", saving: "Tasarruf", bestStore: "En iyi magaza", confidenceScore: "Guven", watchPrice: "Fiyati izle", linkUnavailable: "Link yok" },
+        analysis: { title: "🧠 Sage Analiz", market: "Pazar", avgPrice: "Ortalama fiyat", competitors: "Rakipler", deal: "Teklif", dealScore: "Puan", forecast: "Tahmin", trend: "Trend", expectedPrice: "Beklenen fiyat", confidence: "Guven", trustRisks: "Riskler", noClearRisks: "Risk yok" },
+        auth: { title: "Giris yap", email: "E-posta", password: "Sifre", login: "Giris", register: "Hesap olustur", or: "veya", googleBtn: "Google ile devam et", googleBtnSignup: "Google ile kaydol", privacy: "Gizlilik", terms: "Sartlar", about: "Hakkinda", logoutConfirm: "Cikis yapilsin mi?", fillFields: "Alanlari doldurun", loginFailed: "Hata:", userNotFound: "Hesap bulunamadi", wrongPassword: "Yanlis sifre", invalidEmail: "Gecersiz e-posta", invalidCredential: "Gecersiz kimlik", registerFailed: "Kayit hatasi:", emailInUse: "E-posta kayitli", weakPassword: "En az 6 karakter", registerSuccess: "Hesap olusturuldu!", loginSubtitle: "Hos geldiniz! Devam etmek icin giris yapin", signupSubtitle: "Akilli alisveris icin bize katilin", signupTitle: "Yeni Hesap", noAccount: "Hesabiniz yok mu?", createAccount: "Yeni hesap olustur", haveAccount: "Zaten hesabiniz var mi?", loginNow: "Giris yap", fullName: "Tam Ad" },
+        upgrade: { title: "Ucretsiz aramalar bitti", message: "Tum ucretsiz aramalari kullandiniz.", upgradeBtn: "Yukselt", successTitle: "🎉 Abonelik aktif!", successMessage: "Pro abonelik aktif.", thanks: "Tesekkurler 💙", goToDashboard: "Panel", paymentUnavailable: "⚠️ Odeme mevcut degil", paymentError: "❌ Odeme hatasi" },
+        voice: { notSupported: "Sesli arama desteklenmiyor", listening: "Dinliyorum...", speakNow: "Konus" },
+        invite: { text: "Arkadaslarinizi davet edin ✨", copied: "Link kopyalandi ✨", copyFailed: "Kopyalanamadi:\n" },
+        watch: { enterEmail: "Uyarilar icin e-posta:", activated: "✅ Uyari aktif!", serverError: "❌ Hata: ", connectionFailed: "❌ Baglanti hatasi" },
+        chat: { title: "Sage AI", status: "Cevrimici", welcome: "Merhaba! 👋 Ben Sage. Size nasil yardimci olabilirim?", placeholder: "Mesajiniz...", suggestions: ["En iyi fiyatlari bul", "Urunleri karsilastir", "Guncel teklifler?", "Telefon secimine yardim"], thinking: "Dusunuyorum...", error: "Uzgunum, bir hata olustu." },
+        v4: { personality: "Kisilik", personalityTypes: { smartHunter: { name: "Avcı", desc: "En iyi firsatlar", icon: "🎯" }, brandLover: { name: "Marka tutkunu", desc: "Guvenilir markalar", icon: "💎" }, budgetSaver: { name: "Tasarrufcu", desc: "Tasarruf odakli", icon: "💰" }, impulsive: { name: "Durtuksel", desc: "Hizli kararlar", icon: "⚡" }, researcher: { name: "Arastirmaci", desc: "Karsilastirmali alisveris", icon: "🔬" } }, merchantTrust: "Satici guveni", merchantScore: "Magaza puani", verified: "Dogrulanmis", fakeDealAlert: "⚠️ Supheli teklif!", recommendations: "💡 Oneriler", recReason: "Neden", dealQuality: "Kalite", priceAnalysis: "Fiyat analizi", valueForMoney: "Fiyat/Performans", reliability: "Guvenilirlik" },
+        v5: { STRONG_BUY: "🟢 Guclu Alis", BUY_NOW: "🟢 Simdi Al", BUY: "🟡 Al", CONSIDER: "🔵 Dusun", WAIT: "🟠 Bekle", SMART_WAIT: "🔵 Akilli Bekle", CAUTION: "⚠️ Dikkat", AVOID: "🔴 Kacin" }
+    }
+};
+
+window.dict = dict;
+
+let lang = localStorage.getItem('findly_lang') || 'ar';
+let watchList = JSON.parse(localStorage.getItem('findly_watch')) || [];
+let chatHistory = [];
+let isChatOpen = false;
+let voiceRecognition = null;
+
+
+// ===== VOICE SEARCH =====
+function initVoiceSearch() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const micBtn = document.getElementById('mic-btn');
+    const input = document.getElementById('s-input');
+    
+    if (!micBtn || !input) return;
+    
+    if (!SpeechRecognition) {
+        micBtn.style.opacity = '0.5';
+        micBtn.style.cursor = 'not-allowed';
+        return;
+    }
+    
+    voiceRecognition = new SpeechRecognition();
+    voiceRecognition.lang = lang === 'ar' ? 'ar-SA' : lang === 'fr' ? 'fr-FR' : lang === 'de' ? 'de-DE' : lang === 'es' ? 'es-ES' : lang === 'tr' ? 'tr-TR' : 'en-US';
+    voiceRecognition.interimResults = false;
+    voiceRecognition.continuous = false;
+    
+    const newMicBtn = micBtn.cloneNode(true);
+    micBtn.parentNode.replaceChild(newMicBtn, micBtn);
+    
+    newMicBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        if (voiceRecognition) {
+            try { voiceRecognition.start(); } catch (err) {}
+        }
+    });
+    
+    voiceRecognition.onstart = function() { newMicBtn.classList.add('mic-active'); };
+    voiceRecognition.onresult = function(event) {
+        const searchInput = document.getElementById('s-input');
+        if (searchInput) {
+            searchInput.value = event.results[0][0].transcript;
+            runSearch();
+        }
+    };
+    voiceRecognition.onerror = function() { newMicBtn.classList.remove('mic-active'); };
+    voiceRecognition.onend = function() { newMicBtn.classList.remove('mic-active'); };
+}
+
+// ===== CHAT BOT =====
+function initChat() {
+    const chatFab = document.getElementById('chat-fab');
+    const chatCloseBtn = document.getElementById('chat-close-btn');
+    const chatSendBtn = document.getElementById('chat-send');
+    
+    if (!chatFab || !chatCloseBtn || !chatSendBtn) return;
+    
+    chatFab.addEventListener('click', toggleChat);
+    chatCloseBtn.addEventListener('click', toggleChat);
+    chatSendBtn.addEventListener('click', sendChatMessage);
+    updateChatUI();
+}
+
+function toggleChat() {
+    isChatOpen = !isChatOpen;
+    const chatWindow = document.getElementById('chat-window');
+    const fabIcon = document.getElementById('chat-fab-icon');
+    if (isChatOpen) { chatWindow.classList.add('active'); fabIcon.className = 'fa-solid fa-times'; }
+    else { chatWindow.classList.remove('active'); fabIcon.className = 'fa-solid fa-comments'; }
+}
+
+function updateChatUI() {
+    const chatDict = dict[lang]?.chat || dict.ar.chat;
+    const chatTitle = document.getElementById('chat-title');
+    const chatStatus = document.getElementById('chat-status');
+    const chatWelcome = document.getElementById('chat-welcome');
+    const chatInput = document.getElementById('chat-input');
+    const suggestionsContainer = document.getElementById('chat-suggestions');
+    
+    if (chatTitle) chatTitle.textContent = chatDict.title;
+    if (chatStatus) chatStatus.textContent = chatDict.status;
+    if (chatWelcome) chatWelcome.textContent = chatDict.welcome;
+    if (chatInput) chatInput.placeholder = chatDict.placeholder;
+    
+    if (suggestionsContainer) {
+        suggestionsContainer.innerHTML = chatDict.suggestions.map(s => 
+            '<div class="chat-suggestion" onclick="sendSuggestion(\'' + s.replace(/'/g, "\\'") + '\')">' + s + '</div>'
+        ).join('');
+    }
+}
+
+window.sendSuggestion = function(text) {
+    const chatInput = document.getElementById('chat-input');
+    if (chatInput) { chatInput.value = text; sendChatMessage(); }
+};
+
+async function sendChatMessage() {
+    const input = document.getElementById('chat-input');
+    const message = input.value.trim();
+    if (!message) return;
+    const chatDict = dict[lang]?.chat || dict.ar.chat;
+    const messagesContainer = document.getElementById('chat-messages');
+    const userMsg = document.createElement('div');
+    userMsg.className = 'chat-message user';
+    userMsg.textContent = message;
+    messagesContainer.appendChild(userMsg);
+    input.value = '';
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'chat-typing';
+    typingDiv.id = 'chat-typing';
+    typingDiv.innerHTML = '<span></span><span></span><span></span>';
+    messagesContainer.appendChild(typingDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    document.getElementById('chat-send').disabled = true;
+    try {
+        const response = await fetch(API + '/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message, history: chatHistory.slice(-10), lang: lang, uid: localStorage.getItem('findly_uid') || 'guest' })
+        });
+        const data = await response.json();
+        const typing = document.getElementById('chat-typing');
+        if (typing) typing.remove();
+        const aiMsg = document.createElement('div');
+        aiMsg.className = 'chat-message assistant';
+        aiMsg.textContent = data.response || data.reply || data.message || chatDict.error;
+        messagesContainer.appendChild(aiMsg);
+        chatHistory.push({ role: 'user', content: message });
+        chatHistory.push({ role: 'assistant', content: aiMsg.textContent });
+    } catch (error) {
+        const typing = document.getElementById('chat-typing');
+        if (typing) typing.remove();
+        const fallbackResponses = { ar: 'أنا هنا للمساعدة!', en: 'I\'m here to help!', fr: 'Je suis la!', de: 'Ich bin hier!', es: 'Estoy aqui!', tr: 'Buradayim!' };
+        const errorMsg = document.createElement('div');
+        errorMsg.className = 'chat-message assistant';
+        errorMsg.textContent = fallbackResponses[lang] || fallbackResponses.en;
+        messagesContainer.appendChild(errorMsg);
+    }
+    document.getElementById('chat-send').disabled = false;
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+// ===== HELPER FUNCTIONS FOR SAGE V5 =====
+
+// Render Score Circle
+function renderScoreCircle(score, label, color, size) {
+    size = size || 80;
+    const radius = (size - 10) / 2;
+    const circumference = radius * 2 * Math.PI;
+    const offset = circumference - (score / 100) * circumference;
+    return '<div class="sage-score-circle" style="width:' + size + 'px;height:' + size + 'px">' +
+        '<svg width="' + size + '" height="' + size + '" class="transform -rotate-90">' +
+        '<circle cx="' + (size/2) + '" cy="' + (size/2) + '" r="' + radius + '" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="6"/>' +
+        '<circle cx="' + (size/2) + '" cy="' + (size/2) + '" r="' + radius + '" fill="none" stroke="' + color + '" stroke-width="6" stroke-dasharray="' + circumference + '" stroke-dashoffset="' + offset + '" stroke-linecap="round" style="transition: all 1s"/>' +
+        '</svg>' +
+        '<span class="score-value" style="color:' + color + '">' + score + '%</span>' +
+        '<span class="score-label">' + label + '</span>' +
+        '</div>';
+}
+
+// Render Technical Indicator Card
+function renderTechCard(title, value, signal, color) {
+    return '<div class="tech-card">' +
+        '<div class="tech-card-title">' + title + '</div>' +
+        '<div class="tech-card-value" style="color:' + color + '">' + (value || '--') + '</div>' +
+        (signal ? '<span class="tech-card-badge" style="background:' + color + '20;color:' + color + '">' + signal + '</span>' : '') +
+        '</div>';
+}
+
+// Render Risk Meter
+function renderRiskMeter(label, score, level) {
+    const colors = { minimal: '#10b981', low: '#22c55e', medium: '#f59e0b', high: '#ef4444', critical: '#dc2626' };
+    const color = colors[level] || colors.medium;
+    return '<div class="risk-meter">' +
+        '<div class="risk-meter-header">' +
+        '<span class="risk-meter-label">' + label + '</span>' +
+        '<span class="risk-meter-value" style="color:' + color + '">' + score + '%</span>' +
+        '</div>' +
+        '<div class="risk-meter-bar">' +
+        '<div class="risk-meter-fill" style="width:' + score + '%;background:' + color + '"></div>' +
+        '</div>' +
+        '</div>';
+}
+
+// Render Price Range Bar
+function renderPriceRangeBar(min, max, current) {
+    const range = max - min;
+    const position = range > 0 ? ((current - min) / range) * 100 : 50;
+    return '<div class="price-range-bar">' +
+        '<div class="price-range-fill" style="width:' + position + '%"></div>' +
+        '<div class="price-range-indicator" style="left:' + position + '%"></div>' +
+        '</div>' +
+        '<div class="price-range-labels">' +
+        '<span>$' + min + '</span>' +
+        '<span>$' + current + '</span>' +
+        '<span>$' + max + '</span>' +
+        '</div>';
+}
+
+// Render Flags
+function renderFlags(flags, isGreen) {
+    if (!flags || !flags.length) return '';
+    const className = isGreen ? 'green' : 'red';
+    const icon = isGreen ? '✅' : '🚨';
+    return '<div class="flags-container">' + flags.map(function(f) {
+        return '<div class="flag-item ' + className + '">' +
+            '<span class="flag-icon">' + icon + '</span>' +
+            '<span>' + f + '</span>' +
+            '</div>';
+    }).join('') + '</div>';
+}
+
+// Render Collapsible Section
+function renderCollapsibleSection(id, title, icon, content, isOpen) {
+    isOpen = isOpen !== false;
+    return '<div class="collapsible-section ' + (isOpen ? 'open' : '') + '" id="' + id + '">' +
+        '<div class="collapsible-header" onclick="toggleCollapsible(\'' + id + '\')">' +
+        '<div class="collapsible-title">' +
+        '<span class="collapsible-title-icon">' + icon + '</span>' +
+        '<span>' + title + '</span>' +
+        '</div>' +
+        '<span class="collapsible-arrow">▼</span>' +
+        '</div>' +
+        '<div class="collapsible-content">' + content + '</div>' +
+        '</div>';
+}
+
+window.toggleCollapsible = function(id) {
+    const section = document.getElementById(id);
+    if (section) section.classList.toggle('open');
+};
+
+// Get Decision Text
+function getDecisionText(decision) {
+    const V5 = dict[lang]?.v5 || dict.ar.v5;
+    return V5[decision] || decision;
+}
+
+// Get Risk Level Text
+function getRiskLevelText(level) {
+    const V5 = dict[lang]?.v5 || dict.ar.v5;
+    const levels = {
+        minimal: V5.riskMinimal || 'ضئيلة',
+        low: V5.riskLow || 'منخفضة',
+        medium: V5.riskMedium || 'متوسطة',
+        high: V5.riskHigh || 'عالية',
+        critical: V5.riskCritical || 'حرجة'
+    };
+    return levels[level] || level;
+}
+
+// Get RSI Signal Text
+function getRSISignalText(signal) {
+    const V5 = dict[lang]?.v5 || dict.ar.v5;
+    if (signal === 'oversold') return V5.rsiOversold || 'تشبع بيعي';
+    if (signal === 'overbought') return V5.rsiOverbought || 'تشبع شرائي';
+    return V5.rsiNeutral || 'محايد';
+}
+
+// Get Volatility Text
+function getVolatilityText(volatility) {
+    const V5 = dict[lang]?.v5 || dict.ar.v5;
+    if (volatility === 'high') return V5.volatilityHigh || 'عالي';
+    if (volatility === 'medium') return V5.volatilityMedium || 'متوسط';
+    return V5.volatilityLow || 'منخفض';
+}
+
+// Get Bollinger Position Text
+function getBollingerText(position) {
+    const V5 = dict[lang]?.v5 || dict.ar.v5;
+    if (position === 'above') return V5.bollingerAbove || 'أعلى النطاق';
+    if (position === 'below') return V5.bollingerBelow || 'أسفل النطاق';
+    return V5.bollingerWithin || 'داخل النطاق';
+}
+
+// Get Trend Direction Text
+function getTrendText(trend) {
+    const T = dict[lang]?.search || dict.ar.search;
+    if (trend === 'rising') return T.mayRise || 'صاعد';
+    if (trend === 'falling') return T.wait || 'هابط';
+    return T.stableTxt || 'مستقر';
+}
+
+// Render Personality Badge
+function renderPersonalityBadge(personality) {
+    if (!personality) return '';
+    const V4 = dict[lang]?.v4 || dict.ar.v4;
+    const typeInfo = V4.personalityTypes[personality.type] || V4.personalityTypes.smartHunter;
+    return '<div class="personality-badge"><div class="personality-icon">' + typeInfo.icon + '</div><div class="personality-info"><div class="personality-type">' + typeInfo.name + '</div><div class="personality-desc">' + typeInfo.desc + '</div></div></div>';
+}
+
+// Render Merchant Trust
+function renderMerchantTrust(merchantTrust) {
+    if (!merchantTrust) return '';
+    const V4 = dict[lang]?.v4 || dict.ar.v4;
+    const score = merchantTrust.trustScore || 0;
+    const scoreClass = score >= 70 ? 'high' : score >= 40 ? 'medium' : 'low';
+    return '<div class="merchant-trust"><div class="merchant-header"><span class="merchant-name">🏪 ' + (merchantTrust.store || V4.merchantTrust) + '</span><div class="trust-score"><span class="trust-score-value ' + scoreClass + '">' + score + '%</span>' + (merchantTrust.isTrusted ? '<span style="color:#10b981;font-size:0.8rem;">✓ ' + V4.verified + '</span>' : '') + '</div></div><div class="trust-bar"><div class="trust-bar-fill ' + scoreClass + '" style="width:' + score + '%"></div></div></div>';
+}
+
+// Render Fake Deal Alert
+function renderFakeDealAlert(fakeDeal) {
+    if (!fakeDeal || !fakeDeal.isSuspicious) return '';
+    const V4 = dict[lang]?.v4 || dict.ar.v4;
+    return '<div class="fake-deal-alert"><div class="fake-deal-header"><span class="fake-deal-icon">🚨</span><span class="fake-deal-title">' + V4.fakeDealAlert + '</span></div><ul class="fake-deal-reasons">' + fakeDeal.reasons.map(function(r) { return '<li>• ' + r + '</li>'; }).join('') + '</ul></div>';
+}
+
+// Render Recommendations
+function renderRecommendations(recommendations) {
+    if (!recommendations || !recommendations.length) return '';
+    const V4 = dict[lang]?.v4 || dict.ar.v4;
+    return '<div class="recommendations-section"><div class="rec-header"><span class="rec-title">' + V4.recommendations + '</span></div><div class="rec-items">' + recommendations.slice(0, 3).map(function(rec) {
+        return '<div class="rec-item" onclick="document.getElementById(\'s-input\').value=\'' + rec.title.replace(/'/g, "\\'") + '\'; runSearch();"><img class="rec-item-img" src="' + (rec.image || 'https://via.placeholder.com/50') + '" alt=""><div class="rec-item-info"><div class="rec-item-title">' + rec.title + '</div><div class="rec-item-price">$' + (rec.price || '---') + '</div></div></div>';
+    }).join('') + '</div></div>';
+}
+
+// Render Deal Quality
+function renderDealQuality(dealQuality) {
+    if (!dealQuality) return '';
+    const V4 = dict[lang]?.v4 || dict.ar.v4;
+    const score = dealQuality.score || 0;
+    const filledBars = Math.round(score / 10);
+    let barsHtml = '';
+    for (let i = 0; i < 10; i++) { barsHtml += '<div class="meter-bar' + (i < filledBars ? ' filled' : '') + '"></div>'; }
+    return '<div class="deal-quality"><div class="deal-quality-score">' + score + '%</div><div class="deal-quality-label">' + V4.dealQuality + '</div><div class="deal-quality-meter">' + barsHtml + '</div></div>';
+}
+
+// Render Score Grid
+function renderScoreGrid(intel) {
+    const V4 = dict[lang]?.v4 || dict.ar.v4;
+    const priceIntel = intel.priceIntel || {};
+    const trustIntel = intel.trustIntel || {};
+    const valueIntel = intel.valueIntel || {};
+    return '<div class="score-grid"><div class="score-item value"><div class="score-item-value">' + (valueIntel.score || priceIntel.score || 0) + '%</div><div class="score-item-label">' + V4.priceAnalysis + '</div></div><div class="score-item trust"><div class="score-item-value">' + (100 - (trustIntel.overallRisk || 0)) + '%</div><div class="score-item-label">' + V4.reliability + '</div></div><div class="score-item deal"><div class="score-item-value">' + (intel.dealQuality?.score || valueIntel.score || 0) + '%</div><div class="score-item-label">' + V4.valueForMoney + '</div></div></div>';
+}
+
+function htmlspecialchars(str) {
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+}
+
+
+// ===== ADVANCED ANALYSIS RENDERER FOR SAGE V5 =====
+
+// Render Technical Indicators Section
+function renderTechnicalIndicators(tech) {
+    if (!tech) return '';
+    const V5 = dict[lang]?.v5 || dict.ar.v5;
+    
+    let html = '<div class="technical-grid">';
+    
+    // RSI
+    if (tech.rsi !== null && tech.rsi !== undefined) {
+        const rsiColor = tech.rsiSignal === 'oversold' ? '#10b981' : tech.rsiSignal === 'overbought' ? '#ef4444' : '#6b7280';
+        html += renderTechCard(V5.rsi || 'RSI', tech.rsi.toFixed(1), getRSISignalText(tech.rsiSignal), rsiColor);
+    }
+    
+    // MACD
+    if (tech.macd) {
+        const macdColor = tech.macd === 'bullish' ? '#10b981' : '#ef4444';
+        html += renderTechCard(V5.macd || 'MACD', tech.macd === 'bullish' ? '📈 صعودي' : '📉 هبوطي', null, macdColor);
+    }
+    
+    // Bollinger
+    if (tech.bollingerPosition) {
+        const bollColor = tech.bollingerPosition === 'below' ? '#10b981' : tech.bollingerPosition === 'above' ? '#ef4444' : '#6b7280';
+        html += renderTechCard(V5.bollingerBands || 'Bollinger', getBollingerText(tech.bollingerPosition), null, bollColor);
+    }
+    
+    // Volatility
+    if (tech.volatility) {
+        const volColor = tech.volatility === 'high' ? '#ef4444' : tech.volatility === 'medium' ? '#f59e0b' : '#10b981';
+        html += renderTechCard(V5.volatility || 'التقلب', getVolatilityText(tech.volatility), null, volColor);
+    }
+    
+    html += '</div>';
+    
+    // Prediction Box
+    if (tech.prediction) {
+        const predColor = tech.prediction.direction === 'up' ? '#10b981' : '#ef4444';
+        const predIcon = tech.prediction.direction === 'up' ? '📈' : '📉';
+        html += '<div class="ai-insights-box" style="border-color:' + predColor + '40">' +
+            '<div class="ai-insights-label" style="color:' + predColor + '">' + predIcon + ' ' + (V5.prediction || 'التوقع') + '</div>' +
+            '<div class="ai-insights-text">' +
+            '<div style="font-size:1.3rem;font-weight:700">$' + tech.prediction.nextPrice.toFixed(2) + '</div>' +
+            '<div style="font-size:0.85rem;color:var(--text-muted)">' +
+            'الاتجاه: <span style="color:' + predColor + '">' + (tech.prediction.direction === 'up' ? 'صعود' : 'هبوط') + '</span> | ' +
+            'الثقة: ' + tech.prediction.confidence + '%' +
+            '</div>' +
+            '</div></div>';
+    }
+    
+    return html;
+}
+
+// Render Trend Intelligence Section
+function renderTrendIntel(trendIntel) {
+    if (!trendIntel) return '';
+    const V5 = dict[lang]?.v5 || dict.ar.v5;
+    const T = dict[lang]?.search || dict.ar.search;
+    
+    const trendIcons = { rising: '📈', falling: '📉', stable: '➡️' };
+    const trendColors = { rising: '#10b981', falling: '#ef4444', stable: '#6b7280' };
+    const trend = trendIntel.trend || 'stable';
+    const icon = trendIcons[trend] || '➡️';
+    const color = trendColors[trend] || '#6b7280';
+    
+    let html = '<div class="trend-section">' +
+        '<div class="trend-header">' +
+        '<span class="trend-icon">' + icon + '</span>' +
+        '<div class="trend-info">' +
+        '<div class="trend-direction" style="color:' + color + '">' + getTrendText(trend) + '</div>' +
+        '<div class="trend-strength">' + (V5.trendStrength || 'قوة الاتجاه') + ': ' + (trendIntel.strength || 0) + '%</div>' +
+        '</div>' +
+        '</div>';
+    
+    // Optimal Buy Time
+    if (trendIntel.optimalBuyTime && trendIntel.optimalBuyTime.optimal !== 'unknown') {
+        html += '<div style="margin-top:10px;padding:10px;background:rgba(139,92,246,0.1);border-radius:10px">' +
+            '<div style="font-size:0.8rem;color:var(--text-muted)">' + (V5.optimalBuyTime || 'أفضل وقت للشراء') + '</div>' +
+            '<div style="font-weight:700;color:var(--primary)">' + trendIntel.optimalBuyTime.optimal + '</div>' +
+            (trendIntel.optimalBuyTime.averageSavings > 0 ? '<div style="font-size:0.8rem;color:#10b981">توفير متوقع: ' + trendIntel.optimalBuyTime.averageSavings + '%</div>' : '') +
+            '</div>';
+    }
+    
+    // Seasonality
+    if (trendIntel.seasonality && trendIntel.seasonality.hasSeasonality && trendIntel.seasonality.pattern) {
+        const periodText = trendIntel.seasonality.pattern.period === 'weekly' ? (V5.weekly || 'أسبوعي') : (V5.monthly || 'شهري');
+        html += '<div style="margin-top:8px;padding:8px;background:rgba(59,130,246,0.1);border-radius:8px;font-size:0.8rem">' +
+            '🔄 ' + (V5.seasonality || 'نمط موسمي') + ': ' + periodText + ' (' + (trendIntel.seasonality.pattern.strength * 100).toFixed(0) + '%)' +
+            '</div>';
+    }
+    
+    html += '</div>';
+    return html;
+}
+
+// Render Value Intelligence Section
+function renderValueIntel(valueIntel) {
+    if (!valueIntel) return '';
+    const V5 = dict[lang]?.v5 || dict.ar.v5;
+    const V4 = dict[lang]?.v4 || dict.ar.v4;
+    
+    const gradeColors = { A: '#10b981', B: '#84cc16', C: '#f59e0b', D: '#ef4444' };
+    const gradeColor = gradeColors[valueIntel.grade] || '#6b7280';
+    
+    let html = '<div style="display:flex;align-items:center;gap:20px;margin:15px 0">' +
+        '<div class="value-grade" style="background:linear-gradient(135deg,' + gradeColor + ',' + gradeColor + '99)">' + valueIntel.grade + '</div>' +
+        '<div style="flex:1">' +
+        '<div style="font-size:0.9rem;color:var(--text-muted)">' + (V5.valueGrade || 'درجة القيمة') + '</div>' +
+        '<div style="font-size:1.5rem;font-weight:700">' + valueIntel.score + '%</div>' +
+        '</div>' +
+        '</div>';
+    
+    // Stats Row
+    html += '<div class="stats-row">' +
+        '<div class="stat-item"><div class="stat-value">' + (valueIntel.competitors || 0) + '</div><div class="stat-label">' + (V4.competitors || 'منافسين') + '</div></div>' +
+        '<div class="stat-item"><div class="stat-value" style="color:#10b981">' + (valueIntel.savingsPercent || 0) + '%</div><div class="stat-label">' + (T.saving || 'توفير') + '</div></div>' +
+        '<div class="stat-item"><div class="stat-value" style="color:#10b981">$' + (valueIntel.savingsAmount || 0) + '</div><div class="stat-label">التوفير</div></div>' +
+        '</div>';
+    
+    return html;
+}
+
+// Render Historical Intelligence Section
+function renderHistoricalIntel(historicalIntel) {
+    if (!historicalIntel) return '';
+    const V5 = dict[lang]?.v5 || dict.ar.v5;
+    
+    let html = '<div class="score-grid" style="grid-template-columns:repeat(3,1fr)">' +
+        '<div class="score-item" style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3)">' +
+        '<div class="score-item-value" style="color:#10b981">$' + historicalIntel.lowest + '</div>' +
+        '<div class="score-item-label">' + (V5.historicalLow || 'أقل سعر') + '</div>' +
+        '</div>' +
+        '<div class="score-item" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3)">' +
+        '<div class="score-item-value" style="color:#ef4444">$' + historicalIntel.highest + '</div>' +
+        '<div class="score-item-label">' + (V5.historicalHigh || 'أعلى سعر') + '</div>' +
+        '</div>' +
+        '<div class="score-item" style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3)">' +
+        '<div class="score-item-value" style="color:#3b82f6">$' + historicalIntel.average.toFixed(2) + '</div>' +
+        '<div class="score-item-label">' + (V5.historicalAverage || 'المتوسط') + '</div>' +
+        '</div>' +
+        '</div>';
+    
+    if (historicalIntel.isHistoricalLow) {
+        html += '<div class="historical-badge" style="margin-top:10px">' +
+            '🏆 ' + (V5.isHistoricalLow || 'أقل أو قريب من أقل سعر تاريخي!') +
+            '</div>';
+    }
+    
+    return html;
+}
+
+// Render Market Intelligence Section
+function renderMarketIntel(marketIntel) {
+    if (!marketIntel) return '';
+    const V5 = dict[lang]?.v5 || dict.ar.v5;
+    const V4 = dict[lang]?.v4 || dict.ar.v4;
+    
+    const healthColors = { very_stable: '#10b981', stable: '#22c55e', moderate: '#f59e0b', volatile: '#ef4444' };
+    const healthTexts = { very_stable: 'مستقر جداً', stable: 'مستقر', moderate: 'متوسط', volatile: 'متقلب' };
+    const healthColor = healthColors[marketIntel.marketHealth] || '#6b7280';
+    const healthText = healthTexts[marketIntel.marketHealth] || marketIntel.marketHealth;
+    
+    let html = '<div class="stats-row" style="grid-template-columns:repeat(3,1fr)">' +
+        '<div class="stat-item"><div class="stat-value">' + (marketIntel.competitorCount || 0) + '</div><div class="stat-label">' + (V4.competitors || 'منافسين') + '</div></div>' +
+        '<div class="stat-item"><div class="stat-value">' + (marketIntel.marketPosition || 0) + '%</div><div class="stat-label">' + (V5.marketPosition || 'الموقع') + '</div></div>' +
+        '<div class="stat-item"><div class="market-health">' +
+        '<span class="market-health-indicator ' + marketIntel.marketHealth + '" style="background:' + healthColor + '"></span>' +
+        '<span>' + healthText + '</span>' +
+        '</div></div>' +
+        '</div>';
+    
+    // Best Store
+    if (marketIntel.bestStore && marketIntel.bestPrice) {
+        html += '<div style="margin-top:12px;padding:12px;background:linear-gradient(135deg,rgba(59,130,246,0.1),rgba(99,102,241,0.1));border:1px solid rgba(59,130,246,0.3);border-radius:12px">' +
+            '<div style="font-size:0.8rem;color:#3b82f6">' + (V4.bestStore || 'أفضل متجر') + '</div>' +
+            '<div style="font-weight:700">' + marketIntel.bestStore + '</div>' +
+            '<div style="color:#10b981;font-weight:700">$' + marketIntel.bestPrice + '</div>' +
+            '</div>';
+    }
+    
+    // Alternatives
+    if (marketIntel.alternatives && marketIntel.alternatives.length > 0) {
+        html += '<div style="margin-top:12px">' +
+            '<div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:8px">' + (V5.alternatives || 'البدائل') + '</div>' +
+            marketIntel.alternatives.map(function(alt) {
+                return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:rgba(255,255,255,0.03);border-radius:8px;margin-bottom:6px">' +
+                    '<div><div style="font-weight:600">' + alt.store + '</div><div style="color:#10b981">$' + alt.price + '</div></div>' +
+                    '<div style="color:#10b981;font-weight:700">وفر ' + alt.savings + '%</div>' +
+                    '</div>';
+            }).join('') +
+            '</div>';
+    }
+    
+    return html;
+}
+
+// Render Trust Intelligence Section
+function renderTrustIntel(trustIntel) {
+    if (!trustIntel) return '';
+    const V5 = dict[lang]?.v5 || dict.ar.v5;
+    const V4 = dict[lang]?.v4 || dict.ar.v4;
+    
+    const merchantTrust = trustIntel.merchantTrust || {};
+    const fakeDeal = trustIntel.fakeDealCheck || {};
+    
+    let html = '<div class="score-grid" style="grid-template-columns:repeat(2,1fr)">' +
+        '<div class="score-item">' +
+        '<div class="score-item-value" style="color:' + (merchantTrust.trustScore >= 70 ? '#10b981' : merchantTrust.trustScore >= 40 ? '#f59e0b' : '#ef4444') + '">' + (merchantTrust.trustScore || 50) + '%</div>' +
+        '<div class="score-item-label">' + (V4.merchantTrust || 'ثقة التاجر') + '</div>' +
+        '</div>' +
+        '<div class="score-item">' +
+        '<div class="score-item-value" style="color:' + (trustIntel.overallRisk <= 30 ? '#10b981' : trustIntel.overallRisk <= 60 ? '#f59e0b' : '#ef4444') + '">' + getRiskLevelText(trustIntel.riskLevel) + '</div>' +
+        '<div class="score-item-label">' + (V5.riskLevel || 'المخاطرة') + '</div>' +
+        '</div>' +
+        '</div>';
+    
+    // Risk Meter
+    html += renderRiskMeter(V5.riskLevel || 'مستوى المخاطرة', trustIntel.overallRisk || 0, trustIntel.riskLevel || 'medium');
+    
+    // Trust Signals
+    if (merchantTrust.trustSignals) {
+        const signals = merchantTrust.trustSignals;
+        html += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:10px">' +
+            '<div style="padding:6px 8px;border-radius:6px;font-size:0.75rem;text-align:center;' + (signals.hasSecurePayment ? 'background:rgba(16,185,129,0.1);color:#10b981' : 'background:rgba(239,68,68,0.1);color:#ef4444') + '">' +
+            (signals.hasSecurePayment ? '✓' : '✕') + ' ' + (V5.securePayment || 'دفع آمن') + '</div>' +
+            '<div style="padding:6px 8px;border-radius:6px;font-size:0.75rem;text-align:center;' + (signals.hasReturnPolicy ? 'background:rgba(16,185,129,0.1);color:#10b981' : 'background:rgba(239,68,68,0.1);color:#ef4444') + '">' +
+            (signals.hasReturnPolicy ? '✓' : '✕') + ' ' + (V5.returnPolicy || 'إرجاع') + '</div>' +
+            '<div style="padding:6px 8px;border-radius:6px;font-size:0.75rem;text-align:center;' + (signals.hasCustomerSupport ? 'background:rgba(16,185,129,0.1);color:#10b981' : 'background:rgba(239,68,68,0.1);color:#ef4444') + '">' +
+            (signals.hasCustomerSupport ? '✓' : '✕') + ' ' + (V5.customerSupport || 'دعم') + '</div>' +
+            '<div style="padding:6px 8px;border-radius:6px;font-size:0.75rem;text-align:center;' + (signals.hasVerifiedReviews ? 'background:rgba(16,185,129,0.1);color:#10b981' : 'background:rgba(239,68,68,0.1);color:#ef4444') + '">' +
+            (signals.hasVerifiedReviews ? '✓' : '✕') + ' ' + (V5.verifiedReviews || 'تقييمات') + '</div>' +
+            '</div>';
+    }
+    
+    // Green Flags
+    if (fakeDeal.greenFlags && fakeDeal.greenFlags.length > 0) {
+        html += '<div style="margin-top:12px"><div style="font-size:0.8rem;color:#10b981;margin-bottom:6px">✅ ' + (V5.greenFlags || 'إشارات إيجابية') + '</div>' + renderFlags(fakeDeal.greenFlags, true) + '</div>';
+    }
+    
+    // Red Flags
+    if (fakeDeal.redFlags && fakeDeal.redFlags.length > 0) {
+        html += '<div style="margin-top:12px"><div style="font-size:0.8rem;color:#ef4444;margin-bottom:6px">🚨 ' + (V5.redFlags || 'إشارات سلبية') + '</div>' + renderFlags(fakeDeal.redFlags, false) + '</div>';
+    }
+    
+    // Warnings
+    if (fakeDeal.warnings && fakeDeal.warnings.length > 0) {
+        html += '<div style="margin-top:12px;padding:10px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:10px">' +
+            '<div style="font-size:0.8rem;color:#f59e0b;margin-bottom:6px">⚠️ ' + (V5.warnings || 'تحذيرات') + '</div>' +
+            '<ul style="margin:0;padding-right:16px;font-size:0.85rem">' + fakeDeal.warnings.map(function(w) { return '<li>' + w + '</li>'; }).join('') + '</ul>' +
+            '</div>';
+    }
+    
+    return html;
+}
+
+// Render Recommendation Intelligence Section
+function renderRecommendationIntel(recIntel) {
+    if (!recIntel) return '';
+    const V5 = dict[lang]?.v5 || dict.ar.v5;
+    
+    let html = '';
+    
+    // Primary Recommendation
+    if (recIntel.primary) {
+        const primary = recIntel.primary;
+        const priorityColors = { critical: '#ef4444', high: '#f59e0b', medium: '#3b82f6', low: '#6b7280' };
+        const priorityColor = priorityColors[primary.priority] || '#6b7280';
+        
+        html += '<div style="background:linear-gradient(135deg,rgba(139,92,246,0.15),rgba(99,102,241,0.15));border:1px solid rgba(139,92,246,0.4);border-radius:14px;padding:14px;margin-bottom:12px">' +
+            '<div style="font-size:0.8rem;color:var(--primary);margin-bottom:8px">' + (V5.primaryRecommendation || 'التوصية الرئيسية') + '</div>' +
+            '<div style="font-size:1.1rem;font-weight:700;margin-bottom:6px">' + primary.reason + '</div>' +
+            '<div style="display:flex;gap:12px;font-size:0.85rem">' +
+            '<span>الإجراء: <strong style="color:var(--primary)">' + primary.action + '</strong></span>' +
+            '<span>الثقة: <strong style="color:#10b981">' + primary.confidence + '%</strong></span>' +
+            '</div>' +
+            '</div>';
+    }
+    
+    // AI Insights
+    if (recIntel.aiInsights) {
+        html += '<div class="ai-insights-box">' +
+            '<div class="ai-insights-label">🤖 ' + (V5.aiInsights || 'رؤى الذكاء الاصطناعي') + '</div>' +
+            '<div class="ai-insights-text">' +
+            '<div style="font-size:1rem;font-weight:600;margin-bottom:6px">' + recIntel.aiInsights.advice + '</div>' +
+            '<div style="font-size:0.85rem;color:var(--text-muted)">' + recIntel.aiInsights.tip + '</div>' +
+            '</div></div>';
+    }
+    
+    // All Recommendations
+    if (recIntel.all && recIntel.all.length > 1) {
+        html += '<div style="margin-top:10px"><div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:8px">📋 توصيات إضافية</div>';
+        recIntel.all.slice(1, 4).forEach(function(rec) {
+            html += '<div style="padding:8px 10px;background:rgba(255,255,255,0.03);border-radius:8px;margin-bottom:6px;font-size:0.85rem">' +
+                '<span style="color:var(--primary)">•</span> ' + rec.reason +
+                '</div>';
+        });
+        html += '</div>';
+    }
+    
+    return html;
+}
+
+// Render Personality Intelligence Section
+function renderPersonalityIntel(personalityIntel) {
+    if (!personalityIntel) return '';
+    const V4 = dict[lang]?.v4 || dict.ar.v4;
+    
+    const typeInfo = V4.personalityTypes[personalityIntel.type] || { name: personalityIntel.type, desc: '', icon: '👤' };
+    const traits = personalityIntel.traits || {};
+    
+    let html = '<div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">' +
+        '<div style="width:50px;height:50px;background:var(--gradient);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem">' +
+        (traits.icon || typeInfo.icon) +
+        '</div>' +
+        '<div>' +
+        '<div style="font-weight:700">' + (traits.style || typeInfo.name) + '</div>' +
+        '<div style="font-size:0.85rem;color:var(--text-muted)">' + (traits.description || typeInfo.desc) + '</div>' +
+        '</div>' +
+        '</div>';
+    
+    // Personalized Tips
+    if (personalityIntel.personalizedTips && personalityIntel.personalizedTips.length > 0) {
+        html += '<div class="personalized-tips">';
+        personalityIntel.personalizedTips.forEach(function(tip) {
+            html += '<div class="tip-item">' +
+                '<span class="tip-icon">💡</span>' +
+                '<span>' + tip.text + '</span>' +
+                '</div>';
+        });
+        html += '</div>';
+    }
+    
+    return html;
+}
+
+// Render Final Verdict Section
+function renderFinalVerdict(verdict) {
+    if (!verdict) return '';
+    const V5 = dict[lang]?.v5 || dict.ar.v5;
+    
+    const urgencyColors = { high: '#10b981', medium: '#f59e0b', low: '#3b82f6', none: '#6b7280' };
+    const urgencyTexts = { high: 'عالية', medium: 'متوسطة', low: 'منخفضة', none: 'لا توجد' };
+    const urgencyColor = urgencyColors[verdict.urgency] || '#6b7280';
+    
+    let html = '<div style="text-align:center;padding:16px;background:linear-gradient(135deg,rgba(139,92,246,0.1),rgba(99,102,241,0.1));border:1px solid rgba(139,92,246,0.3);border-radius:16px">' +
+        '<div style="font-size:1.8rem;font-weight:800;margin-bottom:8px;color:' + verdict.color + '">' + getDecisionText(verdict.decision) + '</div>' +
+        '<div style="font-size:0.95rem;color:var(--text-muted);margin-bottom:16px">' + verdict.reason + '</div>' +
+        '<div class="stats-row" style="grid-template-columns:repeat(3,1fr)">' +
+        '<div class="stat-item"><div class="stat-value" style="color:var(--primary)">' + verdict.confidence + '%</div><div class="stat-label">' + (V5.confidence || 'الثقة') + '</div></div>' +
+        '<div class="stat-item"><div class="stat-value" style="color:#10b981">' + verdict.savingsPercent + '%</div><div class="stat-label">' + (dict[lang]?.search?.saving || 'توفير') + '</div></div>' +
+        '<div class="stat-item"><div class="stat-value" style="color:' + urgencyColor + '">' + (urgencyTexts[verdict.urgency] || verdict.urgency) + '</div><div class="stat-label">' + (V5.urgency || 'الأولوية') + '</div></div>' +
+        '</div>';
+    
+    // Action Items
+    if (verdict.actionItems && verdict.actionItems.length > 0) {
+        html += '<div class="action-items">' +
+            '<div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:8px">' + (V5.actionItems || 'خطوات مقترحة') + '</div>';
+        verdict.actionItems.forEach(function(item) {
+            html += '<div class="action-item">' +
+                '<span class="action-item-number">' + item.priority + '</span>' +
+                '<span>' + item.text + '</span>' +
+                '</div>';
+        });
+        html += '</div>';
+    }
+    
+    html += '</div>';
+    return html;
+}
+
+
+// ===== SEARCH FUNCTION - ENHANCED FOR SAGE V5 =====
+async function runSearch() {
+    const q = document.getElementById('s-input').value.trim();
+    const status = document.getElementById('status');
+    const resultsBox = document.getElementById('results');
+    const personalityContainer = document.getElementById('personality-container');
+
+    if (!q) return;
+
+    const T = dict[lang]?.search || dict.en.search;
+    const UI = dict[lang]?.ui || dict.en.ui;
+    const V5 = dict[lang]?.v5 || dict.ar.v5;
+
+    status.style.display = 'block';
+    status.innerText = '🔍 ' + UI.slow;
+    resultsBox.innerHTML = '';
+    personalityContainer.style.display = 'none';
+
+    const userBudget = parseFloat(localStorage.getItem('user_budget')) || 0;
+
+    try {
+        let token = null;
+        try { if (window.getAuthToken) token = await window.getAuthToken(); } catch (e) {}
+
+        const headers = {};
+        if (token) headers['Authorization'] = 'Bearer ' + token;
+
+        const res = await fetch(API + '/search?q=' + encodeURIComponent(q) + '&lang=' + lang, { headers });
+        const data = await res.json().catch(() => ({}));
+
+        if (res.status === 429 || data.error === 'ENERGY_EMPTY') {
+            const upgradeDict = dict[lang]?.upgrade || dict.ar.upgrade;
+            status.innerHTML = '<div class="upgrade-section"><h3>' + upgradeDict.title + '</h3><p style="font-size:0.95rem;opacity:0.9">' + upgradeDict.message + '</p><button class="upgrade-btn" onclick="openUpgrade()">' + upgradeDict.upgradeBtn + '</button></div>';
+            return;
+        }
+
+        if (!res.ok) throw new Error(data.message || ('Server error: ' + res.status));
+        status.style.display = 'none';
+
+        if (!data.results || !data.results.length) {
+            status.style.display = 'block';
+            status.innerText = UI.noResults;
+            return;
+        }
+
+        if (data.personality) {
+            personalityContainer.innerHTML = renderPersonalityBadge(data.personality);
+            personalityContainer.style.display = 'block';
+        }
+
+        if (data.results[0]) updateAffiliateCard(data.results[0]);
+
+        data.results.forEach(function (p) {
+            const intel = p.intelligence || {};
+            const verdict = intel.finalVerdict || {};
+            const priceIntel = intel.priceIntel || {};
+            const valueIntel = intel.valueIntel || {};
+            const trendIntel = intel.trendIntel || {};
+            const trustIntel = intel.trustIntel || {};
+            const historicalIntel = intel.historicalIntel || null;
+            const marketIntel = intel.marketIntel || {};
+            const personalityIntel = intel.personalityIntel || {};
+            const recommendationIntel = intel.recommendationIntel || {};
+            const tech = trendIntel.technicalIndicators || null;
+
+            // Strategic Badge
+            let strategicBadge = '';
+            let strategicColor = '#3b82f6';
+
+            if (verdict.decision === 'BUY_NOW' || verdict.decision === 'STRONG_BUY') { strategicBadge = '🟢 ' + getDecisionText(verdict.decision); strategicColor = '#10b981'; }
+            else if (verdict.decision === 'BUY') { strategicBadge = '🟡 ' + getDecisionText(verdict.decision); strategicColor = '#84cc16'; }
+            else if (verdict.decision === 'WAIT' || verdict.decision === 'SMART_WAIT') { strategicBadge = '⏳ ' + getDecisionText(verdict.decision); strategicColor = '#f59e0b'; }
+            else if (verdict.decision === 'OVERPRICED') { strategicBadge = '🔴 ' + (T.priceHigh || 'السعر مرتفع'); strategicColor = '#ef4444'; }
+            else if (verdict.decision === 'CAUTION') { strategicBadge = '⚠️ ' + getDecisionText(verdict.decision); strategicColor = '#f59e0b'; }
+            else if (verdict.decision === 'AVOID') { strategicBadge = '🚨 ' + getDecisionText(verdict.decision); strategicColor = '#dc2626'; }
+            else if (verdict.decision === 'CONSIDER') { strategicBadge = '🔵 ' + getDecisionText(verdict.decision); strategicColor = '#6366f1'; }
+
+            const bestLink = verdict.bestLink || p.link;
+            const safeLink = bestLink && bestLink.startsWith('http') ? bestLink : null;
+            
+            // Parse price
+            const priceVal = parseFloat(String(p.price).replace(/[^\d.]/g, '')) || 0;
+
+            let budgetClass = '';
+            let budgetBadge = '';
+            if (userBudget > 0 && priceVal > userBudget) { budgetClass = 'over-budget'; budgetBadge = '<div class="budget-alert">⚠️ ' + UI.over + '</div>'; }
+
+            // Quick Brains
+            let priceEval = T.weak;
+            if (priceIntel.score >= 70) priceEval = T.excellent;
+            else if (priceIntel.score >= 50) priceEval = T.good;
+
+            let timingEval = T.stableTxt;
+            if (trendIntel.trend === 'falling') timingEval = T.wait;
+            else if (trendIntel.trend === 'rising') timingEval = T.mayRise;
+
+            let trustEval = T.safe;
+            if ((trustIntel.overallRisk || 0) > 50) trustEval = T.risk;
+
+            let behaviorEval = T.general;
+            if ((valueIntel.score || 0) > 70) behaviorEval = T.suitable;
+
+            const card = document.createElement('div');
+            card.className = 'product-card ' + budgetClass;
+
+            // Build Card HTML
+            let cardHtml = budgetBadge + 
+                '<img src="' + (p.thumbnail || '') + '" onerror="this.src=\'https://via.placeholder.com/200\'">' +
+                '<h3>' + (p.title || '—') + '</h3>' +
+                '<div class="price">$' + (priceVal || '—') + '</div>';
+
+            // Deal Quality Score
+            if (priceIntel.score) {
+                cardHtml += '<div class="deal-quality">' +
+                    '<div class="deal-quality-score">' + priceIntel.score + '%</div>' +
+                    '<div class="deal-quality-label">' + (T.deal_score || 'تقييم') + '</div>' +
+                    '<div class="deal-quality-meter">';
+                for (let i = 0; i < 10; i++) {
+                    cardHtml += '<div class="meter-bar' + (i < Math.round(priceIntel.score / 10) ? ' filled' : '') + '"></div>';
+                }
+                cardHtml += '</div></div>';
+            }
+
+            // Score Grid
+            cardHtml += '<div class="score-grid">' +
+                '<div class="score-item value"><div class="score-item-value">' + (priceIntel.score || 0) + '%</div><div class="score-item-label">' + (T.price || 'السعر') + '</div></div>' +
+                '<div class="score-item trust"><div class="score-item-value">' + (100 - (trustIntel.overallRisk || 0)) + '%</div><div class="score-item-label">' + (T.confidence || 'الثقة') + '</div></div>' +
+                '<div class="score-item deal"><div class="score-item-value">' + (valueIntel.score || priceIntel.score || 0) + '%</div><div class="score-item-label">' + (T.value || 'القيمة') + '</div></div>' +
+                '</div>';
+
+            // Quick Brains
+            cardHtml += '<div class="sage-quick-brains">' +
+                '<div class="brain-item good">💰 ' + T.price + ' <span>' + priceEval + '</span></div>' +
+                '<div class="brain-item ' + (trendIntel.trend === 'falling' ? 'wait' : 'safe') + '">📈 ' + T.timing + ' <span>' + timingEval + '</span></div>' +
+                '<div class="brain-item ' + ((trustIntel.overallRisk || 0) > 50 ? 'risk' : 'safe') + '">🛡️ ' + T.confidence + ' <span>' + trustEval + '</span></div>' +
+                '<div class="brain-item learn">🧠 ' + T.behavior + ' <span>' + behaviorEval + '</span></div>' +
+                '</div>';
+
+            // Historical Badge
+            if (historicalIntel && historicalIntel.isHistoricalLow) {
+                cardHtml += '<div class="historical-badge" style="margin:10px 0">🏆 أقل أو قريب من أقل سعر تاريخي!</div>';
+            }
+
+            // Fake Deal Alert
+            if (trustIntel.fakeDealCheck && trustIntel.fakeDealCheck.isSuspicious) {
+                cardHtml += renderFakeDealAlert(trustIntel.fakeDealCheck);
+            }
+
+            // Merchant Trust
+            if (trustIntel.merchantTrust) {
+                cardHtml += renderMerchantTrust(trustIntel.merchantTrust);
+            }
+
+            // Verdict Banner
+            cardHtml += '<div class="analysis-engine"><span class="analysis-label">' + (verdict.emoji || '🤖') + ' ' + getDecisionText(verdict.decision) + '</span><div>' + (verdict.reason || '') + '</div></div>';
+
+            // Strategic Decision Box
+            if (verdict.decision) {
+                cardHtml += '<div style="margin-top:10px;padding:12px;border-radius:12px;background:rgba(255,255,255,0.05);border:1px solid ' + strategicColor + '">' +
+                    '<div style="font-weight:bold;color:' + strategicColor + '">' + strategicBadge + '</div>' +
+                    '<div style="font-size:0.9rem;opacity:0.9">' + (verdict.reason || '') + '</div>' +
+                    (verdict.savingsPercent ? '<div style="margin-top:5px">💰 ' + T.saving + ': <strong>' + verdict.savingsPercent + '%</strong></div>' : '') +
+                    (verdict.bestStore ? '<div style="margin-top:5px">🏪 ' + T.bestStore + ': <strong>' + verdict.bestStore + '</strong>' + (verdict.bestPrice ? ' - $' + verdict.bestPrice : '') + '</div>' : '') +
+                    '<div style="margin-top:5px">🎯 ' + T.confidenceScore + ': <strong>' + (verdict.confidence || 0) + '%</strong></div>' +
+                    '</div>';
+            }
+
+            // Watch Button
+            cardHtml += '<button class="action-btn" onclick="addToWatch(\'' + p.title.replace(/'/g, "\\'") + '\',\'' + priceVal + '\',\'' + (safeLink || '') + '\')" style="width:100%;margin-top:10px;background:#f59e0b;color:white">🔔 ' + T.watchPrice + '</button>';
+
+            // Buy Button
+            if (safeLink) {
+                cardHtml += '<a class="action-btn buy-now" href="' + API + '/go?url=' + encodeURIComponent(safeLink) + '" target="_blank" style="display:flex;margin-top:10px">' + T.buy + '</a>';
+            } else {
+                cardHtml += '<button class="action-btn buy-now" disabled style="margin-top:10px;opacity:0.5">' + T.linkUnavailable + '</button>';
+            }
+
+            // Analysis Button
+            const analyzeData = {
+                priceIntel, valueIntel, trendIntel, trustIntel, historicalIntel, marketIntel,
+                personalityIntel, recommendationIntel, finalVerdict: verdict
+            };
+            cardHtml += '<button class="action-btn analyze-btn" style="width:100%;margin-top:10px" onclick="openAnalysis(' + htmlspecialchars(JSON.stringify(analyzeData)) + ')">' + T.analyze + '</button>';
+
+            card.innerHTML = cardHtml;
+            resultsBox.appendChild(card);
+        });
+
+    } catch (e) {
+        status.style.display = 'block';
+        status.innerText = UI.errorFetching + ': ' + e.message;
+    }
+}
+
+window.closeAnalysisModal = function() { document.getElementById('analysis-modal').style.display = 'none'; };
+
+// ===== ENHANCED ANALYSIS MODAL FOR SAGE V5 =====
+window.openAnalysis = function(data) {
+    try {
+        const parsed = typeof data === 'string' ? JSON.parse(data) : data;
+        const T = dict[lang]?.analysis || dict.ar.analysis;
+        const V5 = dict[lang]?.v5 || dict.ar.v5;
+        
+        let html = '';
+        
+        // Price Intelligence Section
+        if (parsed.priceIntel) {
+            const pi = parsed.priceIntel;
+            let priceContent = '<div class="score-grid" style="grid-template-columns:repeat(4,1fr)">' +
+                '<div class="stat-item"><div class="stat-value">$' + (pi.current || 0) + '</div><div class="stat-label">' + T.avgPrice + '</div></div>' +
+                (pi.average ? '<div class="stat-item"><div class="stat-value">$' + pi.average + '</div><div class="stat-label">' + T.avgPrice + '</div></div>' : '') +
+                (pi.median ? '<div class="stat-item"><div class="stat-value">$' + pi.median + '</div><div class="stat-label">الوسيط</div></div>' : '') +
+                '<div class="stat-item"><div class="stat-value" style="color:' + (pi.color || '#3b82f6') + '">' + (pi.score || 50) + '%</div><div class="stat-label">' + T.dealScore + '</div></div>' +
+                '</div>';
+            
+            // Price Range
+            if (pi.min && pi.max) {
+                priceContent += renderPriceRangeBar(pi.min, pi.max, pi.current);
+            }
+            
+            // Statistical Data
+            priceContent += '<div class="stats-row" style="grid-template-columns:repeat(4,1fr)">' +
+                '<div class="stat-item"><div class="stat-value">' + (pi.stdDev || 0).toFixed(2) + '</div><div class="stat-label">' + (V5.standardDeviation || 'الانحراف') + '</div></div>' +
+                '<div class="stat-item"><div class="stat-value">' + (pi.variance || 0).toFixed(2) + '</div><div class="stat-label">' + (V5.variance || 'التباين') + '</div></div>' +
+                '<div class="stat-item"><div class="stat-value">' + (pi.skewness || 0).toFixed(2) + '</div><div class="stat-label">' + (V5.skewness || 'الالتواء') + '</div></div>' +
+                '<div class="stat-item"><div class="stat-value">' + (pi.kurtosis || 0).toFixed(2) + '</div><div class="stat-label">' + (V5.kurtosis || 'التفرط') + '</div></div>' +
+                '</div>';
+            
+            html += renderCollapsibleSection('price-section', T.priceIntel || 'تحليل السعر', '💰', priceContent);
+        }
+        
+        // Technical Indicators Section
+        if (parsed.trendIntel && parsed.trendIntel.technicalIndicators) {
+            html += renderCollapsibleSection('tech-section', V5.technicalIndicators || 'المؤشرات الفنية', '📊', renderTechnicalIndicators(parsed.trendIntel.technicalIndicators));
+        }
+        
+        // Trend Intelligence Section
+        if (parsed.trendIntel) {
+            html += renderCollapsibleSection('trend-section', T.trendIntel || 'تحليل الاتجاه', '📈', renderTrendIntel(parsed.trendIntel));
+        }
+        
+        // Value Intelligence Section
+        if (parsed.valueIntel) {
+            html += renderCollapsibleSection('value-section', T.valueIntel || 'تحليل القيمة', '💎', renderValueIntel(parsed.valueIntel));
+        }
+        
+        // Trust Intelligence Section
+        if (parsed.trustIntel) {
+            html += renderCollapsibleSection('trust-section', T.trustIntel || 'تحليل الثقة', '🛡️', renderTrustIntel(parsed.trustIntel));
+        }
+        
+        // Historical Intelligence Section
+        if (parsed.historicalIntel) {
+            html += renderCollapsibleSection('hist-section', T.historicalIntel || 'التحليل التاريخي', '📜', renderHistoricalIntel(parsed.historicalIntel));
+        }
+        
+        // Market Intelligence Section
+        if (parsed.marketIntel) {
+            html += renderCollapsibleSection('market-section', T.marketIntel || 'تحليل السوق', '🏪', renderMarketIntel(parsed.marketIntel));
+        }
+        
+        // Personality Intelligence Section
+        if (parsed.personalityIntel) {
+            html += renderCollapsibleSection('personality-section', T.personalityIntel || 'تحليل الشخصية', '👤', renderPersonalityIntel(parsed.personalityIntel));
+        }
+        
+        // Recommendation Intelligence Section
+        if (parsed.recommendationIntel) {
+            html += renderCollapsibleSection('rec-section', T.recommendationIntel || 'التوصيات', '💡', renderRecommendationIntel(parsed.recommendationIntel));
+        }
+        
+        // Final Verdict Section
+        if (parsed.finalVerdict) {
+            html += renderCollapsibleSection('verdict-section', T.finalVerdict || 'القرار النهائي', '🎯', renderFinalVerdict(parsed.finalVerdict), true);
+        }
+        
+        document.getElementById('analysis-content-body').innerHTML = html;
+        document.getElementById('analysis-modal').style.display = 'flex';
+    } catch (e) {
+        console.error('Analysis error:', e);
+    }
+};
+
+// ===== WATCH FUNCTIONS =====
+window.addToWatch = async function(name, price, link) {
+    const watchDict = dict[lang]?.watch || dict.ar.watch;
+    const userEmail = prompt(watchDict.enterEmail);
+    if (!userEmail || !userEmail.includes('@')) return;
+    const numericPrice = parseFloat(String(price).replace(/[^\d.]/g, '')) || 0;
+    try {
+        const response = await fetch(API + '/alerts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: userEmail, productName: name, targetPrice: numericPrice * 0.9, currentPrice: numericPrice, productLink: link, lang: lang, uid: localStorage.getItem('findly_uid') || 'guest' })
+        });
+        if (response.ok) alert(watchDict.activated);
+        else alert(watchDict.serverError + response.status);
+    } catch (error) { alert(watchDict.connectionFailed); }
+};
+
+function updateAffiliateCard(product) {
+    const safeLink = product.intelligence?.finalVerdict?.bestLink || product.link;
+    const affImage = document.getElementById('affImage');
+    const affTitle = document.getElementById('affTitle');
+    const affBtn = document.getElementById('affBtn');
+    const affiliateCard = document.getElementById('affiliateCard');
+    
+    if (affImage) affImage.src = product.thumbnail || product.image || '';
+    if (affTitle) affTitle.innerText = product.title || '';
+    if (affBtn) affBtn.href = API + '/go?url=' + encodeURIComponent(safeLink || '');
+    if (affiliateCard) affiliateCard.style.display = 'block';
+}
+
+// ===== OTHER FUNCTIONS =====
+window.copyInvite = function() {
+    const uid = localStorage.getItem('findly_uid') || 'guest';
+    const link = location.origin + location.pathname + '?ref=' + uid;
+    const inviteDict = dict[lang]?.invite || dict.ar.invite;
+    navigator.clipboard.writeText(link).then(function() { alert(inviteDict.copied); }).catch(function() { alert(inviteDict.copyFailed + link); });
+};
+
+window.openUpgrade = async function() {
+    const uid = localStorage.getItem('findly_uid') || 'guest_' + Date.now();
+    const upgradeDict = dict[lang]?.upgrade || dict.ar.upgrade;
+    try {
+        const res = await fetch(API + '/create-payment', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ uid: uid }) });
+        const data = await res.json();
+        if (data.url) window.open(data.url, '_blank');
+        else alert(upgradeDict.paymentUnavailable);
+    } catch (e) { alert(upgradeDict.paymentError); }
+};
+
+window.saveSet = function() {
+    localStorage.setItem('fn', document.getElementById('in-name').value);
+    localStorage.setItem('user_budget', document.getElementById('in-budget').value);
+    document.getElementById('p-modal').style.display = 'none';
+    update();
+};
+
+window.toggleMode = function() { document.body.classList.toggle('light-mode'); };
+window.toggleLMenu = function() { const m = document.getElementById('l-menu'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; };
+window.setLang = function(l) { lang = l; localStorage.setItem('findly_lang', l); document.getElementById('l-menu').style.display = 'none'; update(); updateChatUI(); updateAuthUI(); initVoiceSearch(); };
+window.openProfile = function() { document.getElementById('p-modal').style.display = 'flex'; document.getElementById('in-name').value = localStorage.getItem('fn') || ''; document.getElementById('in-budget').value = localStorage.getItem('user_budget') || ''; };
+window.quickSearch = function(q) { document.getElementById('s-input').value = q; runSearch(); };
+window.quickFilter = function(type) { document.getElementById('s-input').value += ' ' + type; };
+window.toggleWatchList = function() { const m = document.getElementById('w-modal'); m.style.display = m.style.display === 'flex' ? 'none' : 'flex'; };
+
+function update() {
+    const d = dict[lang] || dict.en || dict.ar;
+    if (!d) return;
+    
+    const userName = localStorage.getItem('fn') || (lang === 'ar' ? 'أيها الباحث' : 'Seeker');
+    
+    const elements = {
+        'txt-energy': d.ui.energy, 'greeting': d.ui.welcome + ' ' + userName,
+        'txt-title': d.ui.title, 'txt-sub': d.ui.sub, 'hero-tagline': d.ui.hero_tagline,
+        'txt-deep': d.ui.deep, 'tag-cheap': d.ui.cheap, 'tag-top': d.ui.top, 'tag-new': d.ui.new,
+        'p-head': d.ui.p_head, 'lbl-name': d.ui.lbl_name, 'lbl-budget': d.ui.lbl_budget,
+        'cat-game': d.ui.game, 'cat-beauty': d.ui.beauty, 'cat-home': d.ui.home,
+        'cat-c1': d.ui.c1, 'cat-c2': d.ui.c2, 'cat-c4': d.ui.c4, 'txt-watch-title': d.ui.watchTitle,
+        'btn-save-settings': d.ui.saveChanges, 'btn-close-profile': d.ui.close,
+        'btn-close-watch': d.ui.close, 'btn-close-analysis': d.ui.close,
+        'analysis-modal-title': d.analysis.title, 'aff-offer': d.ui.affiliateOffer,
+        'affBtn': d.ui.buyNowAffiliate, 'inviteText': d.invite.text,
+        'footer-privacy': d.auth.privacy, 'footer-terms': d.auth.terms, 'footer-about': d.auth.about
+    };
+    
+    for (const [id, value] of Object.entries(elements)) {
+        const el = document.getElementById(id);
+        if (el && value !== null) el.innerText = value;
+    }
+    
+    const searchInput = document.getElementById('s-input');
+    if (searchInput) searchInput.placeholder = d.ui.searchPlaceholder;
+    
+    const mainHtml = document.getElementById('main-html');
+    if (mainHtml) { mainHtml.lang = lang; mainHtml.dir = lang === 'ar' ? 'rtl' : 'ltr'; }
+    
+    const inName = document.getElementById('in-name');
+    const inBudget = document.getElementById('in-budget');
+    if (inName) inName.placeholder = d.ui.lbl_name;
+    if (inBudget) inBudget.placeholder = d.ui.lbl_budget;
+}
+
+function updateAuthUI() {
+    const d = dict[lang] || dict.ar;
+    if (!d || !d.auth) return;
+    
+    const loginSubtitle = document.getElementById('login-subtitle');
+    const btnLogin = document.getElementById('btn-login');
+    const txtOr = document.getElementById('txt-or');
+    const txtGoogleBtn = document.getElementById('txt-google-btn');
+    
+    if (loginSubtitle) loginSubtitle.textContent = d.auth.loginSubtitle;
+    if (btnLogin) btnLogin.querySelector('span').textContent = d.auth.login;
+    if (txtOr) txtOr.textContent = d.auth.or;
+    if (txtGoogleBtn) txtGoogleBtn.textContent = d.auth.googleBtn;
+    
+    const signupTitle = document.getElementById('signup-title');
+    const signupSubtitle = document.getElementById('signup-subtitle');
+    const btnRegister = document.getElementById('btn-register');
+    const txtOrSignup = document.getElementById('txt-or-signup');
+    const txtGoogleBtnSignup = document.getElementById('txt-google-btn-signup');
+    
+    if (signupTitle) signupTitle.textContent = d.auth.signupTitle;
+    if (signupSubtitle) signupSubtitle.textContent = d.auth.signupSubtitle;
+    if (btnRegister) btnRegister.querySelector('span').textContent = d.auth.register;
+    if (txtOrSignup) txtOrSignup.textContent = d.auth.or;
+    if (txtGoogleBtnSignup) txtGoogleBtnSignup.textContent = d.auth.googleBtnSignup;
+    
+    const loginFooterText = document.getElementById('login-footer-text');
+    const signupFooterText = document.getElementById('signup-footer-text');
+    
+    if (loginFooterText) {
+        loginFooterText.innerHTML = d.auth.noAccount + ' <a id="go-to-signup">' + d.auth.createAccount + ' <i class="fa-solid fa-arrow-left"></i></a>';
+        const goToSignup = document.getElementById('go-to-signup');
+        if (goToSignup) goToSignup.addEventListener('click', switchToSignup);
+    }
+    
+    if (signupFooterText) {
+        signupFooterText.innerHTML = d.auth.haveAccount + ' <a id="go-to-login">' + d.auth.loginNow + ' <i class="fa-solid fa-arrow-left"></i></a>';
+        const goToLogin = document.getElementById('go-to-login');
+        if (goToLogin) goToLogin.addEventListener('click', switchToLogin);
+    }
+    
+    const loginEmail = document.getElementById('login-email');
+    const loginPassword = document.getElementById('login-password');
+    const signupName = document.getElementById('signup-name');
+    const signupEmail = document.getElementById('signup-email');
+    const signupPassword = document.getElementById('signup-password');
+    
+    if (loginEmail) loginEmail.placeholder = d.auth.email;
+    if (loginPassword) loginPassword.placeholder = d.auth.password;
+    if (signupName) signupName.placeholder = d.auth.fullName;
+    if (signupEmail) signupEmail.placeholder = d.auth.email;
+    if (signupPassword) signupPassword.placeholder = d.auth.password;
+}
+
+function switchToSignup() {
+    const loginView = document.getElementById('login-view');
+    const signupView = document.getElementById('signup-view');
+    loginView.classList.remove('active');
+    loginView.classList.add('exit-left');
+    setTimeout(() => { loginView.classList.remove('exit-left'); signupView.classList.add('active'); }, 200);
+}
+
+function switchToLogin() {
+    const loginView = document.getElementById('login-view');
+    const signupView = document.getElementById('signup-view');
+    signupView.classList.remove('active');
+    signupView.classList.add('exit-left');
+    setTimeout(() => { signupView.classList.remove('exit-left'); loginView.classList.add('active'); }, 200);
+}
+
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('modal') || e.target.classList.contains('analysis-modal')) e.target.style.display = 'none';
+});
+
+window.onload = function() {
+    update();
+    updateAuthUI();
+    initVoiceSearch();
+    initChat();
+    if (location.href.includes('upgrade-success')) {
+        localStorage.setItem('findly_pro', 'true');
+        const upgradeDict = dict[lang]?.upgrade || dict.ar.upgrade;
+        alert(upgradeDict.successTitle + '\n' + upgradeDict.successMessage);
+    }
+};
+
+document.addEventListener("DOMContentLoaded", function() {
+    const goToSignup = document.getElementById('go-to-signup');
+    const goToLogin = document.getElementById('go-to-login');
+    if (goToSignup) goToSignup.addEventListener('click', switchToSignup);
+    if (goToLogin) goToLogin.addEventListener('click', switchToLogin);
+});
+</script>
+</body>
+</html>

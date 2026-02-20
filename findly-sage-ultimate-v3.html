@@ -1,0 +1,1739 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" id="main-html">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Findly Sage Ultimate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #8b5cf6;
+            --primary-glow: rgba(139, 92, 246, 0.5);
+            --secondary: #6366f1;
+            --bg-dark: #020617;
+            --bg-card: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --gradient: linear-gradient(135deg, #6366F1, #A855F7);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+        .light-mode {
+            --bg-dark: #f8fafc;
+            --bg-card: rgba(255, 255, 255, 0.9);
+            --glass-border: rgba(0, 0, 0, 0.05);
+            --text: #1e293b;
+            --text-muted: #64748b;
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        body {
+            background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at 50% 0%, #1e1b4b 0%, transparent 50%);
+            color: var(--text);
+            font-family: 'Readex Pro', sans-serif;
+            margin: 0;
+            transition: background 0.4s ease, color 0.4s ease;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 5%;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--glass-border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header-tools { display: flex; gap: 10px; }
+        .tool-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            color: var(--text);
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        .tool-btn:hover { transform: translateY(-2px); border-color: var(--primary); }
+        .lang-menu {
+            display: none;
+            position: absolute;
+            top: 50px;
+            left: 0;
+            background: #1e293b;
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            width: 140px;
+            z-index: 2000;
+            box-shadow: 0 20px 40px -5px rgba(0,0,0,0.4);
+            overflow: hidden;
+        }
+        .lang-item {
+            padding: 12px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            color: #e2e8f0;
+            text-align: center;
+            transition: 0.2s;
+        }
+        .lang-item:hover { background: var(--primary); color: white; }
+        .search-area { padding: 40px 5%; text-align: center; max-width: 800px; margin: 0 auto; }
+        .energy-box {
+            background: rgba(168, 85, 247, 0.08);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            padding: 8px 20px;
+            border-radius: 50px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        h1#txt-title {
+            background: linear-gradient(to right, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 10px 0;
+            font-size: 2.5rem;
+        }
+        .light-mode h1#txt-title {
+            background: linear-gradient(to right, #1e293b, #475569);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .ai-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            color: var(--primary);
+            margin-bottom: 25px;
+            justify-content: center;
+            font-weight: 600;
+            background: rgba(139, 92, 246, 0.05);
+            padding: 8px 16px;
+            border-radius: 12px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .ai-toggle input { width: 20px; height: 20px; accent-color: var(--primary); cursor: pointer; }
+        .search-wrapper { position: relative; max-width: 600px; margin: 0 auto 20px; }
+        .search-input {
+            width: 100%;
+            padding: 18px 70px;
+            border-radius: 24px;
+            border: 2px solid var(--glass-border);
+            background: var(--bg-card);
+            color: var(--text);
+            font-size: 1.1rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+            text-align: center;
+        }
+        .search-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15); }
+        .mic-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--secondary);
+            cursor: pointer;
+            font-size: 1.4rem;
+            background: none;
+            border: none;
+            padding: 10px;
+            border-radius: 50%;
+            transition: 0.3s;
+            z-index: 10;
+        }
+        .mic-icon:hover { background: rgba(139, 92, 246, 0.1); }
+        .mic-active { color: #ef4444 !important; background: rgba(239, 68, 68, 0.1) !important; animation: pulse 1s infinite; }
+        .send-btn {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--gradient);
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 18px;
+            color: #fff;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+        .send-btn:hover { transform: translateY(-50%) scale(1.05); }
+        .ai-options { display: flex; justify-content: center; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+        .ai-tag {
+            font-size: 0.8rem; padding: 8px 16px; border-radius: 20px;
+            background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border);
+            cursor: pointer; color: var(--text-muted); display: flex; align-items: center; gap: 8px;
+            transition: 0.3s;
+        }
+        .ai-tag:hover { background: var(--bg-card); color: var(--primary); border-color: var(--primary); }
+        .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 600px; margin: 30px auto; }
+        .cat-card {
+            background: var(--bg-card); border: 1px solid var(--glass-border);
+            padding: 15px 10px; border-radius: 20px; cursor: pointer;
+            transition: 0.3s; display: flex; flex-direction: column; align-items: center; gap: 8px;
+        }
+        .cat-card:hover { transform: translateY(-5px); border-color: var(--primary); }
+        .cat-card i { font-size: 1.5rem; color: var(--secondary); }
+        .cat-card span { font-size: 0.75rem; font-weight: 600; }
+        
+        /* ========== بطاقة المنتج المحسنة ========== */
+        .product-card {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 20px;
+            margin-top: 25px;
+            text-align: right;
+            max-width: 600px;
+            margin-left: auto; margin-right: auto;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+            animation: slideUp 0.5s ease;
+        }
+        .product-card img { 
+            width: 100%; 
+            height: 180px; 
+            object-fit: contain; 
+            background: #fff; 
+            border-radius: 16px; 
+            margin-bottom: 12px; 
+            padding: 8px; 
+        }
+        .product-card h3 { margin: 0 0 8px 0; font-size: 1rem; line-height: 1.5; color: var(--text); }
+        .product-card .price { font-size: 1.5rem; font-weight: 800; color: #10b981; margin-bottom: 8px; }
+        
+        /* شريط النتيجة الرئيسي */
+        .verdict-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-radius: 16px;
+            margin: 12px 0;
+            gap: 12px;
+        }
+        .verdict-banner.strong-buy { background: rgba(16, 185, 129, 0.15); border: 2px solid rgba(16, 185, 129, 0.5); }
+        .verdict-banner.buy { background: rgba(132, 204, 22, 0.15); border: 2px solid rgba(132, 204, 22, 0.5); }
+        .verdict-banner.wait { background: rgba(245, 158, 11, 0.15); border: 2px solid rgba(245, 158, 11, 0.5); }
+        .verdict-banner.caution { background: rgba(239, 68, 68, 0.15); border: 2px solid rgba(239, 68, 68, 0.5); }
+        .verdict-banner.consider { background: rgba(99, 102, 241, 0.15); border: 2px solid rgba(99, 102, 241, 0.5); }
+        .verdict-left { display: flex; align-items: center; gap: 10px; }
+        .verdict-icon { font-size: 1.8rem; }
+        .verdict-text { font-weight: 700; font-size: 1.1rem; }
+        .verdict-reason { font-size: 0.8rem; opacity: 0.9; }
+        .verdict-right { text-align: left; }
+        .verdict-confidence { font-size: 0.75rem; opacity: 0.8; }
+        .verdict-score { font-size: 1.5rem; font-weight: 800; }
+        
+        /* مؤشرات سريعة مدمجة */
+        .quick-metrics {
+            display: flex;
+            gap: 8px;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+        .metric-chip {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .metric-chip i { font-size: 0.9rem; }
+        .metric-chip.success { color: #10b981; background: rgba(16, 185, 129, 0.1); }
+        .metric-chip.warning { color: #f59e0b; background: rgba(245, 158, 11, 0.1); }
+        .metric-chip.danger { color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+        .metric-chip.info { color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
+        
+        /* شارات خاصة */
+        .special-badges {
+            display: flex;
+            gap: 6px;
+            margin: 8px 0;
+            flex-wrap: wrap;
+        }
+        .special-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .special-badge.historical-low { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #000; }
+        .special-badge.great-deal { background: linear-gradient(135deg, #10b981, #06b6d4); color: #fff; }
+        .special-badge.risky { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; }
+        .special-badge.discount { background: linear-gradient(135deg, #8b5cf6, #6366f1); color: #fff; }
+        
+        /* أزرار الإجراءات */
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .action-buttons .full-width { grid-column: span 2; }
+        .action-btn {
+            padding: 12px;
+            border-radius: 14px;
+            font-weight: 700;
+            text-align: center;
+            border: none;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+        .buy-now { background: var(--gradient); color: #fff; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3); }
+        .buy-now:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        .analyze-btn { background: rgba(30, 41, 59, 0.7); border: 1px solid var(--primary); color: var(--primary); }
+        .analyze-btn:hover { background: var(--primary); color: white; }
+        .watch-btn { background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.5); color: #f59e0b; }
+        .watch-btn:hover { background: #f59e0b; color: white; }
+        
+        .modal {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.8); z-index: 3000;
+            align-items: center; justify-content: center;
+            backdrop-filter: blur(12px);
+        }
+        .modal-box {
+            background: #0f172a; padding: 30px; border-radius: 30px;
+            width: 85%; max-width: 450px;
+            border: 1px solid var(--glass-border);
+            text-align: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            max-height: 80vh; overflow-y: auto;
+        }
+        .modal-box input {
+            width: 100%; padding: 14px; margin: 10px 0; border-radius: 14px;
+            background: #1e293b; color: #fff; border: 1px solid var(--glass-border);
+            text-align: center; font-family: inherit;
+        }
+        .modal-box input:focus { border-color: var(--primary); }
+        
+        /* ========== نافذة التحليل المحسنة ========== */
+        .analysis-modal {
+            display: none; position: fixed; z-index: 10000;
+            left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+            align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            margin: auto; padding: 0;
+            width: 90%; max-width: 600px; border-radius: 24px; text-align: right;
+            border: 1px solid rgba(139, 92, 247, 0.3);
+            box-shadow: 0 0 60px rgba(139, 92, 247, 0.2);
+            color: white;
+            position: relative;
+            top: 50%;
+            transform: translateY(-50%);
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .analysis-header {
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(99, 102, 241, 0.2));
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .analysis-header h3 { margin: 0; font-size: 1.2rem; display: flex; align-items: center; gap: 10px; }
+        .analysis-close {
+            width: 36px; height: 36px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .analysis-close:hover { background: rgba(239, 68, 68, 0.3); }
+        
+        /* Tabs */
+        .analysis-tabs {
+            display: flex;
+            background: rgba(0,0,0,0.3);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            overflow-x: auto;
+        }
+        .analysis-tab {
+            flex: 1;
+            min-width: 80px;
+            padding: 12px 16px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+        }
+        .analysis-tab:hover { background: rgba(255,255,255,0.05); }
+        .analysis-tab.active { 
+            color: var(--primary); 
+            border-bottom-color: var(--primary);
+            background: rgba(139, 92, 246, 0.1);
+        }
+        
+        .analysis-body {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+        
+        /* Score Circle */
+        .score-circle-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 16px 0;
+            flex-wrap: wrap;
+        }
+        .score-circle {
+            text-align: center;
+        }
+        .score-circle svg {
+            transform: rotate(-90deg);
+        }
+        .score-circle-value {
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
+        .score-circle-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        
+        /* Info Card */
+        .info-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 16px;
+            margin: 12px 0;
+        }
+        .info-card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .info-card-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        .info-card-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+        .info-card-subtitle {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .stat-box {
+            background: rgba(255,255,255,0.03);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+        
+        /* Progress Bar */
+        .progress-bar {
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        /* Flag Items */
+        .flag-list { margin-top: 10px; }
+        .flag-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 10px;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+        }
+        .flag-item.green { border-right: 3px solid #10b981; }
+        .flag-item.red { border-right: 3px solid #ef4444; }
+        .flag-item.yellow { border-right: 3px solid #f59e0b; }
+        .flag-icon { font-size: 1rem; }
+        
+        /* Tech Grid */
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .tech-box {
+            background: rgba(255,255,255,0.03);
+            border-radius: 12px;
+            padding: 14px;
+            text-align: center;
+        }
+        .tech-label { font-size: 0.7rem; color: var(--text-muted); margin-bottom: 4px; }
+        .tech-value { font-size: 1.2rem; font-weight: 700; }
+        .tech-badge {
+            display: inline-block;
+            font-size: 0.65rem;
+            padding: 3px 8px;
+            border-radius: 10px;
+            margin-top: 6px;
+        }
+        
+        /* Recommendation Box */
+        .rec-box {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(99, 102, 241, 0.15));
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 16px;
+            padding: 16px;
+            margin: 12px 0;
+        }
+        .rec-main {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .rec-detail { font-size: 0.85rem; color: var(--text-muted); }
+        
+        /* Action Items */
+        .action-list { margin-top: 12px; }
+        .action-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 10px;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+        }
+        .action-num {
+            width: 24px;
+            height: 24px;
+            background: var(--gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        
+        .over-budget { border: 2px solid #ff4d4d !important; }
+        .budget-alert { background: #ff4d4d; color: white; padding: 4px 10px; border-radius: 8px; font-size: 0.8rem; margin-bottom: 10px; display: inline-block; font-weight: bold; }
+        
+        @keyframes pulse { 0%, 100% { transform: translateY(-50%) scale(1); } 50% { transform: translateY(-50%) scale(1.1); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        /* ========== تنسيقات صفحة تسجيل الدخول ========== */
+        .auth-overlay {
+            display: none !important;
+            position: fixed !important;
+            top: 0 !important; left: 0 !important;
+            width: 100vw !important; height: 100vh !important;
+            background: radial-gradient(circle at center, #1e1b4b 0%, #020617 100%) !important;
+            z-index: 2147483647 !important;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(15px);
+            overflow-y: auto;
+            padding: 15px 0;
+        }
+        .auth-container { position: relative; width: 100%; max-width: 420px; padding: 0 15px; margin: auto; }
+        .auth-card {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            border-radius: 28px;
+            padding: 35px 28px;
+            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.7), 0 0 80px rgba(139, 92, 246, 0.15);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            margin: 10px auto;
+        }
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: var(--gradient);
+            border-radius: 28px 28px 0 0;
+        }
+        .auth-logo-wrapper {
+            width: 70px; height: 70px;
+            background: var(--gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 18px;
+            font-size: 2rem;
+            color: white;
+            box-shadow: 0 12px 30px var(--primary-glow);
+        }
+        .auth-card h2 { font-size: 1.7rem; font-weight: 800; margin-bottom: 6px; }
+        .auth-card .auth-subtitle { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 25px; }
+        .input-group-modern { position: relative; margin-bottom: 14px; }
+        .input-group-modern .input-icon {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+        .input-group-modern input {
+            width: 100%;
+            padding: 14px 45px 14px 14px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+        .input-group-modern input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(139, 92, 246, 0.08);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 15px;
+            background: var(--gradient);
+            border: none;
+            border-radius: 14px;
+            color: white;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 8px;
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.35);
+        }
+        .btn-primary:hover { transform: translateY(-2px); }
+        .auth-divider { display: flex; align-items: center; margin: 20px 0; color: var(--text-muted); font-size: 0.8rem; }
+        .auth-divider::before, .auth-divider::after { content: ''; flex: 1; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .auth-divider span { padding: 0 15px; }
+        .btn-google {
+            width: 100%;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px solid rgba(255, 255, 255, 0.15);
+            border-radius: 14px;
+            color: var(--text);
+            font-size: 0.95rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+        .btn-google:hover { background: rgba(255, 255, 255, 0.1); border-color: var(--primary); }
+        .btn-google img { width: 20px; height: 20px; }
+        .auth-switch { margin-top: 22px; padding-top: 18px; border-top: 1px solid rgba(255, 255, 255, 0.08); }
+        .auth-switch p { color: var(--text-muted); font-size: 0.9rem; margin: 0; }
+        .auth-switch a { color: var(--primary); text-decoration: none; font-weight: 700; cursor: pointer; }
+        .auth-view { position: absolute; top: 0; left: 0; right: 0; opacity: 0; visibility: hidden; transform: translateX(30px); transition: all 0.4s; }
+        .auth-view.active { opacity: 1; visibility: visible; transform: translateX(0); position: relative; }
+        
+        /* ========== باقي التنسيقات ========== */
+        .old-price { text-decoration: line-through; opacity: 0.6; margin-right: 6px; }
+        .sage-quick-brains { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin: 10px 0; }
+        .brain-item {
+            background: rgba(255,255,255,0.04);
+            border-radius: 10px;
+            padding: 8px 10px;
+            font-size: 0.7rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+        .brain-item span { opacity: 0.85; }
+        .brain-item.good { border-right: 3px solid #10b981; }
+        .brain-item.wait { border-right: 3px solid #f59e0b; }
+        .brain-item.safe { border-right: 3px solid #3b82f6; }
+        .brain-item.risk { border-right: 3px solid #ef4444; }
+        .invite-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: linear-gradient(135deg, rgba(40, 32, 90, 0.85), rgba(28, 22, 60, 0.9));
+            border: 1px solid rgba(138, 99, 255, 0.35);
+            border-radius: 16px;
+            padding: 14px 16px;
+            margin-top: 14px;
+            cursor: pointer;
+            justify-content: center;
+        }
+        .invite-card:hover { transform: translateY(-2px); }
+        .invite-text { font-size: 14.5px; color: #e1dbff; text-align: center; width: 100%; }
+        .layout-wrapper { display: flex; gap: 20px; }
+        #results { flex: 3; }
+        .affiliate-card { flex: 1; background: #111; color: white; padding: 15px; border-radius: 12px; position: sticky; top: 20px; }
+        .affiliate-card img { width: 100%; border-radius: 8px; }
+        .affiliate-btn { display: block; background: #ff4747; text-align: center; padding: 10px; border-radius: 8px; text-decoration: none; color: white; margin-top: 10px; }
+        .upgrade-section { background: #1b1b2f; border: 1px solid #ff4d4d; padding: 12px; border-radius: 8px; margin: 20px auto; max-width: 600px; }
+        .upgrade-section h3 { color: #ff4d4d; margin-bottom: 8px; }
+        .upgrade-btn { background: var(--gradient); color: white; padding: 12px 24px; border-radius: 14px; border: none; cursor: pointer; font-weight: 600; margin-top: 10px; }
+        
+        /* Chat Bot */
+        .chat-fab {
+            position: fixed; bottom: 25px; left: 25px;
+            width: 60px; height: 60px;
+            background: var(--gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+            z-index: 999;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+        }
+        .chat-fab:hover { transform: scale(1.1); }
+        .chat-window {
+            position: fixed; bottom: 100px; left: 25px;
+            width: 380px; max-width: calc(100vw - 50px);
+            height: 520px; max-height: 70vh;
+            background: #0f172a;
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            display: none; flex-direction: column;
+            z-index: 998;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+        .chat-window.active { display: flex; animation: slideUp 0.3s ease; }
+        .chat-header { background: var(--gradient); padding: 16px 20px; display: flex; align-items: center; gap: 12px; }
+        .chat-avatar { width: 42px; height: 42px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
+        .chat-title-area { flex: 1; }
+        .chat-title-area h4 { margin: 0; font-size: 1rem; }
+        .chat-title-area span { font-size: 0.75rem; opacity: 0.8; }
+        .chat-close { background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 10px; cursor: pointer; }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+        .chat-message { max-width: 85%; padding: 12px 16px; border-radius: 18px; font-size: 0.9rem; line-height: 1.5; }
+        .chat-message.user { align-self: flex-end; background: var(--gradient); color: white; border-bottom-left-radius: 6px; }
+        .chat-message.assistant { align-self: flex-start; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-bottom-right-radius: 6px; }
+        .chat-input-area { padding: 16px; border-top: 1px solid var(--glass-border); display: flex; gap: 10px; }
+        .chat-input { flex: 1; padding: 12px 16px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 16px; color: var(--text); font-family: inherit; }
+        .chat-input:focus { border-color: var(--primary); outline: none; }
+        .chat-send { width: 48px; height: 48px; background: var(--gradient); border: none; border-radius: 14px; color: white; cursor: pointer; font-size: 1.1rem; }
+        
+        /* V4 Features */
+        .personality-badge {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(99, 102, 241, 0.2));
+            border: 1px solid rgba(139, 92, 246, 0.4);
+            border-radius: 16px;
+            padding: 12px 16px;
+            margin: 15px auto;
+            max-width: 600px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .personality-icon { width: 45px; height: 45px; background: var(--gradient); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
+        .personality-info { flex: 1; }
+        .personality-type { font-weight: 700; font-size: 0.95rem; color: var(--primary); }
+        .personality-desc { font-size: 0.8rem; color: var(--text-muted); }
+        
+        @media (max-width: 768px) {
+            .cat-grid { grid-template-columns: repeat(3, 1fr); }
+            .layout-wrapper { flex-direction: row; }
+            #results { flex: 2; }
+            .affiliate-card { flex: 1; position: relative; top: auto; max-width: 140px; }
+            .chat-window { left: 10px; right: 10px; bottom: 80px; width: auto; height: 60vh; }
+            .chat-fab { bottom: 20px; left: 20px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .tech-grid { grid-template-columns: repeat(2, 1fr); }
+            .action-buttons { grid-template-columns: 1fr; }
+            .action-buttons .full-width { grid-column: span 1; }
+        }
+    </style>
+</head>
+<body>
+
+
+<!-- ========== صفحة تسجيل الدخول ========== -->
+<div id="auth-modal" class="modal auth-overlay">
+    <div class="auth-container">
+        <div class="auth-card">
+            <div id="login-view" class="auth-view active">
+                <div class="auth-logo-wrapper"><i class="fa-solid fa-user-astronaut"></i></div>
+                <h2>Findly Sage</h2>
+                <p class="auth-subtitle" id="login-subtitle">مرحباً بك مجدداً!</p>
+                <div class="auth-form">
+                    <div class="input-group-modern">
+                        <input type="email" id="login-email" placeholder="البريد الإلكتروني" required>
+                        <i class="fa-regular fa-envelope input-icon"></i>
+                    </div>
+                    <div class="input-group-modern">
+                        <input type="password" id="login-password" placeholder="كلمة المرور" required>
+                        <i class="fa-solid fa-lock input-icon"></i>
+                    </div>
+                    <button onclick="handleLogin()" class="btn-primary" id="btn-login">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        <span>تسجيل الدخول</span>
+                    </button>
+                </div>
+                <div class="auth-divider"><span>أو</span></div>
+                <button onclick="loginWithGoogle()" class="btn-google">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+                    <span>المتابعة باستخدام جوجل</span>
+                </button>
+                <div class="auth-switch">
+                    <p>ليس لديك حساب؟ <a id="go-to-signup">إنشاء حساب جديد</a></p>
+                </div>
+            </div>
+            <div id="signup-view" class="auth-view">
+                <div class="auth-logo-wrapper"><i class="fa-solid fa-user-plus"></i></div>
+                <h2>حساب جديد</h2>
+                <p class="auth-subtitle">انضم إلينا واستمتع بتجربة تسوق ذكية</p>
+                <div class="auth-form">
+                    <div class="input-group-modern">
+                        <input type="text" id="signup-name" placeholder="الاسم الكامل" required>
+                        <i class="fa-regular fa-user input-icon"></i>
+                    </div>
+                    <div class="input-group-modern">
+                        <input type="email" id="signup-email" placeholder="البريد الإلكتروني" required>
+                        <i class="fa-regular fa-envelope input-icon"></i>
+                    </div>
+                    <div class="input-group-modern">
+                        <input type="password" id="signup-password" placeholder="كلمة المرور" required>
+                        <i class="fa-solid fa-lock input-icon"></i>
+                    </div>
+                    <button onclick="handleRegister()" class="btn-primary">
+                        <i class="fa-solid fa-user-plus"></i>
+                        <span>إنشاء الحساب</span>
+                    </button>
+                </div>
+                <div class="auth-divider"><span>أو</span></div>
+                <button onclick="loginWithGoogle()" class="btn-google">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+                    <span>التسجيل باستخدام جوجل</span>
+                </button>
+                <div class="auth-switch">
+                    <p>لديك حساب بالفعل؟ <a id="go-to-login">تسجيل الدخول</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<header>
+    <div class="logo-area">
+        <div class="logo">Findly <i class="fa-solid fa-wand-magic-sparkles"></i></div>
+    </div>
+    <div class="header-tools">
+        <button class="tool-btn" onclick="toggleMode()" title="Toggle Theme"><i class="fa-solid fa-circle-half-stroke"></i></button>
+        <div style="position: relative;">
+            <button class="tool-btn" onclick="toggleLMenu()" title="Language"><i class="fa-solid fa-language"></i></button>
+            <div id="l-menu" class="lang-menu">
+                <div class="lang-item" onclick="setLang('ar')">العربية</div>
+                <div class="lang-item" onclick="setLang('en')">English</div>
+                <div class="lang-item" onclick="setLang('fr')">Francais</div>
+                <div class="lang-item" onclick="setLang('de')">Deutsch</div>
+                <div class="lang-item" onclick="setLang('es')">Espanol</div>
+                <div class="lang-item" onclick="setLang('tr')">Turkce</div>
+            </div>
+        </div>
+        <button class="tool-btn" onclick="openProfile()" title="Profile"><i class="fa-solid fa-user-gear"></i></button>
+        <button class="tool-btn" id="logout-btn" onclick="logoutUser()" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></button>
+    </div>
+</header>
+
+<main class="search-area">
+    <div class="energy-box">
+        <span>طاقة العقل:</span>
+        <span id="r-count" style="background:var(--primary); color:#fff; padding:3px 12px; border-radius:20px; font-weight:900;">3</span>
+        <i class="fa-solid fa-bolt" style="color:#FFD700;"></i>
+    </div>
+    <h2 id="greeting" style="color: var(--primary); font-size: 1.1rem; margin-bottom: 5px; font-weight: 600;"></h2>
+    <h1 id="txt-title">مستشارك الحكيم</h1>
+    <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 30px;">دليلك الذكي للتسوق المثالي</p>
+    <div class="search-wrapper">
+        <input type="text" id="s-input" class="search-input" placeholder="ابحث عن منتج..." onkeypress="if(event.key==='Enter')runSearch()">
+        <button id="mic-btn" class="mic-icon" type="button"><i class="fa-solid fa-microphone"></i></button>
+        <button class="send-btn" onclick="runSearch()"><i class="fa-solid fa-magnifying-glass"></i></button>
+    </div>
+    <div class="invite-card" onclick="copyInvite()">
+        <div class="invite-text">ادعُ أصدقاءك الآن ✨ — مكافآت قادمة قريبًا 🎁</div>
+    </div>
+    <div class="ai-options">
+        <div class="ai-tag" onclick="quickFilter('cheap')"><i class="fa-solid fa-sack-dollar"></i> <span>اقتصادي</span></div>
+        <div class="ai-tag" onclick="quickFilter('top')"><i class="fa-solid fa-star"></i> <span>الأعلى تقييماً</span></div>
+        <div class="ai-tag" onclick="quickFilter('new')"><i class="fa-solid fa-fire"></i> <span>حديث جداً</span></div>
+    </div>
+    <div class="cat-grid">
+        <div class="cat-card" onclick="quickSearch('ألعاب')"><i class="fa-solid fa-gamepad"></i><span>ألعاب</span></div>
+        <div class="cat-card" onclick="quickSearch('جمال')"><i class="fa-solid fa-sparkles"></i><span>جمال</span></div>
+        <div class="cat-card" onclick="quickSearch('منزل ذكي')"><i class="fa-solid fa-house-laptop"></i><span>منزل ذكي</span></div>
+        <div class="cat-card" onclick="quickSearch('هواتف')"><i class="fa-solid fa-mobile-screen-button"></i><span>هواتف</span></div>
+        <div class="cat-card" onclick="quickSearch('لابتوب')"><i class="fa-solid fa-laptop"></i><span>لابتوب</span></div>
+        <div class="cat-card" onclick="quickSearch('ساعات')"><i class="fa-solid fa-stopwatch"></i><span>ساعات</span></div>
+    </div>
+    <div id="status" style="display:none; color:var(--primary); font-weight:bold; margin-top:30px; font-size: 1.1rem; text-align: center;"></div>
+    <div id="personality-container" style="display: none;"></div>
+    <div class="layout-wrapper">
+        <div id="results"></div>
+    </div>
+</main>
+
+<!-- Chat Bot -->
+<button id="chat-fab" class="chat-fab" type="button">
+    <i class="fa-solid fa-comments" id="chat-fab-icon"></i>
+</button>
+<div id="chat-window" class="chat-window">
+    <div class="chat-header">
+        <div class="chat-avatar">🤖</div>
+        <div class="chat-title-area">
+            <h4>Sage AI</h4>
+            <span>متصل</span>
+        </div>
+        <button class="chat-close" type="button" id="chat-close-btn">✕</button>
+    </div>
+    <div class="chat-messages" id="chat-messages">
+        <div class="chat-message assistant">مرحباً! 👋 أنا Sage، مساعدك الذكي للتسوق.</div>
+    </div>
+    <div class="chat-input-area">
+        <input type="text" id="chat-input" class="chat-input" placeholder="اكتب رسالتك..." onkeypress="if(event.key==='Enter')sendChatMessage()">
+        <button class="chat-send" id="chat-send" type="button"><i class="fa-solid fa-paper-plane"></i></button>
+    </div>
+</div>
+
+<!-- Modals -->
+<div class="modal" id="p-modal">
+    <div class="modal-box">
+        <h3 style="margin-top:0;">الملف الشخصي</h3>
+        <label style="font-size:0.85rem; display:block; margin-bottom:5px; opacity:0.7;">اسم المستخدم</label>
+        <input type="text" id="in-name" placeholder="">
+        <label style="font-size:0.85rem; display:block; margin-top:15px; margin-bottom:5px; opacity:0.7;">الميزانية ($)</label>
+        <input type="number" id="in-budget" placeholder="">
+        <button class="action-btn buy-now" onclick="saveSet()" style="width:100%; margin-top:20px;">حفظ التغييرات ✅</button>
+        <button onclick="openProfile()" style="background:none; color:var(--text-muted); border:none; margin-top:15px; cursor:pointer;">إغلاق</button>
+    </div>
+</div>
+
+<!-- Analysis Modal - المحسنة -->
+<div id="analysis-modal" class="analysis-modal">
+    <div class="modal-content">
+        <div class="analysis-header">
+            <h3 id="analysis-modal-title">🧠 تحليل Sage الذكي</h3>
+            <button class="analysis-close" onclick="closeAnalysisModal()">✕</button>
+        </div>
+        
+        <!-- Tabs -->
+        <div class="analysis-tabs">
+            <button class="analysis-tab active" onclick="switchTab('overview')">نظرة عامة</button>
+            <button class="analysis-tab" onclick="switchTab('price')">السعر</button>
+            <button class="analysis-tab" onclick="switchTab('technical')">المؤشرات</button>
+            <button class="analysis-tab" onclick="switchTab('trust')">الثقة</button>
+            <button class="analysis-tab" onclick="switchTab('market')">السوق</button>
+        </div>
+        
+        <div class="analysis-body">
+            <!-- Tab: Overview -->
+            <div id="tab-overview" class="tab-content active">
+                <div id="overview-content"></div>
+            </div>
+            
+            <!-- Tab: Price -->
+            <div id="tab-price" class="tab-content">
+                <div id="price-content"></div>
+            </div>
+            
+            <!-- Tab: Technical -->
+            <div id="tab-technical" class="tab-content">
+                <div id="technical-content"></div>
+            </div>
+            
+            <!-- Tab: Trust -->
+            <div id="tab-trust" class="tab-content">
+                <div id="trust-content"></div>
+            </div>
+            
+            <!-- Tab: Market -->
+            <div id="tab-market" class="tab-content">
+                <div id="market-content"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Firebase Module Script -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyCI_q5lkgRY4133ua4RlG5TeiCqJ5N5KTU",
+    authDomain: "findly-ede17.firebaseapp.com",
+    projectId: "findly-ede17",
+    storageBucket: "findly-ede17.firebasestorage.app",
+    messagingSenderId: "503212830017",
+    appId: "1:503212830017:web:9afb64c19822bbe7f645c0"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+
+window.loginWithGoogle = async () => {
+    try { await signInWithPopup(auth, provider); } catch (error) { alert("Error: " + error.message); }
+};
+
+window.handleLogin = async () => {
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
+    if (!email || !password) return alert('الرجاء إدخال البريد وكلمة المرور');
+    try { await signInWithEmailAndPassword(auth, email, password); }
+    catch (error) { alert('فشل تسجيل الدخول: ' + error.message); }
+};
+
+window.handleRegister = async () => {
+    const email = document.getElementById('signup-email').value;
+    const password = document.getElementById('signup-password').value;
+    if (!email || !password) return alert('الرجاء إدخال البيانات');
+    if (password.length < 6) return alert('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
+    try { await createUserWithEmailAndPassword(auth, email, password); alert('تم إنشاء الحساب بنجاح!'); }
+    catch (error) { alert('فشل إنشاء الحساب: ' + error.message); }
+};
+
+window.logoutUser = () => {
+    if (confirm('هل تريد تسجيل الخروج؟')) {
+        signOut(auth).then(() => { location.reload(); });
+    }
+};
+
+onAuthStateChanged(auth, (user) => {
+    const overlay = document.getElementById('auth-modal');
+    if (user) {
+        overlay.style.setProperty('display', 'none', 'important');
+        document.body.style.overflow = 'auto';
+        localStorage.setItem('findly_uid', user.uid);
+    } else {
+        overlay.style.setProperty('display', 'flex', 'important');
+        document.body.style.overflow = 'hidden';
+    }
+});
+
+window.getAuthToken = async function() {
+    const user = auth.currentUser;
+    if (!user) return null;
+    return await user.getIdToken();
+};
+</script>
+
+<!-- Main Application Script -->
+<script>
+const API = "https://findly-api-production.up.railway.app";
+
+let lang = localStorage.getItem('findly_lang') || 'ar';
+let chatHistory = [];
+let isChatOpen = false;
+let currentAnalysisData = null;
+
+// ===== HELPER FUNCTIONS =====
+
+function getDecisionInfo(decision) {
+    const decisions = {
+        STRONG_BUY: { icon: '🟢', text: 'شراء قوي', color: '#10b981', class: 'strong-buy' },
+        BUY_NOW: { icon: '🟢', text: 'اشتري الآن', color: '#10b981', class: 'strong-buy' },
+        BUY: { icon: '🟡', text: 'شراء', color: '#84cc16', class: 'buy' },
+        CONSIDER: { icon: '🔵', text: 'فكر في الشراء', color: '#3b82f6', class: 'consider' },
+        WAIT: { icon: '🟠', text: 'انتظر', color: '#f59e0b', class: 'wait' },
+        SMART_WAIT: { icon: '🔵', text: 'انتظار ذكي', color: '#3b82f6', class: 'consider' },
+        CAUTION: { icon: '🔴', text: 'حذر', color: '#ef4444', class: 'caution' },
+        AVOID: { icon: '🚨', text: 'تجنب', color: '#dc2626', class: 'caution' }
+    };
+    return decisions[decision] || { icon: '⚪', text: decision, color: '#6b7280', class: 'consider' };
+}
+
+function getTrendInfo(trend) {
+    const trends = {
+        rising: { icon: '📈', text: 'صاعد', color: '#10b981' },
+        falling: { icon: '📉', text: 'هابط', color: '#ef4444' },
+        stable: { icon: '➡️', text: 'مستقر', color: '#6b7280' }
+    };
+    return trends[trend] || trends.stable;
+}
+
+function getRSIInfo(signal) {
+    const signals = {
+        oversold: { text: 'تشبع بيعي', color: '#10b981' },
+        overbought: { text: 'تشبع شرائي', color: '#ef4444' },
+        neutral: { text: 'محايد', color: '#6b7280' }
+    };
+    return signals[signal] || signals.neutral;
+}
+
+function renderScoreCircle(score, label, color, size) {
+    size = size || 70;
+    const radius = (size - 8) / 2;
+    const circumference = radius * 2 * Math.PI;
+    const offset = circumference - (score / 100) * circumference;
+    return '<div class="score-circle" style="width:' + size + 'px">' +
+        '<svg width="' + size + '" height="' + size + '">' +
+        '<circle cx="' + (size/2) + '" cy="' + (size/2) + '" r="' + radius + '" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="5"/>' +
+        '<circle cx="' + (size/2) + '" cy="' + (size/2) + '" r="' + radius + '" fill="none" stroke="' + color + '" stroke-width="5" stroke-dasharray="' + circumference + '" stroke-dashoffset="' + offset + '" stroke-linecap="round" style="transition: all 0.8s"/>' +
+        '</svg>' +
+        '<div class="score-circle-value" style="color:' + color + '">' + score + '%</div>' +
+        '<div class="score-circle-label">' + label + '</div>' +
+        '</div>';
+}
+
+function htmlspecialchars(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// ===== CHAT FUNCTIONS =====
+function initChat() {
+    const chatFab = document.getElementById('chat-fab');
+    const chatCloseBtn = document.getElementById('chat-close-btn');
+    const chatSendBtn = document.getElementById('chat-send');
+    
+    chatFab.addEventListener('click', toggleChat);
+    chatCloseBtn.addEventListener('click', toggleChat);
+    chatSendBtn.addEventListener('click', sendChatMessage);
+}
+
+function toggleChat() {
+    isChatOpen = !isChatOpen;
+    const chatWindow = document.getElementById('chat-window');
+    const fabIcon = document.getElementById('chat-fab-icon');
+    if (isChatOpen) { chatWindow.classList.add('active'); fabIcon.className = 'fa-solid fa-times'; }
+    else { chatWindow.classList.remove('active'); fabIcon.className = 'fa-solid fa-comments'; }
+}
+
+async function sendChatMessage() {
+    const input = document.getElementById('chat-input');
+    const message = input.value.trim();
+    if (!message) return;
+    
+    const messagesContainer = document.getElementById('chat-messages');
+    const userMsg = document.createElement('div');
+    userMsg.className = 'chat-message user';
+    userMsg.textContent = message;
+    messagesContainer.appendChild(userMsg);
+    input.value = '';
+    
+    try {
+        const response = await fetch(API + '/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message, history: chatHistory.slice(-10), lang: lang, uid: localStorage.getItem('findly_uid') || 'guest' })
+        });
+        const data = await response.json();
+        const aiMsg = document.createElement('div');
+        aiMsg.className = 'chat-message assistant';
+        aiMsg.textContent = data.response || data.reply || 'أنا هنا للمساعدة!';
+        messagesContainer.appendChild(aiMsg);
+    } catch (e) {
+        const errorMsg = document.createElement('div');
+        errorMsg.className = 'chat-message assistant';
+        errorMsg.textContent = 'أنا هنا للمساعدة!';
+        messagesContainer.appendChild(errorMsg);
+    }
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+// ===== SEARCH FUNCTION - محسنة =====
+async function runSearch() {
+    const q = document.getElementById('s-input').value.trim();
+    const status = document.getElementById('status');
+    const resultsBox = document.getElementById('results');
+
+    if (!q) return;
+
+    status.style.display = 'block';
+    status.innerText = '🔍 جاري البحث...';
+    resultsBox.innerHTML = '';
+
+    const userBudget = parseFloat(localStorage.getItem('user_budget')) || 0;
+
+    try {
+        let token = null;
+        try { if (window.getAuthToken) token = await window.getAuthToken(); } catch (e) {}
+
+        const headers = {};
+        if (token) headers['Authorization'] = 'Bearer ' + token;
+
+        const res = await fetch(API + '/search?q=' + encodeURIComponent(q) + '&lang=' + lang, { headers });
+        const data = await res.json().catch(() => ({}));
+
+        if (res.status === 429 || data.error === 'ENERGY_EMPTY') {
+            status.innerHTML = '<div class="upgrade-section"><h3>انتهت المحاولات المجانية</h3><p>لقد استهلكت جميع عمليات البحث المجانية.</p><button class="upgrade-btn" onclick="openUpgrade()">ترقية الآن</button></div>';
+            return;
+        }
+
+        if (!res.ok) throw new Error(data.message || 'Server error');
+        status.style.display = 'none';
+
+        if (!data.results || !data.results.length) {
+            status.style.display = 'block';
+            status.innerText = 'لا توجد نتائج';
+            return;
+        }
+
+        // Render Personality Badge
+        if (data.personality) {
+            const personalityContainer = document.getElementById('personality-container');
+            personalityContainer.innerHTML = '<div class="personality-badge"><div class="personality-icon">' + data.personality.icon + '</div><div class="personality-info"><div class="personality-type">' + data.personality.name + '</div><div class="personality-desc">شخصيتك التسوقية</div></div></div>';
+            personalityContainer.style.display = 'block';
+        }
+
+        data.results.forEach(function (p) {
+            const intel = p.intelligence || {};
+            const verdict = intel.finalVerdict || {};
+            const priceIntel = intel.priceIntel || {};
+            const trustIntel = intel.trustIntel || {};
+            const historicalIntel = intel.historicalIntel || null;
+            const trendIntel = intel.trendIntel || {};
+            
+            const decisionInfo = getDecisionInfo(verdict.decision);
+            const trendInfo = getTrendInfo(trendIntel.trend);
+            
+            const priceVal = parseFloat(String(p.price).replace(/[^\d.]/g, '')) || 0;
+            const safeLink = (verdict.bestLink || p.link || '');
+            
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            if (userBudget > 0 && priceVal > userBudget) card.classList.add('over-budget');
+
+            // Build Card HTML - مبسطة ونظيفة
+            let cardHtml = '';
+            
+            // Special Badges Row
+            let badges = '';
+            if (historicalIntel && historicalIntel.isHistoricalLow) badges += '<span class="special-badge historical-low">🏆 أقل سعر تاريخي</span>';
+            if (priceIntel.score >= 80) badges += '<span class="special-badge great-deal">🔥 صفقة رائعة</span>';
+            if (priceIntel.discount && priceIntel.discount > 20) badges += '<span class="special-badge discount">💵 خصم ' + priceIntel.discount + '%</span>';
+            if (trustIntel.overallRisk >= 60) badges += '<span class="special-badge risky">⚠️ مخاطرة عالية</span>';
+            if (badges) cardHtml += '<div class="special-badges">' + badges + '</div>';
+            
+            // Product Image
+            cardHtml += '<img src="' + (p.thumbnail || '') + '" onerror="this.src=\'https://via.placeholder.com/200\'">';
+            
+            // Product Title & Price
+            cardHtml += '<h3>' + (p.title || '—') + '</h3>';
+            cardHtml += '<div class="price">$' + priceVal + '</div>';
+            
+            // Verdict Banner - الرئيسي
+            cardHtml += '<div class="verdict-banner ' + decisionInfo.class + '">' +
+                '<div class="verdict-left">' +
+                '<span class="verdict-icon">' + decisionInfo.icon + '</span>' +
+                '<div>' +
+                '<div class="verdict-text" style="color:' + decisionInfo.color + '">' + decisionInfo.text + '</div>' +
+                '<div class="verdict-reason">' + (verdict.reason || '') + '</div>' +
+                '</div></div>' +
+                '<div class="verdict-right">' +
+                '<div class="verdict-confidence">الثقة</div>' +
+                '<div class="verdict-score">' + (verdict.confidence || 0) + '%</div>' +
+                '</div></div>';
+            
+            // Quick Metrics Chips
+            cardHtml += '<div class="quick-metrics">';
+            cardHtml += '<div class="metric-chip ' + (priceIntel.score >= 70 ? 'success' : priceIntel.score >= 50 ? 'warning' : 'danger') + '"><i class="fa-solid fa-tag"></i> السعر: ' + priceIntel.score + '%</div>';
+            cardHtml += '<div class="metric-chip ' + (trendIntel.trend === 'falling' ? 'success' : trendIntel.trend === 'rising' ? 'warning' : 'info') + '"><i class="fa-solid fa-chart-line"></i> ' + trendInfo.text + '</div>';
+            cardHtml += '<div class="metric-chip ' + (trustIntel.overallRisk <= 30 ? 'success' : trustIntel.overallRisk <= 60 ? 'warning' : 'danger') + '"><i class="fa-solid fa-shield"></i> ' + (100 - trustIntel.overallRisk) + '% ثقة</div>';
+            if (verdict.savingsPercent > 0) cardHtml += '<div class="metric-chip success"><i class="fa-solid fa-piggy-bank"></i> توفير ' + verdict.savingsPercent + '%</div>';
+            cardHtml += '</div>';
+            
+            // Action Buttons
+            cardHtml += '<div class="action-buttons">';
+            if (safeLink && safeLink.startsWith('http')) {
+                cardHtml += '<a class="action-btn buy-now full-width" href="' + API + '/go?url=' + encodeURIComponent(safeLink) + '" target="_blank"><i class="fa-solid fa-cart-shopping"></i> شراء الآن</a>';
+            }
+            cardHtml += '<button class="action-btn watch-btn" onclick="addToWatch(\'' + htmlspecialchars(p.title) + '\',\'' + priceVal + '\',\'' + htmlspecialchars(safeLink) + '\')"><i class="fa-solid fa-bell"></i> مراقبة</button>';
+            cardHtml += '<button class="action-btn analyze-btn" onclick="openAnalysis(' + htmlspecialchars(JSON.stringify(intel)) + ')"><i class="fa-solid fa-chart-pie"></i> تحليل</button>';
+            cardHtml += '</div>';
+
+            card.innerHTML = cardHtml;
+            resultsBox.appendChild(card);
+        });
+
+        // Update energy
+        if (data.energy) {
+            document.getElementById('r-count').textContent = data.energy.left === '∞' ? '∞' : data.energy.left;
+        }
+
+    } catch (e) {
+        status.style.display = 'block';
+        status.innerText = '❌ خطأ: ' + e.message;
+    }
+}
+
+// ===== ANALYSIS MODAL - محسنة مع Tabs =====
+window.closeAnalysisModal = function() { 
+    document.getElementById('analysis-modal').style.display = 'none'; 
+};
+
+window.switchTab = function(tabName) {
+    // Remove active from all tabs and contents
+    document.querySelectorAll('.analysis-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    
+    // Add active to selected
+    document.querySelector('.analysis-tab[onclick*="' + tabName + '"]').classList.add('active');
+    document.getElementById('tab-' + tabName).classList.add('active');
+};
+
+window.openAnalysis = function(data) {
+    try {
+        const parsed = typeof data === 'string' ? JSON.parse(data) : data;
+        currentAnalysisData = parsed;
+        
+        const priceIntel = parsed.priceIntel || {};
+        const valueIntel = parsed.valueIntel || {};
+        const trendIntel = parsed.trendIntel || {};
+        const trustIntel = parsed.trustIntel || {};
+        const marketIntel = parsed.marketIntel || {};
+        const historicalIntel = parsed.historicalIntel || {};
+        const recommendationIntel = parsed.recommendationIntel || {};
+        const verdict = parsed.finalVerdict || {};
+        const tech = trendIntel.technicalIndicators || {};
+        
+        const decisionInfo = getDecisionInfo(verdict.decision);
+        
+        // ===== OVERVIEW TAB =====
+        let overviewHtml = '';
+        
+        // Score Circles
+        overviewHtml += '<div class="score-circle-container">';
+        overviewHtml += renderScoreCircle(priceIntel.score || 50, 'تقييم السعر', priceIntel.color || '#8b5cf6');
+        overviewHtml += renderScoreCircle(valueIntel.score || 50, 'القيمة', '#10b981');
+        overviewHtml += renderScoreCircle(100 - (trustIntel.overallRisk || 0), 'الثقة', '#3b82f6');
+        overviewHtml += '</div>';
+        
+        // Final Verdict
+        overviewHtml += '<div class="rec-box">';
+        overviewHtml += '<div class="rec-main">' + decisionInfo.icon + ' ' + decisionInfo.text + '</div>';
+        overviewHtml += '<div class="rec-detail">' + (verdict.reason || '') + '</div>';
+        if (verdict.savingsPercent > 0) overviewHtml += '<div style="margin-top:8px;color:#10b981">💰 توفير متوقع: ' + verdict.savingsPercent + '%</div>';
+        overviewHtml += '</div>';
+        
+        // Quick Stats
+        overviewHtml += '<div class="stats-grid">';
+        overviewHtml += '<div class="stat-box"><div class="stat-value">' + (verdict.confidence || 0) + '%</div><div class="stat-label">الثقة</div></div>';
+        overviewHtml += '<div class="stat-box"><div class="stat-value">' + (priceIntel.percentile || 50) + '%</div><div class="stat-label">المئين</div></div>';
+        overviewHtml += '<div class="stat-box"><div class="stat-value">' + (marketIntel.competitorCount || 0) + '</div><div class="stat-label">منافسين</div></div>';
+        overviewHtml += '<div class="stat-box"><div class="stat-value">' + (trendIntel.strength || 0) + '%</div><div class="stat-label">قوة الاتجاه</div></div>';
+        overviewHtml += '</div>';
+        
+        // AI Insights
+        if (recommendationIntel.aiInsights) {
+            overviewHtml += '<div class="info-card">';
+            overviewHtml += '<div class="info-card-header"><div class="info-card-icon">🤖</div><div><div class="info-card-title">رأي الذكاء الاصطناعي</div></div></div>';
+            overviewHtml += '<div style="font-size:0.9rem;line-height:1.6">' + recommendationIntel.aiInsights.advice + '</div>';
+            if (recommendationIntel.aiInsights.tip) overviewHtml += '<div style="margin-top:8px;font-size:0.8rem;color:var(--text-muted)">💡 ' + recommendationIntel.aiInsights.tip + '</div>';
+            overviewHtml += '</div>';
+        }
+        
+        // Action Items
+        if (verdict.actionItems && verdict.actionItems.length > 0) {
+            overviewHtml += '<div class="action-list">';
+            verdict.actionItems.forEach(function(item) {
+                overviewHtml += '<div class="action-item"><div class="action-num">' + item.priority + '</div><span>' + item.text + '</span></div>';
+            });
+            overviewHtml += '</div>';
+        }
+        
+        document.getElementById('overview-content').innerHTML = overviewHtml;
+        
+        // ===== PRICE TAB =====
+        let priceHtml = '';
+        
+        priceHtml += '<div class="info-card">';
+        priceHtml += '<div class="info-card-header"><div class="info-card-icon">💰</div><div><div class="info-card-title">السعر الحالي</div><div class="info-card-subtitle">$' + (priceIntel.current || 0) + '</div></div></div>';
+        priceHtml += '</div>';
+        
+        priceHtml += '<div class="stats-grid">';
+        if (priceIntel.average) priceHtml += '<div class="stat-box"><div class="stat-value">$' + priceIntel.average + '</div><div class="stat-label">متوسط السوق</div></div>';
+        if (priceIntel.median) priceHtml += '<div class="stat-box"><div class="stat-value">$' + priceIntel.median + '</div><div class="stat-label">الوسيط</div></div>';
+        priceHtml += '<div class="stat-box"><div class="stat-value">$' + (priceIntel.min || 0) + '</div><div class="stat-label">أقل سعر</div></div>';
+        priceHtml += '<div class="stat-box"><div class="stat-value">$' + (priceIntel.max || 0) + '</div><div class="stat-label">أعلى سعر</div></div>';
+        priceHtml += '</div>';
+        
+        // Historical
+        if (historicalIntel && historicalIntel.lowest) {
+            priceHtml += '<div class="info-card" style="margin-top:16px">';
+            priceHtml += '<div class="info-card-header"><div class="info-card-icon">📜</div><div><div class="info-card-title">الأسعار التاريخية</div></div></div>';
+            priceHtml += '<div class="stats-grid">';
+            priceHtml += '<div class="stat-box" style="background:rgba(16,185,129,0.1)"><div class="stat-value" style="color:#10b981">$' + historicalIntel.lowest + '</div><div class="stat-label">أقل تاريخي</div></div>';
+            priceHtml += '<div class="stat-box" style="background:rgba(239,68,68,0.1)"><div class="stat-value" style="color:#ef4444">$' + historicalIntel.highest + '</div><div class="stat-label">أعلى تاريخي</div></div>';
+            priceHtml += '<div class="stat-box"><div class="stat-value">$' + historicalIntel.average.toFixed(2) + '</div><div class="stat-label">المتوسط</div></div>';
+            priceHtml += '<div class="stat-box"><div class="stat-value">' + historicalIntel.currentVsLowest + '%</div><div class="stat-label">من الأقل</div></div>';
+            priceHtml += '</div>';
+            if (historicalIntel.isHistoricalLow) priceHtml += '<div style="text-align:center;margin-top:10px;color:#10b981;font-weight:700">🏆 هذا أقل أو قريب من أقل سعر تاريخي!</div>';
+            priceHtml += '</div>';
+        }
+        
+        // Value Grade
+        priceHtml += '<div class="info-card" style="text-align:center">';
+        priceHtml += '<div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:8px">درجة القيمة</div>';
+        priceHtml += '<div style="font-size:3rem;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent">' + (valueIntel.grade || 'B') + '</div>';
+        priceHtml += '<div style="font-size:0.85rem;color:var(--text-muted)">القيمة مقابل السعر</div>';
+        priceHtml += '</div>';
+        
+        document.getElementById('price-content').innerHTML = priceHtml;
+        
+        // ===== TECHNICAL TAB =====
+        let techHtml = '';
+        
+        // Trend
+        const trendInfo = getTrendInfo(trendIntel.trend);
+        techHtml += '<div class="info-card">';
+        techHtml += '<div class="info-card-header"><div class="info-card-icon">' + trendInfo.icon + '</div><div><div class="info-card-title">اتجاه السوق</div><div class="info-card-subtitle" style="color:' + trendInfo.color + '">' + trendInfo.text + '</div></div></div>';
+        techHtml += '<div class="progress-bar"><div class="progress-fill" style="width:' + (trendIntel.strength || 50) + '%;background:' + trendInfo.color + '"></div></div>';
+        techHtml += '<div style="font-size:0.8rem;color:var(--text-muted)">قوة الاتجاه: ' + (trendIntel.strength || 0) + '%</div>';
+        techHtml += '</div>';
+        
+        // Technical Indicators
+        techHtml += '<div class="tech-grid">';
+        
+        // RSI
+        if (tech.rsi !== null && tech.rsi !== undefined) {
+            const rsiInfo = getRSIInfo(tech.rsiSignal);
+            techHtml += '<div class="tech-box"><div class="tech-label">RSI</div><div class="tech-value">' + tech.rsi.toFixed(1) + '</div><div class="tech-badge" style="background:' + rsiInfo.color + '20;color:' + rsiInfo.color + '">' + rsiInfo.text + '</div></div>';
+        }
+        
+        // MACD
+        if (tech.macd) {
+            const macdColor = tech.macd === 'bullish' ? '#10b981' : '#ef4444';
+            const macdText = tech.macd === 'bullish' ? 'صعودي' : 'هبوطي';
+            techHtml += '<div class="tech-box"><div class="tech-label">MACD</div><div class="tech-value">' + (tech.macd === 'bullish' ? '📈' : '📉') + '</div><div class="tech-badge" style="background:' + macdColor + '20;color:' + macdColor + '">' + macdText + '</div></div>';
+        }
+        
+        // Bollinger
+        if (tech.bollingerPosition) {
+            const bollColors = { above: '#ef4444', within: '#6b7280', below: '#10b981' };
+            const bollTexts = { above: 'أعلى النطاق', within: 'داخل النطاق', below: 'أسفل النطاق' };
+            const bollColor = bollColors[tech.bollingerPosition] || '#6b7280';
+            techHtml += '<div class="tech-box"><div class="tech-label">Bollinger</div><div class="tech-value">📊</div><div class="tech-badge" style="background:' + bollColor + '20;color:' + bollColor + '">' + bollTexts[tech.bollingerPosition] + '</div></div>';
+        }
+        
+        // Volatility
+        if (tech.volatility) {
+            const volColors = { high: '#ef4444', medium: '#f59e0b', low: '#10b981' };
+            const volTexts = { high: 'عالي', medium: 'متوسط', low: 'منخفض' };
+            const volColor = volColors[tech.volatility] || '#6b7280';
+            techHtml += '<div class="tech-box"><div class="tech-label">التقلب</div><div class="tech-value">〰️</div><div class="tech-badge" style="background:' + volColor + '20;color:' + volColor + '">' + volTexts[tech.volatility] + '</div></div>';
+        }
+        
+        techHtml += '</div>';
+        
+        // Prediction
+        if (tech.prediction) {
+            const predColor = tech.prediction.direction === 'up' ? '#10b981' : '#ef4444';
+            techHtml += '<div class="rec-box" style="border-color:' + predColor + '40">';
+            techHtml += '<div style="font-size:0.8rem;color:' + predColor + '">🔮 التوقع</div>';
+            techHtml += '<div class="rec-main">$' + tech.prediction.nextPrice.toFixed(2) + '</div>';
+            techHtml += '<div class="rec-detail">الاتجاه: ' + (tech.prediction.direction === 'up' ? '📈 صعود' : '📉 هبوط') + ' | الثقة: ' + tech.prediction.confidence + '%</div>';
+            techHtml += '</div>';
+        }
+        
+        // Optimal Buy Time
+        if (trendIntel.optimalBuyTime && trendIntel.optimalBuyTime.optimal !== 'unknown') {
+            techHtml += '<div class="info-card" style="text-align:center">';
+            techHtml += '<div style="font-size:0.8rem;color:var(--text-muted)">أفضل وقت للشراء</div>';
+            techHtml += '<div style="font-size:1.3rem;font-weight:700;color:var(--primary);margin:8px 0">' + trendIntel.optimalBuyTime.optimal + '</div>';
+            if (trendIntel.optimalBuyTime.averageSavings > 0) techHtml += '<div style="color:#10b981">توفير متوقع: ' + trendIntel.optimalBuyTime.averageSavings + '%</div>';
+            techHtml += '</div>';
+        }
+        
+        document.getElementById('technical-content').innerHTML = techHtml;
+        
+        // ===== TRUST TAB =====
+        let trustHtml = '';
+        
+        const merchant = trustIntel.merchantTrust || {};
+        const fakeDeal = trustIntel.fakeDealCheck || {};
+        
+        // Trust Score
+        const trustScore = merchant.trustScore || 50;
+        const trustColor = trustScore >= 70 ? '#10b981' : trustScore >= 40 ? '#f59e0b' : '#ef4444';
+        
+        trustHtml += '<div class="info-card" style="text-align:center">';
+        trustHtml += '<div style="font-size:3rem;font-weight:800;color:' + trustColor + '">' + trustScore + '%</div>';
+        trustHtml += '<div style="font-size:0.9rem;color:var(--text-muted)">نتيجة الثقة</div>';
+        trustHtml += '<div class="progress-bar" style="margin-top:12px"><div class="progress-fill" style="width:' + trustScore + '%;background:' + trustColor + '"></div></div>';
+        trustHtml += '</div>';
+        
+        // Merchant Info
+        trustHtml += '<div class="info-card">';
+        trustHtml += '<div class="info-card-header"><div class="info-card-icon">🏪</div><div><div class="info-card-title">' + (merchant.store || 'المتجر') + '</div>';
+        trustHtml += '<div class="info-card-subtitle">' + (merchant.badge?.label || '') + '</div></div></div>';
+        trustHtml += '</div>';
+        
+        // Risk Level
+        const riskColors = { minimal: '#10b981', low: '#22c55e', medium: '#f59e0b', high: '#ef4444', critical: '#dc2626' };
+        const riskTexts = { minimal: 'ضئيلة', low: 'منخفضة', medium: 'متوسطة', high: 'عالية', critical: 'حرجة' };
+        const riskColor = riskColors[trustIntel.riskLevel] || '#6b7280';
+        
+        trustHtml += '<div class="info-card">';
+        trustHtml += '<div style="display:flex;justify-content:space-between;align-items:center">';
+        trustHtml += '<span>مستوى المخاطرة</span>';
+        trustHtml += '<span style="font-weight:700;color:' + riskColor + '">' + (riskTexts[trustIntel.riskLevel] || trustIntel.riskLevel) + '</span>';
+        trustHtml += '</div>';
+        trustHtml += '<div class="progress-bar"><div class="progress-fill" style="width:' + (trustIntel.overallRisk || 0) + '%;background:' + riskColor + '"></div></div>';
+        trustHtml += '</div>';
+        
+        // Trust Signals
+        if (merchant.trustSignals) {
+            trustHtml += '<div class="stats-grid">';
+            const signals = merchant.trustSignals;
+            const signalItems = [
+                { key: 'hasSecurePayment', label: 'دفع آمن' },
+                { key: 'hasReturnPolicy', label: 'سياسة إرجاع' },
+                { key: 'hasCustomerSupport', label: 'دعم عملاء' },
+                { key: 'hasVerifiedReviews', label: 'تقييمات موثقة' }
+            ];
+            signalItems.forEach(function(s) {
+                const hasSignal = signals[s.key];
+                trustHtml += '<div class="stat-box" style="background:' + (hasSignal ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)') + '">';
+                trustHtml += '<div style="font-size:1rem">' + (hasSignal ? '✅' : '❌') + '</div>';
+                trustHtml += '<div class="stat-label">' + s.label + '</div>';
+                trustHtml += '</div>';
+            });
+            trustHtml += '</div>';
+        }
+        
+        // Green Flags
+        if (fakeDeal.greenFlags && fakeDeal.greenFlags.length > 0) {
+            trustHtml += '<div class="info-card"><div style="font-size:0.85rem;color:#10b981;margin-bottom:8px">✅ إشارات إيجابية</div>';
+            fakeDeal.greenFlags.forEach(function(f) {
+                trustHtml += '<div class="flag-item green"><span class="flag-icon">✓</span><span>' + f + '</span></div>';
+            });
+            trustHtml += '</div>';
+        }
+        
+        // Red Flags
+        if (fakeDeal.redFlags && fakeDeal.redFlags.length > 0) {
+            trustHtml += '<div class="info-card"><div style="font-size:0.85rem;color:#ef4444;margin-bottom:8px">🚨 إشارات سلبية</div>';
+            fakeDeal.redFlags.forEach(function(f) {
+                trustHtml += '<div class="flag-item red"><span class="flag-icon">!</span><span>' + f + '</span></div>';
+            });
+            trustHtml += '</div>';
+        }
+        
+        // Warnings
+        if (fakeDeal.warnings && fakeDeal.warnings.length > 0) {
+            trustHtml += '<div class="info-card" style="background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.3)">';
+            trustHtml += '<div style="font-size:0.85rem;color:#f59e0b;margin-bottom:8px">⚠️ تحذيرات</div>';
+            fakeDeal.warnings.forEach(function(w) {
+                trustHtml += '<div class="flag-item yellow"><span class="flag-icon">⚠</span><span>' + w + '</span></div>';
+            });
+            trustHtml += '</div>';
+        }
+        
+        document.getElementById('trust-content').innerHTML = trustHtml;
+        
+        // ===== MARKET TAB =====
+        let marketHtml = '';
+        
+        // Market Stats
+        marketHtml += '<div class="stats-grid">';
+        marketHtml += '<div class="stat-box"><div class="stat-value">' + (marketIntel.competitorCount || 0) + '</div><div class="stat-label">عدد المنافسين</div></div>';
+        marketHtml += '<div class="stat-box"><div class="stat-value">' + (marketIntel.marketPosition || 0) + '%</div><div class="stat-label">الموقع في السوق</div></div>';
+        marketHtml += '</div>';
+        
+        // Best Store
+        if (marketIntel.bestStore) {
+            marketHtml += '<div class="rec-box">';
+            marketHtml += '<div style="font-size:0.8rem;color:#3b82f6">🏆 أفضل متجر</div>';
+            marketHtml += '<div class="rec-main">' + marketIntel.bestStore + '</div>';
+            marketHtml += '<div class="rec-detail">السعر: $' + (marketIntel.bestPrice || 0) + '</div>';
+            marketHtml += '</div>';
+        }
+        
+        // Alternatives
+        if (marketIntel.alternatives && marketIntel.alternatives.length > 0) {
+            marketHtml += '<div class="info-card">';
+            marketHtml += '<div class="info-card-header"><div class="info-card-icon">🏪</div><div><div class="info-card-title">البدائل المتاحة</div></div></div>';
+            marketIntel.alternatives.forEach(function(alt) {
+                marketHtml += '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:rgba(255,255,255,0.03);border-radius:10px;margin-bottom:6px">';
+                marketHtml += '<div><div style="font-weight:600">' + alt.store + '</div><div style="color:#10b981">$' + alt.price + '</div></div>';
+                marketHtml += '<div style="color:#10b981;font-weight:700">وفر ' + alt.savings + '%</div>';
+                marketHtml += '</div>';
+            });
+            marketHtml += '</div>';
+        }
+        
+        document.getElementById('market-content').innerHTML = marketHtml;
+        
+        // Reset to first tab
+        switchTab('overview');
+        
+        // Show modal
+        document.getElementById('analysis-modal').style.display = 'flex';
+        
+    } catch (e) {
+        console.error('Analysis error:', e);
+    }
+};
+
+// ===== OTHER FUNCTIONS =====
+window.addToWatch = async function(name, price, link) {
+    const userEmail = prompt('أدخل إيميلك للتنبيه:');
+    if (!userEmail || !userEmail.includes('@')) return;
+    try {
+        const response = await fetch(API + '/alerts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: userEmail, productName: name, targetPrice: parseFloat(price) * 0.9, currentPrice: parseFloat(price), productLink: link, lang: lang, uid: localStorage.getItem('findly_uid') || 'guest' })
+        });
+        if (response.ok) alert('✅ تم تفعيل التنبيه!');
+        else alert('❌ خطأ');
+    } catch (e) { alert('❌ فشل الاتصال'); }
+};
+
+window.copyInvite = function() {
+    const uid = localStorage.getItem('findly_uid') || 'guest';
+    const link = location.origin + location.pathname + '?ref=' + uid;
+    navigator.clipboard.writeText(link).then(() => alert('تم نسخ رابط الدعوة ✨')).catch(() => alert(link));
+};
+
+window.openUpgrade = async function() {
+    try {
+        const res = await fetch(API + '/create-payment', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ uid: localStorage.getItem('findly_uid') || 'guest' }) });
+        const data = await res.json();
+        if (data.url) window.open(data.url, '_blank');
+        else alert('خدمة الدفع غير متاحة');
+    } catch (e) { alert('خطأ في خدمة الدفع'); }
+};
+
+window.saveSet = function() {
+    localStorage.setItem('fn', document.getElementById('in-name').value);
+    localStorage.setItem('user_budget', document.getElementById('in-budget').value);
+    document.getElementById('p-modal').style.display = 'none';
+};
+
+window.toggleMode = function() { document.body.classList.toggle('light-mode'); };
+window.toggleLMenu = function() { const m = document.getElementById('l-menu'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; };
+window.setLang = function(l) { lang = l; localStorage.setItem('findly_lang', l); document.getElementById('l-menu').style.display = 'none'; };
+window.openProfile = function() { document.getElementById('p-modal').style.display = 'flex'; document.getElementById('in-name').value = localStorage.getItem('fn') || ''; document.getElementById('in-budget').value = localStorage.getItem('user_budget') || ''; };
+window.quickSearch = function(q) { document.getElementById('s-input').value = q; runSearch(); };
+window.quickFilter = function(type) { document.getElementById('s-input').value += ' ' + type; };
+
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('modal')) e.target.style.display = 'none';
+});
+
+// Auth switch functions
+function switchToSignup() {
+    document.getElementById('login-view').classList.remove('active');
+    document.getElementById('signup-view').classList.add('active');
+}
+function switchToLogin() {
+    document.getElementById('signup-view').classList.remove('active');
+    document.getElementById('login-view').classList.add('active');
+}
+
+window.onload = function() {
+    initChat();
+    document.getElementById('go-to-signup')?.addEventListener('click', switchToSignup);
+    document.getElementById('go-to-login')?.addEventListener('click', switchToLogin);
+    
+    const userName = localStorage.getItem('fn') || 'أيها الباحث';
+    document.getElementById('greeting').textContent = 'مرحباً، ' + userName;
+};
+</script>
+</body>
+</html>

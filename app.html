@@ -520,6 +520,107 @@
 </head>
 <body>
 
+<!-- ========== صفحة تسجيل الدخول الاحترافية ========== -->
+<div id="auth-modal" class="modal auth-overlay">
+    <div class="auth-container">
+        <div class="auth-card">
+            
+            <!-- صفحة تسجيل الدخول -->
+            <div id="login-view" class="auth-view active">
+                <div class="auth-logo-wrapper">
+                    <i class="fa-solid fa-user-astronaut"></i>
+                </div>
+                <h2>Findly Sage</h2>
+                <p class="auth-subtitle" id="login-subtitle">مرحباً بك مجدداً! قم بتسجيل الدخول للمتابعة</p>
+                
+                <div class="auth-form">
+                    <div class="input-group-modern">
+                        <input type="email" id="login-email" placeholder="البريد الإلكتروني" required>
+                        <i class="fa-regular fa-envelope input-icon"></i>
+                    </div>
+                    <div class="input-group-modern">
+                        <input type="password" id="login-password" placeholder="كلمة المرور" required>
+                        <i class="fa-solid fa-lock input-icon"></i>
+                    </div>
+                    
+                    <button onclick="handleLogin()" class="btn-primary" id="btn-login">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        <span>تسجيل الدخول</span>
+                    </button>
+                </div>
+                
+                <div class="auth-divider">
+                    <span id="txt-or">أو</span>
+                </div>
+                
+                <button onclick="loginWithGoogle()" class="btn-google" id="btn-google">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+                    <span id="txt-google-btn">المتابعة باستخدام جوجل</span>
+                </button>
+                
+                <div class="auth-switch">
+                    <p id="login-footer-text">
+                        ليس لديك حساب؟
+                        <a id="go-to-signup">
+                            إنشاء حساب جديد
+                            <i class="fa-solid fa-arrow-left"></i>
+                        </a>
+                    </p>
+                </div>
+            </div>
+            
+            <!-- صفحة إنشاء الحساب -->
+            <div id="signup-view" class="auth-view">
+                <div class="auth-logo-wrapper">
+                    <i class="fa-solid fa-user-plus"></i>
+                </div>
+                <h2 id="signup-title">حساب جديد</h2>
+                <p class="auth-subtitle" id="signup-subtitle">انضم إلينا واستمتع بتجربة تسوق ذكية</p>
+                
+                <div class="auth-form">
+                    <div class="input-group-modern">
+                        <input type="text" id="signup-name" placeholder="الاسم الكامل" required>
+                        <i class="fa-regular fa-user input-icon"></i>
+                    </div>
+                    <div class="input-group-modern">
+                        <input type="email" id="signup-email" placeholder="البريد الإلكتروني" required>
+                        <i class="fa-regular fa-envelope input-icon"></i>
+                    </div>
+                    <div class="input-group-modern">
+                        <input type="password" id="signup-password" placeholder="كلمة المرور" required>
+                        <i class="fa-solid fa-lock input-icon"></i>
+                    </div>
+                    
+                    <button onclick="handleRegister()" class="btn-primary" id="btn-register">
+                        <i class="fa-solid fa-user-plus"></i>
+                        <span>إنشاء الحساب</span>
+                    </button>
+                </div>
+                
+                <div class="auth-divider">
+                    <span id="txt-or-signup">أو</span>
+                </div>
+                
+                <button onclick="loginWithGoogle()" class="btn-google" id="btn-google-signup">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+                    <span id="txt-google-btn-signup">التسجيل باستخدام جوجل</span>
+                </button>
+                
+                <div class="auth-switch">
+                    <p id="signup-footer-text">
+                        لديك حساب بالفعل؟
+                        <a id="go-to-login">
+                            تسجيل الدخول
+                            <i class="fa-solid fa-arrow-left"></i>
+                        </a>
+                    </p>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+    
 <header>
     <div class="logo-area">
         <div class="logo">Findly <i class="fa-solid fa-wand-magic-sparkles"></i></div>

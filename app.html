@@ -1081,14 +1081,10 @@ function goToUpgrade() {
 // ========== Main Search ==========
 async function runSearch() {
     const query = document.getElementById('s-input').value.trim();
-    if (!query) return;
-    
-    // ========== منع البحث إذا انتهت الطاقة ==========
-    if (energy <= 0) {
-        showUpgradeModal();
-        return;
+    if (typeof energy === 'number' && energy <= 0) {
+    showToast('⚠️ لقد استهلكت جميع عمليات البحث المجانية، يرجى الترقية إلى الخطة المدفوعة');
+    return;
     }
-    
     const status = document.getElementById('status');
     const resultsDiv = document.getElementById('results');
     const d = dict[lang].ui;

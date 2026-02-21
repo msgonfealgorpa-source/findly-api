@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" id="main-html">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Findly Sage Ultimate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #8b5cf6;
+            --primary-glow: rgba(139, 92, 246, 0.5);
+            --secondary: #6366f1;
+            --bg-dark: #020617;
+            --bg-card: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --gradient: linear-gradient(135deg, #6366F1, #A855F7);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+        .light-mode {
+            --bg-dark: #f8fafc;
+            --bg-card: rgba(255, 255, 255, 0.9);
+            --glass-border: rgba(0, 0, 0, 0.05);
+            --text: #1e293b;
+            --text-muted: #64748b;
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        body {
+            background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at 50% 0%, #1e1b4b 0%, transparent 50%);
+            color: var(--text);
+            font-family: 'Readex Pro', sans-serif;
+            margin: 0;
+            transition: background 0.4s ease, color 0.4s ease;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 5%;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--glass-border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header-tools { display: flex; gap: 10px; }
+        .tool-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            color: var(--text);
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        .tool-btn:hover { transform: translateY(-2px); border-color: var(--primary); }
+        .lang-menu {
+            display: none;
+            position: absolute;
+            top: 50px;
+            left: 0;
+            background: #1e293b;
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            width: 140px;
+            z-index: 2000;
+            box-shadow: 0 20px 40px -5px rgba(0,0,0,0.4);
+            overflow: hidden;
+        }
+        .lang-item {
+            padding: 12px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            color: #e2e8f0;
+            text-align: center;
+            transition: 0.2s;
+        }
+        .lang-item:hover { background: var(--primary); color: white; }
+        .search-area { padding: 40px 5%; text-align: center; max-width: 800px; margin: 0 auto; }
+        .energy-box {
+            background: rgba(168, 85, 247, 0.08);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            padding: 8px 20px;
+            border-radius: 50px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        h1#txt-title {
+            background: linear-gradient(to right, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 10px 0;
+            font-size: 2.5rem;
+        }
+        .light-mode h1#txt-title {
+            background: linear-gradient(to right, #1e293b, #475569);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .ai-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            color: var(--primary);
+            margin-bottom: 25px;
+            justify-content: center;
+            font-weight: 600;
+            background: rgba(139, 92, 246, 0.05);
+            padding: 8px 16px;
+            border-radius: 12px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .ai-toggle input { width: 20px; height: 20px; accent-color: var(--primary); cursor: pointer; }
+        .search-wrapper { position: relative; max-width: 600px; margin: 0 auto 20px; }
+        .search-input {
+            width: 100%;
+            padding: 18px 70px;
+            border-radius: 24px;
+            border: 2px solid var(--glass-border);
+            background: var(--bg-card);
+            color: var(--text);
+            font-size: 1.1rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+            text-align: center;
+        }
+        .search-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15); }
+        .mic-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--secondary);
+            cursor: pointer;
+            font-size: 1.4rem;
+            background: none;
+            border: none;
+            padding: 10px;
+            border-radius: 50%;
+            transition: 0.3s;
+            z-index: 10;
+        }
+        .mic-icon:hover { background: rgba(139, 92, 246, 0.1); }
+        .mic-active { color: #ef4444 !important; background: rgba(239, 68, 68, 0.1) !important; animation: pulse 1s infinite; }
+        .send-btn {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--gradient);
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 18px;
+            color: #fff;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+        .send-btn:hover { transform: translateY(-50%) scale(1.05); }
+        .ai-options { display: flex; justify-content: center; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+        .ai-tag {
+            font-size: 0.8rem; padding: 8px 16px; border-radius: 20px;
+            background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border);
+            cursor: pointer; color: var(--text-muted); display: flex; align-items: center; gap: 8px;
+            transition: 0.3s;
+        }
+        .ai-tag:hover { background: var(--bg-card); color: var(--primary); border-color: var(--primary); }
+        .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 600px; margin: 30px auto; }
+        .cat-card {
+            background: var(--bg-card); border: 1px solid var(--glass-border);
+            padding: 15px 10px; border-radius: 20px; cursor: pointer;
+            transition: 0.3s; display: flex; flex-direction: column; align-items: center; gap: 8px;
+        }
+        .cat-card:hover { transform: translateY(-5px); border-color: var(--primary); }
+        .cat-card i { font-size: 1.5rem; color: var(--secondary); }
+        .cat-card span { font-size: 0.75rem; font-weight: 600; }
+        
+        /* ========== بطاقة المنتج المطورة ========== */
+        .product-card {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 20px;
+            margin-top: 25px;
+            text-align: right;
+            max-width: 600px;
+            margin-left: auto; margin-right: auto;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+            animation: slideUp 0.5s ease;
+        }
+        .product-card img { width: 100%; height: 200px; object-fit: contain; background: #fff; border-radius: 16px; margin-bottom: 15px; padding: 10px; }
+        .product-card h3 { margin: 0 0 10px 0; font-size: 1.1rem; line-height: 1.5; color: var(--text); }
+        .product-card .price { font-size: 1.4rem; font-weight: 800; color: #10b981; margin-bottom: 10px; }
+        
+        /* Deal Badge */
+        .deal-badge {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            z-index: 10;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .deal-badge.strong { background: linear-gradient(135deg, #10b981, #059669); color: white; }
+        .deal-badge.medium { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
+        .deal-badge.weak { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+        
+        /* Tabs */
+        .product-tabs {
+            display: flex;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 15px;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .tab-btn.active {
+            background: var(--gradient);
+            color: white;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+        
+        /* Sections */
+        .intel-section {
+            background: rgba(255,255,255,0.03);
+            border-right: 3px solid var(--primary);
+            padding: 15px;
+            border-radius: 12px;
+            margin: 12px 0;
+        }
+        .intel-section h4 {
+            margin: 0 0 10px 0;
+            font-size: 0.95rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .intel-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .intel-row:last-child { border-bottom: none; }
+        .intel-label { color: var(--text-muted); font-size: 0.85rem; }
+        .intel-value { font-weight: 600; font-size: 0.9rem; }
+        .intel-value.good { color: #10b981; }
+        .intel-value.warning { color: #f59e0b; }
+        .intel-value.danger { color: #ef4444; }
+        
+        /* Progress Bar */
+        .progress-bar {
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        .progress-fill.high { background: linear-gradient(90deg, #10b981, #22c55e); }
+        .progress-fill.medium { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+        .progress-fill.low { background: linear-gradient(90deg, #ef4444, #f87171); }
+        
+        /* Score Grid */
+        .score-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .score-item {
+            background: rgba(255,255,255,0.03);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+        }
+        .score-item .value {
+            font-size: 1.4rem;
+            font-weight: 800;
+        }
+        .score-item .label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        .score-item.price .value { color: #10b981; }
+        .score-item.trust .value { color: #3b82f6; }
+        .score-item.deal .value { color: #f59e0b; }
+        
+        /* AI Decision Box */
+        .ai-decision {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(59, 130, 246, 0.2));
+            border: 2px solid var(--primary);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            margin: 15px 0;
+        }
+        .ai-decision .main-action {
+            font-size: 1.3rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+        .ai-decision .reason {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        .ai-decision .confidence {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 4px 12px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        
+        /* AI Tip */
+        .ai-tip {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px dashed #10b981;
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 12px;
+        }
+        .ai-tip i { color: #10b981; margin-left: 8px; }
+        
+        /* Personality Badge */
+        .personality-badge {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(236, 72, 153, 0.15));
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 12px;
+        }
+        .personality-icon {
+            width: 45px;
+            height: 45px;
+            background: var(--gradient);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+        .personality-info .type { font-weight: 700; color: var(--primary); }
+        .personality-info .desc { font-size: 0.8rem; color: var(--text-muted); }
+        
+        /* Fake Deal Alert */
+        .fake-deal-alert {
+            background: rgba(239, 68, 68, 0.15);
+            border: 2px solid rgba(239, 68, 68, 0.5);
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 12px;
+        }
+        .fake-deal-alert .alert-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #ef4444;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .fake-deal-alert ul {
+            margin: 0;
+            padding-right: 20px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        
+        /* Action Buttons */
+        .action-btn {
+            flex: 1; padding: 12px; border-radius: 14px; font-weight: 700;
+            text-align: center; border: none; font-size: 0.9rem; cursor: pointer;
+            transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .buy-now { background: var(--gradient); color: #fff; text-decoration: none; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3); }
+        .buy-now:hover { filter: brightness(1.1); }
+        .watch-btn { background: rgba(245, 158, 11, 0.2); border: 1px solid #f59e0b; color: #f59e0b; }
+        .watch-btn:hover { background: #f59e0b; color: white; }
+        
+        /* Modal */
+        .modal {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.8); z-index: 3000;
+            align-items: center; justify-content: center;
+            backdrop-filter: blur(12px);
+        }
+        .modal-box {
+            background: #0f172a; padding: 30px; border-radius: 30px;
+            width: 85%; max-width: 450px;
+            border: 1px solid var(--glass-border);
+            text-align: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            max-height: 80vh; overflow-y: auto;
+        }
+        .modal-box input {
+            width: 100%; padding: 14px; margin: 10px 0; border-radius: 14px;
+            background: #1e293b; color: #fff; border: 1px solid var(--glass-border);
+            text-align: center; font-family: inherit;
+        }
+        .modal-box input:focus { border-color: var(--primary); }
+        
+        /* Old price styling */
+        .old-price { text-decoration: line-through; opacity: 0.6; margin-right: 6px; }
+        .new-price { color: #2ecc71; font-weight: bold; font-size: 1.1em; }
+        
+        /* Animations */
+        @keyframes pulse { 0%, 100% { transform: translateY(-50%) scale(1); } 50% { transform: translateY(-50%) scale(1.1); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        /* Budget Alert */
+        .over-budget { border: 2px solid #ff4d4d !important; }
+        .budget-alert { background: #ff4d4d; color: white; padding: 4px 10px; border-radius: 8px; font-size: 0.8rem; margin-bottom: 10px; display: inline-block; font-weight: bold; }
+        
+        /* Invite Card */
+        .invite-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: linear-gradient(135deg, rgba(40, 32, 90, 0.85), rgba(28, 22, 60, 0.9));
+            border: 1px solid rgba(138, 99, 255, 0.35);
+            border-radius: 16px;
+            padding: 14px 16px;
+            margin-top: 14px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            justify-content: center;
+        }
+        .invite-card:hover { transform: translateY(-2px); }
+        .invite-text { font-size: 14.5px; color: #e1dbff; line-height: 1.6; text-align: center; width: 100%; }
+        
+        /* Status */
+        #status { display:none; color:var(--primary); font-weight:bold; margin-top:30px; font-size: 1.1rem; text-align: center; }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .cat-grid { grid-template-columns: repeat(3, 1fr); }
+            .score-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo-area">
+        <div class="logo">Findly <i class="fa-solid fa-wand-magic-sparkles"></i></div>
+    </div>
+    <div class="header-tools">
+        <button class="tool-btn" onclick="toggleMode()" title="Toggle Theme"><i class="fa-solid fa-circle-half-stroke"></i></button>
+        <div style="position: relative;">
+            <button class="tool-btn" onclick="toggleLMenu()" title="Language"><i class="fa-solid fa-language"></i></button>
+            <div id="l-menu" class="lang-menu">
+                <div class="lang-item" onclick="setLang('ar')">العربية</div>
+                <div class="lang-item" onclick="setLang('en')">English</div>
+                <div class="lang-item" onclick="setLang('fr')">Francais</div>
+                <div class="lang-item" onclick="setLang('de')">Deutsch</div>
+                <div class="lang-item" onclick="setLang('es')">Espanol</div>
+                <div class="lang-item" onclick="setLang('tr')">Turkce</div>
+            </div>
+        </div>
+        <button class="tool-btn" onclick="toggleWatchList()" title="Watchlist">
+            <i class="fa-solid fa-bell"></i>
+            <span id="watch-count" style="position:absolute; top:-5px; right:-5px; background:#ef4444; color:white; font-size:0.6rem; padding:2px 6px; border-radius:50%; display:none; border: 2px solid var(--bg-dark);">0</span>
+        </button>
+        <button class="tool-btn" onclick="openProfile()" title="Profile"><i class="fa-solid fa-user-gear"></i></button>
+    </div>
+</header>
+
+<main class="search-area">
+    <div class="energy-box">
+        <span id="txt-energy"></span>
+        <span id="r-count" style="background:var(--primary); color:#fff; padding:3px 12px; border-radius:20px; font-weight:900; font-size: 0.9rem;">3</span>
+        <i class="fa-solid fa-bolt" style="color:#FFD700;"></i>
+    </div>
+    <h2 id="greeting" style="color: var(--primary); font-size: 1.1rem; margin-bottom: 5px; font-weight: 600;"></h2>
+    <h1 id="txt-title"></h1>
+    <p id="txt-sub" style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 30px;"></p>
+    <div class="ai-toggle">
+        <i class="fa-solid fa-brain"></i>
+        <span id="txt-deep"></span>
+        <input type="checkbox" id="ai-deep-mode">
+    </div>
+    <div class="search-wrapper">
+        <input type="text" id="s-input" class="search-input" placeholder="" onkeypress="if(event.key==='Enter')runSearch()">
+        <button id="mic-btn" class="mic-icon" type="button"><i class="fa-solid fa-microphone"></i></button>
+        <button class="send-btn" onclick="runSearch()"><i class="fa-solid fa-magnifying-glass"></i></button>
+    </div>
+    <div class="invite-card" onclick="copyInvite()">
+        <div class="invite-text" id="inviteText"></div>
+    </div>
+    <div class="ai-options">
+        <div class="ai-tag" onclick="quickFilter('cheap')"><i class="fa-solid fa-sack-dollar"></i> <span id="tag-cheap"></span></div>
+        <div class="ai-tag" onclick="quickFilter('top')"><i class="fa-solid fa-star"></i> <span id="tag-top"></span></div>
+        <div class="ai-tag" onclick="quickFilter('new')"><i class="fa-solid fa-fire"></i> <span id="tag-new"></span></div>
+    </div>
+    <div class="cat-grid">
+        <div class="cat-card" onclick="quickSearch('ألعاب')"><i class="fa-solid fa-gamepad"></i><span id="cat-game"></span></div>
+        <div class="cat-card" onclick="quickSearch('جمال')"><i class="fa-solid fa-sparkles"></i><span id="cat-beauty"></span></div>
+        <div class="cat-card" onclick="quickSearch('منزل ذكي')"><i class="fa-solid fa-house-laptop"></i><span id="cat-home"></span></div>
+        <div class="cat-card" onclick="quickSearch('هواتف')"><i class="fa-solid fa-mobile-screen-button"></i><span id="cat-c1"></span></div>
+        <div class="cat-card" onclick="quickSearch('لابتوب')"><i class="fa-solid fa-laptop"></i><span id="cat-c2"></span></div>
+        <div class="cat-card" onclick="quickSearch('ساعات')"><i class="fa-solid fa-stopwatch"></i><span id="cat-c4"></span></div>
+    </div>
+    <div id="status"></div>
+    <div id="personality-container" style="display: none;"></div>
+    <div id="results"></div>
+</main>
+
+<!-- Watch Modal -->
+<div class="modal" id="w-modal">
+    <div class="modal-box">
+        <h3 style="color:var(--primary); margin-top:0;"><i class="fa-solid fa-bell"></i> <span id="txt-watch-title"></span></h3>
+        <div id="watch-list-content"></div>
+        <button onclick="toggleWatchList()" style="background:none; color:var(--text-muted); border:none; margin-top:20px; cursor:pointer; font-size:0.9rem;" id="btn-close-watch"></button>
+    </div>
+</div>
+
+<!-- Profile Modal -->
+<div class="modal" id="p-modal">
+    <div class="modal-box">
+        <h3 id="p-head" style="margin-top:0;"></h3>
+        <label id="lbl-name" style="font-size:0.85rem; display:block; margin-bottom:5px; opacity:0.7;"></label>
+        <input type="text" id="in-name" placeholder="">
+        <label id="lbl-budget" style="font-size:0.85rem; display:block; margin-top:15px; margin-bottom:5px; opacity:0.7;"></label>
+        <input type="number" id="in-budget" placeholder="">
+        <button class="action-btn buy-now" onclick="saveSet()" style="width:100%; margin-top:20px;" id="btn-save-settings"></button>
+        <button onclick="openProfile()" style="background:none; color:var(--text-muted); border:none; margin-top:15px; cursor:pointer; font-size:0.9rem;" id="btn-close-profile"></button>
+    </div>
+</div>
+
+<!-- Price Watch Dialog -->
+<div class="modal" id="watch-dialog">
+    <div class="modal-box">
+        <h3 style="color:var(--primary); margin-top:0;"><i class="fa-solid fa-bell"></i> مراقبة السعر</h3>
+        <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:15px;">أدخل بريدك الإلكتروني لتلقي تنبيه عند انخفاض السعر</p>
+        <input type="email" id="watch-email" placeholder="البريد الإلكتروني">
+        <input type="hidden" id="watch-product-id">
+        <input type="hidden" id="watch-product-price">
+        <button class="action-btn buy-now" onclick="submitWatchPrice()" style="width:100%; margin-top:15px;">
+            <i class="fa-solid fa-bell"></i> تفعيل المراقبة
+        </button>
+        <button onclick="closeWatchDialog()" style="background:none; color:var(--text-muted); border:none; margin-top:15px; cursor:pointer; font-size:0.9rem;">إغلاق</button>
+    </div>
+</div>
+
+<script>
+const API = "https://findly-api-production.up.railway.app";
+
+// Translations
+const dict = {
+    ar: {
+        ui: {
+            hero_tagline: "قرارات شراء أذكى تبدأ من هنا",
+            title: "مستشارك الحكيم", sub: "دليلك الذكي للتسوق المثالي", energy: "طاقة العقل",
+            welcome: "مرحباً،", game: "ألعاب", beauty: "جمال", home: "منزل ذكي", c1: "هواتف", c2: "لابتوب", c4: "ساعات",
+            p_head: "الملف الشخصي", lbl_name: "اسم المستخدم", lbl_budget: "الميزانية ($)",
+            buy: "شراء الآن 🛒", watch: "راقب السعر 🔔", over: "يتجاوز ميزانيتك",
+            cheap: "اقتصادي", top: "الأعلى تقييماً", new: "حديث جداً", deep: "وضع التحليل الذكي",
+            watchTitle: "قائمة المراقبة", slow: "جاري البحث...",
+            noAttempts: "⚠️ استنفدت محاولاتك!", analyze: "📊 تحليل السعر", close: "إغلاق",
+            saveChanges: "حفظ التغييرات ✅", searchPlaceholder: "ابحث عن منتج...",
+            noResults: "لا توجد نتائج", errorFetching: "❌ خطأ في جلب النتائج"
+        },
+        search: {
+            market: "السوق", avg_price: "متوسط السعر", competitors: "عدد المنافسين", value: "قيمة الصفقة",
+            deal_score: "تقييم الصفقة", forecast: "التوقع السعري", trend_up: "قد يرتفع قريبًا", 
+            trend_down: "قد ينخفض", trend_stable: "مستقر",
+            confidence: "الثقة", trust: "الثقة والمخاطر", no_risks: "لا توجد مخاطر واضحة",
+            price: "السعر", timing: "التوقيت", behavior: "السلوك",
+            excellent: "ممتاز", good: "جيد", weak: "ضعيف", wait: "انتظر", mayRise: "قد يرتفع", stableTxt: "مستقر",
+            risk: "مخاطرة", safe: "آمن", suitable: "مناسب لك", general: "عام",
+            smartDecision: "قرار ذكي: اشترِ الآن", preferWait: "يفضل الانتظار", waitPriceDrop: "انتظر انخفاض السعر",
+            priceHigh: "السعر مرتفع", saving: "التوفير", bestStore: "أفضل متجر", confidenceScore: "الثقة",
+            watchPrice: "مراقبة السعر", linkUnavailable: "الرابط غير متوفر"
+        },
+        tabs: { product: "المنتج", analysis: "التحليل", decision: "القرار" },
+        sections: { 
+            basicInfo: "البيانات الأساسية", priceAnalysis: "تحليل السعر", 
+            marketAnalysis: "تحليل السوق", trustRisk: "الثقة والمخاطر",
+            aiDecision: "قرار الذكاء الاصطناعي", personality: "تحليل الشخصية"
+        },
+        badges: { strong: "صفقة قوية", medium: "صفقة متوسطة", weak: "صفقة ضعيفة" },
+        v4: {
+            personalityTypes: {
+                hunter: { name: "صياد ذكي", desc: "تبحث عن أفضل الصفقات", icon: "🎯" },
+                analyst: { name: "محلل", desc: "تفضل التحليل قبل الشراء", icon: "📊" },
+                impulse: { name: "متسرع", desc: "تتخذ قرارات سريعة", icon: "⚡" },
+                premium: { name: "محب الجودة", desc: "تهتم بالجودة والماركات", icon: "💎" },
+                budget: { name: "موفر", desc: "محدود الميزانية", icon: "💰" }
+            },
+            merchantTrust: "ثقة التاجر", verified: "موثق",
+            fakeDealAlert: "⚠️ تنبيه: صفقة مشبوهة!",
+            reliability: "الموثوقية", valueForMoney: "القيمة مقابل السعر"
+        },
+        voice: { notSupported: "متصفحك لا يدعم البحث الصوتي", listening: "جاري الاستماع...", speakNow: "تحدث الآن" },
+        invite: { text: "ادعُ أصدقاءك الآن ✨ — مكافآت قادمة قريبًا 🎁", copied: "تم نسخ رابط الدعوة ✨" },
+        watch: { enterEmail: "أدخل إيميلك للتنبيه:", activated: "✅ تم تفعيل التنبيه!", success: "تم تفعيل مراقبة السعر بنجاح!" }
+    },
+    en: {
+        ui: {
+            hero_tagline: "Smarter buying decisions start here",
+            title: "Sage Advisor", sub: "Your smart shopping guide", energy: "Sage Energy",
+            welcome: "Welcome,", game: "Gaming", beauty: "Beauty", home: "Smart Home", c1: "Phones", c2: "Laptops", c4: "Watches",
+            p_head: "Profile", lbl_name: "Username", lbl_budget: "Budget ($)",
+            buy: "Buy Now 🛒", watch: "Watch Price 🔔", over: "Over Budget!",
+            cheap: "Budget", top: "Top Rated", new: "Newest", deep: "AI Deep Mode",
+            watchTitle: "Watch List", slow: "Searching...",
+            noAttempts: "⚠️ No attempts left!", analyze: "📊 Analysis", close: "Close",
+            saveChanges: "Save Changes ✅", searchPlaceholder: "Search for a product...",
+            noResults: "No results found", errorFetching: "❌ Error fetching results"
+        },
+        search: {
+            market: "Market", avg_price: "Average price", competitors: "Competitors", value: "Deal value",
+            deal_score: "Deal score", forecast: "Price forecast", trend_up: "Likely to rise",
+            trend_down: "Likely to drop", trend_stable: "Stable",
+            confidence: "Confidence", trust: "Trust & risks", no_risks: "No clear risks",
+            price: "Price", timing: "Timing", behavior: "Behavior",
+            excellent: "Excellent", good: "Good", weak: "Weak", wait: "Wait", mayRise: "May rise", stableTxt: "Stable",
+            risk: "Risk", safe: "Safe", suitable: "Suitable", general: "General",
+            smartDecision: "Smart decision: Buy now", preferWait: "Better to wait", waitPriceDrop: "Wait for price drop",
+            priceHigh: "Price is high", saving: "Saving", bestStore: "Best store", confidenceScore: "Confidence",
+            watchPrice: "Watch Price", linkUnavailable: "Link unavailable"
+        },
+        tabs: { product: "Product", analysis: "Analysis", decision: "Decision" },
+        sections: { 
+            basicInfo: "Basic Info", priceAnalysis: "Price Analysis",
+            marketAnalysis: "Market Analysis", trustRisk: "Trust & Risk",
+            aiDecision: "AI Decision", personality: "Personality"
+        },
+        badges: { strong: "Strong Deal", medium: "Medium Deal", weak: "Weak Deal" },
+        v4: {
+            personalityTypes: {
+                hunter: { name: "Smart Hunter", desc: "You hunt for the best deals", icon: "🎯" },
+                analyst: { name: "Analyst", desc: "You analyze before buying", icon: "📊" },
+                impulse: { name: "Impulsive", desc: "You make quick decisions", icon: "⚡" },
+                premium: { name: "Quality Lover", desc: "You care about brands", icon: "💎" },
+                budget: { name: "Budget Saver", desc: "Budget conscious", icon: "💰" }
+            },
+            merchantTrust: "Merchant Trust", verified: "Verified",
+            fakeDealAlert: "⚠️ Alert: Suspicious Deal!",
+            reliability: "Reliability", valueForMoney: "Value for Money"
+        },
+        voice: { notSupported: "Voice search not supported", listening: "Listening...", speakNow: "Speak now" },
+        invite: { text: "Invite your friends now ✨ — rewards coming soon 🎁", copied: "Invite link copied ✨" },
+        watch: { enterEmail: "Enter email for alerts:", activated: "✅ Alert activated!", success: "Price watch activated successfully!" }
+    },
+    fr: {
+        ui: { hero_tagline: "Des décisions d'achat plus intelligentes", title: "Conseiller Sage", sub: "Votre guide d'achat intelligent", energy: "Énergie Sage", welcome: "Bienvenue,", game: "Jeux", beauty: "Beauté", home: "Maison", c1: "Téléphones", c2: "PC", c4: "Montres", p_head: "Profil", lbl_name: "Nom", lbl_budget: "Budget ($)", buy: "Acheter 🛒", watch: "Surveiller 🔔", over: "Hors budget!", cheap: "Économique", top: "Top notes", new: "Nouveautés", deep: "Mode IA", watchTitle: "Liste surveillance", slow: "Recherche...", noAttempts: "⚠️ Plus d'essais!", analyze: "📊 Analyse", close: "Fermer", saveChanges: "Enregistrer ✅", searchPlaceholder: "Rechercher...", noResults: "Aucun résultat", errorFetching: "❌ Erreur" },
+        search: { market: "Marché", avg_price: "Prix moyen", competitors: "Concurrents", value: "Valeur", deal_score: "Score", forecast: "Prévision", trend_up: "Hausse", trend_down: "Baisse", trend_stable: "Stable", confidence: "Confiance", trust: "Confiance et risques", no_risks: "Aucun risque", price: "Prix", timing: "Timing", behavior: "Comportement", excellent: "Excellent", good: "Bon", weak: "Faible", wait: "Attendre", mayRise: "Hausse", stableTxt: "Stable", risk: "Risque", safe: "Sûr", suitable: "Adapté", general: "Général", smartDecision: "Acheter maintenant", preferWait: "Attendre", waitPriceDrop: "Attendre baisse", priceHigh: "Prix élevé", saving: "Économie", bestStore: "Meilleur magasin", confidenceScore: "Confiance", watchPrice: "Surveiller", linkUnavailable: "Lien indisponible" },
+        tabs: { product: "Produit", analysis: "Analyse", decision: "Décision" },
+        sections: { basicInfo: "Infos de base", priceAnalysis: "Analyse prix", marketAnalysis: "Analyse marché", trustRisk: "Confiance", aiDecision: "Décision IA", personality: "Personnalité" },
+        badges: { strong: "Bonne affaire", medium: "Offre moyenne", weak: "Offre faible" },
+        v4: { personalityTypes: { hunter: { name: "Chasseur", desc: "Meilleures offres", icon: "🎯" }, analyst: { name: "Analyste", desc: "Analyse avant achat", icon: "📊" }, impulse: { name: "Impulsif", desc: "Décisions rapides", icon: "⚡" }, premium: { name: "Qualité", desc: "Marques de confiance", icon: "💎" }, budget: { name: "Économe", desc: "Budget limité", icon: "💰" } }, merchantTrust: "Confiance", verified: "Vérifié", fakeDealAlert: "⚠️ Offre suspecte!", reliability: "Fiabilité", valueForMoney: "Qualité-Prix" },
+        voice: { notSupported: "Recherche vocale non supportée", listening: "Écoute...", speakNow: "Parlez" },
+        invite: { text: "Invitez vos amis ✨", copied: "Lien copié ✨" },
+        watch: { enterEmail: "Email pour alertes:", activated: "✅ Alerte activée!", success: "Surveillance activée!" }
+    },
+    de: {
+        ui: { hero_tagline: "Intelligentere Kaufentscheidungen", title: "Weiser Berater", sub: "Ihr Einkaufsführer", energy: "Energie", welcome: "Willkommen,", game: "Spiele", beauty: "Schönheit", home: "Heim", c1: "Handys", c2: "Laptops", c4: "Uhren", p_head: "Profil", lbl_name: "Name", lbl_budget: "Budget ($)", buy: "Kaufen 🛒", watch: "Beobachten 🔔", over: "Über Budget!", cheap: "Budget", top: "Top", new: "Neu", deep: "KI Modus", watchTitle: "Beobachtungsliste", slow: "Suche...", noAttempts: "⚠️ Keine Versuche!", analyze: "📊 Analyse", close: "Schließen", saveChanges: "Speichern ✅", searchPlaceholder: "Produkt suchen...", noResults: "Keine Ergebnisse", errorFetching: "❌ Fehler" },
+        search: { market: "Markt", avg_price: "Durchschnittspreis", competitors: "Wettbewerber", value: "Wert", deal_score: "Score", forecast: "Prognose", trend_up: "Steigend", trend_down: "Fallend", trend_stable: "Stabil", confidence: "Vertrauen", trust: "Risiken", no_risks: "Keine Risiken", price: "Preis", timing: "Zeitpunkt", behavior: "Verhalten", excellent: "Ausgezeichnet", good: "Gut", weak: "Schwach", wait: "Warten", mayRise: "Steigt", stableTxt: "Stabil", risk: "Risiko", safe: "Sicher", suitable: "Geeignet", general: "Allgemein", smartDecision: "Jetzt kaufen", preferWait: "Warten", waitPriceDrop: "Auf Preisfall warten", priceHigh: "Hoher Preis", saving: "Ersparnis", bestStore: "Bester Laden", confidenceScore: "Vertrauen", watchPrice: "Preis beobachten", linkUnavailable: "Link nicht verfügbar" },
+        tabs: { product: "Produkt", analysis: "Analyse", decision: "Entscheidung" },
+        sections: { basicInfo: "Basisinfos", priceAnalysis: "Preisanalyse", marketAnalysis: "Marktanalyse", trustRisk: "Vertrauen", aiDecision: "KI Entscheidung", personality: "Persönlichkeit" },
+        badges: { strong: "Starkes Angebot", medium: "Mittleres Angebot", weak: "Schwaches Angebot" },
+        v4: { personalityTypes: { hunter: { name: "Jäger", desc: "Beste Angebote", icon: "🎯" }, analyst: { name: "Analytiker", desc: "Analyse vor Kauf", icon: "📊" }, impulse: { name: "Impulsiv", desc: "Schnelle Entscheidungen", icon: "⚡" }, premium: { name: "Qualitätsliebhaber", desc: "Marken bevorzugt", icon: "💎" }, budget: { name: "Sparer", desc: "Budgetbewusst", icon: "💰" } }, merchantTrust: "Händler-Vertrauen", verified: "Verifiziert", fakeDealAlert: "⚠️ Verdächtiges Angebot!", reliability: "Zuverlässigkeit", valueForMoney: "Preis-Leistung" },
+        voice: { notSupported: "Sprachsuche nicht unterstützt", listening: "Hören...", speakNow: "Sprechen" },
+        invite: { text: "Freunde einladen ✨", copied: "Link kopiert ✨" },
+        watch: { enterEmail: "E-Mail für Alarme:", activated: "✅ Alarm aktiviert!", success: "Preisüberwachung aktiviert!" }
+    },
+    es: {
+        ui: { hero_tagline: "Decisiones de compra más inteligentes", title: "Consejero Sabio", sub: "Tu guía de compras", energy: "Energía", welcome: "Bienvenido,", game: "Juegos", beauty: "Belleza", home: "Hogar", c1: "Teléfonos", c2: "Laptops", c4: "Relojes", p_head: "Perfil", lbl_name: "Nombre", lbl_budget: "Presupuesto ($)", buy: "Comprar 🛒", watch: "Vigilar 🔔", over: "¡Fuera de presupuesto!", cheap: "Económico", top: "Top", new: "Nuevo", deep: "Modo IA", watchTitle: "Lista de seguimiento", slow: "Buscando...", noAttempts: "⚠️ ¡Sin intentos!", analyze: "📊 Análisis", close: "Cerrar", saveChanges: "Guardar ✅", searchPlaceholder: "Buscar producto...", noResults: "Sin resultados", errorFetching: "❌ Error" },
+        search: { market: "Mercado", avg_price: "Precio promedio", competitors: "Competidores", value: "Valor", deal_score: "Puntuación", forecast: "Pronóstico", trend_up: "Subirá", trend_down: "Bajará", trend_stable: "Estable", confidence: "Confianza", trust: "Riesgos", no_risks: "Sin riesgos", price: "Precio", timing: "Momento", behavior: "Comportamiento", excellent: "Excelente", good: "Bueno", weak: "Débil", wait: "Esperar", mayRise: "Subirá", stableTxt: "Estable", risk: "Riesgo", safe: "Seguro", suitable: "Adecuado", general: "General", smartDecision: "Comprar ahora", preferWait: "Esperar", waitPriceDrop: "Esperar bajada", priceHigh: "Precio alto", saving: "Ahorro", bestStore: "Mejor tienda", confidenceScore: "Confianza", watchPrice: "Vigilar precio", linkUnavailable: "Enlace no disponible" },
+        tabs: { product: "Producto", analysis: "Análisis", decision: "Decisión" },
+        sections: { basicInfo: "Info básica", priceAnalysis: "Análisis precio", marketAnalysis: "Análisis mercado", trustRisk: "Confianza", aiDecision: "Decisión IA", personality: "Personalidad" },
+        badges: { strong: "Oferta fuerte", medium: "Oferta media", weak: "Oferta débil" },
+        v4: { personalityTypes: { hunter: { name: "Cazador", desc: "Mejores ofertas", icon: "🎯" }, analyst: { name: "Analista", desc: "Analiza antes de comprar", icon: "📊" }, impulse: { name: "Impulsivo", desc: "Decisiones rápidas", icon: "⚡" }, premium: { name: "Amante calidad", desc: "Prefiere marcas", icon: "💎" }, budget: { name: "Ahorrador", desc: "Consciente del presupuesto", icon: "💰" } }, merchantTrust: "Confianza", verified: "Verificado", fakeDealAlert: "⚠️ ¡Oferta sospechosa!", reliability: "Fiabilidad", valueForMoney: "Calidad-Precio" },
+        voice: { notSupported: "Búsqueda por voz no soportada", listening: "Escuchando...", speakNow: "Habla" },
+        invite: { text: "Invita amigos ✨", copied: "Enlace copiado ✨" },
+        watch: { enterEmail: "Email para alertas:", activated: "✅ ¡Alerta activada!", success: "¡Vigilancia activada!" }
+    },
+    tr: {
+        ui: { hero_tagline: "Daha akıllı satın alma kararları", title: "Bilge Danışman", sub: "Akıllı alışveriş rehberiniz", energy: "Enerji", welcome: "Hoş geldiniz,", game: "Oyunlar", beauty: "Güzellik", home: "Ev", c1: "Telefonlar", c2: "Laptoplar", c4: "Saatler", p_head: "Profil", lbl_name: "İsim", lbl_budget: "Bütçe ($)", buy: "Al 🛒", watch: "İzle 🔔", over: "Bütçeyi aştı!", cheap: "Ekonomik", top: "En iyi", new: "Yeni", deep: "AI Modu", watchTitle: "İzleme listesi", slow: "Aranıyor...", noAttempts: "⚠️ Hak kalmadı!", analyze: "📊 Analiz", close: "Kapat", saveChanges: "Kaydet ✅", searchPlaceholder: "Ürün ara...", noResults: "Sonuç yok", errorFetching: "❌ Hata" },
+        search: { market: "Pazar", avg_price: "Ortalama fiyat", competitors: "Rakipler", value: "Değer", deal_score: "Puan", forecast: "Tahmin", trend_up: "Yükselir", trend_down: "Düşer", trend_stable: "Kararlı", confidence: "Güven", trust: "Riskler", no_risks: "Risk yok", price: "Fiyat", timing: "Zamanlama", behavior: "Davranış", excellent: "Mükemmel", good: "İyi", weak: "Zayıf", wait: "Bekle", mayRise: "Yükselir", stableTxt: "Kararlı", risk: "Risk", safe: "Güvenli", suitable: "Uygun", general: "Genel", smartDecision: "Şimdi al", preferWait: "Bekle", waitPriceDrop: "Fiyat düşüşünü bekle", priceHigh: "Fiyat yüksek", saving: "Tasarruf", bestStore: "En iyi mağaza", confidenceScore: "Güven", watchPrice: "Fiyatı izle", linkUnavailable: "Link yok" },
+        tabs: { product: "Ürün", analysis: "Analiz", decision: "Karar" },
+        sections: { basicInfo: "Temel bilgiler", priceAnalysis: "Fiyat analizi", marketAnalysis: "Pazar analizi", trustRisk: "Güven", aiDecision: "AI Kararı", personality: "Kişilik" },
+        badges: { strong: "Güçlü teklif", medium: "Orta teklif", weak: "Zayıf teklif" },
+        v4: { personalityTypes: { hunter: { name: "Avcı", desc: "En iyi fırsatlar", icon: "🎯" }, analyst: { name: "Analist", desc: "Satın almadan analiz", icon: "📊" }, impulse: { name: "Dürtüsel", desc: "Hızlı kararlar", icon: "⚡" }, premium: { name: "Kalite sever", desc: "Markaları tercih eder", icon: "💎" }, budget: { name: "Tasarrufçu", desc: "Bütçe bilinci", icon: "💰" } }, merchantTrust: "Satıcı güveni", verified: "Doğrulanmış", fakeDealAlert: "⚠️ Şüpheli teklif!", reliability: "Güvenilirlik", valueForMoney: "Fiyat/Performans" },
+        voice: { notSupported: "Sesli arama desteklenmiyor", listening: "Dinliyorum...", speakNow: "Konuş" },
+        invite: { text: "Arkadaşlarınızı davet edin ✨", copied: "Link kopyalandı ✨" },
+        watch: { enterEmail: "Uyarılar için e-posta:", activated: "✅ Uyarı aktif!", success: "Fiyat izleme aktifleştirildi!" }
+    }
+};
+
+let lang = localStorage.getItem('findly_lang') || 'ar';
+let watchList = JSON.parse(localStorage.getItem('findly_watch')) || [];
+let voiceRecognition = null;
+
+// ===== VOICE SEARCH - FIXED =====
+function initVoiceSearch() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const micBtn = document.getElementById('mic-btn');
+    const input = document.getElementById('s-input');
+    
+    if (!micBtn || !input) return;
+    
+    if (!SpeechRecognition) {
+        micBtn.style.opacity = '0.5';
+        micBtn.style.cursor = 'not-allowed';
+        micBtn.title = dict[lang]?.voice?.notSupported || 'Voice not supported';
+        return;
+    }
+    
+    voiceRecognition = new SpeechRecognition();
+    
+    // Set language
+    const langMap = {
+        ar: 'ar-SA',
+        en: 'en-US',
+        fr: 'fr-FR',
+        de: 'de-DE',
+        es: 'es-ES',
+        tr: 'tr-TR'
+    };
+    voiceRecognition.lang = langMap[lang] || 'ar-SA';
+    voiceRecognition.interimResults = false;
+    voiceRecognition.continuous = false;
+    
+    // Remove old listeners and add new
+    const newMicBtn = micBtn.cloneNode(true);
+    micBtn.parentNode.replaceChild(newMicBtn, micBtn);
+    
+    newMicBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        if (voiceRecognition) {
+            try {
+                // Request permission first
+                navigator.mediaDevices.getUserMedia({ audio: true })
+                    .then(() => {
+                        voiceRecognition.start();
+                        newMicBtn.classList.add('mic-active');
+                    })
+                    .catch(() => {
+                        alert(dict[lang]?.voice?.notSupported || 'Microphone access denied');
+                    });
+            } catch (err) {
+                console.error('Voice error:', err);
+            }
+        }
+    });
+    
+    voiceRecognition.onstart = function() {
+        newMicBtn.classList.add('mic-active');
+    };
+    
+    voiceRecognition.onresult = function(event) {
+        const searchInput = document.getElementById('s-input');
+        if (searchInput) {
+            searchInput.value = event.results[0][0].transcript;
+            runSearch();
+        }
+    };
+    
+    voiceRecognition.onerror = function() {
+        newMicBtn.classList.remove('mic-active');
+    };
+    
+    voiceRecognition.onend = function() {
+        newMicBtn.classList.remove('mic-active');
+    };
+}
+
+// ===== WATCH PRICE - FIXED =====
+function openWatchDialog(productId, productPrice, productTitle) {
+    document.getElementById('watch-product-id').value = productId;
+    document.getElementById('watch-product-price').value = productPrice;
+    document.getElementById('watch-dialog').style.display = 'flex';
+    document.getElementById('watch-email').focus();
+}
+
+function closeWatchDialog() {
+    document.getElementById('watch-dialog').style.display = 'none';
+    document.getElementById('watch-email').value = '';
+}
+
+async function submitWatchPrice() {
+    const email = document.getElementById('watch-email').value;
+    const productId = document.getElementById('watch-product-id').value;
+    const currentPrice = parseFloat(document.getElementById('watch-product-price').value) || 0;
+    const watchDict = dict[lang]?.watch || dict.ar.watch;
+    
+    if (!email || !email.includes('@')) {
+        alert(watchDict.enterEmail);
+        return;
+    }
+    
+    try {
+        const response = await fetch(API + '/alerts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                email: email,
+                productName: productId,
+                targetPrice: currentPrice * 0.9,
+                currentPrice: currentPrice,
+                productLink: '',
+                productId: productId,
+                lang: lang,
+                uid: localStorage.getItem('findly_uid') || 'guest'
+            })
+        });
+        
+        if (response.ok) {
+            alert(watchDict.success);
+            closeWatchDialog();
+        } else {
+            alert(watchDict.serverError + response.status);
+        }
+    } catch (error) {
+        alert(watchDict.connectionFailed);
+    }
+}
+
+// ===== RENDER PRODUCT CARD - ENHANCED =====
+function renderProductCard(p, T) {
+    const intel = p.intelligence || {};
+    const priceIntel = intel.priceIntel || {};
+    const trendIntel = intel.trendIntel || {};
+    const technicalIndicators = trendIntel.technicalIndicators || {};
+    const trustIntel = intel.trustIntel || {};
+    const merchantTrust = trustIntel.merchantTrust || {};
+    const fakeDealCheck = trustIntel.fakeDealCheck || {};
+    const personalityIntel = intel.personalityIntel || {};
+    const finalVerdict = intel.finalVerdict || {};
+    const recommendationIntel = intel.recommendationIntel || {};
+    const aiInsights = recommendationIntel.aiInsights || {};
+    
+    const priceValue = parseFloat(String(p.price).replace(/[^\d.]/g, '')) || 0;
+    
+    // Determine deal badge
+    let badgeClass = 'weak';
+    let badgeText = T.badges.weak;
+    if (priceIntel.score >= 75) {
+        badgeClass = 'strong';
+        badgeText = '🟢 ' + T.badges.strong;
+    } else if (priceIntel.score >= 50) {
+        badgeClass = 'medium';
+        badgeText = '🟠 ' + T.badges.medium;
+    } else {
+        badgeText = '🔴 ' + T.badges.weak;
+    }
+    
+    // Determine trend icon
+    let trendIcon = '➡️';
+    let trendText = T.search.stableTxt;
+    if (trendIntel.trend === 'rising') {
+        trendIcon = '📈';
+        trendText = T.search.trend_up;
+    } else if (trendIntel.trend === 'falling') {
+        trendIcon = '📉';
+        trendText = T.search.trend_down;
+    }
+    
+    // Trust level
+    const trustScore = merchantTrust.trustScore || 0;
+    const trustLevel = trustScore >= 70 ? 'good' : trustScore >= 40 ? 'warning' : 'danger';
+    
+    // Risk level
+    const riskScore = trustIntel.overallRisk || 0;
+    const riskLevel = riskScore <= 25 ? 'good' : riskScore <= 50 ? 'warning' : 'danger';
+    
+    // AI Decision styling
+    let decisionColor = '#3b82f6';
+    let decisionText = T.search.stableTxt;
+    if (finalVerdict.decision === 'STRONG_BUY' || finalVerdict.decision === 'BUY_NOW') {
+        decisionColor = '#10b981';
+        decisionText = '🟢 ' + T.search.smartDecision;
+    } else if (finalVerdict.decision === 'WAIT' || finalVerdict.decision === 'SMART_WAIT') {
+        decisionColor = '#f59e0b';
+        decisionText = '⏳ ' + T.search.preferWait;
+    } else if (finalVerdict.decision === 'OVERPRICED') {
+        decisionColor = '#ef4444';
+        decisionText = '🔴 ' + T.search.priceHigh;
+    }
+    
+    // Personality info
+    const personalityType = personalityIntel.type || 'neutral';
+    const personalityInfo = T.v4.personalityTypes[personalityType] || T.v4.personalityTypes.hunter;
+    
+    const cardId = 'card-' + Math.random().toString(36).substr(2, 9);
+    
+    return `
+        <div class="product-card" id="${cardId}">
+            <!-- Deal Badge -->
+            <div class="deal-badge ${badgeClass}">${badgeText}</div>
+            
+            <!-- Tabs -->
+            <div class="product-tabs">
+                <button class="tab-btn active" onclick="switchTab('${cardId}', 'product')">${T.tabs.product}</button>
+                <button class="tab-btn" onclick="switchTab('${cardId}', 'analysis')">${T.tabs.analysis}</button>
+                <button class="tab-btn" onclick="switchTab('${cardId}', 'decision')">${T.tabs.decision}</button>
+            </div>
+            
+            <!-- Tab 1: Product -->
+            <div class="tab-content active" id="${cardId}-product">
+                <!-- Product Image -->
+                <img src="${p.thumbnail || ''}" onerror="this.src='https://via.placeholder.com/200'" alt="${p.title}">
+                
+                <!-- Product Title -->
+                <h3>${p.title || '—'}</h3>
+                
+                <!-- Price -->
+                <div class="price">
+                    ${priceIntel.discount > 0 ? '<span class="old-price">$' + (priceIntel.original || priceValue).toFixed(2) + '</span>' : ''}
+                    $${priceValue.toFixed(2)}
+                    ${priceIntel.discount > 0 ? '<span style="color:#ef4444;font-size:0.8rem;margin-right:8px">-' + priceIntel.discount + '%</span>' : ''}
+                </div>
+                
+                <!-- Store -->
+                <div style="color:var(--text-muted);font-size:0.85rem;margin-bottom:15px;">
+                    🏪 ${p.source || 'Unknown'}
+                </div>
+                
+                <!-- Score Grid -->
+                <div class="score-grid">
+                    <div class="score-item price">
+                        <div class="value">${priceIntel.score || 50}%</div>
+                        <div class="label">${T.v4.valueForMoney}</div>
+                    </div>
+                    <div class="score-item trust">
+                        <div class="value">${100 - riskScore}%</div>
+                        <div class="label">${T.v4.reliability}</div>
+                    </div>
+                    <div class="score-item deal">
+                        <div class="value">${priceIntel.percentile || 50}%</div>
+                        <div class="label">${T.search.deal_score}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tab 2: Analysis -->
+            <div class="tab-content" id="${cardId}-analysis">
+                <!-- Section 2: Price Analysis -->
+                <div class="intel-section">
+                    <h4><i class="fa-solid fa-chart-line"></i> ${T.sections.priceAnalysis}</h4>
+                    <div class="intel-row">
+                        <span class="intel-label">${T.search.deal_score}</span>
+                        <span class="intel-value ${priceIntel.score >= 70 ? 'good' : priceIntel.score >= 50 ? 'warning' : 'danger'}">${priceIntel.score || 50}%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill ${priceIntel.score >= 70 ? 'high' : priceIntel.score >= 50 ? 'medium' : 'low'}" style="width:${priceIntel.score || 50}%"></div>
+                    </div>
+                    <div style="font-size:0.8rem;color:var(--text-muted);margin-top:8px">${priceIntel.label || ''}</div>
+                    ${priceIntel.savingsPercent > 0 ? `<div style="color:#10b981;font-size:0.85rem;margin-top:8px">💰 ${T.search.saving}: ${priceIntel.savingsPercent}%</div>` : ''}
+                </div>
+                
+                <!-- Section 3: Market Analysis -->
+                <div class="intel-section">
+                    <h4><i class="fa-solid fa-industry"></i> ${T.sections.marketAnalysis}</h4>
+                    <div class="intel-row">
+                        <span class="intel-label">${T.search.forecast}</span>
+                        <span class="intel-value">${trendIcon} ${trendText}</span>
+                    </div>
+                    ${technicalIndicators.rsi ? `
+                    <div class="intel-row">
+                        <span class="intel-label">RSI</span>
+                        <span class="intel-value ${technicalIndicators.rsiSignal === 'oversold' ? 'good' : technicalIndicators.rsiSignal === 'overbought' ? 'danger' : ''}">${technicalIndicators.rsi.toFixed(1)} ${technicalIndicators.rsiSignal === 'oversold' ? '📈' : technicalIndicators.rsiSignal === 'overbought' ? '📉' : ''}</span>
+                    </div>
+                    ` : ''}
+                    <div class="intel-row">
+                        <span class="intel-label">${T.search.behavior}</span>
+                        <span class="intel-value ${technicalIndicators.volatility === 'low' ? 'good' : technicalIndicators.volatility === 'high' ? 'danger' : 'warning'}">
+                            ${technicalIndicators.volatility === 'low' ? '🟢 ' + T.search.stableTxt : technicalIndicators.volatility === 'high' ? '🔴 ' + T.search.risk : '🟡 ' + T.search.good}
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- Section 4: Trust & Risk -->
+                <div class="intel-section">
+                    <h4><i class="fa-solid fa-shield-halved"></i> ${T.sections.trustRisk}</h4>
+                    <div class="intel-row">
+                        <span class="intel-label">${T.v4.merchantTrust}</span>
+                        <span class="intel-value ${trustLevel}">${trustScore}% ${merchantTrust.isTrusted ? '✓' : ''}</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill ${trustScore >= 70 ? 'high' : trustScore >= 40 ? 'medium' : 'low'}" style="width:${trustScore}%"></div>
+                    </div>
+                    <div class="intel-row">
+                        <span class="intel-label">${T.search.risk}</span>
+                        <span class="intel-value ${riskLevel}">
+                            ${riskScore <= 25 ? '🟢 ' + T.search.safe : riskScore <= 50 ? '🟡 ' + T.search.good : '🔴 ' + T.search.risk}
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- Fake Deal Alert -->
+                ${fakeDealCheck.isSuspicious ? `
+                <div class="fake-deal-alert">
+                    <div class="alert-header">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        ${T.v4.fakeDealAlert}
+                    </div>
+                    <ul>
+                        ${fakeDealCheck.redFlags.slice(0, 3).map(flag => `<li>${flag}</li>`).join('')}
+                    </ul>
+                </div>
+                ` : ''}
+            </div>
+            
+            <!-- Tab 3: Decision -->
+            <div class="tab-content" id="${cardId}-decision">
+                <!-- Section 5: AI Decision -->
+                <div class="ai-decision" style="background: linear-gradient(135deg, ${decisionColor}20, ${decisionColor}10); border-color: ${decisionColor}">
+                    <div class="main-action" style="color: ${decisionColor}">${decisionText}</div>
+                    <div class="reason">${finalVerdict.reason || ''}</div>
+                    <div class="confidence">🎯 ${T.search.confidenceScore}: ${finalVerdict.confidence || 70}%</div>
+                </div>
+                
+                <!-- AI Insights -->
+                ${aiInsights.advice ? `
+                <div class="ai-tip">
+                    <i class="fa-solid fa-lightbulb"></i>
+                    <strong>${aiInsights.advice}</strong>
+                    ${aiInsights.tip ? `<div style="font-size:0.85rem;margin-top:5px">${aiInsights.tip}</div>` : ''}
+                </div>
+                ` : ''}
+                
+                <!-- Section 6: Personality -->
+                <div class="intel-section">
+                    <h4><i class="fa-solid fa-user"></i> ${T.sections.personality}</h4>
+                    <div class="personality-badge">
+                        <div class="personality-icon">${personalityInfo.icon}</div>
+                        <div class="personality-info">
+                            <div class="type">${personalityInfo.name}</div>
+                            <div class="desc">${personalityInfo.desc}</div>
+                        </div>
+                    </div>
+                    ${personalityIntel.confidence ? `<div style="font-size:0.8rem;color:var(--text-muted);margin-top:8px">${T.search.confidence}: ${personalityIntel.confidence}%</div>` : ''}
+                </div>
+                
+                ${finalVerdict.savingsPercent > 0 ? `
+                <div style="background:rgba(16,185,129,0.1);border:1px dashed #10b981;border-radius:12px;padding:12px;margin-top:12px;text-align:center">
+                    <div style="font-size:1.5rem;font-weight:800;color:#10b981">${finalVerdict.savingsPercent}%</div>
+                    <div style="font-size:0.8rem;color:var(--text-muted)">${T.search.saving}</div>
+                </div>
+                ` : ''}
+            </div>
+            
+            <!-- Action Buttons -->
+            <div style="display:flex;gap:10px;margin-top:15px">
+                <button class="action-btn watch-btn" onclick="openWatchDialog('${p.id || p.title}', ${priceValue}, '${p.title.replace(/'/g, "\\'")}')">
+                    <i class="fa-solid fa-bell"></i> ${T.search.watchPrice}
+                </button>
+                ${p.link ? `
+                <a class="action-btn buy-now" href="${API}/go?url=${encodeURIComponent(p.link)}" target="_blank">
+                    <i class="fa-solid fa-cart-shopping"></i> ${T.ui.buy}
+                </a>
+                ` : `
+                <button class="action-btn buy-now" disabled style="opacity:0.5">${T.search.linkUnavailable}</button>
+                `}
+            </div>
+        </div>
+    `;
+}
+
+// Tab switching
+window.switchTab = function(cardId, tabName) {
+    // Hide all tabs in this card
+    document.querySelectorAll(`#${cardId} .tab-content`).forEach(el => el.classList.remove('active'));
+    document.querySelectorAll(`#${cardId} .tab-btn`).forEach(el => el.classList.remove('active'));
+    
+    // Show selected tab
+    document.getElementById(`${cardId}-${tabName}`).classList.add('active');
+    event.target.classList.add('active');
+};
+
+// ===== SEARCH FUNCTION =====
+async function runSearch() {
+    const q = document.getElementById('s-input').value.trim();
+    const status = document.getElementById('status');
+    const resultsBox = document.getElementById('results');
+    const personalityContainer = document.getElementById('personality-container');
+
+    if (!q) return;
+
+    const T = dict[lang]?.search || dict.ar.search;
+    const UI = dict[lang]?.ui || dict.ar.ui;
+
+    status.style.display = 'block';
+    status.innerText = '🔍 ' + UI.slow;
+    resultsBox.innerHTML = '';
+    personalityContainer.style.display = 'none';
+
+    try {
+        const res = await fetch(API + '/search?q=' + encodeURIComponent(q) + '&lang=' + lang);
+        const data = await res.json().catch(() => ({}));
+
+        if (res.status === 429 || data.error === 'ENERGY_EMPTY') {
+            status.innerHTML = '<div style="background:rgba(239,68,68,0.1);border:1px solid #ef4444;padding:20px;border-radius:16px;text-align:center"><h3 style="color:#ef4444;margin:0">' + UI.noAttempts + '</h3></div>';
+            return;
+        }
+
+        if (!res.ok) throw new Error(data.message || ('Server error: ' + res.status));
+        status.style.display = 'none';
+
+        if (!data.results || !data.results.length) {
+            status.style.display = 'block';
+            status.innerText = UI.noResults;
+            return;
+        }
+
+        // Show personality if available
+        if (data.personality) {
+            const personalityInfo = dict[lang]?.v4?.personalityTypes?.[data.personality.type] || dict.ar.v4.personalityTypes.hunter;
+            personalityContainer.innerHTML = `
+                <div class="personality-badge" style="max-width:600px;margin:0 auto 20px">
+                    <div class="personality-icon">${data.personality.icon || personalityInfo.icon}</div>
+                    <div class="personality-info">
+                        <div class="type">${data.personality.name || personalityInfo.name}</div>
+                        <div class="desc">${personalityInfo.desc}</div>
+                    </div>
+                </div>
+            `;
+            personalityContainer.style.display = 'block';
+        }
+
+        // Render products with enhanced card
+        data.results.forEach(p => {
+            const cardHtml = renderProductCard(p, dict[lang] || dict.ar);
+            resultsBox.innerHTML += cardHtml;
+        });
+
+        // Update energy
+        if (data.energy) {
+            document.getElementById('r-count').textContent = data.energy.left;
+        }
+
+    } catch (e) {
+        status.style.display = 'block';
+        status.innerText = UI.errorFetching + ': ' + e.message;
+    }
+}
+
+// ===== HELPER FUNCTIONS =====
+window.toggleMode = function() { document.body.classList.toggle('light-mode'); };
+window.toggleLMenu = function() { const m = document.getElementById('l-menu'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; };
+window.setLang = function(l) { 
+    lang = l; 
+    localStorage.setItem('findly_lang', l); 
+    document.getElementById('l-menu').style.display = 'none'; 
+    update(); 
+    initVoiceSearch(); 
+};
+window.openProfile = function() { document.getElementById('p-modal').style.display = 'flex'; document.getElementById('in-name').value = localStorage.getItem('fn') || ''; document.getElementById('in-budget').value = localStorage.getItem('user_budget') || ''; };
+window.quickSearch = function(q) { document.getElementById('s-input').value = q; runSearch(); };
+window.quickFilter = function(type) { document.getElementById('s-input').value += ' ' + type; };
+window.toggleWatchList = function() { const m = document.getElementById('w-modal'); m.style.display = m.style.display === 'flex' ? 'none' : 'flex'; };
+window.saveSet = function() {
+    localStorage.setItem('fn', document.getElementById('in-name').value);
+    localStorage.setItem('user_budget', document.getElementById('in-budget').value);
+    document.getElementById('p-modal').style.display = 'none';
+    update();
+};
+window.copyInvite = function() {
+    const uid = localStorage.getItem('findly_uid') || 'guest';
+    const link = location.origin + location.pathname + '?ref=' + uid;
+    const inviteDict = dict[lang]?.invite || dict.ar.invite;
+    navigator.clipboard.writeText(link).then(function() { alert(inviteDict.copied); });
+};
+window.closeWatchDialog = closeWatchDialog;
+window.openWatchDialog = openWatchDialog;
+window.submitWatchPrice = submitWatchPrice;
+
+function update() {
+    const d = dict[lang] || dict.ar;
+    if (!d) return;
+    
+    const userName = localStorage.getItem('fn') || (lang === 'ar' ? 'أيها الباحث' : 'Seeker');
+    
+    const elements = {
+        'txt-energy': d.ui.energy, 'greeting': d.ui.welcome + ' ' + userName,
+        'txt-title': d.ui.title, 'txt-sub': d.ui.sub,
+        'txt-deep': d.ui.deep, 'tag-cheap': d.ui.cheap, 'tag-top': d.ui.top, 'tag-new': d.ui.new,
+        'p-head': d.ui.p_head, 'lbl-name': d.ui.lbl_name, 'lbl-budget': d.ui.lbl_budget,
+        'cat-game': d.ui.game, 'cat-beauty': d.ui.beauty, 'cat-home': d.ui.home,
+        'cat-c1': d.ui.c1, 'cat-c2': d.ui.c2, 'cat-c4': d.ui.c4, 'txt-watch-title': d.ui.watchTitle,
+        'btn-save-settings': d.ui.saveChanges, 'btn-close-profile': d.ui.close,
+        'btn-close-watch': d.ui.close,
+        'inviteText': d.invite.text
+    };
+    
+    for (const [id, value] of Object.entries(elements)) {
+        const el = document.getElementById(id);
+        if (el && value !== null) el.innerText = value;
+    }
+    
+    const searchInput = document.getElementById('s-input');
+    if (searchInput) searchInput.placeholder = d.ui.searchPlaceholder;
+    
+    const mainHtml = document.getElementById('main-html');
+    if (mainHtml) { mainHtml.lang = lang; mainHtml.dir = lang === 'ar' ? 'rtl' : 'ltr'; }
+}
+
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('modal') || e.target.id === 'watch-dialog') {
+        e.target.style.display = 'none';
+    }
+});
+
+window.onload = function() {
+    update();
+    initVoiceSearch();
+};
+</script>
+</body>
+</html>

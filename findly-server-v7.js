@@ -385,7 +385,7 @@ const finalResults = results.map(p => ({
         const response = {
             success: true,
             query: q,
-            results,
+            results: finalResults,
             personality,
             energy: {
                 left: isSubscribed ? '∞' : Math.max(0, 3 - energy.searchesUsed),

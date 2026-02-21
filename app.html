@@ -743,7 +743,127 @@
         <button onclick="closeWatchDialog()" style="background:none; color:var(--text-muted); border:none; margin-top:15px; cursor:pointer; font-size:0.9rem;" id="watch-dialog-close">إغلاق</button>
     </div>
 </div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-analytics.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
+const firebaseConfig = {
+    apiKey: "AIzaSyCI_q5lkgRY4133ua4RlG5TeiCqJ5N5KTU",
+    authDomain: "findly-ede17.firebaseapp.com",
+    projectId: "findly-ede17",
+    storageBucket: "findly-ede17.firebasestorage.app",
+    messagingSenderId: "503212830017",
+    appId: "1:503212830017:web:9afb64c19822bbe7f645c0",
+    measurementId: "G-X1Q3WDP50N"
+};
+
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+
+// ===== AUTH FUNCTIONS =====
+window.loginWithGoogle = async () => {
+    try { 
+        await signInWithPopup(auth, provider); 
+    } catch (error) { 
+        alert("Error: " + error.message); 
+    }
+};
+
+window.handleLogin = async () => {
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
+    const currentLang = localStorage.getItem('findly_lang') || 'ar';
+    const authDict = window.dict[currentLang]?.auth || window.dict.ar.auth;
+    if (!email || !password) return alert(authDict.fillFields);
+    try {
+        await signInWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+        let msg = authDict.loginFailed;
+        if (error.code === 'auth/user-not-found') msg = authDict.userNotFound;
+        else if (error.code === 'auth/wrong-password') msg = authDict.wrongPassword;
+        else if (error.code === 'auth/invalid-email') msg = authDict.invalidEmail;
+        else if (error.code === 'auth/invalid-credential') msg = authDict.invalidCredential;
+        else msg += " " + error.message;
+        alert(msg);
+    }
+};
+
+window.handleRegister = async () => {
+    const email = document.getElementById('signup-email').value;
+    const password = document.getElementById('signup-password').value;
+    const currentLang = localStorage.getItem('findly_lang') || 'ar';
+    const authDict = window.dict[currentLang]?.auth || window.dict.ar.auth;
+    if (!email || !password) return alert(authDict.fillFields);
+    if (password.length < 6) return alert(authDict.weakPassword);
+    try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        alert(authDict.registerSuccess);
+    } catch (error) {
+        let msg = authDict.registerFailed;
+        if (error.code === 'auth/email-already-in-use') msg = authDict.emailInUse;
+        else if (error.code === 'auth/weak-password') msg = authDict.weakPassword;
+        else if (error.code === 'auth/invalid-email') msg = authDict.invalidEmail;
+        else msg += " " + error.message;
+        alert(msg);
+    }
+};
+
+window.logoutUser = () => {
+    const currentLang = localStorage.getItem('findly_lang') || 'ar';
+    const authDict = window.dict[currentLang]?.auth || window.dict.ar.auth;
+    if (confirm(authDict.logoutConfirm)) {
+        signOut(auth).then(() => {
+            sessionStorage.removeItem('welcome_shown');
+            location.reload();
+        });
+    }
+};
+
+// ===== AUTH STATE LISTENER =====
+onAuthStateChanged(auth, (user) => {
+    const overlay = document.getElementById('auth-modal');
+    if (user) {
+        overlay.style.setProperty('display', 'none', 'important');
+        document.body.style.overflow = 'auto';
+        localStorage.setItem('findly_uid', user.uid);
+        console.log('✅ User logged in:', user.uid);
+    } else {
+        overlay.style.setProperty('display', 'flex', 'important');
+        document.body.style.overflow = 'hidden';
+        console.log('❌ No user logged in');
+    }
+});
+
+// ===== GLOBAL AUTH FUNCTIONS =====
+window.firebaseAuth = auth;
+window.firebaseApp = app;
+
+window.getAuthToken = async function() {
+    const user = auth.currentUser;
+    if (!user) {
+        console.log('❌ No current user');
+        return null;
+    }
+    try {
+        const token = await user.getIdToken();
+        console.log('✅ Token obtained');
+        return token;
+    } catch (e) {
+        console.error('❌ Token error:', e);
+        return null;
+    }
+};
+
+window.getCurrentUser = function() {
+    return auth.currentUser;
+};
+
+console.log('🔥 Firebase initialized successfully');
+</script>
+    
 <script>
 const API = "https://findly-api-production.up.railway.app";
 

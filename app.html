@@ -1835,68 +1835,106 @@ window.addToWatch = async function(productData) {
     }
 };
 
-// ===== SEARCH FUNCTION =====
+// ===== Energy UI Update =====
+
+function updateEnergyUI(energyValue, maxValue) {
+
+    const valueEl = document.getElementById('energyValue');
+    const maxEl = document.getElementById('maxEnergyValue');
+    const barEl = document.getElementById('energyBar');
+
+    if (!valueEl || !barEl) return;
+
+    const energyNum = (energyValue === '∞' || energyValue === 999) ? 999 : Number(energyValue);
+    const maxNum = (maxValue === '∞' || maxValue === 999) ? 999 : Number(maxValue);
+
+    const displayValue = (energyNum === 999) ? '∞' : energyNum;
+    const maxDisplay = (maxNum === 999) ? '∞' : maxNum;
+
+    valueEl.textContent = displayValue;
+    if (maxEl) maxEl.textContent = maxDisplay;
+
+    const safeEnergy = (energyNum === 999) ? maxNum : energyNum;
+    const percent = (safeEnergy / maxNum) * 100;
+
+    barEl.style.width = Math.max(0, Math.min(100, percent)) + '%';
+
+    barEl.classList.remove('low', 'medium');
+
+    if (safeEnergy <= 0) {
+        barEl.classList.add('low');
+    } else if (safeEnergy === 1) {
+        barEl.classList.add('medium');
+    }
+}
+    
+    // ===== SEARCH FUNCTION =====
 async function runSearch() {
-    const q = document.getElementById('s-input').value.trim();
+
+    const query = document.getElementById('s-input').value.trim();
+
+    // ❌ منع البحث الفارغ
+    if (!query) return;
+
+    // ❌ منع البحث إذا انتهت الطاقة
+    if (typeof energy === 'number' && energy <= 0) {
+        showToast('⚠️ لقد استهلكت جميع عمليات البحث المجانية، يرجى الترقية إلى الخطة المدفوعة');
+        showUpgradeModal();
+        return;
+    }
+
     const status = document.getElementById('status');
-    const resultsBox = document.getElementById('results');
-    const personalityContainer = document.getElementById('personality-container');
-
-    if (!q) return;
-
-    const UI = dict[lang]?.ui || dict.ar.ui;
+    const resultsDiv = document.getElementById('results');
+    const d = dict[lang].ui;
 
     status.style.display = 'block';
-    status.innerText = '🔍 ' + UI.slow;
-    resultsBox.innerHTML = '';
-    personalityContainer.style.display = 'none';
+    status.textContent = d.slow;
+    resultsDiv.innerHTML = '';
 
     try {
-        let token = null;
-        try { if (window.getAuthToken) token = await window.getAuthToken(); } catch (e) {}
+        const res = await fetch(`${API}/search?q=${encodeURIComponent(query)}&lang=${lang}`);
+        const data = await res.json();
 
-        const headers = {};
-        if (token) headers['Authorization'] = 'Bearer ' + token;
+        console.log('=== SERVER RESPONSE ===', res.status, data);
 
-        const res = await fetch(API + '/search?q=' + encodeURIComponent(q) + '&lang=' + lang, { headers });
-        const data = await res.json().catch(() => ({}));
-
-        if (res.status === 429 || data.error === 'ENERGY_EMPTY') {
-            const upgradeDict = dict[lang]?.upgrade || dict.ar.upgrade;
-            status.innerHTML = '<div class="upgrade-section"><h3>' + upgradeDict.title + '</h3><p style="font-size:0.95rem;opacity:0.9">' + upgradeDict.message + '</p><button class="upgrade-btn" onclick="openUpgrade()">' + upgradeDict.upgradeBtn + '</button></div>';
+        // ================== ❌ حالة تجاوز الحد من السيرفر ==================
+        if (res.status === 429 || (!data.success && data.code === "FREE_LIMIT_REACHED") || data.error === 'ENERGY_EMPTY') {
+            status.style.display = 'none';
+            energy = 0;
+            updateEnergyUI(0, maxEnergy);
+            showUpgradeModal();
             return;
         }
 
-        if (!res.ok) throw new Error(data.message || 'Server error: ' + res.status);
+        // ================== ✅ تحديث الطاقة من السيرفر ==================
+        if (data.energy) {
+            energy = data.energy.left;
+            maxEnergy = data.energy.limit || 3;
+            updateEnergyUI(energy, maxEnergy);
+        }
+
         status.style.display = 'none';
 
-        if (!data.results || !data.results.length) {
-            status.style.display = 'block';
-            status.innerText = UI.noResults;
+        // ================== لا يوجد نتائج ==================
+        if (!data.results || data.results.length === 0) {
+            resultsDiv.innerHTML = `<p style="color:var(--text-muted); text-align:center; margin-top:20px;">${d.noResults}</p>`;
             return;
         }
 
-        // Update energy
-        if (data.energy) {
-            document.getElementById('r-count').textContent = typeof data.energy.left === 'number' ? data.energy.left : data.energy.left;
-        }
-
-        // Show personality
+        // ================== عرض الشخصية ==================
         if (data.personality) {
-            personalityContainer.innerHTML = renderPersonalityBadge(data.personality);
-            personalityContainer.style.display = 'block';
+            showPersonality(data.personality);
         }
 
-        // Render products with new card design
-        data.results.forEach(function(p) {
-            const cardDiv = document.createElement('div');
-            cardDiv.innerHTML = renderProductCard(p);
-            resultsBox.appendChild(cardDiv.firstElementChild);
-        });
+        // ================== عرض النتائج ==================
+        resultsDiv.innerHTML = data.results.map((p, index) => {
+            return renderProductCard(p, dict[lang], index);
+        }).join('');
 
     } catch (e) {
-        status.style.display = 'block';
-        status.innerText = UI.errorFetching + ': ' + e.message;
+        console.error('Search error:', e);
+        status.textContent = d.errorFetching;
+        status.style.color = '#ef4444';
     }
 }
 

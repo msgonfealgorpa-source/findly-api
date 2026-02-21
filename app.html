@@ -1036,27 +1036,38 @@ function initVoiceSearch() {
 
 // ========== Energy UI Update ==========
 function updateEnergyUI(energyValue, maxValue) {
+
     const valueEl = document.getElementById('energyValue');
     const maxEl = document.getElementById('maxEnergyValue');
     const barEl = document.getElementById('energyBar');
-    
+
     if (!valueEl || !barEl) return;
-    
-    const displayValue = energyValue === '∞' || energyValue === 999 ? '∞' : energyValue;
-    const maxDisplay = maxValue === '∞' || maxValue === 999 ? '∞' : maxValue;
-    
+
+    // 🔥 تحويل القيم لأرقام دائماً
+    const energyNum = (energyValue === '∞' || energyValue === 999) ? 999 : Number(energyValue);
+    const maxNum = (maxValue === '∞' || maxValue === 999) ? 999 : Number(maxValue);
+
+    // ===== عرض النص =====
+    const displayValue = (energyNum === 999) ? '∞' : energyNum;
+    const maxDisplay = (maxNum === 999) ? '∞' : maxNum;
+
     valueEl.textContent = displayValue;
-    maxEl.textContent = maxDisplay;
-    
-    const numValue = (energyValue === '∞' || energyValue === 999) ? 3 : energyValue;
-    const numMax = (maxValue === '∞' || maxValue === 999) ? 3 : maxValue;
-    const percent = (numValue / numMax) * 100;
-    
+    if (maxEl) maxEl.textContent = maxDisplay;
+
+    // ===== حساب النسبة =====
+    const safeEnergy = (energyNum === 999) ? maxNum : energyNum;
+    const percent = (safeEnergy / maxNum) * 100;
+
     barEl.style.width = Math.max(0, Math.min(100, percent)) + '%';
-    
+
+    // ===== الألوان =====
     barEl.classList.remove('low', 'medium');
-    if (numValue <= 0) barEl.classList.add('low');
-    else if (numValue === 1) barEl.classList.add('medium');
+
+    if (safeEnergy <= 0) {
+        barEl.classList.add('low');
+    } else if (safeEnergy === 1) {
+        barEl.classList.add('medium');
+    }
 }
 
 // ========== Upgrade Modal Functions ==========
@@ -1080,75 +1091,67 @@ function goToUpgrade() {
 
 // ========== Main Search ==========
 async function runSearch() {
+
     const query = document.getElementById('s-input').value.trim();
+
+    // ❌ منع البحث الفارغ
+    if (!query) return;
+
+    // ❌ منع البحث إذا انتهت الطاقة
     if (typeof energy === 'number' && energy <= 0) {
-    showToast('⚠️ لقد استهلكت جميع عمليات البحث المجانية، يرجى الترقية إلى الخطة المدفوعة');
-    return;
+        showToast('⚠️ لقد استهلكت جميع عمليات البحث المجانية، يرجى الترقية إلى الخطة المدفوعة');
+        showUpgradeModal();
+        return;
     }
+
     const status = document.getElementById('status');
     const resultsDiv = document.getElementById('results');
     const d = dict[lang].ui;
-    
+
     status.style.display = 'block';
     status.textContent = d.slow;
     resultsDiv.innerHTML = '';
-    
+
     try {
         const res = await fetch(`${API}/search?q=${encodeURIComponent(query)}&lang=${lang}`);
         const data = await res.json();
-        
+
         console.log('=== SERVER RESPONSE ===', res.status, data);
-        
-        // ========== CHECK HTTP 429 - FREE LIMIT REACHED ==========
-        if (res.status === 429) {
+
+        // ================== ❌ حالة تجاوز الحد من السيرفر ==================
+        if (res.status === 429 || (!data.success && data.code === "FREE_LIMIT_REACHED") || data.error === 'ENERGY_EMPTY') {
             status.style.display = 'none';
             energy = 0;
             updateEnergyUI(0, maxEnergy);
             showUpgradeModal();
             return;
         }
-        
-        // ========== CHECK FREE LIMIT REACHED (code) ==========
-        if (!data.success && data.code === "FREE_LIMIT_REACHED") {
-            status.style.display = 'none';
-            energy = 0;
-            updateEnergyUI(0, maxEnergy);
-            showUpgradeModal();
-            return;
-        }
-        
-        // ========== CHECK ENERGY EMPTY ==========
-        if (data.error === 'ENERGY_EMPTY') {
-            status.style.display = 'none';
-            energy = 0;
-            updateEnergyUI(0, maxEnergy);
-            showUpgradeModal();
-            return;
-        }
-        
-        // ========== UPDATE ENERGY FROM SERVER ==========
+
+        // ================== ✅ تحديث الطاقة من السيرفر ==================
         if (data.energy) {
             energy = data.energy.left;
             maxEnergy = data.energy.limit || 3;
             updateEnergyUI(energy, maxEnergy);
         }
-        
+
         status.style.display = 'none';
-        
+
+        // ================== لا يوجد نتائج ==================
         if (!data.results || data.results.length === 0) {
             resultsDiv.innerHTML = `<p style="color:var(--text-muted); text-align:center; margin-top:20px;">${d.noResults}</p>`;
             return;
         }
-        
-        // Show personality
-        if (data.personality) showPersonality(data.personality);
-        
-        // ========== RENDER RESULTS - Each product uses its own data ==========
+
+        // ================== عرض الشخصية ==================
+        if (data.personality) {
+            showPersonality(data.personality);
+        }
+
+        // ================== عرض النتائج ==================
         resultsDiv.innerHTML = data.results.map((p, index) => {
-            // Each product p has its own unique data
             return renderProductCard(p, dict[lang], index);
         }).join('');
-        
+
     } catch (e) {
         console.error('Search error:', e);
         status.textContent = d.errorFetching;

@@ -308,35 +308,45 @@ app.get('/search', async (req, res) => {
 
         // Process each product with FULL Sage Intelligence
         const results = rawResults.map(item => {
-            const product = {
-                id: crypto.createHash('md5').update(item.title + item.source).digest('hex'),
-                title: item.title || 'Unknown',
-                price: item.price || '$0',
-                originalPrice: item.original_price || null,
-                link: item.product_link || item.link || '',
-                thumbnail: item.thumbnail || item.product_image || '',
-                source: item.source || 'Google Shopping',
-                rating: item.rating,
-                reviewCount: item.review_count
-            };
+    const product = {
+        id: crypto.createHash('md5').update(item.title + item.source).digest('hex'),
+        title: item.title || 'Unknown',
+        price: item.price || '$0',
+        originalPrice: item.original_price || null,
+        link: item.product_link || item.link || '',
+        thumbnail: item.thumbnail || item.product_image || '',
+        source: item.source || 'Google Shopping',
+        rating: item.rating,
+        reviewCount: item.review_count
+    };
 
-            // Call the FULL Sage Core v5.0
-            const intelligence = SageCore(
-                product,
-                rawResults,           // Market products
-                [],                   // Price history (would need DB query)
-                userBehavior || {},   // User events
-                auth.uid,             // User ID
-                { purchases: userBehavior?.purchases || [], avgMarketPrice: userBehavior?.avgPurchasePrice },
-                lang,
-                { geminiApiKey: GEMINI_API_KEY }
-            );
+    const intelligence = SageCore(
+        product,
+        rawResults,
+        [],
+        userBehavior || {},
+        auth.uid,
+        { purchases: userBehavior?.purchases || [], avgMarketPrice: userBehavior?.avgPurchasePrice },
+        lang,
+        { geminiApiKey: GEMINI_API_KEY }
+    );
 
-            return {
-                ...product,
-                intelligence
-            };
-        });
+    return {
+        ...product,
+        intelligence
+    };
+});
+
+
+// ✅ هنا تضيف الأفلييت (المكان الصحيح)
+const finalResults = results.map(p => ({
+    ...p,
+    affiliate: {
+        link: AFFILIATE.url,
+        id: AFFILIATE.id,
+        source: AFFILIATE.source
+    }
+}));
 
         // Update energy for non-subscribers
         if (dbConnected) {

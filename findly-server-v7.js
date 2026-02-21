@@ -14,7 +14,12 @@ const { v4: uuidv4 } = require('uuid');
 const SageCore = require('./sage-core-v5.js');
 
 const app = express();
-
+// ===== Affiliate Config =====
+const AFFILIATE = {
+    url: "https://s.click.aliexpress.com/e/_c41hZR8P",
+    id: "LY20260129XmLf",
+    source: "AliExpress"
+};
 /* ================= BASIC MIDDLEWARE ================= */
 app.use(cors({ origin: "*", methods: ["GET", "POST", "OPTIONS"], allowedHeaders: ["Content-Type", "Authorization"] }));
 app.options("*", cors());
@@ -298,6 +303,7 @@ app.get('/search', async (req, res) => {
             timeout: 15000
         });
 
+        
         const rawResults = apiRes.data?.shopping_results?.slice(0, 10) || [];
 
         // Process each product with FULL Sage Intelligence

@@ -1983,14 +1983,39 @@ window.copyInvite = function() {
 };
 
 window.openUpgrade = async function() {
-    const uid = localStorage.getItem('findly_uid') || 'guest_' + Date.now();
-    const upgradeDict = dict[lang]?.upgrade || dict.ar.upgrade;
-    try {
-        const res = await fetch(API + '/create-payment', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ uid: uid }) });
-        const data = await res.json();
-        if (data.url) window.open(data.url, '_blank');
-        else alert(upgradeDict.paymentUnavailable);
-    } catch (e) { alert(upgradeDict.paymentError); }
+
+  try {
+    const uid = localStorage.getItem('findly_uid');
+
+    if (!uid) {
+      showToast("⚠️ يجب تسجيل الدخول أولاً");
+      return;
+    }
+
+    showToast("⏳ جاري تحويلك للدفع...");
+
+    const res = await fetch(API + '/create-payment', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ uid })
+    });
+
+    const data = await res.json();
+
+    if (!data.success || !data.url) {
+      showToast("❌ فشل إنشاء رابط الدفع");
+      return;
+    }
+
+    // تحويل المستخدم مباشرة لصفحة الدفع
+    window.location.href = data.url;
+
+  } catch (e) {
+    console.error(e);
+    showToast("❌ خطأ في الاتصال بالسيرفر");
+  }
 };
 
 window.saveSet = function() {

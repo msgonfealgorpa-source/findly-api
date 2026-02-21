@@ -1896,44 +1896,52 @@ async function runSearch() {
 
         console.log('SERVER RESPONSE:', res.status, data);
 
-        // 🚫 429 من السيرفر
-        if (res.status === 429) {
-            energy = 0;
-            updateEnergyUI(0, 3);
-            showToast('⚠️ انتهت الخطة المجانية');
-            showUpgradeModal();
-            return;
-        }
+        
+// ================== 🚫 HANDLE LIMIT FROM SERVER ==================
 
-        // 🚫 كود من السيرفر
-        if (!data.success && data.code === "FREE_LIMIT_REACHED") {
-            energy = 0;
-            updateEnergyUI(0, 3);
-            showToast('⚠️ انتهت الخطة المجانية');
-            showUpgradeModal();
-            return;
-        }
+// ========= HANDLE LIMIT FROM SERVER =========
+const isLimitReached =
+    res.status === 429 ||
+    data?.code === "FREE_LIMIT_REACHED" ||
+    data?.error === "ENERGY_EMPTY" ||
+    data?.message === "LIMIT_REACHED";
 
-        // 🔋 تحديث الطاقة من السيرفر
-        if (data.energy) {
-            energy = data.energy.left;
-            maxEnergy = data.energy.limit || 3;
-            updateEnergyUI(energy, maxEnergy);
-        }
+if (isLimitReached) {
+    status.style.display = 'none';
 
-        status.style.display = 'none';
+    energy = 0;
+    maxEnergy = data?.energy?.limit || 3;
 
-        if (!data.results || data.results.length === 0) {
-            resultsDiv.innerHTML = `<p style="color:gray;text-align:center">${d.noResults}</p>`;
-            return;
-        }
+    updateEnergyUI(0, maxEnergy);
 
-        if (data.personality) showPersonality(data.personality);
+    showToast('⚠️ انتهت جميع عمليات البحث المجانية، يرجى الترقية');
+    showUpgradeModal();
 
-        resultsDiv.innerHTML = data.results.map((p, i) => {
-            return renderProductCard(p, dict[lang], i);
-        }).join('');
+    return; // ⛔ مهم جدا
+}
 
+// ========= UPDATE ENERGY FROM SERVER =========
+if (data.energy) {
+    energy = data.energy.left;
+    maxEnergy = data.energy.limit || 3;
+    updateEnergyUI(energy, maxEnergy);
+}
+
+status.style.display = 'none';
+
+// ========= NO RESULTS =========
+if (!data.results || data.results.length === 0) {
+    resultsDiv.innerHTML = `<p style="color:gray;text-align:center">${d.noResults}</p>`;
+    return;
+}
+
+// ========= SHOW PERSONALITY =========
+if (data.personality) showPersonality(data.personality);
+
+// ========= RENDER RESULTS =========
+resultsDiv.innerHTML = data.results.map((p, i) => {
+    return renderProductCard(p, dict[lang], i);
+}).join('');
     } catch (e) {
         console.error(e);
         status.textContent = d.errorFetching;

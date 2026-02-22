@@ -354,16 +354,7 @@ const finalResults = results.map(p => ({
     }
 }));
 
-        // Update energy for non-subscribers
-        if (dbConnected) {
-            const now = new Date();
-            const isSubscribed = energy.proExpiresAt && energy.proExpiresAt > now;
-            
-            if (!isSubscribed) {
-                energy.searchesUsed += 1;
-                await energy.save();
-            }
-        }
+    
 
         // Calculate personality from user behavior
         let personality = null;

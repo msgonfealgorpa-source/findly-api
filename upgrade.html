@@ -1,0 +1,84 @@
+<!DOCTYPE html><html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الترقية إلى Findly Pro</title><style>
+body {
+  margin:0;
+  font-family: 'Cairo', sans-serif;
+  background: linear-gradient(135deg,#0f172a,#020617);
+  color:white;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+
+.card {
+  background:#020617;
+  border:1px solid #1e293b;
+  padding:30px;
+  border-radius:20px;
+  width:350px;
+  text-align:center;
+  box-shadow:0 0 40px rgba(0,0,0,0.5);
+}
+
+h1 {color:#38bdf8;}
+
+.price {
+  font-size:40px;
+  margin:20px 0;
+  color:#22c55e;
+}
+
+ul {
+  list-style:none;
+  padding:0;
+  text-align:right;
+}
+
+ul li {
+  padding:8px 0;
+  border-bottom:1px solid #1e293b;
+}
+
+button {
+  margin-top:20px;
+  width:100%;
+  padding:15px;
+  border:none;
+  border-radius:10px;
+  background:#38bdf8;
+  color:black;
+  font-weight:bold;
+  cursor:pointer;
+}
+</style></head>
+<body><div class="card">
+<h1>🚀 Findly Pro</h1><div class="price">$5 / شهرياً</div><ul>
+<li>🔍 بحث غير محدود</li>
+<li>🧠 تحليل ذكي كامل</li>
+<li>⚡ سرعة أعلى</li>
+<li>📊 نتائج متقدمة</li>
+</ul><button onclick="startUpgrade()">تفعيل الاشتراك الآن</button>
+
+</div><script>
+async function startUpgrade(){
+  const res = await fetch('https://findly-api-production.up.railway.app/upgrade',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      uid: localStorage.getItem('findly_uid')
+    })
+  });
+
+  const data = await res.json();
+  if(data.url){
+    window.location.href = data.url;
+  }else{
+    alert("خطأ في إنشاء رابط الدفع");
+  }
+}
+</script></body>
+</html>

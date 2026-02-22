@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="auto">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About Findly</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#020617;
+  --card:#0f172a;
+  --primary:#38bdf8;
+  --accent:#22c55e;
+  --text:#ffffff;
+  --muted:#94a3b8;
+}
+
+body{
+  margin:0;
+  font-family:'Cairo',sans-serif;
+  background:linear-gradient(to bottom,#020617,#020617 60%,#020617);
+  color:var(--text);
+}
+
+.container{
+  max-width:1100px;
+  margin:auto;
+  padding:40px 20px;
+}
+
+header{
+  text-align:center;
+  margin-bottom:50px;
+}
+
+.logo{
+  font-size:40px;
+  font-weight:700;
+  color:var(--primary);
+}
+
+.tagline{
+  color:var(--muted);
+  margin-top:10px;
+}
+
+.section{
+  margin-bottom:50px;
+}
+
+.card{
+  background:var(--card);
+  padding:25px;
+  border-radius:16px;
+  box-shadow:0 0 20px rgba(0,0,0,.4);
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:20px;
+}
+
+.feature{
+  padding:20px;
+  border-radius:12px;
+  background:#020617;
+  border:1px solid rgba(255,255,255,.05);
+  transition:.3s;
+}
+
+.feature:hover{
+  transform:translateY(-5px);
+  border-color:var(--primary);
+}
+
+.feature span{
+  font-size:24px;
+  display:block;
+  margin-bottom:10px;
+}
+
+footer{
+  text-align:center;
+  margin-top:60px;
+  color:var(--muted);
+}
+
+.btn{
+  display:inline-block;
+  margin-top:25px;
+  padding:12px 30px;
+  border-radius:10px;
+  background:var(--primary);
+  color:black;
+  text-decoration:none;
+  font-weight:bold;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<header>
+  <div class="logo">Findly</div>
+  <div class="tagline" id="tagline"></div>
+</header>
+
+<div class="section card">
+  <h2 id="about-title"></h2>
+  <p id="about-text"></p>
+</div>
+
+<div class="section grid">
+  <div class="feature">
+    <span>⚡</span>
+    <div id="f1"></div>
+  </div>
+  <div class="feature">
+    <span>🧠</span>
+    <div id="f2"></div>
+  </div>
+  <div class="feature">
+    <span>🎯</span>
+    <div id="f3"></div>
+  </div>
+  <div class="feature">
+    <span>🔐</span>
+    <div id="f4"></div>
+  </div>
+  <div class="feature">
+    <span>🚀</span>
+    <div id="f5"></div>
+  </div>
+  <div class="feature">
+    <span>🌍</span>
+    <div id="f6"></div>
+  </div>
+</div>
+
+<div class="section card">
+  <h2 id="vision-title"></h2>
+  <p id="vision-text"></p>
+</div>
+
+<div class="section card">
+  <h2 id="mission-title"></h2>
+  <p id="mission-text"></p>
+</div>
+
+<div style="text-align:center">
+  <a href="https://msgonfealgorpa-source.github.io/findly-api/" class="btn" id="back-btn"></a>
+</div>
+
+<footer>
+  © 2026 Findly
+</footer>
+
+</div>
+
+<script>
+
+// 🌍 تحديد اللغة تلقائياً
+const lang = navigator.language.startsWith('ar') ? 'ar' : 'en';
+
+// 🌐 النصوص
+const content = {
+
+ar:{
+tagline:"منصة البحث والتحليل الذكي العالمية",
+aboutTitle:"من نحن",
+aboutText:"Findly هي منصة رقمية ذكية تقدم تجربة متقدمة في البحث والتحليل. تم تصميمها لتوفير وصول سريع ودقيق للمعلومات باستخدام تقنيات تحليل ذكية وتجربة استخدام عصرية.",
+features:[
+"بحث سريع ونتائج دقيقة",
+"تحليل ذكي للمعلومات",
+"تجربة مخصصة لكل مستخدم",
+"حماية عالية للبيانات",
+"أداء سريع واستجابة فورية",
+"دعم عالمي متعدد اللغات"
+],
+visionTitle:"رؤيتنا",
+visionText:"أن تصبح Findly منصة عالمية رائدة في البحث الذكي وتحليل البيانات.",
+missionTitle:"رسالتنا",
+missionText:"تمكين المستخدمين حول العالم من الوصول إلى المعلومات بشكل أسرع وأكثر ذكاءً.",
+back:"العودة للتطبيق"
+},
+
+en:{
+tagline:"Global Smart Search & Intelligence Platform",
+aboutTitle:"About Us",
+aboutText:"Findly is a smart digital platform delivering advanced search and data analysis experience. It is built to provide fast and accurate access to information using intelligent systems and modern design.",
+features:[
+"Fast and accurate search",
+"Smart data analysis",
+"Personalized experience",
+"Strong privacy protection",
+"High performance speed",
+"Global multi-language support"
+],
+visionTitle:"Our Vision",
+visionText:"To become a global leader in intelligent search and data analysis.",
+missionTitle:"Our Mission",
+missionText:"To empower users worldwide with smarter and faster access to information.",
+back:"Back to App"
+}
+
+};
+
+// 🧠 تعبئة النصوص
+const t = content[lang];
+
+document.getElementById("tagline").innerText = t.tagline;
+document.getElementById("about-title").innerText = t.aboutTitle;
+document.getElementById("about-text").innerText = t.aboutText;
+
+document.getElementById("f1").innerText = t.features[0];
+document.getElementById("f2").innerText = t.features[1];
+document.getElementById("f3").innerText = t.features[2];
+document.getElementById("f4").innerText = t.features[3];
+document.getElementById("f5").innerText = t.features[4];
+document.getElementById("f6").innerText = t.features[5];
+
+document.getElementById("vision-title").innerText = t.visionTitle;
+document.getElementById("vision-text").innerText = t.visionText;
+
+document.getElementById("mission-title").innerText = t.missionTitle;
+document.getElementById("mission-text").innerText = t.missionText;
+
+document.getElementById("back-btn").innerText = t.back;
+
+// اتجاه الصفحة
+if(lang === "ar"){
+  document.body.dir = "rtl";
+}else{
+  document.body.dir = "ltr";
+}
+
+</script>
+
+</body>
+</html>

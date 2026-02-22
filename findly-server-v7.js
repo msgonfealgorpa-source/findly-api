@@ -21,7 +21,12 @@ const AFFILIATE = {
     source: "AliExpress"
 };
 /* ================= BASIC MIDDLEWARE ================= */
-app.use(cors({ origin: "*", methods: ["GET", "POST", "OPTIONS"], allowedHeaders: ["Content-Type", "Authorization"] }));
+app.use(cors({
+    origin: true,
+    credentials: true,
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+}));
 app.options("*", cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(cookieParser());
@@ -105,10 +110,11 @@ async function authenticateUser(req, res) {
 
         // نحفظه في كوكي لمدة سنة
         res.cookie('uid', uid, {
-            httpOnly: true,
-            sameSite: 'Lax',
-            maxAge: 365 * 24 * 60 * 60 * 1000
-        });
+    httpOnly: true,
+    sameSite: 'None',
+    secure: true,
+    maxAge: 365 * 24 * 60 * 60 * 1000
+});
     }
 
     return { uid };

@@ -150,29 +150,33 @@ button:hover{
 </div><script>
 
 function goApp(){
-  window.location.href = "https://findly.source.github.io/";
+  window.location.href = "https://msgonfealgorpa-source.github.io/findly-api/";
 }
 
-async function startUpgrade(plan){
+async function startUpgrade(plan) {
+  try {
+    const res = await fetch('https://findly-api-production.up.railway.app/create-payment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        uid: localStorage.getItem('findly_uid'),
+        plan: plan
+      })
+    });
 
-  const res = await fetch('https://findly-api-production.up.railway.app/upgrade',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({
-      uid: localStorage.getItem('findly_uid'),
-      plan: plan
-    })
-  });
+    const data = await res.json();
 
-  const data = await res.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      alert('فشل إنشاء رابط الدفع');
+    }
 
-  if(data.url){
-    window.location.href = data.url;
-  }else{
-    alert("فشل إنشاء رابط الدفع");
+  } catch (e) {
+    alert('خطأ في الاتصال بالسيرفر');
   }
-
 }
 
-</script></body>
+<script>
+</body>
 </html>

@@ -2005,25 +2005,22 @@ function showSubscriptionExpired() {
    const resultsDiv = document.getElementById('results');
 
    resultsDiv.innerHTML = `
-      <div style="text-align:center;padding:30px">
-         <h2 style="color:#ff4d4f">🚫 انتهت خطتك المجانية</h2>
+    <div style="text-align:center;padding:30px">
+        <h2 style="color:#ff4d4f">❌ انتهت خطتك المجانية</h2>
 
-         <p style="margin-top:10px;color:#aaa">
-            لقد استهلكت جميع عمليات البحث المجانية الخاصة بك
-         </p>
+        <p style="margin-top:10px;color:#aaa">
+        لقد استهلكت جميع عمليات البحث المجانية الخاصة بك
+        </p>
 
-         <p style="margin-top:5px;color:#aaa">
-            قم بتفعيل الاشتراك للاستمرار في استخدام البحث الذكي
-         </p>
+        <p style="margin-top:5px;color:#aaa">
+        قم بتفعيل الاشتراك للاستمرار في استخدام البحث الذكي
+        </p>
 
-         <button onclick="startUpgrade()">
-            style="margin-top:20px;background:#7c5cff;color:#fff;
-            border:none;padding:12px 20px;border-radius:10px;font-size:16px">
-            🚀 تفعيل الاشتراك الآن
-         </button>
-      </div>
-   `;
-}
+        <button onclick="startUpgrade()" class="upgrade-btn">
+        🚀 تفعيل الاشتراك الآن
+        </button>
+    </div>
+`;
 
 
 async function startUpgrade() {

@@ -2025,13 +2025,16 @@ function showSubscriptionExpired() {
    `;
 }
 
+
 async function startUpgrade() {
     try {
-        const res = await fetch('/create-payment', {
+        const res = await fetch('https://findly-api-production.up.railway.app/create-payment', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
-            body: JSON.stringify({ uid: localStorage.getItem('findly_uid') })
+            body: JSON.stringify({
+                uid: localStorage.getItem('findly_uid')
+            })
         });
 
         const data = await res.json();
@@ -2046,7 +2049,6 @@ async function startUpgrade() {
         alert('خطأ في الاتصال بالسيرفر');
     }
 }
-
 
     
 window.saveSet = function() {

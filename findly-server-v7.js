@@ -511,9 +511,10 @@ app.post('/create-payment', async (req, res) => {
             pay_currency: 'usdttrc20',
             order_id: uid,
             order_description: 'Findly Pro',
-            success_url: 'https://findly.source.github.io/?upgrade=success',
-            cancel_url: 'https://findly.source.github.io/?upgrade=cancel'
-        }, {
+            success_url: 'https://msgonfealgorpa-source.github.io/findly-api/upgrade-success.html',
+cancel_url: 'https://msgonfealgorpa-source.github.io/findly-api/upgrade-cancel.html'
+        }, 
+                                          
             headers: { 'x-api-key': NOWPAYMENTS_API_KEY, 'Content-Type': 'application/json' },
             timeout: 10000
         });

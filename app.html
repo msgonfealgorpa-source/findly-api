@@ -1875,16 +1875,16 @@ async function runSearch() {
     const query = document.getElementById('s-input').value.trim();
     if (!query) return;
 
-    // ⛔ منع البحث لو الطاقة صفر قبل الإرسال
-    if (typeof energy === 'number' && energy <= 0) {
-        showToast('⚠️ انتهت عمليات البحث المجانية، يرجى الترقية');
-        showUpgradeModal();
-        return;
-    }
-
     const status = document.getElementById('status');
     const resultsDiv = document.getElementById('results');
     const d = dict[lang].ui;
+
+    // 🔴 منع البحث لو الطاقة صفر
+    if (typeof energy === 'number' && energy <= 0) {
+        showSubscriptionExpired();
+        showToast('🚫 انتهت خطتك المجانية');
+        return;
+    }
 
     status.style.display = 'block';
     status.textContent = d.slow;
@@ -1896,59 +1896,64 @@ async function runSearch() {
 
         console.log('SERVER RESPONSE:', res.status, data);
 
-        
-// ================== 🚫 HANDLE LIMIT FROM SERVER ==================
+        // ================== 🚫 فحص انتهاء الخطة ==================
+        const isLimitReached =
+            res.status === 429 ||
+            data?.code === "FREE_LIMIT_REACHED" ||
+            data?.error === "ENERGY_EMPTY" ||
+            data?.message === "LIMIT_REACHED";
 
-// ========= HANDLE LIMIT FROM SERVER =========
-const isLimitReached =
-    res.status === 429 ||
-    data?.code === "FREE_LIMIT_REACHED" ||
-    data?.error === "ENERGY_EMPTY" ||
-    data?.message === "LIMIT_REACHED";
+        if (isLimitReached) {
+            status.style.display = 'none';
 
-if (isLimitReached) {
-    status.style.display = 'none';
+            energy = 0;
+            maxEnergy = data?.energy?.limit || 3;
 
-    energy = 0;
-    maxEnergy = data?.energy?.limit || 3;
+            updateEnergyUI(0, maxEnergy);
 
-    updateEnergyUI(0, maxEnergy);
+            // 🔥 عرض صفحة انتهاء الاشتراك
+            showSubscriptionExpired();
 
-    showToast('⚠️ انتهت جميع عمليات البحث المجانية، يرجى الترقية');
-    showUpgradeModal();
+            showToast('🚫 انتهت جميع عمليات البحث المجانية');
 
-    return; // ⛔ مهم جدا
-}
+            return;
+        }
 
-// ========= UPDATE ENERGY FROM SERVER =========
-if (data.energy) {
-    energy = data.energy.left;
-    maxEnergy = data.energy.limit || 3;
-    updateEnergyUI(energy, maxEnergy);
-}
+        // ================== ⚡ تحديث الطاقة ==================
+        if (data.energy) {
+            energy = data.energy.left;
+            maxEnergy = data.energy.limit || 3;
+            updateEnergyUI(energy, maxEnergy);
+        }
 
-status.style.display = 'none';
+        status.style.display = 'none';
 
-// ========= NO RESULTS =========
-if (!data.results || data.results.length === 0) {
-    resultsDiv.innerHTML = `<p style="color:gray;text-align:center">${d.noResults}</p>`;
-    return;
-}
+        // ================== 📭 لا توجد نتائج ==================
+        if (!data.results || data.results.length === 0) {
+            resultsDiv.innerHTML = `
+                <p style="color:gray;text-align:center;margin-top:20px">
+                    ${d.noResults}
+                </p>
+            `;
+            return;
+        }
 
-// ========= SHOW PERSONALITY =========
-if (data.personality) showPersonality(data.personality);
+        // ================== 🧠 عرض الشخصية ==================
+        if (data.personality) showPersonality(data.personality);
 
-// ========= RENDER RESULTS =========
-resultsDiv.innerHTML = data.results.map((p, i) => {
-    return renderProductCard(p, dict[lang], i);
-}).join('');
+        // ================== 🛍️ عرض النتائج ==================
+        resultsDiv.innerHTML = data.results.map((p, i) => {
+            return renderProductCard(p, dict[lang], i);
+        }).join('');
+
     } catch (e) {
-        console.error(e);
+        console.error('Search Error:', e);
         status.textContent = d.errorFetching;
+        status.style.color = 'red';
     }
 }
-window.runSearch = runSearch;
 
+window.runSearch = runSearch;
 // ===== OTHER FUNCTIONS =====
 window.closeAnalysisModal = function() { document.getElementById('analysis-modal').style.display = 'none'; };
 
@@ -2018,6 +2023,30 @@ window.openUpgrade = async function() {
   }
 };
 
+function showSubscriptionExpired() {
+   const resultsDiv = document.getElementById('results');
+
+   resultsDiv.innerHTML = `
+      <div style="text-align:center;padding:30px">
+         <h2 style="color:#ff4d4f">🚫 انتهت خطتك المجانية</h2>
+
+         <p style="margin-top:10px;color:#aaa">
+            لقد استهلكت جميع عمليات البحث المجانية الخاصة بك
+         </p>
+
+         <p style="margin-top:5px;color:#aaa">
+            قم بتفعيل الاشتراك للاستمرار في استخدام البحث الذكي
+         </p>
+
+         <button onclick="openUpgrade()" 
+            style="margin-top:20px;background:#7c5cff;color:#fff;
+            border:none;padding:12px 20px;border-radius:10px;font-size:16px">
+            🚀 تفعيل الاشتراك الآن
+         </button>
+      </div>
+   `;
+}
+    
 window.saveSet = function() {
     localStorage.setItem('fn', document.getElementById('in-name').value);
     localStorage.setItem('user_budget', document.getElementById('in-budget').value);

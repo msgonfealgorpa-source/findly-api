@@ -545,6 +545,38 @@ app.post('/nowpayments/webhook', express.raw({ type: 'application/json' }), asyn
     }
 });
 
+// ================= SUBSCRIPTION STATUS =================
+app.get('/subscription/status', async (req, res) => {
+    try {
+        const uid = req.query.uid;
+
+        if (!uid) {
+            return res.json({ active: false });
+        }
+
+        if (!dbConnected) {
+            return res.json({ active: false });
+        }
+
+        const energy = await Energy.findOne({ uid });
+
+        if (!energy || !energy.proExpiresAt) {
+            return res.json({ active: false });
+        }
+
+        const now = new Date();
+        const active = energy.proExpiresAt > now;
+
+        res.json({
+            active,
+            expiresAt: energy.proExpiresAt
+        });
+
+    } catch (e) {
+        res.json({ active: false });
+    }
+});
+
 // Redirect
 app.get('/go', (req, res) => {
     const { url } = req.query;

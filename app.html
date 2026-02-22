@@ -1891,7 +1891,9 @@ async function runSearch() {
     resultsDiv.innerHTML = '';
 
     try {
-        const res = await fetch(`${API}/search?q=${encodeURIComponent(query)}&lang=${lang}`);
+        const res = await fetch(`${API}/search?q=${encodeURIComponent(query)}&lang=${lang}`, {
+    credentials: 'include'
+});
         const data = await res.json();
 
         console.log('SERVER RESPONSE:', res.status, data);

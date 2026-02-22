@@ -881,6 +881,44 @@
             .score-grid { grid-template-columns: repeat(2, 1fr); }
             .intel-grid { grid-template-columns: 1fr; }
         }
+   
+
+
+        .footer-links{
+  margin-top:40px;
+  text-align:center;
+  font-size:14px;
+  opacity:0.85;
+}
+
+.footer-links a{
+  color:#22d3ee;
+  text-decoration:none;
+  margin:0 10px;
+  transition:0.2s;
+  position:relative;
+}
+
+.footer-links a::after{
+  content:'';
+  position:absolute;
+  bottom:-4px;
+  left:0;
+  width:0%;
+  height:2px;
+  background:#22d3ee;
+  transition:0.3s;
+}
+
+.footer-links a:hover::after{
+  width:100%;
+}
+
+.footer-links a:hover{
+  color:#38bdf8;
+}
+        
+    
     </style>
 </head>
 <body>
@@ -985,7 +1023,6 @@
         </div>
     </div>
 </div>
-
 <header>
     <div class="logo-area">
         <div class="logo">Findly <i class="fa-solid fa-wand-magic-sparkles"></i></div>
@@ -2169,6 +2206,39 @@ document.addEventListener("DOMContentLoaded", function() {
     if (goToSignup) goToSignup.addEventListener('click', switchToSignup);
     if (goToLogin) goToLogin.addEventListener('click', switchToLogin);
 });
-</script>
+
+
+    </script>
+<div class="footer-links">
+
+  <a href="https://msgonfealgorpa-source.github.io/findly-api/terms.html" target="_blank">
+    شروط الاستخدام
+  </a>
+
+  |
+
+  <a href="https://msgonfealgorpa-source.github.io/findly-api/privacy.html" target="_blank">
+    سياسة الخصوصية
+  </a>
+
+  |
+
+  <a href="https://msgonfealgorpa-source.github.io/findly-api/about.html" target="_blank">
+    من نحن
+  </a>
+
+  |
+
+  <a href="https://msgonfealgorpa-source.github.io/findly-api/ai-transparency.html" target="_blank">
+    شفافية الذكاء الاصطناعي
+  </a>
+
+  |
+
+  <a href="https://msgonfealgorpa-source.github.io/findly-api/dmca.html" target="_blank">
+    DMCA
+  </a>
+
+</div>
 </body>
 </html>

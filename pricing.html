@@ -1,0 +1,178 @@
+<!DOCTYPE html><html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>خطط Findly</title><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet"><style>
+
+body{
+  margin:0;
+  font-family:'Cairo',sans-serif;
+  background: radial-gradient(circle at top,#020617,#000);
+  color:white;
+}
+
+/* HEADER */
+.header{
+  text-align:center;
+  padding:40px 20px;
+}
+
+.header h1{
+  font-size:42px;
+  color:#38bdf8;
+}
+
+.header p{
+  color:#aaa;
+}
+
+/* GRID */
+.pricing{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:25px;
+  padding:40px;
+}
+
+/* CARD */
+.card{
+  background:#020617;
+  border:1px solid #1e293b;
+  border-radius:20px;
+  padding:30px;
+  text-align:center;
+  transition:0.3s;
+  position:relative;
+}
+
+.card:hover{
+  transform:translateY(-10px) scale(1.02);
+  box-shadow:0 0 40px rgba(56,189,248,0.2);
+}
+
+/* POPULAR BADGE */
+.popular{
+  position:absolute;
+  top:-12px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#22c55e;
+  color:black;
+  padding:5px 15px;
+  border-radius:20px;
+  font-size:14px;
+}
+
+/* PRICE */
+.price{
+  font-size:40px;
+  margin:20px 0;
+  color:#22c55e;
+}
+
+/* FEATURES */
+ul{
+  list-style:none;
+  padding:0;
+  text-align:right;
+  margin-top:20px;
+}
+
+ul li{
+  padding:10px 0;
+  border-bottom:1px solid #1e293b;
+}
+
+/* BUTTON */
+button{
+  margin-top:25px;
+  width:100%;
+  padding:15px;
+  border:none;
+  border-radius:12px;
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
+  background:#38bdf8;
+  color:black;
+  transition:0.2s;
+}
+
+button:hover{
+  opacity:0.9;
+}
+
+.footer{
+  text-align:center;
+  padding:30px;
+  color:#555;
+}
+
+</style></head><body><div class="header">
+  <h1>💎 اختر خطتك</h1>
+  <p>ابدأ مجانًا ثم قم بالترقية للوصول الكامل</p>
+</div><div class="pricing">  <!-- BASIC -->  <div class="card">
+    <h2>🥉 Basic</h2>
+    <div class="price">مجاني</div><ul>
+  <li>5 عمليات بحث يومياً</li>
+  <li>نتائج محدودة</li>
+  <li>سرعة عادية</li>
+  <li>بدون تحليل متقدم</li>
+</ul>
+
+<button onclick="goApp()">ابدأ الآن</button>
+
+  </div>  <!-- PRO -->  <div class="card">
+    <div class="popular">الأكثر استخداماً</div>
+    <h2>🚀 Pro</h2>
+    <div class="price">$5</div><ul>
+  <li>بحث غير محدود</li>
+  <li>تحليل ذكي كامل</li>
+  <li>سرعة عالية</li>
+  <li>دعم أولوية</li>
+</ul>
+
+<button onclick="startUpgrade('pro')">اشترك الآن</button>
+
+  </div>  <!-- ULTRA -->  <div class="card">
+    <h2>👑 Ultra</h2>
+    <div class="price">$10</div><ul>
+  <li>كل مميزات Pro</li>
+  <li>تحليل Deep AI</li>
+  <li>تقارير احترافية</li>
+  <li>ميزات حصرية مستقبلية</li>
+</ul>
+
+<button onclick="startUpgrade('ultra')">اشترك الآن</button>
+
+  </div></div><div class="footer">
+  Findly © 2026
+</div><script>
+
+function goApp(){
+  window.location.href = "https://findly.source.github.io/";
+}
+
+async function startUpgrade(plan){
+
+  const res = await fetch('https://findly-api-production.up.railway.app/upgrade',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      uid: localStorage.getItem('findly_uid'),
+      plan: plan
+    })
+  });
+
+  const data = await res.json();
+
+  if(data.url){
+    window.location.href = data.url;
+  }else{
+    alert("فشل إنشاء رابط الدفع");
+  }
+
+}
+
+</script></body>
+</html>

@@ -1,9 +1,13 @@
-<!DOCTYPE html><html lang="ar">
+<!DOCTYPE html>
+<html lang="ar">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>خطط Findly</title><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet"><style>
+<title>خطط Findly</title>
 
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
 body{
   margin:0;
   font-family:'Cairo',sans-serif;
@@ -11,7 +15,6 @@ body{
   color:white;
 }
 
-/* HEADER */
 .header{
   text-align:center;
   padding:40px 20px;
@@ -26,7 +29,6 @@ body{
   color:#aaa;
 }
 
-/* GRID */
 .pricing{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
@@ -34,7 +36,6 @@ body{
   padding:40px;
 }
 
-/* CARD */
 .card{
   background:#020617;
   border:1px solid #1e293b;
@@ -50,7 +51,6 @@ body{
   box-shadow:0 0 40px rgba(56,189,248,0.2);
 }
 
-/* POPULAR BADGE */
 .popular{
   position:absolute;
   top:-12px;
@@ -63,14 +63,12 @@ body{
   font-size:14px;
 }
 
-/* PRICE */
 .price{
   font-size:40px;
   margin:20px 0;
   color:#22c55e;
 }
 
-/* FEATURES */
 ul{
   list-style:none;
   padding:0;
@@ -83,7 +81,6 @@ ul li{
   border-bottom:1px solid #1e293b;
 }
 
-/* BUTTON */
 button{
   margin-top:25px;
   width:100%;
@@ -107,47 +104,65 @@ button:hover{
   padding:30px;
   color:#555;
 }
+</style>
+</head>
 
-</style></head><body><div class="header">
+<body>
+
+<div class="header">
   <h1>💎 اختر خطتك</h1>
   <p>ابدأ مجانًا ثم قم بالترقية للوصول الكامل</p>
-</div><div class="pricing">  <!-- BASIC -->  <div class="card">
+</div>
+
+<div class="pricing">
+
+  <!-- BASIC -->
+  <div class="card">
     <h2>🥉 Basic</h2>
-    <div class="price">مجاني</div><ul>
-  <li>5 عمليات بحث يومياً</li>
-  <li>نتائج محدودة</li>
-  <li>سرعة عادية</li>
-  <li>بدون تحليل متقدم</li>
-</ul>
+    <div class="price">مجاني</div>
+    <ul>
+      <li>5 عمليات بحث يومياً</li>
+      <li>نتائج محدودة</li>
+      <li>سرعة عادية</li>
+      <li>بدون تحليل متقدم</li>
+    </ul>
+    <button onclick="goApp()">ابدأ الآن</button>
+  </div>
 
-<button onclick="goApp()">ابدأ الآن</button>
-
-  </div>  <!-- PRO -->  <div class="card">
+  <!-- PRO -->
+  <div class="card">
     <div class="popular">الأكثر استخداماً</div>
     <h2>🚀 Pro</h2>
-    <div class="price">$5</div><ul>
-  <li>بحث غير محدود</li>
-  <li>تحليل ذكي كامل</li>
-  <li>سرعة عالية</li>
-  <li>دعم أولوية</li>
-</ul>
+    <div class="price">$5</div>
+    <ul>
+      <li>بحث غير محدود</li>
+      <li>تحليل ذكي كامل</li>
+      <li>سرعة عالية</li>
+      <li>دعم أولوية</li>
+    </ul>
+    <button onclick="startUpgrade('pro')">اشترك الآن</button>
+  </div>
 
-<button onclick="startUpgrade('pro')">اشترك الآن</button>
-
-  </div>  <!-- ULTRA -->  <div class="card">
+  <!-- ULTRA -->
+  <div class="card">
     <h2>👑 Ultra</h2>
-    <div class="price">$10</div><ul>
-  <li>كل مميزات Pro</li>
-  <li>تحليل Deep AI</li>
-  <li>تقارير احترافية</li>
-  <li>ميزات حصرية مستقبلية</li>
-</ul>
+    <div class="price">$10</div>
+    <ul>
+      <li>كل مميزات Pro</li>
+      <li>تحليل Deep AI</li>
+      <li>تقارير احترافية</li>
+      <li>ميزات حصرية مستقبلية</li>
+    </ul>
+    <button onclick="startUpgrade('ultra')">اشترك الآن</button>
+  </div>
 
-<button onclick="startUpgrade('ultra')">اشترك الآن</button>
+</div>
 
-  </div></div><div class="footer">
+<div class="footer">
   Findly © 2026
-</div><script>
+</div>
+
+<script>
 
 function goApp(){
   window.location.href = "https://msgonfealgorpa-source.github.io/findly-api/";
@@ -177,6 +192,7 @@ async function startUpgrade(plan) {
   }
 }
 
-<script>
+</script>
+
 </body>
 </html>

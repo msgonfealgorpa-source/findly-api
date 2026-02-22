@@ -506,18 +506,20 @@ app.post('/create-payment', async (req, res) => {
 
     try {
         const response = await axios.post('https://api.nowpayments.io/v1/invoice', {
-            price_amount: 10,
-            price_currency: 'usd',
-            pay_currency: 'usdttrc20',
-            order_id: uid,
-            order_description: 'Findly Pro',
-            success_url: 'https://msgonfealgorpa-source.github.io/findly-api/upgrade-success.html',
-cancel_url: 'https://msgonfealgorpa-source.github.io/findly-api/upgrade-cancel.html'
-        }, 
-                                          
-            headers: { 'x-api-key': NOWPAYMENTS_API_KEY, 'Content-Type': 'application/json' },
-            timeout: 10000
-        });
+    price_amount: 10,
+    price_currency: 'usd',
+    pay_currency: 'usdttrc20',
+    order_id: uid,
+    order_description: 'Findly Pro',
+    success_url: 'https://msgonfealgorpa-source.github.io/findly-api/upgrade-success.html',
+    cancel_url: 'https://msgonfealgorpa-source.github.io/findly-api/upgrade-cancel.html'
+}, {
+    headers: {
+        'x-api-key': NOWPAYMENTS_API_KEY,
+        'Content-Type': 'application/json'
+    },
+    timeout: 10000
+});
 
         res.json({ success: true, url: response.data.invoice_url });
     } catch (e) {

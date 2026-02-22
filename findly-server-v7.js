@@ -382,6 +382,16 @@ const finalResults = results.map(p => ({
         const now = new Date();
         const isSubscribed = energy.proExpiresAt && energy.proExpiresAt > now;
 
+        // ✅ زيادة العداد بعد كل عملية بحث
+if (dbConnected && !isSubscribed) {
+    await Energy.updateOne(
+        { uid: auth.uid },
+        { $inc: { searchesUsed: 1 } }
+    );
+
+    // حدث القيمة المحلية أيضاً
+    energy.searchesUsed += 1;
+}
         const response = {
             success: true,
             query: q,

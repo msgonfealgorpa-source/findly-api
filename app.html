@@ -1928,15 +1928,15 @@ async function runSearch() {
 
         status.style.display = 'none';
 
-        // ================== 📭 لا توجد نتائج ==================
-        if (!data.results || data.results.length === 0) {
-            resultsDiv.innerHTML = `
-                <p style="color:gray;text-align:center;margin-top:20px">
-                    ${d.noResults}
-                </p>
-            `;
-            return;
-        }
+        // 📭 لا توجد نتائج (لكن فقط لو الطاقة ليست صفر)
+if ((!data.results || data.results.length === 0) && energy > 0) {
+    resultsDiv.innerHTML = `
+        <p style="color:gray;text-align:center;margin-top:20px">
+            ${d.noResults}
+        </p>
+    `;
+    return;
+}
 
         // ================== 🧠 عرض الشخصية ==================
         if (data.personality) showPersonality(data.personality);

@@ -1996,42 +1996,11 @@ window.copyInvite = function() {
     navigator.clipboard.writeText(link).then(function() { alert(inviteDict.copied); }).catch(function() { alert(inviteDict.copyFailed + link); });
 };
 
-window.openUpgrade = async function() {
 
-  try {
-    const uid = localStorage.getItem('findly_uid');
-
-    if (!uid) {
-      showToast("⚠️ يجب تسجيل الدخول أولاً");
-      return;
+    function getCookie(name) {
+    const v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
+    return v ? v[2] : null;
     }
-
-    showToast("⏳ جاري تحويلك للدفع...");
-
-    const res = await fetch(API + '/create-payment', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ uid })
-    });
-
-    const data = await res.json();
-
-    if (!data.success || !data.url) {
-      showToast("❌ فشل إنشاء رابط الدفع");
-      return;
-    }
-
-    // تحويل المستخدم مباشرة لصفحة الدفع
-    window.location.href = data.url;
-
-  } catch (e) {
-    console.error(e);
-    showToast("❌ خطأ في الاتصال بالسيرفر");
-  }
-};
-
 function showSubscriptionExpired() {
    const resultsDiv = document.getElementById('results');
 
@@ -2047,7 +2016,7 @@ function showSubscriptionExpired() {
             قم بتفعيل الاشتراك للاستمرار في استخدام البحث الذكي
          </p>
 
-         <button onclick="openUpgrade()" 
+         <button onclick="startUpgrade()">
             style="margin-top:20px;background:#7c5cff;color:#fff;
             border:none;padding:12px 20px;border-radius:10px;font-size:16px">
             🚀 تفعيل الاشتراك الآن
@@ -2055,6 +2024,30 @@ function showSubscriptionExpired() {
       </div>
    `;
 }
+
+async function startUpgrade() {
+    try {
+        const res = await fetch('/create-payment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ uid: localStorage.getItem('findly_uid') })
+        });
+
+        const data = await res.json();
+
+        if (data.url) {
+            window.location.href = data.url;
+        } else {
+            alert('فشل إنشاء رابط الدفع');
+        }
+
+    } catch (e) {
+        alert('خطأ في الاتصال بالسيرفر');
+    }
+}
+
+
     
 window.saveSet = function() {
     localStorage.setItem('fn', document.getElementById('in-name').value);
